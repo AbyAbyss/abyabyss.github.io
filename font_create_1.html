@@ -1,0 +1,148 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+     <title>Handwritten Font Creator (Final Fix)</title>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js"></script>
+     <style>
+         body { font-family: Arial; }
+         canvas { border: 1px solid black; touch-action: none; background: white; }
+         button { margin: 5px; }
+         #saved-letters { font-family: monospace; }
+     </style>
+ </head>
+ <body>
+     <h2>Draw Character: <span id="current-char">A</span></h2>
+     <canvas id="draw-area" width="300" height="300"></canvas><br>
+     <button onclick="clearCanvas()">Clear</button>
+     <button onclick="saveGlyph()">Save Glyph & Next</button>
+     <button onclick="downloadFont()">Download Font</button>
+     <p id="progress"></p>
+     <p><strong>Saved Characters:</strong> <span id="saved-letters">[empty]</span></p>
+ 
+     <script>
+         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+         let currentCharIndex = 0;
+         let currentChar = characters[currentCharIndex];
+         document.getElementById('current-char').innerText = currentChar;
+ 
+         const canvas = document.getElementById('draw-area');
+         const ctx = canvas.getContext('2d');
+         ctx.lineWidth = 8;
+         ctx.lineCap = "round";
+ 
+         let drawing = false;
+         let glyphs = [];
+         let savedChars = [];
+ 
+         // Add a .notdef placeholder glyph
+         glyphs.push(new opentype.Glyph({
+             name: '.notdef',
+             unicode: 0,
+             advanceWidth: 600,
+             path: new opentype.Path()
+         }));
+ 
+         canvas.addEventListener('mousedown', (e) => {
+             drawing = true;
+             ctx.beginPath();
+             ctx.moveTo(e.offsetX, e.offsetY);
+         });
+ 
+         canvas.addEventListener('mouseup', () => { drawing = false; });
+ 
+         canvas.addEventListener('mousemove', (e) => {
+             if (!drawing) return;
+             ctx.lineTo(e.offsetX, e.offsetY);
+             ctx.stroke();
+         });
+ 
+         function clearCanvas() {
+             ctx.fillStyle = 'white';
+             ctx.fillRect(0, 0, canvas.width, canvas.height);
+         }
+ 
+         function saveGlyph() {
+             const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+             const path = new opentype.Path();
+ 
+             const scaleX = 1000 / canvas.width;
+             const scaleY = 1000 / canvas.height;
+             let pixelCount = 0;
+ 
+             for (let y = 0; y < canvas.height; y++) {
+                 for (let x = 0; x < canvas.width; x++) {
+                     const index = (y * canvas.width + x) * 4;
+                     const r = imgData.data[index];
+                     const g = imgData.data[index + 1];
+                     const b = imgData.data[index + 2];
+                     const alpha = imgData.data[index + 3];
+ 
+                     if (r < 200 && g < 200 && b < 200 && alpha > 0) {
+                         path.moveTo(x * scaleX, (canvas.height - y) * scaleY);
+                         path.lineTo(x * scaleX + 1, (canvas.height - y) * scaleY);
+                         pixelCount++;
+                     }
+                 }
+             }
+ 
+             if (pixelCount === 0) {
+                 alert('Draw something before saving.');
+                 return;
+             }
+ 
+             const glyph = new opentype.Glyph({
+                 name: currentChar,
+                 unicode: currentChar.charCodeAt(0),
+                 advanceWidth: 600,
+                 path: path
+             });
+ 
+             glyphs.push(glyph);
+             savedChars.push(currentChar);
+             updateSavedLetters();
+ 
+             clearCanvas();
+             document.getElementById('progress').innerText = `Saved character: ${currentChar}`;
+ 
+             if (currentCharIndex < characters.length - 1) {
+                 currentCharIndex++;
+                 currentChar = characters[currentCharIndex];
+                 document.getElementById('current-char').innerText = currentChar;
+             } else {
+                 alert('All characters completed!');
+             }
+         }
+ 
+         function updateSavedLetters() {
+             document.getElementById('saved-letters').innerText = savedChars.join(' ');
+         }
+ 
+         function downloadFont() {
+             if (glyphs.length <= 1) { // Only .notdef glyph exists
+                 alert('No characters saved yet.');
+                 return;
+             }
+ 
+             const font = new opentype.Font({
+                 familyName: 'MyHandwrittenFont',
+                 styleName: 'Regular',
+                 unitsPerEm: 1000,
+                 ascender: 800,
+                 descender: -200,
+                 glyphs: glyphs
+             });
+ 
+             const arrayBuffer = font.toArrayBuffer();
+             const blob = new Blob([arrayBuffer], { type: 'font/ttf' });
+             const url = URL.createObjectURL(blob);
+ 
+             const a = document.createElement('a');
+             a.href = url;
+             a.download = 'MyHandwrittenFont.ttf';
+             a.click();
+         }
+ 
+         clearCanvas();
+     </script>
+ </body>
+ </html>
