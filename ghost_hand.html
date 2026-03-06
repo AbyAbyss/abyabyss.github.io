@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hand Canvas - Gesture Drawing App</title>
+    
+    <!-- Google Fonts for UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- MediaPipe Libraries via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <style>
+        :root {
+            --bg-color: #050505;
+            --accent-cyan: #00f5ff;
+            --accent-magenta: #ff00aa;
+            --accent-gold: #ffd700;
+            --ui-bg: rgba(5, 5, 5, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            font-family: 'Space Mono', monospace;
+            cursor: none; /* Hide cursor as requested */
+            color: white;
+        }
+
+        /* Canvas Stacking & Mirroring */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            /* Mirroring so hand movement feels natural */
+            transform: scaleX(-1);
+        }
+
+        #drawingCanvas { z-index: 1; }
+        #overlayCanvas { z-index: 2; pointer-events: none; }
+
+        /* Floating HUD */
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            background: var(--ui-bg);
+            border: 1px solid var(--accent-cyan);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.2);
+            backdrop-filter: blur(4px);
+            min-width: 240px;
+        }
+
+        .hud-title {
+            font-weight: 700;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            border-bottom: 1px dashed var(--accent-cyan);
+            padding-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hud-row {
+            margin: 8px 0;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #modeLabel {
+            font-weight: bold;
+            text-shadow: 0 0 5px currentColor;
+            transition: color 0.3s;
+        }
+
+        .colors {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-swatch.active {
+            border-color: white;
+            transform: scale(1.2);
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        #clearBtn {
+            margin-top: 15px;
+            width: 100%;
+            background: transparent;
+            border: 1px solid #ff4444;
+            color: #ff4444;
+            padding: 8px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #clearBtn:hover {
+            background: rgba(255, 68, 68, 0.2);
+            box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
+        }
+
+        .action-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        #toast {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-cyan);
+            color: #000;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 100;
+            pointer-events: none;
+            box-shadow: 0 0 15px var(--accent-cyan);
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 5px;
+            font-family: inherit;
+            font-size: 0.8em;
+            cursor: pointer;
+            flex: 1;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .action-btn:hover {
+            background: rgba(0, 245, 255, 0.2);
+        }
+
+        /* Webcam PIP */
+        #webcamPip {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 160px;
+            height: 120px;
+            border: 2px solid var(--accent-cyan);
+            border-radius: 8px;
+            z-index: 10;
+            box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+            overflow: hidden;
+            background: #000;
+        }
+
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Mirror PIP */
+            opacity: 0.7;
+        }
+
+        /* Tutorial Overlay */
+        #tutorialOverlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.5s ease;
+        }
+
+        .tut-card {
+            border: 1px solid var(--accent-cyan);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.2);
+            max-width: 500px;
+            text-align: left;
+        }
+
+        .tut-card h2 { margin-top: 0; color: var(--accent-cyan); }
+        .tut-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+            font-size: 1em;
+        }
+        .tut-icon { font-size: 1.5em; width: 40px; text-align: center; }
+
+        .loader {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--accent-cyan);
+            z-index: 5;
+            font-size: 1.5rem;
+            animation: pulse 1.5s infinite;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; text-shadow: 0 0 20px var(--accent-cyan); }
+            100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hidden Video Source -->
+    <div id="webcamPip">
+        <video id="videoElement" autoplay playsinline></video>
+    </div>
+
+    <!-- Canvases -->
+    <canvas id="drawingCanvas"></canvas>
+    <canvas id="overlayCanvas"></canvas>
+
+    <div class="loader" id="loader">SEARCHING FOR HAND...</div>
+
+    <div id="toast">Action</div>
+
+    <!-- UI Overlay -->
+    <div id="hud">
+        <div class="hud-title">✋ HAND CANVAS</div>
+        <div class="hud-row">
+            <span>MODE:</span>
+            <span id="modeLabel" style="color: var(--accent-cyan)">[ IDLE ]</span>
+        </div>
+        <div class="hud-row">
+            <span>STROKES:</span>
+            <span id="strokeCount">0</span>
+        </div>
+        <div class="hud-row">
+            <span>ZOOM:</span>
+            <span id="zoomLabel" style="color: var(--accent-cyan)">100%</span>
+        </div>
+        <div class="hud-row">
+            <span>SIZE:</span>
+            <span id="thicknessLabel" style="color: var(--accent-cyan)">3</span>
+        </div>
+        <div class="hud-row" style="gap: 5px;">
+            <button id="zoomOutBtn" class="action-btn">-</button>
+            <button id="resetZoomBtn" class="action-btn">RESET</button>
+            <button id="zoomInBtn" class="action-btn">+</button>
+        </div>
+        <div class="action-row">
+            <button id="undoBtn" class="action-btn">UNDO</button>
+            <button id="saveBtn" class="action-btn">SAVE PNG</button>
+        </div>
+        <div class="colors">
+            <div class="color-swatch active" style="background: #e0f7ff; color: #e0f7ff;" data-color="#e0f7ff"></div>
+            <div class="color-swatch" style="background: #00f5ff; color: #00f5ff;" data-color="#00f5ff"></div>
+            <div class="color-swatch" style="background: #ff00aa; color: #ff00aa;" data-color="#ff00aa"></div>
+            <div class="color-swatch" style="background: #ffd700; color: #ffd700;" data-color="#ffd700"></div>
+            <div class="color-swatch" style="background: #00ff00; color: #00ff00;" data-color="#00ff00"></div>
+            <div class="color-swatch" style="background: #ff3333; color: #ff3333;" data-color="#ff3333"></div>
+        </div>
+        <button id="clearBtn">[ CLEAR ALL ]</button>
+    </div>
+
+    <!-- Tutorial -->
+    <div id="tutorialOverlay">
+        <div class="tut-card">
+            <h2>Gestures & Controls</h2>
+            <div class="tut-row"><div class="tut-icon">☝️</div><span><strong>Index Only:</strong> Draw</span></div>
+            <div class="tut-row"><div class="tut-icon">✌️</div><span><strong>Index + Middle:</strong> Erase</span></div>
+            <div class="tut-row"><div class="tut-icon">🖖</div><span><strong>3 Fingers:</strong> Adjust Brush Size (Move Y)</span></div>
+            <div class="tut-row"><div class="tut-icon">🖐️</div><span><strong>Open Palm:</strong> Pan Canvas</span></div>
+            <div class="tut-row"><div class="tut-icon">🤘</div><span><strong>Horns:</strong> Cycle Color</span></div>
+            <div class="tut-row"><div class="tut-icon">👍</div><span><strong>Thumb Out:</strong> Undo</span></div>
+            <div class="tut-row"><div class="tut-icon">🤏</div><span><strong>Pinch:</strong> Select & Move</span></div>
+            <div class="tut-row"><div class="tut-icon">✊</div><span><strong>Fist (selected):</strong> Scale/Stretch</span></div>
+            <div style="margin-top: 15px; text-align: center; color: #888; font-size: 0.9em;">
+                Click anywhere or wait to start
+            </div>
+        </div>
+    </div>
+
+<script>
+    // --- Configuration & State ---
+    const config = {
+        debounceFrames: 8,
+        drawThreshold: 0.05,
+        eraseRadius: 30,
+        selectRadius: 50,
+        colors: {
+            draw: '#00f5ff',
+            erase: '#ff9900',
+            select: '#ffd700',
+            stretch: '#ff00aa',
+            pan: '#00ff00',
+            size: '#ffffff',
+            colorCycle: '#ff00aa',
+            undo: '#ff4444',
+            idle: '#ffffff'
+        },
+        palette: ['#e0f7ff', '#00f5ff', '#ff00aa', '#ffd700', '#00ff00', '#ff3333']
+    };
+
+    let state = {
+        strokes: [],
+        redoStack: [],
+        currentMode: 'idle',
+        activeColor: '#e0f7ff',
+        activeThickness: 3,
+        selectedStrokeIndex: -1,
+        zoom: 1.0,
+        offsetX: 0,
+        offsetY: 0,
+        
+        // Debounce tracking
+        frameCounters: { draw: 0, erase: 0, select: 0, stretch: 0, pan: 0, size: 0, colorCycle: 0, undo: 0, idle: 0 },
+        
+        // Smoothing history for index finger
+        historyX: [],
+        historyY: [],
+
+        // State trackers for transforms
+        lastPinchCenter: null,
+        lastPanCenter: null,
+        stretchInitialWristWorld: null,
+        stretchInitialDistWorld: 0,
+        stretchInitialPointsWorld: null,
+        stretchCentroidWorld: null
+    };
+
+    // --- DOM Elements & Contexts ---
+    const videoElement = document.getElementById('videoElement');
+    const drawingCanvas = document.getElementById('drawingCanvas');
+    const overlayCanvas = document.getElementById('overlayCanvas');
+    const ctxDraw = drawingCanvas.getContext('2d', { willReadFrequently: true });
+    const ctxOverlay = overlayCanvas.getContext('2d');
+    
+    const modeLabel = document.getElementById('modeLabel');
+    const strokeCountLabel = document.getElementById('strokeCount');
+    const zoomLabel = document.getElementById('zoomLabel');
+    const thicknessLabel = document.getElementById('thicknessLabel');
+    const loader = document.getElementById('loader');
+    const toastEl = document.getElementById('toast');
+
+    let toastTimeout;
+    function showToast(message) {
+        toastEl.innerText = message;
+        toastEl.style.opacity = '1';
+        toastEl.style.transform = 'translate(-50%, 10px)';
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toastEl.style.opacity = '0';
+            toastEl.style.transform = 'translate(-50%, 0)';
+        }, 2000);
+    }
+
+    // Handle Resize
+    function resizeCanvases() {
+        drawingCanvas.width = window.innerWidth;
+        drawingCanvas.height = window.innerHeight;
+        overlayCanvas.width = window.innerWidth;
+        overlayCanvas.height = window.innerHeight;
+        redrawDrawingCanvas();
+    }
+    window.addEventListener('resize', resizeCanvases);
+    resizeCanvases();
+
+    // --- UI Interactions ---
+    document.querySelectorAll('.color-swatch').forEach(swatch => {
+        swatch.addEventListener('click', (e) => {
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+            e.target.classList.add('active');
+            state.activeColor = e.target.dataset.color;
+        });
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        if(state.strokes.length > 0) state.redoStack.push([...state.strokes]);
+        state.strokes = [];
+        state.selectedStrokeIndex = -1;
+        redrawDrawingCanvas();
+        showToast("Canvas Cleared");
+    });
+
+    document.getElementById('undoBtn').addEventListener('click', triggerUndo);
+    
+    document.getElementById('saveBtn').addEventListener('click', () => {
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = drawingCanvas.width;
+        exportCanvas.height = drawingCanvas.height;
+        const eCtx = exportCanvas.getContext('2d');
+        
+        eCtx.fillStyle = '#050505';
+        eCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+        eCtx.drawImage(drawingCanvas, 0, 0);
+        
+        const link = document.createElement('a');
+        link.download = 'hand-canvas-art.png';
+        link.href = exportCanvas.toDataURL('image/png');
+        link.click();
+        showToast("Image Saved!");
+    });
+
+    function triggerUndo() {
+        if (state.strokes.length > 0) {
+            state.redoStack.push(state.strokes.pop());
+            state.selectedStrokeIndex = -1;
+            redrawDrawingCanvas();
+            showToast("Undo Successful");
+        }
+    }
+
+    // --- Zoom Controls ---
+    function updateZoom(newZoom) {
+        state.zoom = Math.max(0.1, Math.min(newZoom, 5.0)); // Clamp between 0.1x and 5x
+        zoomLabel.innerText = Math.round(state.zoom * 100) + '%';
+        redrawDrawingCanvas();
+    }
+    
+    document.getElementById('zoomInBtn').addEventListener('click', () => updateZoom(state.zoom * 1.2));
+    document.getElementById('zoomOutBtn').addEventListener('click', () => updateZoom(state.zoom / 1.2));
+    document.getElementById('resetZoomBtn').addEventListener('click', () => updateZoom(1.0));
+    
+    // Mouse wheel / trackpad zoom
+    window.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        const zoomDelta = e.deltaY * -0.001;
+        updateZoom(state.zoom * Math.exp(zoomDelta));
+    }, { passive: false });
+
+    const tutOverlay = document.getElementById('tutorialOverlay');
+    const hideTut = () => tutOverlay.style.opacity = '0';
+    tutOverlay.addEventListener('click', hideTut);
+    setTimeout(hideTut, 6000);
+    setTimeout(() => tutOverlay.style.display = 'none', 6500);
+
+    // --- Math & Helper Functions ---
+    const dist = (p1, p2) => Math.hypot(p2.x - p1.x, p2.y - p1.y);
+    
+    const getCentroid = (points) => {
+        let cx = 0, cy = 0;
+        points.forEach(p => { cx += p.x; cy += p.y; });
+        return { x: cx / points.length, y: cy / points.length };
+    };
+
+    const getSmoothedPoint = (x, y) => {
+        state.historyX.push(x); state.historyY.push(y);
+        if (state.historyX.length > 3) state.historyX.shift();
+        if (state.historyY.length > 3) state.historyY.shift();
+        const avgX = state.historyX.reduce((a, b) => a + b, 0) / state.historyX.length;
+        const avgY = state.historyY.reduce((a, b) => a + b, 0) / state.historyY.length;
+        return { x: avgX, y: avgY };
+    };
+
+    const toWorld = (p) => ({
+        x: (p.x - drawingCanvas.width/2 - state.offsetX) / state.zoom + drawingCanvas.width/2,
+        y: (p.y - drawingCanvas.height/2 - state.offsetY) / state.zoom + drawingCanvas.height/2
+    });
+
+    const toScreen = (p) => ({
+        x: (p.x - drawingCanvas.width/2) * state.zoom + drawingCanvas.width/2 + state.offsetX,
+        y: (p.y - drawingCanvas.height/2) * state.zoom + drawingCanvas.height/2 + state.offsetY
+    });
+
+    // --- Rendering Functions ---
+    function drawStroke(ctx, stroke, isHighlighted = false) {
+        if (!stroke.points || stroke.points.length < 2) return;
+        
+        ctx.beginPath();
+        ctx.strokeStyle = isHighlighted ? '#ffd700' : stroke.color;
+        ctx.lineWidth = (isHighlighted ? stroke.lineWidth + 2 : stroke.lineWidth) * state.zoom;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.shadowBlur = (isHighlighted ? 15 : 8) * state.zoom;
+        ctx.shadowColor = ctx.strokeStyle;
+
+        const p0 = toScreen(stroke.points[0]);
+        ctx.moveTo(p0.x, p0.y);
+        for (let i = 1; i < stroke.points.length - 1; i++) {
+            const pt1 = toScreen(stroke.points[i]);
+            const pt2 = toScreen(stroke.points[i+1]);
+            const xc = (pt1.x + pt2.x) / 2;
+            const yc = (pt1.y + pt2.y) / 2;
+            ctx.quadraticCurveTo(pt1.x, pt1.y, xc, yc);
+        }
+        const pLast = toScreen(stroke.points[stroke.points.length-1]);
+        ctx.lineTo(pLast.x, pLast.y);
+        ctx.stroke();
+        ctx.shadowBlur = 0; // reset
+    }
+
+    function redrawDrawingCanvas() {
+        ctxDraw.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        state.strokes.forEach((stroke, i) => {
+            drawStroke(ctxDraw, stroke, stroke.selected);
+        });
+        strokeCountLabel.innerText = state.strokes.length;
+    }
+
+    function drawSkeleton(landmarks) {
+        // MediaPipe connections logic
+        const connections = [
+            [0,1], [1,2], [2,3], [3,4],
+            [0,5], [5,6], [6,7], [7,8],
+            [5,9], [9,10], [10,11], [11,12],
+            [9,13], [13,14], [14,15], [15,16],
+            [13,17], [17,18], [18,19], [19,20],
+            [0,17]
+        ];
+
+        ctxOverlay.strokeStyle = 'var(--accent-cyan)';
+        ctxOverlay.lineWidth = 2;
+        ctxOverlay.shadowBlur = 8;
+        ctxOverlay.shadowColor = 'var(--accent-cyan)';
+
+        connections.forEach(([i, j]) => {
+            const p1 = landmarks[i], p2 = landmarks[j];
+            ctxOverlay.beginPath();
+            ctxOverlay.moveTo(p1.x, p1.y);
+            ctxOverlay.lineTo(p2.x, p2.y);
+            ctxOverlay.stroke();
+        });
+
+        // Joints
+        landmarks.forEach((lm, i) => {
+            ctxOverlay.beginPath();
+            ctxOverlay.arc(lm.x, lm.y, i === 8 ? 7 : 4, 0, Math.PI * 2);
+            ctxOverlay.fillStyle = i === 8 ? 'var(--accent-magenta)' : '#ffffff';
+            ctxOverlay.fill();
+        });
+        ctxOverlay.shadowBlur = 0;
+    }
+
+    // --- Main Logic & Gesture Processing ---
+    function processHand(landmarksRaw) {
+        // Map raw normalized coordinates to canvas space.
+        // Removed the (1 - lm.x) inversion since the CSS already mirrors the canvas.
+        const landmarks = landmarksRaw.map(lm => ({
+            x: lm.x * overlayCanvas.width,
+            y: lm.y * overlayCanvas.height
+        }));
+
+        drawSkeleton(landmarks);
+
+        // Detect Finger States (Extended = tip.y lower on screen than mcp.y)
+        const isIndexUp  = landmarks[8].y  < landmarks[5].y - (overlayCanvas.height * 0.03);
+        const isMiddleUp = landmarks[12].y < landmarks[9].y - (overlayCanvas.height * 0.03);
+        const isRingUp   = landmarks[16].y < landmarks[13].y - (overlayCanvas.height * 0.03);
+        const isPinkyUp  = landmarks[20].y < landmarks[17].y - (overlayCanvas.height * 0.03);
+        
+        // Thumb extended logic (horizontal distance from base)
+        const isThumbOut = dist(landmarks[4], landmarks[9]) > overlayCanvas.width * 0.08;
+        
+        // Pinch (Index tip & Thumb tip close)
+        const pinchDist = dist(landmarks[4], landmarks[8]);
+        const isPinch = pinchDist < overlayCanvas.width * 0.05;
+
+        // Gestures Mapping
+        const isFist = !isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp && !isThumbOut && !isPinch;
+        const isOpen = isIndexUp && isMiddleUp && isRingUp && isPinkyUp && isThumbOut;
+        const isThree = isIndexUp && isMiddleUp && isRingUp && !isPinkyUp;
+        const isHorns = isIndexUp && !isMiddleUp && !isRingUp && isPinkyUp;
+        const isThumbsUp = !isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp && isThumbOut;
+
+        // Determine Raw Mode
+        let rawMode = 'idle';
+        if (isFist && state.selectedStrokeIndex !== -1) rawMode = 'stretch';
+        else if (isPinch) rawMode = 'select';
+        else if (isOpen) rawMode = 'pan';
+        else if (isThumbsUp) rawMode = 'undo';
+        else if (isHorns) rawMode = 'colorCycle';
+        else if (isThree) rawMode = 'size';
+        else if (isIndexUp && isMiddleUp && !isRingUp && !isPinkyUp) rawMode = 'erase';
+        else if (isIndexUp && !isMiddleUp && !isRingUp && !isPinkyUp) rawMode = 'draw';
+
+        // Debouncing logic
+        if (!state.frameCounters[rawMode]) state.frameCounters[rawMode] = 0;
+        state.frameCounters[rawMode]++;
+        Object.keys(state.frameCounters).forEach(k => { if(k !== rawMode) state.frameCounters[k] = 0; });
+
+        if (state.frameCounters[rawMode] >= config.debounceFrames && state.currentMode !== rawMode) {
+            transitionMode(rawMode, landmarks);
+        }
+
+        executeModeAction(state.currentMode, landmarks);
+    }
+
+    function transitionMode(newMode, landmarks) {
+        const prevMode = state.currentMode;
+        state.currentMode = newMode;
+        
+        // Update HUD
+        modeLabel.innerText = `[ ${newMode.toUpperCase()} ]`;
+        modeLabel.style.color = config.colors[newMode] || '#ffffff';
+
+        // Exit events
+        if (prevMode === 'draw') {
+            state.historyX = []; state.historyY = []; // Clear smoothing
+            redrawDrawingCanvas(); // Final bake
+        }
+
+        // Enter events
+        if (newMode === 'draw') {
+            state.redoStack = []; // Clear redo history on new action
+            state.strokes.push({
+                color: state.activeColor,
+                lineWidth: state.activeThickness,
+                points: [],
+                selected: false
+            });
+        }
+        else if (newMode === 'pan') {
+            state.lastPanCenter = { x: landmarks[9].x, y: landmarks[9].y };
+        }
+        else if (newMode === 'colorCycle') {
+            let idx = config.palette.indexOf(state.activeColor);
+            idx = (idx + 1) % config.palette.length;
+            state.activeColor = config.palette[idx];
+            
+            // Sync UI
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+            const activeSwatch = document.querySelector(`.color-swatch[data-color="${state.activeColor}"]`);
+            if(activeSwatch) activeSwatch.classList.add('active');
+            
+            showToast("Color: " + state.activeColor);
+        }
+        else if (newMode === 'undo') {
+            triggerUndo();
+        }
+        else if (newMode === 'select') {
+            const pinchCenterScreen = {
+                x: (landmarks[4].x + landmarks[8].x) / 2,
+                y: (landmarks[4].y + landmarks[8].y) / 2
+            };
+            const pinchCenterWorld = toWorld(pinchCenterScreen);
+            
+            // Find closest stroke
+            let minDistWorld = config.selectRadius / state.zoom;
+            let closestIdx = -1;
+            
+            state.strokes.forEach((stroke, i) => {
+                stroke.selected = false;
+                stroke.points.forEach(p => {
+                    let d = dist(p, pinchCenterWorld);
+                    if (d < minDistWorld) { minDistWorld = d; closestIdx = i; }
+                });
+            });
+
+            state.selectedStrokeIndex = closestIdx;
+            if (closestIdx !== -1) {
+                state.strokes[closestIdx].selected = true;
+            }
+            state.lastPinchCenter = pinchCenterScreen;
+            redrawDrawingCanvas();
+        }
+        else if (newMode === 'stretch' && state.selectedStrokeIndex !== -1) {
+            const stroke = state.strokes[state.selectedStrokeIndex];
+            state.stretchInitialWristWorld = toWorld(landmarks[0]);
+            state.stretchCentroidWorld = getCentroid(stroke.points);
+            state.stretchInitialDistWorld = dist(state.stretchInitialWristWorld, state.stretchCentroidWorld);
+            // Deep copy points
+            state.stretchInitialPointsWorld = stroke.points.map(p => ({x: p.x, y: p.y}));
+        }
+    }
+
+    function executeModeAction(mode, landmarks) {
+        if (mode === 'draw') {
+            const tip = landmarks[8];
+            const smoothed = getSmoothedPoint(tip.x, tip.y);
+            const worldPt = toWorld(smoothed);
+            const currentStroke = state.strokes[state.strokes.length - 1];
+            currentStroke.points.push(worldPt);
+            
+            // Incrementally draw on drawing canvas to save performance
+            if (currentStroke.points.length > 1) {
+                const p1World = currentStroke.points[currentStroke.points.length - 2];
+                const p2World = currentStroke.points[currentStroke.points.length - 1];
+                const p1 = toScreen(p1World);
+                const p2 = toScreen(p2World);
+                
+                ctxDraw.beginPath();
+                ctxDraw.strokeStyle = currentStroke.color;
+                ctxDraw.lineWidth = currentStroke.lineWidth * state.zoom;
+                ctxDraw.lineCap = 'round';
+                ctxDraw.shadowBlur = 8 * state.zoom;
+                ctxDraw.shadowColor = currentStroke.color;
+                ctxDraw.moveTo(p1.x, p1.y);
+                ctxDraw.lineTo(p2.x, p2.y);
+                ctxDraw.stroke();
+                ctxDraw.shadowBlur = 0;
+            }
+            
+            // Draw glow trail on overlay
+            ctxOverlay.beginPath();
+            ctxOverlay.arc(smoothed.x, smoothed.y, state.activeThickness * state.zoom / 2 + 2, 0, Math.PI*2);
+            ctxOverlay.fillStyle = state.activeColor;
+            ctxOverlay.shadowBlur = 10;
+            ctxOverlay.shadowColor = state.activeColor;
+            ctxOverlay.fill();
+            ctxOverlay.shadowBlur = 0;
+        }
+        else if (mode === 'pan') {
+            const panCenter = { x: landmarks[9].x, y: landmarks[9].y };
+            if (state.lastPanCenter) {
+                state.offsetX += (panCenter.x - state.lastPanCenter.x);
+                state.offsetY += (panCenter.y - state.lastPanCenter.y);
+                redrawDrawingCanvas();
+            }
+            state.lastPanCenter = panCenter;
+            
+            // Draw visualizer
+            ctxOverlay.beginPath();
+            ctxOverlay.arc(panCenter.x, panCenter.y, 15, 0, Math.PI*2);
+            ctxOverlay.fillStyle = 'rgba(0, 255, 0, 0.5)';
+            ctxOverlay.fill();
+        }
+        else if (mode === 'size') {
+            const tipY = landmarks[8].y;
+            const normalizedY = Math.max(0, Math.min(1, tipY / overlayCanvas.height));
+            // Map 0-1 to thickness ~25 to 2
+            state.activeThickness = Math.max(1, 25 - (normalizedY * 23));
+            thicknessLabel.innerText = Math.round(state.activeThickness);
+            
+            // Draw visualizer
+            ctxOverlay.beginPath();
+            ctxOverlay.arc(landmarks[8].x, landmarks[8].y, state.activeThickness * state.zoom, 0, Math.PI*2);
+            ctxOverlay.fillStyle = state.activeColor;
+            ctxOverlay.fill();
+            ctxOverlay.strokeStyle = '#fff';
+            ctxOverlay.stroke();
+        }
+        else if (mode === 'erase') {
+            const eraserCenterScreen = {
+                x: (landmarks[8].x + landmarks[12].x) / 2,
+                y: (landmarks[8].y + landmarks[12].y) / 2
+            };
+            const eraserCenterWorld = toWorld(eraserCenterScreen);
+            const effectiveRadiusWorld = config.eraseRadius / state.zoom;
+
+            // Draw eraser UI on overlay
+            ctxOverlay.beginPath();
+            ctxOverlay.setLineDash([8, 8]);
+            ctxOverlay.arc(eraserCenterScreen.x, eraserCenterScreen.y, config.eraseRadius, 0, Math.PI*2);
+            ctxOverlay.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctxOverlay.lineWidth = 2;
+            ctxOverlay.stroke();
+            ctxOverlay.setLineDash([]);
+
+            // Split and filter strokes
+            let newStrokes = [];
+            let changed = false;
+            state.strokes.forEach(stroke => {
+                let currentSegment = [];
+                stroke.points.forEach(p => {
+                    if (dist(p, eraserCenterWorld) > effectiveRadiusWorld) {
+                        currentSegment.push(p);
+                    } else {
+                        changed = true;
+                        if (currentSegment.length > 2) {
+                            newStrokes.push({...stroke, points: currentSegment, selected: false});
+                        }
+                        currentSegment = [];
+                    }
+                });
+                if (currentSegment.length > 2) {
+                    newStrokes.push({...stroke, points: currentSegment});
+                } else {
+                    changed = true; // Dropping tiny segments
+                }
+            });
+
+            if (changed) {
+                state.strokes = newStrokes;
+                state.selectedStrokeIndex = -1; // Reset selection if we erased something
+                redrawDrawingCanvas();
+            }
+        }
+        else if (mode === 'select') {
+            const pinchCenterScreen = {
+                x: (landmarks[4].x + landmarks[8].x) / 2,
+                y: (landmarks[4].y + landmarks[8].y) / 2
+            };
+
+            // Draw pinch visualizer
+            ctxOverlay.beginPath();
+            ctxOverlay.arc(pinchCenterScreen.x, pinchCenterScreen.y, 10, 0, Math.PI*2);
+            ctxOverlay.fillStyle = config.colors.select;
+            ctxOverlay.fill();
+
+            // Move selected stroke
+            if (state.selectedStrokeIndex !== -1) {
+                const dxWorld = (pinchCenterScreen.x - state.lastPinchCenter.x) / state.zoom;
+                const dyWorld = (pinchCenterScreen.y - state.lastPinchCenter.y) / state.zoom;
+                
+                state.strokes[state.selectedStrokeIndex].points.forEach(p => {
+                    p.x += dxWorld;
+                    p.y += dyWorld;
+                });
+                redrawDrawingCanvas();
+                
+                // Draw bounding box / visualizer on overlay
+                const centroidWorld = getCentroid(state.strokes[state.selectedStrokeIndex].points);
+                const centroidScreen = toScreen(centroidWorld);
+                ctxOverlay.beginPath();
+                ctxOverlay.arc(centroidScreen.x, centroidScreen.y, 15, 0, Math.PI*2);
+                ctxOverlay.strokeStyle = config.colors.select;
+                ctxOverlay.setLineDash([4, 4]);
+                ctxOverlay.stroke();
+                ctxOverlay.setLineDash([]);
+            }
+            state.lastPinchCenter = pinchCenterScreen;
+        }
+        else if (mode === 'stretch' && state.selectedStrokeIndex !== -1) {
+            const currentWristWorld = toWorld(landmarks[0]);
+            const currentDistWorld = dist(currentWristWorld, state.stretchCentroidWorld);
+            
+            // Calculate scale based on wrist distance from centroid relative to initial distance
+            const scale = currentDistWorld / Math.max(state.stretchInitialDistWorld, 0.001);
+            
+            const stroke = state.strokes[state.selectedStrokeIndex];
+            stroke.points = state.stretchInitialPointsWorld.map(p => ({
+                x: state.stretchCentroidWorld.x + (p.x - state.stretchCentroidWorld.x) * scale,
+                y: state.stretchCentroidWorld.y + (p.y - state.stretchCentroidWorld.y) * scale
+            }));
+            
+            redrawDrawingCanvas();
+
+            // Visualizer for stretch
+            const wristScreen = toScreen(currentWristWorld);
+            const centroidScreen = toScreen(state.stretchCentroidWorld);
+            
+            ctxOverlay.beginPath();
+            ctxOverlay.moveTo(wristScreen.x, wristScreen.y);
+            ctxOverlay.lineTo(centroidScreen.x, centroidScreen.y);
+            ctxOverlay.strokeStyle = config.colors.stretch;
+            ctxOverlay.setLineDash([5, 5]);
+            ctxOverlay.stroke();
+            ctxOverlay.setLineDash([]);
+            
+            ctxOverlay.beginPath();
+            ctxOverlay.arc(centroidScreen.x, centroidScreen.y, 20 * scale * state.zoom, 0, Math.PI*2);
+            ctxOverlay.strokeStyle = config.colors.stretch;
+            ctxOverlay.stroke();
+        }
+    }
+
+    // --- MediaPipe Integration ---
+    const hands = new Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+
+    hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.75,
+        minTrackingConfidence: 0.75
+    });
+
+    let isLoaderVisible = true;
+
+    hands.onResults((results) => {
+        // Clear overlay every frame
+        ctxOverlay.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            if(isLoaderVisible) {
+                loader.style.display = 'none';
+                isLoaderVisible = false;
+            }
+            processHand(results.multiHandLandmarks[0]);
+        } else {
+            if(!isLoaderVisible && state.strokes.length === 0) {
+                loader.style.display = 'block';
+                isLoaderVisible = true;
+            }
+            // Reset to idle if hand lost
+            if(state.currentMode !== 'idle') transitionMode('idle', null);
+        }
+    });
+
+    const camera = new Camera(videoElement, {
+        onFrame: async () => {
+            await hands.send({ image: videoElement });
+        },
+        width: 640,
+        height: 480
+    });
+    
+    // Start Application
+    camera.start();
+
+</script>
+</body>
+</html>
