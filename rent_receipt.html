@@ -579,7 +579,7 @@
       const currency = document.getElementById("currency").value.trim() || "INR Rs.";
       const receiptStartNo = Number(document.getElementById("receiptStartNo").value || 1);
       const propertyAddress = document.getElementById("propertyAddress").value.trim();
-      const generatedBy = document.getElementById("generatedBy").value.trim();
+      // const generatedBy = document.getElementById("generatedBy").value.trim();
       const startDate = parseInputDate("startDate");
       const endDate = parseInputDate("endDate");
       const customReceiptDate = parseInputDate("customReceiptDate");
@@ -668,7 +668,7 @@
       document.getElementById("startDate").value = "2025-04-01";
       document.getElementById("endDate").value = "2025-05-31";
       document.getElementById("propertyAddress").value = "dfgdfg";
-      document.getElementById("generatedBy").value = "Generated on ClearTax";
+      // document.getElementById("generatedBy").value = "Generated on ClearTax";
       document.getElementById("receiptDateMode").value = "nextMonthFirstDay";
       customDateWrap.style.display = "none";
       generateReceipts();
@@ -677,8 +677,8 @@
     function clearAllFields() {
       document.querySelectorAll("input, textarea").forEach((el) => {
         if (el.type === "number") el.value = "";
-        else if (el.id === "currency") el.value = "INR Rs.";
-        else if (el.id === "generatedBy") el.value = "Generated on Rent Receipt Generator";
+        else if (el.id === "currency") el.value = "INR Rs(₹).";
+        // else if (el.id === "generatedBy") el.value = "Generated on Rent Receipt Generator";
         else if (el.id === "receiptStartNo") el.value = "1";
         else el.value = "";
       });
