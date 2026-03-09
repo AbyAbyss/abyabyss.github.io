@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent Receipt Generator</title>
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --ink: #2e3a4d;
+      --muted: #7f8798;
+      --accent: #344767;
+      --line: #d9e0ea;
+      --soft: #f8fafc;
+      --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f3f6fb 0%, #eaf0f7 100%);
+      color: var(--ink);
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 20px 60px;
+    }
+
+    .topbar {
+      margin-bottom: 22px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+
+    .panel h2 {
+      margin: 0 0 18px;
+      font-size: 20px;
+      color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+
+    .field {
+      grid-column: span 4;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field.wide {
+      grid-column: span 6;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4b5565;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #9fb3d7;
+      box-shadow: 0 0 0 4px rgba(85, 110, 180, 0.08);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 78px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 13px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3f5f9f, #2f456f);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(52, 71, 103, 0.18);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #edf2f8;
+      color: var(--accent);
+    }
+
+    .btn-secondary:hover {
+      background: #e6edf7;
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .summary {
+      margin: 8px 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .receipts-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+    }
+
+    .receipt {
+      background: var(--card);
+      border: 1px solid #cfd8e5;
+      box-shadow: var(--shadow);
+      border-radius: 24px;
+      padding: 34px 36px;
+      position: relative;
+      overflow: hidden;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .receipt::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(73, 102, 165, 0.08), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(73, 102, 165, 0.06), transparent 24%);
+      pointer-events: none;
+    }
+
+    .receipt-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .receipt-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: flex-start;
+      margin-bottom: 30px;
+    }
+
+    .receipt-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .receipt-month {
+      font-size: 20px;
+      font-weight: 500;
+      color: #8a90a0;
+      margin-left: 8px;
+    }
+
+    .receipt-brand {
+      margin-top: 10px;
+      color: #8a90a0;
+      font-size: 14px;
+    }
+
+    .receipt-meta {
+      text-align: right;
+      min-width: 220px;
+    }
+
+    .meta-line {
+      font-size: 16px;
+      color: #8188a0;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .meta-line span {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .receipt-body {
+      font-size: 18px;
+      line-height: 1.7;
+      color: #6d7486;
+      margin-bottom: 36px;
+    }
+
+    .receipt-body strong {
+      color: #596175;
+      font-weight: 800;
+    }
+
+    .money {
+      color: var(--accent);
+      font-weight: 900;
+    }
+
+    .receipt-footer {
+      margin-top: 34px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+    }
+
+    .landlord-block {
+      font-size: 17px;
+      color: #8a90a0;
+    }
+
+    .landlord-name {
+      font-size: 18px;
+      font-weight: 800;
+      color: #687089;
+      margin-right: 8px;
+    }
+
+    .signature-area {
+      text-align: right;
+      min-width: 220px;
+    }
+
+    .signature-line {
+      border-top: 2px solid #c9d2df;
+      width: 220px;
+      margin-left: auto;
+      margin-bottom: 8px;
+    }
+
+    .signature-label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .empty {
+      padding: 34px;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255,255,255,0.6);
+      border: 1px dashed #c9d2df;
+      border-radius: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .field,
+      .field.wide {
+        grid-column: span 6;
+      }
+
+      .receipt-header,
+      .receipt-footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .receipt-meta,
+      .signature-area {
+        text-align: left;
+        min-width: 0;
+      }
+
+      .signature-line {
+        margin-left: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .field,
+      .field.wide,
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      .receipt {
+        padding: 24px 20px;
+      }
+
+      .receipt-body {
+        font-size: 16px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+      }
+
+      .topbar,
+      .panel {
+        display: none !important;
+      }
+
+      .page {
+        max-width: none;
+        padding: 0;
+      }
+
+      .receipts-wrap {
+        gap: 18px;
+      }
+
+      .receipt {
+        box-shadow: none;
+        border: 1.5px solid #bcc7d6;
+        border-radius: 18px;
+        margin: 0;
+      }
+
+      .receipt:not(:last-child) {
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <h1 class="title">Rent Receipt Generator</h1>
+      <div class="subtitle">Generate a clean monthly receipt for every month between your start date and end date.</div>
+    </div>
+
+    <div class="panel">
+      <h2>Receipt Details</h2>
+
+      <div class="grid">
+        <div class="field">
+          <label for="tenantName">Tenant Name</label>
+          <input id="tenantName" type="text" placeholder="Enter tenant name" />
+        </div>
+
+        <div class="field">
+          <label for="landlordName">Landlord Name</label>
+          <input id="landlordName" type="text" placeholder="Enter landlord name" />
+        </div>
+
+        <div class="field">
+          <label for="monthlyRent">Monthly Rent Amount</label>
+          <input id="monthlyRent" type="number" placeholder="5000" />
+        </div>
+
+        <div class="field">
+          <label for="currency">Currency Prefix</label>
+          <input id="currency" type="text" value="INR Rs." />
+        </div>
+
+        <div class="field">
+          <label for="receiptStartNo">Starting Receipt No.</label>
+          <input id="receiptStartNo" type="number" value="1" />
+        </div>
+
+        <div class="field">
+          <label for="receiptDateMode">Receipt Date</label>
+          <select id="receiptDateMode">
+            <option value="nextMonthFirstDay" selected>1st day of next month</option>
+            <option value="sameAsMonthStart">Same as month start</option>
+            <option value="today">Today</option>
+            <option value="custom">Custom same date for all</option>
+          </select>
+        </div>
+
+        <div class="field wide">
+          <label for="startDate">Rent Period Start Date</label>
+          <input id="startDate" type="date" />
+        </div>
+
+        <div class="field wide">
+          <label for="endDate">Rent Period End Date</label>
+          <input id="endDate" type="date" />
+        </div>
+
+        <div class="field wide" id="customDateWrap" style="display:none;">
+          <label for="customReceiptDate">Custom Receipt Date</label>
+          <input id="customReceiptDate" type="date" />
+        </div>
+
+        <div class="field full">
+          <label for="propertyAddress">Property Address</label>
+          <textarea id="propertyAddress" placeholder="Enter property address"></textarea>
+        </div>
+
+        <div class="field full">
+          <label for="generatedBy">Small Subtitle Under Title</label>
+          <input id="generatedBy" type="text" value="Generated on Rent Receipt Generator" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" onclick="generateReceipts()">Generate Receipts</button>
+        <button class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
+        <button class="btn-secondary" onclick="fillSample()">Fill Sample</button>
+        <button class="btn-secondary" onclick="clearAllFields()">Clear</button>
+      </div>
+
+      <div class="hint">
+        It will create one receipt per covered month. If you enter mid-month dates, the first and last receipt will show partial date ranges, but the same monthly amount will be used for each receipt.
+      </div>
+    </div>
+
+    <div class="summary" id="summaryText"></div>
+    <div class="receipts-wrap" id="receiptsWrap">
+      <div class="empty">Fill the form and click <strong>Generate Receipts</strong>.</div>
+    </div>
+  </div>
+
+  <script>
+    const receiptDateMode = document.getElementById("receiptDateMode");
+    const customDateWrap = document.getElementById("customDateWrap");
+
+    receiptDateMode.addEventListener("change", () => {
+      customDateWrap.style.display = receiptDateMode.value === "custom" ? "block" : "none";
+    });
+
+    function formatDate(date) {
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "2-digit",
+        year: "numeric"
+      });
+    }
+
+    function formatMonthTitle(date) {
+      return date.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function formatAmount(num) {
+      const value = Number(num || 0);
+      return new Intl.NumberFormat("en-IN", {
+        maximumFractionDigits: 2
+      }).format(value);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function parseInputDate(id) {
+      const value = document.getElementById(id).value;
+      if (!value) return null;
+      const [y, m, d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function startOfMonth(date) {
+      return new Date(date.getFullYear(), date.getMonth(), 1);
+    }
+
+    function endOfMonth(date) {
+      return new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+
+    function addMonths(date, count) {
+      return new Date(date.getFullYear(), date.getMonth() + count, 1);
+    }
+
+    function getReceiptDateForMonth(monthStart, mode, customDate) {
+      if (mode === "sameAsMonthStart") {
+        return new Date(monthStart.getFullYear(), monthStart.getMonth(), 1);
+      }
+
+      if (mode === "today") {
+        const today = new Date();
+        return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      }
+
+      if (mode === "custom" && customDate) {
+        return new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate());
+      }
+
+      return new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+    }
+
+    function getMonthlyRanges(startDate, endDate) {
+      const ranges = [];
+      let cursor = startOfMonth(startDate);
+
+      while (cursor <= endDate) {
+        const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+        const monthEnd = endOfMonth(cursor);
+
+        const rangeStart = monthStart < startDate ? startDate : monthStart;
+        const rangeEnd = monthEnd > endDate ? endDate : monthEnd;
+
+        ranges.push({
+          monthStart,
+          rangeStart: new Date(rangeStart),
+          rangeEnd: new Date(rangeEnd)
+        });
+
+        cursor = addMonths(cursor, 1);
+      }
+
+      return ranges;
+    }
+
+    function generateReceipts() {
+      const tenantName = document.getElementById("tenantName").value.trim();
+      const landlordName = document.getElementById("landlordName").value.trim();
+      const monthlyRent = document.getElementById("monthlyRent").value.trim();
+      const currency = document.getElementById("currency").value.trim() || "INR Rs.";
+      const receiptStartNo = Number(document.getElementById("receiptStartNo").value || 1);
+      const propertyAddress = document.getElementById("propertyAddress").value.trim();
+      const generatedBy = document.getElementById("generatedBy").value.trim();
+      const startDate = parseInputDate("startDate");
+      const endDate = parseInputDate("endDate");
+      const customReceiptDate = parseInputDate("customReceiptDate");
+      const dateMode = document.getElementById("receiptDateMode").value;
+      const wrap = document.getElementById("receiptsWrap");
+      const summary = document.getElementById("summaryText");
+
+      if (!tenantName || !landlordName || !monthlyRent || !propertyAddress || !startDate || !endDate) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      if (startDate > endDate) {
+        alert("Start date cannot be after end date.");
+        return;
+      }
+
+      if (dateMode === "custom" && !customReceiptDate) {
+        alert("Please select the custom receipt date.");
+        return;
+      }
+
+      const ranges = getMonthlyRanges(startDate, endDate);
+
+      let html = "";
+
+      ranges.forEach((item, index) => {
+        const receiptNo = receiptStartNo + index;
+        const receiptDate = getReceiptDateForMonth(item.monthStart, dateMode, customReceiptDate);
+
+        html += `
+          <section class="receipt">
+            <div class="receipt-inner">
+              <div class="receipt-header">
+                <div>
+                  <h3 class="receipt-title">
+                    RENT RECEIPT
+                    <span class="receipt-month">${escapeHtml(formatMonthTitle(item.monthStart))}</span>
+                  </h3>
+                  <div class="receipt-brand">${escapeHtml(generatedBy || "Generated on Rent Receipt Generator")}</div>
+                </div>
+
+                <div class="receipt-meta">
+                  <div class="meta-line">Receipt No: <span>${receiptNo}</span></div>
+                  <div class="meta-line">Date: <span>${escapeHtml(formatDate(receiptDate))}</span></div>
+                </div>
+              </div>
+
+              <div class="receipt-body">
+                Received sum of
+                <strong class="money">${escapeHtml(currency)}${escapeHtml(formatAmount(monthlyRent))}</strong>
+                from <strong>${escapeHtml(tenantName)}</strong>
+                towards the rent of property located at
+                <strong>${escapeHtml(propertyAddress)}</strong>
+                for the period from
+                <strong>${escapeHtml(formatDate(item.rangeStart))}</strong>
+                to
+                <strong>${escapeHtml(formatDate(item.rangeEnd))}</strong>.
+              </div>
+
+              <div class="receipt-footer">
+                <div class="landlord-block">
+                  <span class="landlord-name">${escapeHtml(landlordName)}</span>
+                  <span>(Landlord)</span>
+                </div>
+
+                <div class="signature-area">
+                  <div class="signature-line"></div>
+                  <div class="signature-label">Authorized Signature</div>
+                </div>
+              </div>
+            </div>
+          </section>
+        `;
+      });
+
+      wrap.innerHTML = html;
+      summary.textContent = `${ranges.length} receipt(s) generated from ${formatDate(startDate)} to ${formatDate(endDate)}.`;
+    }
+
+    function fillSample() {
+      document.getElementById("tenantName").value = "Aby Pappachan";
+      document.getElementById("landlordName").value = "Dfgdfg";
+      document.getElementById("monthlyRent").value = "5000";
+      document.getElementById("currency").value = "INR Rs.";
+      document.getElementById("receiptStartNo").value = "4";
+      document.getElementById("startDate").value = "2025-04-01";
+      document.getElementById("endDate").value = "2025-05-31";
+      document.getElementById("propertyAddress").value = "dfgdfg";
+      document.getElementById("generatedBy").value = "Generated on ClearTax";
+      document.getElementById("receiptDateMode").value = "nextMonthFirstDay";
+      customDateWrap.style.display = "none";
+      generateReceipts();
+    }
+
+    function clearAllFields() {
+      document.querySelectorAll("input, textarea").forEach((el) => {
+        if (el.type === "number") el.value = "";
+        else if (el.id === "currency") el.value = "INR Rs.";
+        else if (el.id === "generatedBy") el.value = "Generated on Rent Receipt Generator";
+        else if (el.id === "receiptStartNo") el.value = "1";
+        else el.value = "";
+      });
+
+      document.getElementById("receiptDateMode").value = "nextMonthFirstDay";
+      customDateWrap.style.display = "none";
+      document.getElementById("summaryText").textContent = "";
+      document.getElementById("receiptsWrap").innerHTML =
+        '<div class="empty">Fill the form and click <strong>Generate Receipts</strong>.</div>';
+    }
+  </script>
+</body>
+</html>
