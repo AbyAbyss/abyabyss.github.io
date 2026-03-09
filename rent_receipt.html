@@ -199,11 +199,15 @@
     }
 
     .receipt-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 24px;
-      align-items: flex-start;
+      position: relative;
       margin-bottom: 24px;
+    }
+    
+    .receipt-meta {
+      position: absolute;
+      right: 0;
+      top: 0;
+      text-align: right;
     }
 
     .receipt-title {
@@ -244,6 +248,7 @@
       line-height: 1.55;
       color: #6d7486;
       margin-bottom: 18px;
+      margin-top: 40px;
     }
 
     .receipt-body strong {
@@ -429,22 +434,20 @@
       }
 
       .receipt-header {
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: flex-start !important;
-        gap: 16px;
-        margin-bottom: 14px;
+        position: relative !important;
+        margin-bottom: 14px !important;
+      }
+      
+      .receipt-meta {
+        position: absolute !important;
+        right: 0 !important;
+        top: 0 !important;
+        text-align: right !important;
       }
 
       .receipt-title,
       .receipt-month {
         font-size: 16px;
-      }
-
-      .receipt-meta {
-        text-align: right !important;
-        min-width: 190px !important;
-        flex-shrink: 0;
       }
 
       .meta-line {
@@ -454,8 +457,9 @@
 
       .receipt-body {
         font-size: 14px;
-        line-height: 1.5;
+        line-height: 1.5;   
         margin-bottom: 14px;
+        margin-top: 40px;
       }
 
       .receipt-footer {
