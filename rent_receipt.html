@@ -1,18 +1,17 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rent Receipt Generator</title>
+  <title>Rent Receipt</title>
   <style>
     :root {
       --bg: #eef2f7;
       --card: #ffffff;
-      --ink: #2e3a4d;
-      --muted: #7f8798;
+      --ink: #2f3b52;
+      --muted: #8a90a3;
       --accent: #344767;
-      --line: #d9e0ea;
-      --soft: #f8fafc;
+      --line: #d8dfeb;
       --shadow: 0 10px 30px rgba(17, 24, 39, 0.08);
     }
 
@@ -22,13 +21,20 @@
 
     body {
       margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
       background: linear-gradient(180deg, #f3f6fb 0%, #eaf0f7 100%);
       color: var(--ink);
     }
 
     .page {
-      max-width: 1200px;
+      max-width: 1180px;
       margin: 0 auto;
       padding: 28px 20px 60px;
     }
@@ -52,8 +58,7 @@
     }
 
     .panel {
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.94);
       border: 1px solid rgba(255, 255, 255, 0.7);
       border-radius: 22px;
       box-shadow: var(--shadow);
@@ -143,17 +148,9 @@
       box-shadow: 0 10px 18px rgba(52, 71, 103, 0.18);
     }
 
-    .btn-primary:hover {
-      transform: translateY(-1px);
-    }
-
     .btn-secondary {
       background: #edf2f8;
       color: var(--accent);
-    }
-
-    .btn-secondary:hover {
-      background: #e6edf7;
     }
 
     .hint {
@@ -179,7 +176,7 @@
       border: 1px solid #cfd8e5;
       box-shadow: var(--shadow);
       border-radius: 24px;
-      padding: 34px 36px;
+      padding: 24px 26px;
       position: relative;
       overflow: hidden;
       break-inside: avoid;
@@ -206,7 +203,7 @@
       justify-content: space-between;
       gap: 24px;
       align-items: flex-start;
-      margin-bottom: 30px;
+      margin-bottom: 24px;
     }
 
     .receipt-title {
@@ -224,15 +221,10 @@
       margin-left: 8px;
     }
 
-    .receipt-brand {
-      margin-top: 10px;
-      color: #8a90a0;
-      font-size: 14px;
-    }
-
     .receipt-meta {
       text-align: right;
       min-width: 220px;
+      flex-shrink: 0;
     }
 
     .meta-line {
@@ -248,10 +240,10 @@
     }
 
     .receipt-body {
-      font-size: 18px;
-      line-height: 1.7;
+      font-size: 16px;
+      line-height: 1.55;
       color: #6d7486;
-      margin-bottom: 36px;
+      margin-bottom: 18px;
     }
 
     .receipt-body strong {
@@ -264,17 +256,26 @@
       font-weight: 900;
     }
 
+    .extra-info {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed #d6ddeb;
+      font-size: 15px;
+      color: #73809a;
+    }
+
     .receipt-footer {
-      margin-top: 34px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr 260px;
       gap: 16px;
+      align-items: end;
     }
 
     .landlord-block {
       font-size: 17px;
       color: #8a90a0;
+      align-self: end;
     }
 
     .landlord-name {
@@ -285,15 +286,30 @@
     }
 
     .signature-area {
+      width: 260px;
+      margin-left: auto;
       text-align: right;
-      min-width: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-self: end;
+      align-self: end;
+    }
+
+    .signature-person {
+      font-size: 18px;
+      font-weight: 800;
+      color: #2f3b52;
+      margin-bottom: 8px;
+      text-align: right;
+      width: 100%;
     }
 
     .signature-line {
       border-top: 2px solid #c9d2df;
       width: 220px;
-      margin-left: auto;
       margin-bottom: 8px;
+      margin-left: auto;
     }
 
     .signature-label {
@@ -302,13 +318,15 @@
       font-weight: 700;
       letter-spacing: 0.04em;
       text-transform: uppercase;
+      text-align: right;
+      width: 100%;
     }
 
     .empty {
       padding: 34px;
       text-align: center;
       color: var(--muted);
-      background: rgba(255,255,255,0.6);
+      background: rgba(255, 255, 255, 0.6);
       border: 1px dashed #c9d2df;
       border-radius: 20px;
     }
@@ -319,16 +337,32 @@
         grid-column: span 6;
       }
 
-      .receipt-header,
-      .receipt-footer {
+      .receipt-header {
         flex-direction: column;
         align-items: flex-start;
       }
 
-      .receipt-meta,
-      .signature-area {
+      .receipt-meta {
         text-align: left;
         min-width: 0;
+      }
+
+      .receipt-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .signature-area {
+        width: 100%;
+        margin-left: 0;
+        justify-self: start;
+        align-self: start;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .signature-person,
+      .signature-label {
+        text-align: left;
       }
 
       .signature-line {
@@ -348,38 +382,123 @@
       }
 
       .receipt-body {
-        font-size: 16px;
+        font-size: 15px;
+      }
+
+      .receipt-title,
+      .receipt-month {
+        font-size: 17px;
       }
     }
 
     @media print {
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+
       body {
         background: #fff;
       }
 
       .topbar,
-      .panel {
+      .panel,
+      .summary {
         display: none !important;
       }
 
       .page {
         max-width: none;
-        padding: 0;
+        padding: 8mm;
       }
 
       .receipts-wrap {
-        gap: 18px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8mm;
       }
 
       .receipt {
         box-shadow: none;
-        border: 1.5px solid #bcc7d6;
-        border-radius: 18px;
+        border: 1px solid #bcc7d6;
+        border-radius: 12px;
+        padding: 16px 18px;
+        break-inside: avoid;
+        page-break-inside: avoid;
         margin: 0;
       }
 
-      .receipt:not(:last-child) {
-        page-break-after: always;
+      .receipt-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        gap: 16px;
+        margin-bottom: 14px;
+      }
+
+      .receipt-title,
+      .receipt-month {
+        font-size: 16px;
+      }
+
+      .receipt-meta {
+        text-align: right !important;
+        min-width: 190px !important;
+        flex-shrink: 0;
+      }
+
+      .meta-line {
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .receipt-body {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 14px;
+      }
+
+      .receipt-footer {
+        display: grid !important;
+        grid-template-columns: 1fr 220px !important;
+        gap: 12px !important;
+        align-items: end !important;
+        margin-top: 16px !important;
+      }
+
+      .landlord-block,
+      .signature-label,
+      .extra-info {
+        font-size: 12px;
+      }
+
+      .signature-area {
+        width: 220px !important;
+        margin-left: auto !important;
+        justify-self: end !important;
+        align-self: end !important;
+        text-align: right !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-end !important;
+      }
+
+      .signature-person {
+        width: 100% !important;
+        text-align: right !important;
+        font-size: 16px !important;
+        margin-bottom: 6px !important;
+      }
+
+      .signature-line {
+        width: 160px !important;
+        margin-left: auto !important;
+        margin-bottom: 6px !important;
+      }
+
+      .signature-label {
+        width: 100% !important;
+        text-align: right !important;
       }
     }
   </style>
@@ -388,7 +507,9 @@
   <div class="page">
     <div class="topbar">
       <h1 class="title">Rent Receipt Generator</h1>
-      <div class="subtitle">Generate a clean monthly receipt for every month between your start date and end date.</div>
+      <div class="subtitle">
+        Generate monthly rent receipts automatically between a start date and end date.
+      </div>
     </div>
 
     <div class="panel">
@@ -412,22 +533,22 @@
 
         <div class="field">
           <label for="currency">Currency Prefix</label>
-          <input id="currency" type="text" value="INR Rs." />
-        </div>
-
-        <div class="field">
-          <label for="receiptStartNo">Starting Receipt No.</label>
-          <input id="receiptStartNo" type="number" value="1" />
+          <input id="currency" type="text" value="INR Rs. " />
         </div>
 
         <div class="field">
           <label for="receiptDateMode">Receipt Date</label>
           <select id="receiptDateMode">
             <option value="nextMonthFirstDay" selected>1st day of next month</option>
-            <option value="sameAsMonthStart">Same as month start</option>
+            <option value="sameAsMonthStart">1st day of same month</option>
             <option value="today">Today</option>
             <option value="custom">Custom same date for all</option>
           </select>
+        </div>
+
+        <div class="field">
+          <label for="panNumber">Landlord PAN (Optional)</label>
+          <input id="panNumber" type="text" placeholder="ABCDE1234F" />
         </div>
 
         <div class="field wide">
@@ -440,7 +561,7 @@
           <input id="endDate" type="date" />
         </div>
 
-        <div class="field wide" id="customDateWrap" style="display:none;">
+        <div class="field wide" id="customDateWrap" style="display: none">
           <label for="customReceiptDate">Custom Receipt Date</label>
           <input id="customReceiptDate" type="date" />
         </div>
@@ -449,11 +570,6 @@
           <label for="propertyAddress">Property Address</label>
           <textarea id="propertyAddress" placeholder="Enter property address"></textarea>
         </div>
-
-        <!-- <div class="field full">
-          <label for="generatedBy">Small Subtitle Under Title</label>
-          <input id="generatedBy" type="text" value="Generated on Rent Receipt Generator" />
-        </div> -->
       </div>
 
       <div class="actions">
@@ -464,13 +580,15 @@
       </div>
 
       <div class="hint">
-        It will create one receipt per covered month. If you enter mid-month dates, the first and last receipt will show partial date ranges, but the same monthly amount will be used for each receipt.
+        Receipt numbers are auto-generated starting from 1. PAN will only appear in the receipt if you fill it.
       </div>
     </div>
 
     <div class="summary" id="summaryText"></div>
     <div class="receipts-wrap" id="receiptsWrap">
-      <div class="empty">Fill the form and click <strong>Generate Receipts</strong>.</div>
+      <div class="empty">
+        Fill the form and click <strong>Generate Receipts</strong>.
+      </div>
     </div>
   </div>
 
@@ -479,28 +597,29 @@
     const customDateWrap = document.getElementById("customDateWrap");
 
     receiptDateMode.addEventListener("change", () => {
-      customDateWrap.style.display = receiptDateMode.value === "custom" ? "block" : "none";
+      customDateWrap.style.display =
+        receiptDateMode.value === "custom" ? "block" : "none";
     });
 
     function formatDate(date) {
       return date.toLocaleDateString("en-US", {
         month: "short",
         day: "2-digit",
-        year: "numeric"
+        year: "numeric",
       });
     }
 
     function formatMonthTitle(date) {
       return date.toLocaleDateString("en-US", {
         month: "long",
-        year: "numeric"
+        year: "numeric",
       });
     }
 
     function formatAmount(num) {
       const value = Number(num || 0);
       return new Intl.NumberFormat("en-IN", {
-        maximumFractionDigits: 2
+        maximumFractionDigits: 2,
       }).format(value);
     }
 
@@ -534,19 +653,35 @@
 
     function getReceiptDateForMonth(monthStart, mode, customDate) {
       if (mode === "sameAsMonthStart") {
-        return new Date(monthStart.getFullYear(), monthStart.getMonth(), 1);
+        return new Date(
+          monthStart.getFullYear(),
+          monthStart.getMonth(),
+          1
+        );
       }
 
       if (mode === "today") {
         const today = new Date();
-        return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        return new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate()
+        );
       }
 
       if (mode === "custom" && customDate) {
-        return new Date(customDate.getFullYear(), customDate.getMonth(), customDate.getDate());
+        return new Date(
+          customDate.getFullYear(),
+          customDate.getMonth(),
+          customDate.getDate()
+        );
       }
 
-      return new Date(monthStart.getFullYear(), monthStart.getMonth() + 1, 1);
+      return new Date(
+        monthStart.getFullYear(),
+        monthStart.getMonth() + 1,
+        1
+      );
     }
 
     function getMonthlyRanges(startDate, endDate) {
@@ -554,7 +689,11 @@
       let cursor = startOfMonth(startDate);
 
       while (cursor <= endDate) {
-        const monthStart = new Date(cursor.getFullYear(), cursor.getMonth(), 1);
+        const monthStart = new Date(
+          cursor.getFullYear(),
+          cursor.getMonth(),
+          1
+        );
         const monthEnd = endOfMonth(cursor);
 
         const rangeStart = monthStart < startDate ? startDate : monthStart;
@@ -563,7 +702,7 @@
         ranges.push({
           monthStart,
           rangeStart: new Date(rangeStart),
-          rangeEnd: new Date(rangeEnd)
+          rangeEnd: new Date(rangeEnd),
         });
 
         cursor = addMonths(cursor, 1);
@@ -576,10 +715,9 @@
       const tenantName = document.getElementById("tenantName").value.trim();
       const landlordName = document.getElementById("landlordName").value.trim();
       const monthlyRent = document.getElementById("monthlyRent").value.trim();
-      const currency = document.getElementById("currency").value.trim() || "INR Rs.";
-      const receiptStartNo = Number(document.getElementById("receiptStartNo").value || 1);
+      const currency = document.getElementById("currency").value || "INR Rs. ";
       const propertyAddress = document.getElementById("propertyAddress").value.trim();
-      // const generatedBy = document.getElementById("generatedBy").value.trim();
+      const panNumber = document.getElementById("panNumber").value.trim();
       const startDate = parseInputDate("startDate");
       const endDate = parseInputDate("endDate");
       const customReceiptDate = parseInputDate("customReceiptDate");
@@ -587,7 +725,14 @@
       const wrap = document.getElementById("receiptsWrap");
       const summary = document.getElementById("summaryText");
 
-      if (!tenantName || !landlordName || !monthlyRent || !propertyAddress || !startDate || !endDate) {
+      if (
+        !tenantName ||
+        !landlordName ||
+        !monthlyRent ||
+        !propertyAddress ||
+        !startDate ||
+        !endDate
+      ) {
         alert("Please fill all required fields.");
         return;
       }
@@ -603,12 +748,15 @@
       }
 
       const ranges = getMonthlyRanges(startDate, endDate);
-
       let html = "";
 
       ranges.forEach((item, index) => {
-        const receiptNo = receiptStartNo + index;
-        const receiptDate = getReceiptDateForMonth(item.monthStart, dateMode, customReceiptDate);
+        const receiptNo = index + 1;
+        const receiptDate = getReceiptDateForMonth(
+          item.monthStart,
+          dateMode,
+          customReceiptDate
+        );
 
         html += `
           <section class="receipt">
@@ -639,6 +787,12 @@
                 <strong>${escapeHtml(formatDate(item.rangeEnd))}</strong>.
               </div>
 
+              ${panNumber ? `
+                <div class="extra-info">
+                  <strong>Landlord PAN:</strong> ${escapeHtml(panNumber)}
+                </div>
+              ` : ""}
+
               <div class="receipt-footer">
                 <div class="landlord-block">
                   <span class="landlord-name">${escapeHtml(landlordName)}</span>
@@ -646,6 +800,7 @@
                 </div>
 
                 <div class="signature-area">
+                  <div class="signature-person">${escapeHtml(landlordName)}</div>
                   <div class="signature-line"></div>
                   <div class="signature-label">Authorized Signature</div>
                 </div>
@@ -663,12 +818,11 @@
       document.getElementById("tenantName").value = "Aby Pappachan";
       document.getElementById("landlordName").value = "Dfgdfg";
       document.getElementById("monthlyRent").value = "5000";
-      document.getElementById("currency").value = "INR Rs.";
-      document.getElementById("receiptStartNo").value = "4";
+      document.getElementById("currency").value = "INR Rs. ";
       document.getElementById("startDate").value = "2025-04-01";
       document.getElementById("endDate").value = "2025-05-31";
       document.getElementById("propertyAddress").value = "dfgdfg";
-      // document.getElementById("generatedBy").value = "Generated on ClearTax";
+      document.getElementById("panNumber").value = "";
       document.getElementById("receiptDateMode").value = "nextMonthFirstDay";
       customDateWrap.style.display = "none";
       generateReceipts();
@@ -676,10 +830,7 @@
 
     function clearAllFields() {
       document.querySelectorAll("input, textarea").forEach((el) => {
-        if (el.type === "number") el.value = "";
-        else if (el.id === "currency") el.value = "INR Rs(₹).";
-        // else if (el.id === "generatedBy") el.value = "Generated on Rent Receipt Generator";
-        else if (el.id === "receiptStartNo") el.value = "1";
+        if (el.id === "currency") el.value = "INR Rs. ";
         else el.value = "";
       });
 
