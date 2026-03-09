@@ -450,10 +450,10 @@
           <textarea id="propertyAddress" placeholder="Enter property address"></textarea>
         </div>
 
-        <div class="field full">
+        <!-- <div class="field full">
           <label for="generatedBy">Small Subtitle Under Title</label>
           <input id="generatedBy" type="text" value="Generated on Rent Receipt Generator" />
-        </div>
+        </div> -->
       </div>
 
       <div class="actions">
@@ -619,7 +619,6 @@
                     RENT RECEIPT
                     <span class="receipt-month">${escapeHtml(formatMonthTitle(item.monthStart))}</span>
                   </h3>
-                  <div class="receipt-brand">${escapeHtml(generatedBy || "Generated on Rent Receipt Generator")}</div>
                 </div>
 
                 <div class="receipt-meta">
