@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOID·JSON — Dimensional Data Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  :root {
+    --bg: #050509;
+    --surface: #0d0d16;
+    --surface2: #141420;
+    --border: #1e1e30;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --danger: #ef4444;
+    --text: #e8e8f0;
+    --text-dim: #6b6b8a;
+    --text-muted: #3a3a55;
+    --string: #a3e635;
+    --number: #fb923c;
+    --boolean: #60a5fa;
+    --null: #f43f5e;
+    --key: #e879f9;
+    --bracket: #94a3b8;
+    --glow: 0 0 20px rgba(124, 58, 237, 0.4);
+    --glow2: 0 0 20px rgba(6, 182, 212, 0.4);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridScroll 20s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes gridScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+  }
+
+  /* Noise overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  #app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ===== HEADER ===== */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(5,5,9,0.8);
+    backdrop-filter: blur(20px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    animation: logoPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes logoPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(124,58,237,0.5); }
+    50% { box-shadow: 0 0 25px rgba(124,58,237,0.9), 0 0 50px rgba(6,182,212,0.3); }
+  }
+
+  .logo span { color: var(--text-dim); font-size: 14px; font-weight: 400; }
+
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); box-shadow: var(--glow); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn.primary:hover { background: #6d28d9; box-shadow: 0 0 30px rgba(124,58,237,0.6); }
+
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .stat { font-size: 12px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+  .stat strong { color: var(--accent2); }
+
+  /* ===== LAYOUT ===== */
+  .workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 0;
+    flex: 1;
+    min-height: calc(100vh - 65px);
+  }
+
+  /* ===== PANELS ===== */
+  .panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+    flex-shrink: 0;
+  }
+
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-title .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .dot.cyan { background: var(--accent2); }
+  .dot.green { background: var(--accent4); }
+  .dot.amber { background: var(--accent3); }
+
+  .panel-actions { display: flex; gap: 6px; }
+
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    transition: all 0.2s;
+  }
+  .icon-btn:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(6,182,212,0.1); }
+
+  /* ===== INPUT PANEL ===== */
+  #input-panel { grid-column: 1; grid-row: 1 / 3; }
+
+  .input-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #json-input {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    padding: 20px;
+    resize: none;
+    tab-size: 2;
+    caret-color: var(--accent2);
+  }
+
+  .input-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to top, var(--surface), transparent);
+    pointer-events: none;
+  }
+
+  /* ===== VIEWER PANEL ===== */
+  #viewer-panel { grid-column: 2; grid-row: 1; overflow: hidden; }
+
+  .json-viewer {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+  }
+
+  .json-viewer::-webkit-scrollbar { width: 4px; }
+  .json-viewer::-webkit-scrollbar-track { background: transparent; }
+  .json-viewer::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .json-viewer::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* JSON Token styles */
+  .jv-key { color: var(--key); }
+  .jv-string { color: var(--string); }
+  .jv-number { color: var(--number); }
+  .jv-boolean { color: var(--boolean); }
+  .jv-null { color: var(--null); font-style: italic; }
+  .jv-bracket { color: var(--bracket); }
+  .jv-colon { color: var(--text-muted); margin: 0 4px; }
+  .jv-comma { color: var(--text-muted); }
+
+  .jv-line {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 1px 0;
+    border-radius: 4px;
+    transition: background 0.15s;
+    cursor: default;
+    animation: fadeSlideIn 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .jv-line:hover { background: rgba(124,58,237,0.08); }
+
+  .jv-toggle {
+    width: 16px; height: 16px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    font-family: 'Space Mono', monospace;
+  }
+  .jv-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  .jv-indent { display: inline-block; width: 20px; flex-shrink: 0; }
+
+  .jv-collapsed-preview {
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-left: 4px;
+  }
+
+  .jv-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124,58,237,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 10px;
+    padding: 0 7px;
+    font-size: 10px;
+    margin-left: 6px;
+    font-weight: 700;
+  }
+
+  .jv-path-tag {
+    background: rgba(6,182,212,0.1);
+    color: var(--accent2);
+    border-radius: 4px;
+    padding: 0 6px;
+    font-size: 10px;
+    margin-left: 8px;
+    border: 1px solid rgba(6,182,212,0.2);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .jv-path-tag:hover { background: rgba(6,182,212,0.2); }
+
+  /* ===== SEARCH BAR ===== */
+  .search-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+
+  .search-input-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .search-input-wrap input {
+    width: 100%;
+    padding: 8px 12px 8px 34px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .search-input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(124,58,237,0.2); }
+  .search-input-wrap input::placeholder { color: var(--text-muted); }
+
+  .search-icon {
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  .search-count { font-size: 11px; color: var(--text-dim); font-family: 'Space Mono', monospace; align-self: center; flex-shrink: 0; }
+
+  .search-highlight { background: rgba(245,158,11,0.25); color: var(--accent3); border-radius: 2px; }
+  .search-highlight.current { background: rgba(245,158,11,0.5); }
+
+  /* ===== 3D GRAPH PANEL ===== */
+  #graph-panel { grid-column: 2; grid-row: 2; min-height: 320px; }
+
+  #graph-canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #graph-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+
+  .graph-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none;
+  }
+
+  .graph-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(5,5,9,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .graph-info {
+    background: rgba(5,5,9,0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: right;
+    pointer-events: all;
+  }
+
+  .graph-info p { font-size: 10px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+  .graph-info strong { color: var(--accent2); }
+
+  /* ===== GRAPH TABS ===== */
+  .graph-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .graph-tab {
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    font-family: 'Syne', sans-serif;
+    margin-bottom: -1px;
+  }
+  .graph-tab:hover { color: var(--text); }
+  .graph-tab.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+
+  /* ===== TOAST ===== */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--accent4); }
+  #toast.error { border-color: var(--danger); }
+
+  /* ===== PATH BAR ===== */
+  .path-bar {
+    padding: 8px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    color: var(--text-muted);
+    background: var(--bg);
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .path-bar .path-segment { color: var(--accent2); }
+
+  /* ===== MINI STATS ===== */
+  .mini-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .mini-stat {
+    padding: 8px 12px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .mini-stat:last-child { border-right: none; }
+  .mini-stat .val { font-size: 18px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .mini-stat .lbl { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-top: 2px; }
+
+  /* ===== ERROR STATE ===== */
+  .error-msg {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 8px;
+    margin: 16px;
+    font-size: 12px;
+    color: var(--danger);
+    font-family: 'Space Mono', monospace;
+    animation: shake 0.4s ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  /* ===== EMPTY STATE ===== */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text-muted);
+    padding: 40px;
+  }
+
+  .empty-icon {
+    width: 60px; height: 60px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .empty-state p { font-size: 13px; text-align: center; line-height: 1.6; }
+
+  /* ===== LOADING BAR ===== */
+  .loading-bar {
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent));
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ===== SAMPLE SAMPLES ===== */
+  .samples { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 16px; border-top: 1px solid var(--border); }
+  .sample-chip {
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: 'Space Mono', monospace;
+    transition: all 0.2s;
+    background: transparent;
+  }
+  .sample-chip:hover { border-color: var(--accent3); color: var(--accent3); background: rgba(245,158,11,0.08); }
+
+  /* Copy flash */
+  @keyframes copyFlash {
+    0% { background: rgba(16,185,129,0.15); }
+    100% { background: transparent; }
+  }
+  .copy-flash { animation: copyFlash 0.5s ease; }
+
+  /* Progress bar for depth visualization */
+  .depth-bar {
+    height: 2px;
+    background: var(--border);
+    flex: 1;
+    border-radius: 1px;
+    overflow: hidden;
+    margin: 0 4px;
+  }
+  .depth-fill {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 0.5s ease;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⬡</div>
+      VOID·JSON
+      <span>/ dimensional data explorer</span>
+    </div>
+    <div class="stats-bar">
+      <div class="stat">nodes: <strong id="stat-nodes">—</strong></div>
+      <div class="stat">depth: <strong id="stat-depth">—</strong></div>
+      <div class="stat">keys: <strong id="stat-keys">—</strong></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="formatJSON()">⟳ Format</button>
+      <button class="btn" onclick="minifyJSON()">⟨⟩ Minify</button>
+      <button class="btn" onclick="copyOutput()">⎘ Copy</button>
+      <button class="btn primary" onclick="parseAndRender()">▶ Parse</button>
+    </div>
+  </header>
+
+  <!-- WORKSPACE -->
+  <div class="workspace">
+
+    <!-- INPUT PANEL -->
+    <div class="panel" id="input-panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="dot"></div> RAW INPUT</div>
+        <div class="panel-actions">
+          <button class="icon-btn" title="Clear" onclick="clearInput()">✕</button>
+          <button class="icon-btn" title="Upload JSON" onclick="triggerUpload()">↑</button>
+        </div>
+      </div>
+      <div class="input-area">
+        <textarea id="json-input" spellcheck="false" placeholder='{
+  "paste": "your JSON here",
+  "or": "try a sample below",
+  "features": ["3D graph", "search", "collapse", "copy path"],
+  "ready": true
+}' oninput="onInputChange()"></textarea>
+        <div class="input-overlay"></div>
+      </div>
+      <div class="samples">
+        <span style="font-size:11px;color:var(--text-muted);align-self:center;font-family:'Space Mono',monospace;">samples →</span>
+        <button class="sample-chip" onclick="loadSample('user')">👤 user</button>
+        <button class="sample-chip" onclick="loadSample('api')">🔗 api response</button>
+        <button class="sample-chip" onclick="loadSample('chart')">📊 chart data</button>
+        <button class="sample-chip" onclick="loadSample('nested')">🌳 nested</button>
+        <button class="sample-chip" onclick="loadSample('github')">⚡ complex</button>
+      </div>
+    </div>
+
+    <!-- VIEWER PANEL -->
+    <div class="panel" id="viewer-panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="dot cyan"></div> STRUCTURED VIEW</div>
+        <div class="panel-actions">
+          <button class="icon-btn" title="Expand All" onclick="expandAll()">⊞</button>
+          <button class="icon-btn" title="Collapse All" onclick="collapseAll()">⊟</button>
+          <button class="icon-btn" title="Copy formatted" onclick="copyFormatted()">⎘</button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <span class="search-icon">⌕</span>
+          <input type="text" id="search-input" placeholder="Search keys or values..." oninput="onSearch(this.value)">
+        </div>
+        <span class="search-count" id="search-count"></span>
+      </div>
+      <div class="json-viewer" id="json-viewer">
+        <div class="empty-state">
+          <div class="empty-icon">{ }</div>
+          <p>Paste JSON in the editor<br>and hit <strong style="color:var(--accent)">Parse</strong></p>
+        </div>
+      </div>
+      <div class="path-bar" id="path-bar">$.root</div>
+      <div class="mini-stats" id="mini-stats" style="display:none">
+        <div class="mini-stat"><div class="val" id="ms-strings">0</div><div class="lbl">Strings</div></div>
+        <div class="mini-stat"><div class="val" id="ms-numbers">0</div><div class="lbl">Numbers</div></div>
+        <div class="mini-stat"><div class="val" id="ms-booleans">0</div><div class="lbl">Booleans</div></div>
+        <div class="mini-stat"><div class="val" id="ms-nulls">0</div><div class="lbl">Nulls</div></div>
+      </div>
+    </div>
+
+    <!-- GRAPH PANEL -->
+    <div class="panel" id="graph-panel">
+      <div class="panel-header">
+        <div class="panel-title"><div class="dot amber"></div> 3D VISUALIZATION</div>
+        <div class="panel-actions">
+          <button class="icon-btn" title="Reset camera" onclick="resetCamera()">⊙</button>
+        </div>
+      </div>
+      <div class="graph-tabs">
+        <button class="graph-tab active" onclick="switchGraph('sphere', this)">Sphere Map</button>
+        <button class="graph-tab" onclick="switchGraph('tree', this)">Tree Graph</button>
+        <button class="graph-tab" onclick="switchGraph('bars', this)">Value Bars</button>
+        <button class="graph-tab" onclick="switchGraph('network', this)">Network</button>
+      </div>
+      <div id="graph-canvas-container">
+        <canvas id="graph-canvas"></canvas>
+        <div class="graph-overlay">
+          <div class="graph-legend" id="graph-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Object</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div> Array</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--string)"></div> String</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--number)"></div> Number</div>
+          </div>
+          <div class="graph-info">
+            <p>Drag to rotate</p>
+            <p>Scroll to zoom</p>
+            <p>Mode: <strong id="graph-mode-label">Sphere Map</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">✓ Copied!</div>
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="file-input" accept=".json,application/json" style="display:none" onchange="handleFileUpload(event)">
+
+<script>
+// ===== STATE =====
+let parsedData = null;
+let collapsedPaths = new Set();
+let searchQuery = '';
+let searchMatches = [];
+let currentSearchIndex = 0;
+let typeStats = { strings: 0, numbers: 0, booleans: 0, nulls: 0 };
+let currentGraphMode = 'sphere';
+
+// Three.js state
+let scene, camera, renderer, animId;
+let graphObjects = [];
+let isMouseDown = false, prevMouse = {x: 0, y: 0};
+let graphGroup;
+let rotationVelocity = {x: 0, y: 0};
+
+// ===== SAMPLES =====
+const SAMPLES = {
+  user: {
+    "id": "usr_7f3a2c",
+    "name": "Aby Thomas",
+    "role": "Technical Lead",
+    "company": "Josys",
+    "location": { "city": "Bangalore", "country": "India", "timezone": "Asia/Kolkata" },
+    "skills": ["NestJS", "Node.js", "Python", "FastAPI", "AWS", "React", "Three.js"],
+    "stats": { "projects": 12, "commits": 2847, "reviews": 394 },
+    "active": true,
+    "joined": "2022-04-01",
+    "avatar": null
+  },
+  api: {
+    "status": 200,
+    "message": "OK",
+    "meta": { "page": 1, "per_page": 20, "total": 142, "pages": 8 },
+    "data": [
+      { "id": 1, "name": "Alpha", "score": 98.4, "enabled": true },
+      { "id": 2, "name": "Beta", "score": 87.1, "enabled": true },
+      { "id": 3, "name": "Gamma", "score": 72.9, "enabled": false }
+    ],
+    "errors": []
+  },
+  chart: {
+    "title": "Monthly Revenue 2024",
+    "unit": "USD",
+    "data": {
+      "labels": ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+      "values": [42000, 51000, 48000, 67000, 73000, 89000, 95000, 102000, 88000, 112000, 134000, 158000],
+      "growth": [null, 21.4, -5.9, 39.6, 9.0, 21.9, 6.7, 7.4, -13.7, 27.3, 19.6, 17.9]
+    },
+    "currency": "USD",
+    "region": "Global"
+  },
+  nested: {
+    "universe": {
+      "galaxy": {
+        "solar_system": {
+          "star": "Sun",
+          "planets": {
+            "inner": [
+              { "name": "Mercury", "moons": 0, "habitable": false },
+              { "name": "Venus", "moons": 0, "habitable": false },
+              { "name": "Earth", "moons": 1, "habitable": true, "life": { "intelligent": true, "species": 8700000 } },
+              { "name": "Mars", "moons": 2, "habitable": null }
+            ],
+            "outer": ["Jupiter", "Saturn", "Uranus", "Neptune"]
+          }
+        }
+      }
+    }
+  },
+  github: {
+    "repository": "void-json",
+    "version": "2.4.1",
+    "license": "MIT",
+    "author": { "name": "Aby Thomas", "email": "aby@example.com", "github": "@aby" },
+    "dependencies": {
+      "three": "^0.128.0",
+      "monaco-editor": "^0.33.0"
+    },
+    "devDependencies": {
+      "vite": "^4.0.0",
+      "typescript": "^5.0.0",
+      "prettier": "^3.0.0"
+    },
+    "scripts": {
+      "dev": "vite dev",
+      "build": "vite build",
+      "preview": "vite preview",
+      "lint": "eslint src"
+    },
+    "config": {
+      "maxDepth": 32,
+      "theme": "dark",
+      "animations": true,
+      "features": { "3d": true, "search": true, "copy": true, "export": true }
+    }
+  }
+};
+
+// ===== INIT THREE.JS =====
+function initThreeJS() {
+  const container = document.getElementById('graph-canvas-container');
+  const canvas = document.getElementById('graph-canvas');
+  const w = container.clientWidth, h = container.clientHeight;
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x050509);
+  scene.fog = new THREE.FogExp2(0x050509, 0.02);
+
+  camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 500);
+  camera.position.set(0, 0, 12);
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Ambient + point lights
+  scene.add(new THREE.AmbientLight(0x111122, 1.5));
+  const pl1 = new THREE.PointLight(0x7c3aed, 2, 40);
+  pl1.position.set(5, 5, 5);
+  scene.add(pl1);
+  const pl2 = new THREE.PointLight(0x06b6d4, 2, 40);
+  pl2.position.set(-5, -3, -5);
+  scene.add(pl2);
+
+  graphGroup = new THREE.Group();
+  scene.add(graphGroup);
+
+  // Add floating particles (always visible)
+  addParticles();
+
+  // Mouse controls
+  canvas.addEventListener('mousedown', e => { isMouseDown = true; prevMouse = {x: e.clientX, y: e.clientY}; });
+  canvas.addEventListener('mouseup', () => { isMouseDown = false; });
+  canvas.addEventListener('mousemove', e => {
+    if (!isMouseDown) return;
+    const dx = e.clientX - prevMouse.x, dy = e.clientY - prevMouse.y;
+    rotationVelocity.x = dy * 0.005;
+    rotationVelocity.y = dx * 0.005;
+    graphGroup.rotation.x += rotationVelocity.x;
+    graphGroup.rotation.y += rotationVelocity.y;
+    prevMouse = {x: e.clientX, y: e.clientY};
+  });
+  canvas.addEventListener('wheel', e => {
+    camera.position.z = Math.max(3, Math.min(30, camera.position.z + e.deltaY * 0.02));
+  });
+
+  // Resize
+  const ro = new ResizeObserver(() => {
+    const nw = container.clientWidth, nh = container.clientHeight;
+    camera.aspect = nw / nh;
+    camera.updateProjectionMatrix();
+    renderer.setSize(nw, nh);
+  });
+  ro.observe(container);
+
+  animateThree();
+}
+
+function addParticles() {
+  const geo = new THREE.BufferGeometry();
+  const count = 300;
+  const pos = new Float32Array(count * 3);
+  for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - 0.5) * 60;
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const mat = new THREE.PointsMaterial({ color: 0x1e1e30, size: 0.15, transparent: true, opacity: 0.8 });
+  scene.add(new THREE.Points(geo, mat));
+}
+
+function animateThree() {
+  animId = requestAnimationFrame(animateThree);
+  // Inertia
+  if (!isMouseDown) {
+    graphGroup.rotation.y += 0.003;
+    graphGroup.rotation.x *= 0.95;
+  }
+  renderer.render(scene, camera);
+}
+
+// ===== GRAPH RENDERING =====
+function clearGraph() {
+  while (graphGroup.children.length) graphGroup.remove(graphGroup.children[0]);
+}
+
+const typeColor = {
+  object: 0x7c3aed,
+  array: 0x06b6d4,
+  string: 0xa3e635,
+  number: 0xfb923c,
+  boolean: 0x60a5fa,
+  null: 0xf43f5e
+};
+
+function getType(val) {
+  if (val === null) return 'null';
+  if (Array.isArray(val)) return 'array';
+  return typeof val;
+}
+
+function renderSphereMap(data) {
+  clearGraph();
+  const nodes = [];
+  function collect(obj, depth, parentIdx) {
+    const idx = nodes.length;
+    nodes.push({ val: obj, depth, parentIdx, type: getType(obj) });
+    if (obj && typeof obj === 'object') {
+      Object.values(obj).forEach(v => collect(v, depth + 1, idx));
+    }
+    return idx;
+  }
+  collect(data, 0, -1);
+
+  const phi = Math.PI * (3 - Math.sqrt(5));
+  nodes.forEach((n, i) => {
+    const r = 3 + n.depth * 1.8;
+    const theta = phi * i;
+    const y = (1 - (i / nodes.length) * 2) * r * 0.5;
+    const rad = Math.sqrt(r * r - y * y);
+    const x = Math.cos(theta) * rad * 0.5;
+    const z = Math.sin(theta) * rad * 0.5;
+
+    const size = n.depth === 0 ? 0.5 : Math.max(0.1, 0.35 - n.depth * 0.04);
+    const geo = new THREE.SphereGeometry(size, 12, 12);
+    const mat = new THREE.MeshPhongMaterial({
+      color: typeColor[n.type],
+      emissive: typeColor[n.type],
+      emissiveIntensity: 0.2,
+      transparent: true,
+      opacity: Math.max(0.5, 1 - n.depth * 0.1)
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, z);
+    n.pos = {x, y, z};
+    graphGroup.add(mesh);
+
+    if (n.parentIdx >= 0 && nodes[n.parentIdx].pos) {
+      const p = nodes[n.parentIdx].pos;
+      const lGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(p.x, p.y, p.z),
+        new THREE.Vector3(x, y, z)
+      ]);
+      const lMat = new THREE.LineBasicMaterial({ color: 0x1e1e40, transparent: true, opacity: 0.4 });
+      graphGroup.add(new THREE.Line(lGeo, lMat));
+    }
+  });
+}
+
+function renderTreeGraph(data) {
+  clearGraph();
+  function addNode(obj, x, y, depth, width) {
+    const size = Math.max(0.15, 0.45 - depth * 0.07);
+    const geo = new THREE.OctahedronGeometry(size, 0);
+    const mat = new THREE.MeshPhongMaterial({
+      color: typeColor[getType(obj)],
+      emissive: typeColor[getType(obj)],
+      emissiveIntensity: 0.3,
+      wireframe: depth > 2
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(x, y, 0);
+    graphGroup.add(mesh);
+
+    if (obj && typeof obj === 'object') {
+      const keys = Object.keys(obj);
+      const step = width / Math.max(keys.length, 1);
+      const startX = x - width / 2 + step / 2;
+      keys.forEach((k, i) => {
+        const cx = startX + i * step, cy = y - 2.2;
+        const lGeo = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(x, y, 0), new THREE.Vector3(cx, cy, 0)
+        ]);
+        graphGroup.add(new THREE.Line(lGeo, new THREE.LineBasicMaterial({ color: 0x2a2a45 })));
+        addNode(obj[k], cx, cy, depth + 1, step * 0.9);
+      });
+    }
+  }
+  addNode(data, 0, 4, 0, 14);
+}
+
+function renderValueBars(data) {
+  clearGraph();
+  const nums = [];
+  function collect(obj, path) {
+    if (typeof obj === 'number') nums.push({ val: obj, path });
+    else if (obj && typeof obj === 'object') {
+      Object.entries(obj).forEach(([k, v]) => collect(v, path + '.' + k));
+    }
+  }
+  collect(data, 'root');
+
+  if (nums.length === 0) {
+    // Show placeholder
+    for (let i = 0; i < 8; i++) {
+      const h = Math.random() * 4 + 0.5;
+      const geo = new THREE.BoxGeometry(0.6, h, 0.6);
+      const mat = new THREE.MeshPhongMaterial({ color: 0x1e1e40 });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.set((i - 3.5) * 1.2, h / 2 - 2, 0);
+      graphGroup.add(mesh);
+    }
+    return;
+  }
+
+  const max = Math.max(...nums.map(n => Math.abs(n.val))) || 1;
+  const slice = nums.slice(0, 20);
+  const spread = Math.min(slice.length * 1.0, 16);
+  slice.forEach((n, i) => {
+    const h = (Math.abs(n.val) / max) * 6 + 0.1;
+    const geo = new THREE.BoxGeometry(0.7, h, 0.7);
+    const mat = new THREE.MeshPhongMaterial({
+      color: typeColor.number,
+      emissive: typeColor.number,
+      emissiveIntensity: 0.15
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    const x = (i / (slice.length - 1) - 0.5) * spread;
+    mesh.position.set(x, h / 2 - 2, 0);
+    graphGroup.add(mesh);
+  });
+}
+
+function renderNetwork(data) {
+  clearGraph();
+  const nodes = [];
+  function collect(obj, depth) {
+    if (depth > 3 || !obj || typeof obj !== 'object') return;
+    const idx = nodes.length;
+    const angle = Math.random() * Math.PI * 2;
+    const r = 1 + depth * 2.5 + Math.random() * 1.5;
+    nodes.push({ x: Math.cos(angle)*r, y: (Math.random()-0.5)*4, z: Math.sin(angle)*r, type: getType(obj), depth });
+    Object.values(obj).forEach(v => {
+      if (typeof v === 'object' && v !== null) {
+        const childIdx = nodes.length;
+        collect(v, depth + 1);
+        if (nodes[childIdx]) {
+          const a = nodes[idx], b = nodes[childIdx];
+          const lGeo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(a.x,a.y,a.z),
+            new THREE.Vector3(b.x,b.y,b.z)
+          ]);
+          graphGroup.add(new THREE.Line(lGeo, new THREE.LineBasicMaterial({ color: 0x2a2a45, transparent: true, opacity: 0.5 })));
+        }
+      }
+    });
+  }
+  collect(data, 0);
+
+  nodes.forEach(n => {
+    const geo = new THREE.SphereGeometry(Math.max(0.12, 0.4 - n.depth * 0.08), 8, 8);
+    const mat = new THREE.MeshPhongMaterial({ color: typeColor[n.type], emissive: typeColor[n.type], emissiveIntensity: 0.3 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(n.x, n.y, n.z);
+    graphGroup.add(mesh);
+  });
+}
+
+function switchGraph(mode, btn) {
+  document.querySelectorAll('.graph-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  currentGraphMode = mode;
+  document.getElementById('graph-mode-label').textContent = btn.textContent;
+  if (parsedData) updateGraph(parsedData);
+}
+
+function updateGraph(data) {
+  if (!scene) return;
+  const fns = { sphere: renderSphereMap, tree: renderTreeGraph, bars: renderValueBars, network: renderNetwork };
+  (fns[currentGraphMode] || renderSphereMap)(data);
+}
+
+function resetCamera() {
+  camera.position.set(0, 0, 12);
+  if (graphGroup) { graphGroup.rotation.set(0, 0, 0); }
+}
+
+// ===== JSON PARSING & RENDERING =====
+function getStats(data) {
+  let nodes = 0, depth = 0, keys = 0;
+  typeStats = { strings: 0, numbers: 0, booleans: 0, nulls: 0 };
+  function walk(v, d) {
+    nodes++;
+    depth = Math.max(depth, d);
+    const t = getType(v);
+    if (t === 'string') typeStats.strings++;
+    else if (t === 'number') typeStats.numbers++;
+    else if (t === 'boolean') typeStats.booleans++;
+    else if (t === 'null') typeStats.nulls++;
+    if (v && typeof v === 'object') {
+      Object.keys(v).forEach(k => { if (!Array.isArray(v)) keys++; walk(v[k], d + 1); });
+    }
+  }
+  walk(data, 0);
+  return { nodes, depth, keys };
+}
+
+function parseAndRender() {
+  const raw = document.getElementById('json-input').value.trim();
+  if (!raw) { showToast('No input!', 'error'); return; }
+  try {
+    parsedData = JSON.parse(raw);
+    const stats = getStats(parsedData);
+    document.getElementById('stat-nodes').textContent = stats.nodes;
+    document.getElementById('stat-depth').textContent = stats.depth;
+    document.getElementById('stat-keys').textContent = stats.keys;
+    document.getElementById('ms-strings').textContent = typeStats.strings;
+    document.getElementById('ms-numbers').textContent = typeStats.numbers;
+    document.getElementById('ms-booleans').textContent = typeStats.booleans;
+    document.getElementById('ms-nulls').textContent = typeStats.nulls;
+    document.getElementById('mini-stats').style.display = 'grid';
+
+    collapsedPaths.clear();
+    renderViewer(parsedData);
+    updateGraph(parsedData);
+    showToast('✓ Parsed successfully!', 'success');
+  } catch(e) {
+    const viewer = document.getElementById('json-viewer');
+    viewer.innerHTML = `<div class="error-msg">⚠ ${e.message}</div>`;
+    document.getElementById('mini-stats').style.display = 'none';
+    parsedData = null;
+    showToast('Invalid JSON', 'error');
+  }
+}
+
+let renderDelay = 0;
+function renderViewer(data) {
+  renderDelay = 0;
+  const viewer = document.getElementById('json-viewer');
+  viewer.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  buildNode(frag, data, '', 0, null);
+  viewer.appendChild(frag);
+  applySearch();
+}
+
+function buildNode(parent, val, key, depth, path) {
+  const fullPath = path === null ? '$' : (path + (key !== '' ? (typeof key === 'number' ? `[${key}]` : `.${key}`) : ''));
+  const type = getType(val);
+  const isCollapsible = val !== null && typeof val === 'object';
+  const isCollapsed = collapsedPaths.has(fullPath);
+
+  const line = document.createElement('div');
+  line.className = 'jv-line';
+  line.style.animationDelay = `${Math.min(renderDelay++ * 8, 400)}ms`;
+  line.dataset.path = fullPath;
+
+  // Indent
+  for (let i = 0; i < depth; i++) {
+    const ind = document.createElement('span');
+    ind.className = 'jv-indent';
+    line.appendChild(ind);
+  }
+
+  // Toggle button
+  if (isCollapsible) {
+    const tog = document.createElement('button');
+    tog.className = 'jv-toggle';
+    tog.textContent = isCollapsed ? '+' : '−';
+    tog.onclick = (e) => { e.stopPropagation(); togglePath(fullPath); };
+    line.appendChild(tog);
+  } else {
+    const sp = document.createElement('span'); sp.style.width='20px'; sp.style.display='inline-block';
+    line.appendChild(sp);
+  }
+
+  // Key
+  if (key !== '') {
+    const kSpan = document.createElement('span');
+    kSpan.className = 'jv-key';
+    kSpan.textContent = typeof key === 'number' ? key : `"${key}"`;
+    line.appendChild(kSpan);
+    const colon = document.createElement('span');
+    colon.className = 'jv-colon';
+    colon.textContent = ':';
+    line.appendChild(colon);
+  }
+
+  // Value or bracket
+  if (isCollapsed) {
+    const bracket = document.createElement('span');
+    bracket.className = 'jv-bracket';
+    bracket.textContent = Array.isArray(val) ? '[' : '{';
+    line.appendChild(bracket);
+    const preview = document.createElement('span');
+    preview.className = 'jv-collapsed-preview';
+    preview.textContent = ' … ';
+    line.appendChild(preview);
+    const count = document.createElement('span');
+    count.className = 'jv-count-badge';
+    const len = Array.isArray(val) ? val.length : Object.keys(val).length;
+    count.textContent = len;
+    line.appendChild(count);
+    const closeBracket = document.createElement('span');
+    closeBracket.className = 'jv-bracket';
+    closeBracket.textContent = Array.isArray(val) ? ']' : '}';
+    line.appendChild(closeBracket);
+  } else if (isCollapsible) {
+    const bracket = document.createElement('span');
+    bracket.className = 'jv-bracket';
+    bracket.textContent = Array.isArray(val) ? '[' : '{';
+    line.appendChild(bracket);
+    if (Array.isArray(val)) {
+      const cnt = document.createElement('span'); cnt.className = 'jv-count-badge'; cnt.textContent = val.length;
+      line.appendChild(cnt);
+    }
+  } else {
+    const vSpan = document.createElement('span');
+    if (type === 'string') { vSpan.className = 'jv-string'; vSpan.textContent = `"${val}"`; }
+    else if (type === 'number') { vSpan.className = 'jv-number'; vSpan.textContent = val; }
+    else if (type === 'boolean') { vSpan.className = 'jv-boolean'; vSpan.textContent = val; }
+    else if (type === 'null') { vSpan.className = 'jv-null'; vSpan.textContent = 'null'; }
+    line.appendChild(vSpan);
+  }
+
+  // Path tag on hover
+  line.addEventListener('mouseenter', () => {
+    document.getElementById('path-bar').innerHTML = `<span class="path-segment">${fullPath}</span>`;
+  });
+  line.addEventListener('dblclick', () => {
+    navigator.clipboard.writeText(fullPath);
+    showToast('Path copied!', 'success');
+    line.classList.add('copy-flash');
+    setTimeout(() => line.classList.remove('copy-flash'), 500);
+  });
+
+  parent.appendChild(line);
+
+  if (isCollapsible && !isCollapsed) {
+    const entries = Array.isArray(val) ? val.map((v,i) => [i,v]) : Object.entries(val);
+    entries.forEach(([k, v]) => buildNode(parent, v, k, depth + 1, fullPath));
+    // Closing bracket
+    const closing = document.createElement('div');
+    closing.className = 'jv-line';
+    closing.style.animationDelay = `${Math.min(renderDelay++ * 8, 400)}ms`;
+    for (let i = 0; i < depth; i++) {
+      const ind = document.createElement('span'); ind.className = 'jv-indent';
+      closing.appendChild(ind);
+    }
+    const sp = document.createElement('span'); sp.style.width='20px'; sp.style.display='inline-block';
+    closing.appendChild(sp);
+    const cb = document.createElement('span');
+    cb.className = 'jv-bracket';
+    cb.textContent = Array.isArray(val) ? ']' : '}';
+    closing.appendChild(cb);
+    parent.appendChild(closing);
+  }
+}
+
+function togglePath(path) {
+  if (collapsedPaths.has(path)) collapsedPaths.delete(path);
+  else collapsedPaths.add(path);
+  if (parsedData) renderViewer(parsedData);
+}
+
+function expandAll() { collapsedPaths.clear(); if (parsedData) renderViewer(parsedData); }
+function collapseAll() {
+  function collectPaths(v, path) {
+    if (v && typeof v === 'object') {
+      collapsedPaths.add(path);
+      Object.keys(v).forEach(k => collectPaths(v[k], path + '.' + k));
+    }
+  }
+  if (parsedData) { collapsedPaths.clear(); collectPaths(parsedData, '$'); renderViewer(parsedData); }
+}
+
+// ===== SEARCH =====
+function onSearch(q) {
+  searchQuery = q.toLowerCase();
+  applySearch();
+}
+
+function applySearch() {
+  const viewer = document.getElementById('json-viewer');
+  const countEl = document.getElementById('search-count');
+  viewer.querySelectorAll('.search-highlight').forEach(el => {
+    el.replaceWith(document.createTextNode(el.textContent));
+  });
+  if (!searchQuery) { countEl.textContent = ''; return; }
+  let count = 0;
+  viewer.querySelectorAll('.jv-key, .jv-string, .jv-number, .jv-boolean').forEach(el => {
+    const text = el.textContent;
+    if (text.toLowerCase().includes(searchQuery)) {
+      count++;
+      const idx = text.toLowerCase().indexOf(searchQuery);
+      el.innerHTML = text.substring(0, idx) +
+        `<span class="search-highlight">${text.substring(idx, idx + searchQuery.length)}</span>` +
+        text.substring(idx + searchQuery.length);
+    }
+  });
+  countEl.textContent = count ? `${count} match${count !== 1 ? 'es' : ''}` : 'no matches';
+}
+
+// ===== FORMAT / MINIFY =====
+function formatJSON() {
+  const inp = document.getElementById('json-input');
+  try { inp.value = JSON.stringify(JSON.parse(inp.value), null, 2); showToast('Formatted!', 'success'); }
+  catch(e) { showToast('Invalid JSON', 'error'); }
+}
+
+function minifyJSON() {
+  const inp = document.getElementById('json-input');
+  try { inp.value = JSON.stringify(JSON.parse(inp.value)); showToast('Minified!', 'success'); }
+  catch(e) { showToast('Invalid JSON', 'error'); }
+}
+
+function clearInput() {
+  document.getElementById('json-input').value = '';
+  parsedData = null;
+  document.getElementById('json-viewer').innerHTML = '<div class="empty-state"><div class="empty-icon">{ }</div><p>Paste JSON in the editor<br>and hit <strong style="color:var(--accent)">Parse</strong></p></div>';
+  document.getElementById('mini-stats').style.display = 'none';
+  document.getElementById('stat-nodes').textContent = '—';
+  document.getElementById('stat-depth').textContent = '—';
+  document.getElementById('stat-keys').textContent = '—';
+  clearGraph();
+}
+
+function copyOutput() {
+  const inp = document.getElementById('json-input').value;
+  if (!inp) { showToast('Nothing to copy', 'error'); return; }
+  navigator.clipboard.writeText(inp).then(() => showToast('Copied!', 'success'));
+}
+
+function copyFormatted() {
+  if (!parsedData) { showToast('Parse JSON first', 'error'); return; }
+  navigator.clipboard.writeText(JSON.stringify(parsedData, null, 2)).then(() => showToast('Formatted JSON copied!', 'success'));
+}
+
+function triggerUpload() { document.getElementById('file-input').click(); }
+
+function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('json-input').value = ev.target.result;
+    parseAndRender();
+  };
+  reader.readAsText(file);
+}
+
+function onInputChange() {
+  const val = document.getElementById('json-input').value.trim();
+  if (!val) return;
+  clearTimeout(window._autoParseTimer);
+  window._autoParseTimer = setTimeout(() => {
+    try { JSON.parse(val); parseAndRender(); } catch(e) {}
+  }, 800);
+}
+
+function loadSample(name) {
+  const data = SAMPLES[name];
+  if (!data) return;
+  document.getElementById('json-input').value = JSON.stringify(data, null, 2);
+  parseAndRender();
+}
+
+// ===== TOAST =====
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `show ${type}`;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== BOOT =====
+window.addEventListener('load', () => {
+  initThreeJS();
+  // Load default sample
+  loadSample('user');
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); parseAndRender(); }
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'F') { e.preventDefault(); formatJSON(); }
+  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+    e.preventDefault();
+    document.getElementById('search-input').focus();
+  }
+});
+</script>
+</body>
+</html>
