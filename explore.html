@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Aby Saji Pappachan — Interactive Star System</title>
-<meta name="description" content="The interactive portfolio of Aby Saji Pappachan, Technical Lead at Josys. Pilot a ship through a star system of projects — dockman, redis_gui, sandkit, InkTerm, Yankit, AI &amp; data platforms." />
+<meta name="description" content="The interactive portfolio of Aby Saji Pappachan, Technical Lead at Josys. Pilot a ship through a star system of projects — RestClient, dockman, redis_gui, sandkit, InkTerm, Yankit, AI &amp; data platforms." />
 <meta name="author" content="Aby Saji Pappachan" />
 <meta property="og:title" content="Aby Saji Pappachan — Interactive Star System" />
 <meta property="og:description" content="An explorable 3D star system of projects &amp; engineering work." />
@@ -345,7 +345,7 @@
   <div class="eyebrow">INTERACTIVE PORTFOLIO &nbsp;//&nbsp; STAR SYSTEM</div>
   <div class="title">ABY SAJI<br><span>PAPPACHAN</span></div>
   <div class="role">Tech Lead — Backend &amp; AI Engineer · Generative AI</div>
-  <div class="featLine">&#9733; FEATURED BUILDS &nbsp;·&nbsp; Yankit · dockman · redis_gui · sandkit · InkTerm</div>
+  <div class="featLine">&#9733; FEATURED BUILDS &nbsp;·&nbsp; Yankit · dockman · redis_gui · sandkit · RestClient · InkTerm</div>
   <button id="startBtn">&#9656; LAUNCH EXPLORER</button>
   <div class="tip">pilot your ship through the system — approach a planet to open it</div>
 </div>
@@ -466,6 +466,23 @@ var PROJECTS = [
     status:"Open-source project",
     poster:"sandkit.svg",
     links:[{label:"VIEW CODE",url:"https://github.com/AbyAbyss/sandkit",pri:true}] },
+
+  { id:"restclient", ring:"inner", name:"RestClient", glyph:"rest", color:"#ff9f43",
+    tag:"OPEN SOURCE", sub:"REST Client · Tauri",
+    desc:"A fast, open-source desktop REST client with a cartoon UI — send HTTP requests, "+
+         "manage collections and environments, run Postman-style test scripts, inspect "+
+         "response timelines, and load-test APIs with built-in performance runs.",
+    tech:["TypeScript","React","Tauri","Rust","SQLite"],
+    status:"Open-source project",
+    images:[
+      "https://raw.githubusercontent.com/AbyAbyss/RestClient/main/docs/screenshot-main.png",
+      "https://raw.githubusercontent.com/AbyAbyss/RestClient/main/docs/screenshot-timeline.png",
+      "https://raw.githubusercontent.com/AbyAbyss/RestClient/main/docs/screenshot-tests.png",
+      "https://raw.githubusercontent.com/AbyAbyss/RestClient/main/docs/screenshot-environments.png",
+      "https://raw.githubusercontent.com/AbyAbyss/RestClient/main/docs/screenshot-perf-config.png",
+      "https://raw.githubusercontent.com/AbyAbyss/RestClient/main/docs/screenshot-perf-results.png"
+    ],
+    links:[{label:"VIEW CODE",url:"https://github.com/AbyAbyss/RestClient",pri:true}] },
 
   { id:"inkterm", ring:"inner", name:"InkTerm", glyph:"term", color:"#36e07f",
     tag:"OPEN SOURCE", sub:"AI Terminal · TypeScript",
@@ -629,6 +646,22 @@ function drawGlyph(x,id,cx,cy,s,col){
     x.moveTo(cx-s*0.4,cy-s*0.02);x.lineTo(cx-s*0.16,cy+s*0.18);x.lineTo(cx-s*0.4,cy+s*0.38);
     x.stroke();
     x.fillStyle=col;x.fillRect(cx-s*0.02,cy+s*0.28,s*0.42,s*0.12);
+  } else if(id==='rest'){
+    x.lineWidth=s*0.11;
+    x.beginPath();
+    x.moveTo(cx+s*0.38,cy-s*0.52);
+    x.quadraticCurveTo(cx-s*0.12,cy,cx+s*0.38,cy+s*0.52);
+    x.stroke();
+    x.beginPath();
+    x.moveTo(cx-s*0.38,cy-s*0.52);
+    x.quadraticCurveTo(cx+s*0.12,cy,cx-s*0.38,cy+s*0.52);
+    x.stroke();
+    x.lineWidth=s*0.1;
+    x.beginPath();
+    x.moveTo(cx-s*0.48,cy);x.lineTo(cx+s*0.48,cy);x.stroke();
+    x.beginPath();
+    x.moveTo(cx+s*0.3,cy-s*0.14);x.lineTo(cx+s*0.48,cy);x.lineTo(cx+s*0.3,cy+s*0.14);
+    x.stroke();
   } else if(id==='chart'){
     var hs=[0.5,0.92,0.36,0.72],bw=s*0.24,gap=s*0.11;
     for(var bi=0;bi<4;bi++){
