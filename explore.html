@@ -102,10 +102,25 @@
   }
   .panel::before{top:-1px;left:-1px;border-right:none;border-bottom:none;}
   .panel::after{bottom:-1px;right:-1px;border-left:none;border-top:none;}
-  #namePlate{top:16px;left:16px;padding:11px 16px 11px 18px;}
-  #namePlate .ttl{font-family:var(--display);font-size:13px;font-weight:700;color:#fff;letter-spacing:1px;}
+  .hudTop{
+    position:absolute;top:16px;left:16px;right:16px;
+    display:flex;justify-content:space-between;align-items:flex-start;gap:14px;
+    pointer-events:none;z-index:2;
+  }
+  #namePlate{
+    position:relative;top:auto;left:auto;
+    padding:11px 16px 11px 18px;
+    flex:1;min-width:0;max-width:100%;
+  }
+  #namePlate .ttl{
+    font-family:var(--display);font-size:13px;font-weight:700;color:#fff;letter-spacing:1px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
   #namePlate .sb{font-family:var(--mono);font-size:11px;color:var(--cyan);margin-top:5px;letter-spacing:1px;}
-  #topRight{top:16px;right:16px;display:flex;gap:9px;}
+  #topRight{
+    position:relative;top:auto;right:auto;
+    display:flex;gap:9px;flex-shrink:0;z-index:3;
+  }
   .hbtn{
     pointer-events:auto;cursor:pointer;
     background:linear-gradient(160deg,rgba(13,19,38,.92),rgba(8,12,26,.92));
@@ -292,6 +307,9 @@
     #controls{font-size:11px;white-space:normal;width:92%;}
     #namePlate .ttl{font-size:11px;}
     .mDesc{font-size:16px;}
+    .hudTop{flex-wrap:wrap;}
+    #topRight{margin-left:auto;}
+    #featPanel{top:128px;}
   }
 </style>
 </head>
@@ -302,18 +320,20 @@
 
 <!-- ===== HUD ===== -->
 <div id="hud">
-  <div class="panel" id="namePlate">
-    <div class="ttl">ABY SAJI PAPPACHAN</div>
-    <div class="sb">Tech Lead · Backend &amp; AI Engineer</div>
+  <div class="hudTop">
+    <div class="panel" id="namePlate">
+      <div class="ttl">ABY SAJI PAPPACHAN</div>
+      <div class="sb">Tech Lead · Backend &amp; AI Engineer</div>
+    </div>
+    <div id="topRight">
+      <a class="hbtn" href="Aby_Saji_Pappachan_-_AI_Technical_Lead.pdf" download="Aby_Saji_Pappachan_-_AI_Technical_Lead.pdf">&#8592; CV</a>
+      <button class="hbtn" id="soundBtn">&#9685; SOUND</button>
+      <a class="hbtn amber" href="https://github.com/AbyAbyss" target="_blank" rel="noopener">GITHUB &#8599;</a>
+    </div>
   </div>
   <div class="panel" id="featPanel">
     <div class="fpHead" id="fpHead"><span>&#9733; FEATURED BUILDS</span><span id="fpTog">&#9650;</span></div>
     <div class="fpList" id="fpList"></div>
-  </div>
-  <div id="topRight">
-    <a class="hbtn" href="index.html">&#8592; CV</a>
-    <button class="hbtn" id="soundBtn">&#9685; SOUND</button>
-    <a class="hbtn amber" href="https://github.com/AbyAbyss" target="_blank" rel="noopener">GITHUB &#8599;</a>
   </div>
   <div id="prompt">&#9656; DOCK</div>
   <div id="controls">
@@ -1511,7 +1531,7 @@ function renderAbout(){
   $('#mContent').innerHTML=
     '<div class="mBody">'+
       '<div class="mName" style="color:#ffd98a">'+A.name+'</div>'+
-      '<div class="mSub" style="color:#ffd98a">&#9733; '+A.role+' · 7+ yrs · Bengaluru</div>'+
+      '<div class="mSub" style="color:#ffd98a">&#9733; '+A.role+' · 7+ yrs · Birmingham, UK</div>'+
       '<div class="mDesc">'+A.blurb+'</div>'+
       '<div class="secT">// FOCUS AREAS</div>'+
       '<div class="chips">'+focus+'</div>'+
