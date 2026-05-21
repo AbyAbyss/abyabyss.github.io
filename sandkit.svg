@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="'Courier New', monospace">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#160a2e"/>
+      <stop offset="1" stop-color="#0a0418"/>
+    </linearGradient>
+    <linearGradient id="run" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe14d"/>
+      <stop offset="1" stop-color="#ff9d2e"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- backdrop -->
+  <rect width="800" height="520" fill="url(#bg)"/>
+  <!-- retro grid -->
+  <g stroke="#ff2e88" stroke-width="1" opacity="0.16">
+    <line x1="0" y1="430" x2="800" y2="430"/>
+    <line x1="0" y1="465" x2="800" y2="465"/>
+    <line x1="0" y1="500" x2="800" y2="500"/>
+    <line x1="120" y1="410" x2="-80" y2="520"/>
+    <line x1="280" y1="410" x2="200" y2="520"/>
+    <line x1="440" y1="410" x2="440" y2="520"/>
+    <line x1="600" y1="410" x2="680" y2="520"/>
+    <line x1="760" y1="410" x2="960" y2="520"/>
+  </g>
+
+  <!-- window frame -->
+  <rect x="70" y="58" width="660" height="380" rx="14" fill="#1c0f3a" stroke="#ffd93d" stroke-width="3" filter="url(#glow)"/>
+  <!-- title bar -->
+  <rect x="70" y="58" width="660" height="46" rx="14" fill="#2a1556"/>
+  <rect x="70" y="86" width="660" height="18" fill="#2a1556"/>
+  <circle cx="98" cy="81" r="7" fill="#ff2e88"/>
+  <circle cx="122" cy="81" r="7" fill="#ffd93d"/>
+  <circle cx="146" cy="81" r="7" fill="#39ff14"/>
+  <text x="400" y="87" fill="#ffd93d" font-size="20" font-weight="bold" letter-spacing="3" text-anchor="middle">sandkit &#8212; code playground</text>
+
+  <!-- language tabs -->
+  <g font-size="15" font-weight="bold">
+    <rect x="92" y="120" width="86" height="34" rx="6" fill="#ffd93d"/>
+    <text x="135" y="143" fill="#1c0f3a" text-anchor="middle">JS</text>
+    <rect x="188" y="120" width="86" height="34" rx="6" fill="#3a2470" stroke="#7d5cff"/>
+    <text x="231" y="143" fill="#c9b8ff" text-anchor="middle">PY</text>
+    <rect x="284" y="120" width="86" height="34" rx="6" fill="#3a2470" stroke="#00f0ff"/>
+    <text x="327" y="143" fill="#9bedf5" text-anchor="middle">TS</text>
+    <rect x="380" y="120" width="120" height="34" rx="6" fill="#3a2470" stroke="#ff2e88"/>
+    <text x="440" y="143" fill="#ff9ecb" text-anchor="middle">QuickJS</text>
+  </g>
+
+  <!-- code body -->
+  <rect x="92" y="168" width="616" height="186" rx="8" fill="#0e0722"/>
+  <g font-size="17" letter-spacing="0.5">
+    <text x="112" y="196" fill="#5a4b88">1</text>
+    <text x="146" y="196" fill="#ff79c6">import</text>
+    <text x="232" y="196" fill="#e8e3ff">{ Sandbox }</text>
+    <text x="372" y="196" fill="#ff79c6">from</text>
+    <text x="430" y="196" fill="#ffd93d">'sandkit'</text>
+
+    <text x="112" y="232" fill="#5a4b88">2</text>
+
+    <text x="112" y="268" fill="#5a4b88">3</text>
+    <text x="146" y="268" fill="#ff79c6">const</text>
+    <text x="222" y="268" fill="#8be9fd">box</text>
+    <text x="262" y="268" fill="#e8e3ff">=</text>
+    <text x="288" y="268" fill="#ff79c6">new</text>
+    <text x="338" y="268" fill="#50fa7b">Sandbox</text>
+    <text x="446" y="268" fill="#e8e3ff">(</text>
+    <text x="462" y="268" fill="#ffd93d">'python'</text>
+    <text x="556" y="268" fill="#e8e3ff">)</text>
+
+    <text x="112" y="304" fill="#5a4b88">4</text>
+    <text x="146" y="304" fill="#ff79c6">await</text>
+    <text x="224" y="304" fill="#8be9fd">box</text>
+    <text x="262" y="304" fill="#e8e3ff">.</text>
+    <text x="276" y="304" fill="#50fa7b">run</text>
+    <text x="318" y="304" fill="#e8e3ff">(</text>
+    <text x="334" y="304" fill="#ffd93d">'print("hello, world")'</text>
+    <text x="610" y="304" fill="#e8e3ff">)</text>
+
+    <text x="112" y="340" fill="#5a4b88">5</text>
+    <text x="146" y="340" fill="#6f6398">// runs in-browser &#183; Piston &#183; Pyodide</text>
+  </g>
+  <!-- blinking cursor block -->
+  <rect x="146" y="226" width="13" height="20" fill="#39ff14">
+    <animate attributeName="opacity" values="1;1;0;0" dur="1s" repeatCount="indefinite"/>
+  </rect>
+
+  <!-- run button -->
+  <g filter="url(#glow)">
+    <rect x="556" y="374" width="152" height="44" rx="8" fill="url(#run)"/>
+  </g>
+  <text x="632" y="402" fill="#160a2e" font-size="19" font-weight="bold" letter-spacing="2" text-anchor="middle">&#9658; RUN</text>
+  <text x="92" y="402" fill="#39ff14" font-size="15">&#9656; output: hello, world</text>
+
+  <!-- footer caption -->
+  <text x="400" y="478" fill="#7d5cff" font-size="15" letter-spacing="2" text-anchor="middle">embeddable multi-language sandboxes &#183; turborepo &#183; hono</text>
+</svg>
