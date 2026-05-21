@@ -76,6 +76,8 @@
     font-size:clamp(15px,2.4vw,23px);color:var(--dim);margin-top:20px;
     letter-spacing:2px;font-weight:400;
   }
+  #intro .featLine{font-family:var(--mono);font-size:clamp(10px,1.6vw,13px);
+    color:var(--amber);margin-top:14px;letter-spacing:1px;}
   #startBtn{
     margin-top:44px;font-family:var(--display);font-weight:700;
     font-size:clamp(12px,2vw,16px);letter-spacing:2px;
@@ -128,6 +130,24 @@
     box-shadow:0 0 26px rgba(47,230,214,.6);opacity:0;transition:opacity .16s;text-align:center;
   }
   #prompt.on{opacity:1;}
+
+  /* ---------- featured panel ---------- */
+  #featPanel{top:90px;left:16px;padding:0;width:218px;}
+  .fpHead{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--amber);
+    padding:10px 12px;cursor:pointer;pointer-events:auto;display:flex;
+    justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);}
+  .fpHead:hover{color:#fff;}
+  .fpList{display:flex;flex-direction:column;}
+  .fpList.collapsed{display:none;}
+  .fpRow{display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;
+    pointer-events:auto;border-bottom:1px solid rgba(28,39,66,.55);transition:background .14s;}
+  .fpRow:last-child{border-bottom:none;}
+  .fpRow:hover{background:rgba(47,230,214,.09);}
+  .fpDot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .fpName{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--ink);
+    letter-spacing:.5px;}
+  .fpRow:hover .fpName{color:#fff;}
+  @media(max-width:680px){#featPanel{width:188px;}}
 
   /* ---------- touch controls ---------- */
   #touch{display:none;}
@@ -286,6 +306,10 @@
     <div class="ttl">ABY SAJI PAPPACHAN</div>
     <div class="sb">Tech Lead · Backend &amp; AI Engineer</div>
   </div>
+  <div class="panel" id="featPanel">
+    <div class="fpHead" id="fpHead"><span>&#9733; FEATURED BUILDS</span><span id="fpTog">&#9650;</span></div>
+    <div class="fpList" id="fpList"></div>
+  </div>
   <div id="topRight">
     <button class="hbtn" id="soundBtn">&#9685; SOUND</button>
     <a class="hbtn amber" href="https://github.com/AbyAbyss" target="_blank" rel="noopener">GITHUB &#8599;</a>
@@ -320,6 +344,7 @@
   <div class="eyebrow">INTERACTIVE PORTFOLIO &nbsp;//&nbsp; STAR SYSTEM</div>
   <div class="title">ABY SAJI<br><span>PAPPACHAN</span></div>
   <div class="role">Tech Lead @ Josys — Backend &amp; AI Engineer · Generative AI</div>
+  <div class="featLine">&#9733; FEATURED BUILDS &nbsp;·&nbsp; Yankit · dockman · redis_gui · sandkit · InkTerm</div>
   <button id="startBtn">&#9656; LAUNCH EXPLORER</button>
   <div class="tip">pilot your ship through the system — approach a planet to open it</div>
 </div>
@@ -751,6 +776,7 @@ function init(){
   buildShip();
 
   bindEvents();
+  buildFeaturedPanel();
   animate();
   $('#loader').style.display='none';
 }
@@ -862,22 +888,36 @@ function buildOrbits(){
 /* ---- planets ---- */
 function buildPlanet(data,x,y,z,radius,decor){
   var col=new THREE.Color(data.color);
+  var feat=data.ring==='inner';
   var grp=new THREE.Group();
   grp.position.set(x,y,z);
 
   var planet=new THREE.Mesh(
     new THREE.SphereGeometry(radius,32,32),
     new THREE.MeshStandardMaterial({color:col,roughness:0.72,metalness:0.18,
-      emissive:col,emissiveIntensity:0.12})
+      emissive:col,emissiveIntensity:feat?0.22:0.12})
   );
   grp.add(planet);
   /* atmosphere glow */
   var atmo=new THREE.Mesh(
-    new THREE.SphereGeometry(radius*1.22,28,28),
-    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.16,
+    new THREE.SphereGeometry(radius*(feat?1.34:1.22),28,28),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:feat?0.22:0.16,
       blending:THREE.AdditiveBlending,depthWrite:false})
   );
   grp.add(atmo);
+  /* featured projects — beacon of light */
+  var beacon=null;
+  if(feat){
+    beacon=new THREE.Mesh(
+      new THREE.ConeGeometry(radius*0.96,44,20,1,true),
+      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.16,
+        blending:THREE.AdditiveBlending,depthWrite:false,
+        side:THREE.DoubleSide,fog:false})
+    );
+    beacon.rotation.x=Math.PI;
+    beacon.position.y=radius+22;
+    grp.add(beacon);
+  }
   /* ring (some planets) */
   if(decor&1){
     var ring=new THREE.Mesh(
@@ -899,15 +939,16 @@ function buildPlanet(data,x,y,z,radius,decor){
     grp.userData.moon=moonPivot;
   }
 
-  var lab=makeLabelMesh(data.name,parseInt(data.color.slice(1),16),radius*2.6);
-  lab.position.y=radius+2.4;
+  var lab=makeLabelMesh((feat?'★ ':'')+data.name,
+    parseInt(data.color.slice(1),16),radius*2.7);
+  lab.position.y=radius+(feat?3.1:2.4);
   grp.add(lab);
 
   grp.userData.bodyIndex=bodies.length;
   scene.add(grp);
   bodies.push({group:grp,data:data,isAbout:false,r:radius,color:col,planet:planet,
                label:lab,baseY:y,spin:0.18+Math.random()*0.25,
-               phase:Math.random()*6.28});
+               phase:Math.random()*6.28,isFeatured:feat,beacon:beacon});
 }
 
 function buildPlanets(){
@@ -916,7 +957,7 @@ function buildPlanets(){
   inner.forEach(function(p,i){
     var a=-Math.PI/2 + i*(Math.PI*2/inner.length);
     var y=((i*53)%9)-4;
-    buildPlanet(p,Math.cos(a)*32,y,Math.sin(a)*32, 3.7+(i%2)*0.7, i%3);
+    buildPlanet(p,Math.cos(a)*32,y,Math.sin(a)*32, 4.4+(i%2)*0.6, i%3);
   });
   outer.forEach(function(p,i){
     var a=-Math.PI/2 + i*(Math.PI*2/outer.length) + 0.32;
@@ -1085,6 +1126,48 @@ function setupTouch(){
   $('#controls').innerHTML='<b>JOYSTICK</b> thrust &nbsp;·&nbsp; <b>DRAG</b> look &nbsp;·&nbsp; <b>TAP</b> a planet';
 }
 
+/* featured-projects HUD panel — guarantees visitors see the key builds */
+function buildFeaturedPanel(){
+  var list=$('#fpList'),head=$('#fpHead'),tog=$('#fpTog');
+  if(!list||!head)return;
+  for(var i=0;i<bodies.length;i++){
+    if(!bodies[i].isFeatured)continue;
+    (function(idx){
+      var b=bodies[idx];
+      var row=document.createElement('div');row.className='fpRow';
+      var dot=document.createElement('span');dot.className='fpDot';
+      dot.style.background=b.data.color;
+      dot.style.boxShadow='0 0 8px '+b.data.color;
+      var nm=document.createElement('span');nm.className='fpName';
+      nm.textContent=b.data.name;
+      row.appendChild(dot);row.appendChild(nm);
+      row.addEventListener('click',function(){warpTo(idx);});
+      list.appendChild(row);
+    })(i);
+  }
+  var collapsed=document.body.classList.contains('touch');
+  function apply(){
+    if(collapsed){list.classList.add('collapsed');if(tog)tog.innerHTML='&#9656;';}
+    else{list.classList.remove('collapsed');if(tog)tog.innerHTML='&#9650;';}
+  }
+  apply();
+  head.addEventListener('click',function(){collapsed=!collapsed;apply();});
+}
+
+/* jump the ship to a featured planet and open it */
+function warpTo(idx){
+  if(idx<0||idx>=bodies.length)return;
+  var b=bodies[idx];
+  var px=b.group.position.x,pz=b.group.position.z;
+  var d=Math.hypot(px,pz)||1;
+  ship.position.x=px+(px/d)*(b.r+12);
+  ship.position.y=0;
+  ship.position.z=pz+(pz/d)*(b.r+12);
+  activeBody=idx;
+  initAudio();warp();
+  openModal(idx);
+}
+
 var ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
 function tryClick(px,py){
   ndc.x=(px/W)*2-1;ndc.y=-(py/H)*2+1;
@@ -1142,6 +1225,10 @@ function animate(){
       if(b.group.userData.moon)b.group.userData.moon.rotation.y=t*0.6+b.phase;
       var lift=(i===activeBody)?1:0;
       b.group.scale.setScalar(b.group.scale.x+((1+lift*0.08)-b.group.scale.x)*Math.min(1,dt*8));
+      if(b.beacon){
+        b.beacon.material.opacity=0.09+Math.abs(Math.sin(t*1.5+b.phase))*0.13;
+        b.beacon.rotation.y=t*0.35;
+      }
     }
     /* billboard labels */
     if(b.label)b.label.quaternion.copy(camera.quaternion);
@@ -1339,7 +1426,7 @@ function buildCarousel(p,defPoster){
 }
 
 function renderProject(p){
-  $('#mTag').textContent=p.tag||'PROJECT';
+  $('#mTag').textContent=(p.ring==='inner'?'★ ':'')+(p.tag||'PROJECT');
   $('#mTag').style.color=p.color;
   $('#modal').style.borderColor=p.color;
   var defPoster=p.poster?p.poster:makePoster(p).toDataURL();
