@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wimys_crumb — A friendly disk-space scanner for macOS</title>
+<meta name="description" content="wimys_crumb finds where your disk space went, groups similar things across the whole drive, and lets you delete the reclaimable bits safely. Private, fast, macOS-native.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --coral:#E55934; --coral-dark:#D14823; --yellow:#F3B95F;
+    --cream:#FBF6EC; --cream-2:#FBE9C6; --peach:#FDE3DA;
+    --ink:#2A2118; --muted:#7a6f60; --tan:#b5a48e;
+    --card:#fffdf8; --line:rgba(42,33,24,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:Inter,system-ui,-apple-system,Helvetica,Arial,sans-serif;
+    color:var(--ink); line-height:1.6;
+    background:linear-gradient(160deg,var(--cream-2) 0%,var(--cream) 45%,var(--peach) 100%);
+    background-attachment:fixed; -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.brand{font-family:"Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em;line-height:1.05}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+  a{color:inherit}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);
+    background:rgba(251,246,236,.7);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .logo{display:flex;align-items:center;gap:12px;font-weight:800;font-size:20px}
+  .mark{width:34px;height:34px;border-radius:10px;background:var(--coral);position:relative;flex:none}
+  .mark i{position:absolute;border-radius:50%}
+  .mark .d1{width:9px;height:9px;background:var(--yellow);top:6px;left:6px}
+  .mark .d2{width:7px;height:7px;background:#fff;bottom:6px;right:7px}
+  .mark .d3{width:4px;height:4px;background:var(--cream-2);top:14px;right:11px}
+  .navlinks{display:flex;gap:28px;align-items:center;font-size:15px;font-weight:500}
+  .navlinks a{text-decoration:none;color:var(--muted);transition:color .15s}
+  .navlinks a:hover{color:var(--ink)}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--coral);color:#fff;
+    text-decoration:none;font-weight:600;padding:11px 20px;border-radius:12px;
+    box-shadow:0 6px 18px rgba(229,89,52,.28);transition:transform .15s,box-shadow .15s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(229,89,52,.36)}
+  .btn.ghost{background:transparent;color:var(--ink);box-shadow:none;border:1.5px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--coral)}
+  @media(max-width:720px){.navlinks a:not(.btn){display:none}}
+
+  /* hero */
+  header{padding:72px 0 40px;position:relative;overflow:hidden}
+  .dots{position:absolute;inset:0;background-image:radial-gradient(var(--ink) .9px,transparent .9px);
+    background-size:14px 14px;opacity:.05;pointer-events:none}
+  .hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;position:relative}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);
+    color:var(--coral-dark);font-weight:600;font-size:13px;padding:6px 14px;border-radius:999px;margin-bottom:22px}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:#22c55e}
+  h1{font-size:clamp(40px,6vw,68px);font-weight:800}
+  .hero p.lead{font-size:19px;color:var(--muted);margin:20px 0 30px;max-width:520px}
+  .cta-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .req{font-size:13px;color:var(--tan);margin-top:16px}
+  @media(max-width:840px){.hero{grid-template-columns:1fr;gap:32px}}
+
+  /* hero visual: mock window */
+  .win{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(42,33,24,.35)}
+  .titlebar{display:flex;align-items:center;gap:7px;padding:13px 16px;border-bottom:1px solid var(--line);
+    background:linear-gradient(var(--cream),#fff)}
+  .tb{width:11px;height:11px;border-radius:50%}
+  .tb.r{background:#ff5f57}.tb.y{background:#febc2e}.tb.g{background:#28c840}
+  .titlebar span{margin-left:8px;font-size:12px;color:var(--tan);font-weight:600}
+  .win-body{padding:18px}
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+  .stat{background:var(--cream);border:1px solid var(--line);border-radius:11px;padding:10px}
+  .stat .k{font-size:10px;color:var(--tan);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+  .stat .v{font-family:"Bricolage Grotesque";font-weight:700;font-size:18px}
+  .stat .v.coral{color:var(--coral)}
+  .treemap{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:64px 44px;gap:6px}
+  .tile{border-radius:9px;display:flex;flex-direction:column;justify-content:flex-end;padding:9px;
+    color:#fff;font-size:12px;font-weight:600;overflow:hidden}
+  .tile small{opacity:.8;font-weight:500;font-size:10px}
+  .t1{grid-row:span 2;background:linear-gradient(160deg,var(--coral),var(--coral-dark))}
+  .t2{background:var(--yellow);color:var(--ink)}
+  .t3{background:#7c9a8e}.t4{background:#c98a6a}.t5{background:#9a8fb0}
+
+  /* sections */
+  section{padding:64px 0}
+  .eyebrow{color:var(--coral-dark);font-weight:600;font-size:14px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}
+  h2{font-size:clamp(28px,4vw,42px);font-weight:800}
+  .sec-head{max-width:620px;margin-bottom:42px}
+  .sec-head p{color:var(--muted);font-size:17px;margin-top:12px}
+
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:840px){.grid{grid-template-columns:1fr}}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;
+    transition:transform .18s,box-shadow .18s}
+  .feat:hover{transform:translateY(-4px);box-shadow:0 18px 40px -22px rgba(42,33,24,.4)}
+  .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;
+    background:var(--peach);font-size:22px}
+  .feat h3{font-size:19px;font-weight:700;margin-bottom:7px}
+  .feat p{color:var(--muted);font-size:15px}
+
+  /* how it works */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;counter-reset:s}
+  @media(max-width:840px){.steps{grid-template-columns:1fr}}
+  .step{position:relative;padding-top:8px}
+  .step .num{font-family:"Bricolage Grotesque";font-weight:800;font-size:40px;color:var(--coral);opacity:.35;line-height:1}
+  .step h3{font-size:19px;font-weight:700;margin:8px 0 6px}
+  .step p{color:var(--muted);font-size:15px}
+
+  /* screens table */
+  .screens{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:720px){.screens{grid-template-columns:1fr}}
+  .screen{display:flex;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+  .screen .badge{flex:none;width:40px;height:40px;border-radius:10px;background:var(--coral);color:#fff;
+    display:grid;place-items:center;font-weight:700;font-family:"Bricolage Grotesque"}
+  .screen h3{font-size:16px;font-weight:700}
+  .screen p{color:var(--muted);font-size:14px}
+
+  /* cta band */
+  .band{background:linear-gradient(135deg,var(--coral),var(--coral-dark));border-radius:24px;
+    padding:54px 40px;text-align:center;color:#fff;position:relative;overflow:hidden}
+  .band h2{font-size:clamp(28px,4vw,40px);color:#fff}
+  .band p{opacity:.92;margin:14px auto 26px;max-width:480px;font-size:17px}
+  .band .btn{background:#fff;color:var(--coral-dark);box-shadow:0 10px 30px rgba(0,0,0,.18)}
+  .band .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+  .band .bdots{position:absolute;inset:0;background-image:radial-gradient(#fff .9px,transparent .9px);
+    background-size:16px 16px;opacity:.08}
+
+  /* code */
+  code.cmd{display:block;background:var(--ink);color:#FBE9C6;font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+    padding:14px 18px;border-radius:12px;font-size:14px;margin-top:8px;overflow-x:auto}
+
+  footer{padding:40px 0 56px;border-top:1px solid var(--line);margin-top:40px}
+  footer .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+  footer .muted{color:var(--tan);font-size:14px}
+  .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+  .tag{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:13px;font-weight:500;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo">
+      <span class="mark"><i class="d1"></i><i class="d2"></i><i class="d3"></i></span>
+      wimys_crumb
+    </div>
+    <div class="navlinks">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#screens">Screens</a>
+      <a href="#build" class="btn">Get started</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="dots"></div>
+  <div class="wrap hero">
+    <div>
+      <span class="pill"><span class="dot"></span> Feature complete · macOS 14+</span>
+      <h1>Find where your<br>disk space went.</h1>
+      <p class="lead">A friendly disk-space scanner for macOS. It walks your whole drive, groups similar things wherever they hide, and lets you reclaim the dead weight — safely.</p>
+      <div class="cta-row">
+        <a href="#build" class="btn">⌘ Build &amp; run</a>
+        <a href="#features" class="btn ghost">See features</a>
+      </div>
+      <p class="req">Runs entirely on your Mac · No account · No telemetry</p>
+    </div>
+
+    <div class="win" aria-hidden="true">
+      <div class="titlebar"><span class="tb r"></span><span class="tb y"></span><span class="tb g"></span><span>Overview — Macintosh HD</span></div>
+      <div class="win-body">
+        <div class="stat-row">
+          <div class="stat"><div class="k">Used</div><div class="v">438 GB</div></div>
+          <div class="stat"><div class="k">Free</div><div class="v">61 GB</div></div>
+          <div class="stat"><div class="k">Items</div><div class="v">5.1M</div></div>
+          <div class="stat"><div class="k">Could free</div><div class="v coral">52 GB</div></div>
+        </div>
+        <div class="treemap">
+          <div class="tile t1">node_modules<small>28.4 GB</small></div>
+          <div class="tile t2">DerivedData<small>14 GB</small></div>
+          <div class="tile t3">Photos<small>9 GB</small></div>
+          <div class="tile t4">Caches<small>6 GB</small></div>
+          <div class="tile t5">Music<small>4 GB</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Features</div>
+      <h2>Everything you need to clean up.</h2>
+      <p>Built to make sense of a full drive in minutes — without ever putting your files at risk.</p>
+    </div>
+    <div class="grid">
+      <div class="feat"><div class="ic">🗺️</div><h3>See where it goes</h3><p>A treemap of top-level folders on Overview. Drill into any subfolder, double-click to descend.</p></div>
+      <div class="feat"><div class="ic">🧩</div><h3>Groups across the disk</h3><p>Every <em>node_modules</em>, <em>DerivedData</em>, <em>Caches</em>, <em>__pycache__</em> totalled across the whole drive. One click expands every instance.</p></div>
+      <div class="feat"><div class="ic">📊</div><h3>File-type breakdown</h3><p>Video, Photos, Code, Apps, Docs, Music, Archives — a stacked bar plus the heaviest files in each.</p></div>
+      <div class="feat"><div class="ic">⚡</div><h3>Quick wins</h3><p>One-click delete suggestions for stale node_modules, Xcode DerivedData, large caches and old downloads.</p></div>
+      <div class="feat"><div class="ic">🛡️</div><h3>Safety first</h3><p>System paths are protected. Trash by default with Undo, and your own protected paths in Settings.</p></div>
+      <div class="feat"><div class="ic">🪶</div><h3>Light on memory</h3><p>The scan tree lives in SQLite on disk, not RAM — browse a 5M-file scan under 200 MB resident.</p></div>
+      <div class="feat"><div class="ic">📈</div><h3>Usage history</h3><p>An area chart over time, plus a growers / shrinkers diff between your two most recent scans.</p></div>
+      <div class="feat"><div class="ic">🔒</div><h3>Privacy-first</h3><p>No telemetry, no sync, no account. Everything stays under your Application Support folder.</p></div>
+      <div class="feat"><div class="ic">💾</div><h3>Persistent</h3><p>Quit and relaunch — you land back on your last scan instantly, ready to keep cleaning.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">How it works</div>
+      <h2>Fast, bounded, off the main thread.</h2>
+      <p>wimys_crumb streams every directory into a per-scan SQLite database, so memory stays flat no matter how big the disk.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num">01</div><h3>Walk the drive</h3><p>Every volume is scanned with FileManager off the main thread — about 5 million files in a few minutes.</p></div>
+      <div class="step"><div class="num">02</div><h3>Stream to SQLite</h3><p>Directories and the largest files stream into GRDB on disk. The UI reads with short-lived queries, never holding the tree in RAM.</p></div>
+      <div class="step"><div class="num">03</div><h3>Delete safely</h3><p>Every destructive action funnels through one DeleteService that checks protected paths and moves items to Trash with Undo.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="screens">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">A look inside</div>
+      <h2>Eight screens, one clear story.</h2>
+    </div>
+    <div class="screens">
+      <div class="screen"><div class="badge">▶</div><div><h3>Start</h3><p>Mounted volumes and recent scans. Pick a drive, or any specific folder.</p></div></div>
+      <div class="screen"><div class="badge">⟳</div><div><h3>Scanning</h3><p>Live progress and the biggest folders found so far. Pause and cancel anytime.</p></div></div>
+      <div class="screen"><div class="badge">▦</div><div><h3>Overview</h3><p>Stat cards, a treemap of top folders, file-type list and Quick Wins.</p></div></div>
+      <div class="screen"><div class="badge">⊞</div><div><h3>Drill-down</h3><p>Folder contents with a detail panel, multi-select checkboxes and bulk delete.</p></div></div>
+      <div class="screen"><div class="badge">◉</div><div><h3>Groups</h3><p>Every directory name totalled across the disk, with a bubble-chart hero.</p></div></div>
+      <div class="screen"><div class="badge">▤</div><div><h3>File types</h3><p>Stacked-bar hero, per-category cards and the heaviest files in focus.</p></div></div>
+      <div class="screen"><div class="badge">📈</div><div><h3>History</h3><p>Disk usage over time plus the growers / shrinkers diff between scans.</p></div></div>
+      <div class="screen"><div class="badge">⚙</div><div><h3>Settings</h3><p>Safety toggles, protected paths, scheduled scans, snapshots and JSON export.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="build">
+  <div class="wrap">
+    <div class="band">
+      <div class="bdots"></div>
+      <div style="position:relative">
+        <h2>Build it in two commands.</h2>
+        <p>The Xcode project is generated from <em>project.yml</em>. Requires macOS 14+, Xcode 15+ and XcodeGen.</p>
+        <code class="cmd" style="text-align:left;max-width:380px;margin:0 auto 26px">xcodegen generate<br>open wimys_crumb.xcodeproj</code>
+        <div class="cta-row" style="justify-content:center">
+          <a href="https://github.com/yonaskolb/XcodeGen" class="btn">Get XcodeGen</a>
+          <a href="#features" class="btn ghost">Back to top</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="logo"><span class="mark"><i class="d1"></i><i class="d2"></i><i class="d3"></i></span> wimys_crumb</div>
+      <div class="tags">
+        <span class="tag">Swift 5</span>
+        <span class="tag">SwiftUI + GRDB</span>
+        <span class="tag">macOS 14+</span>
+        <span class="tag">Privacy-first</span>
+      </div>
+    </div>
+    <div class="muted">A friendly disk-space scanner for macOS · License TBD</div>
+  </div>
+</footer>
+
+</body>
+</html>
