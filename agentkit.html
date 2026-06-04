@@ -7,47 +7,93 @@
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #060a14;
-    --bg2: #0a0e1a;
-    --surface: rgba(18, 24, 43, 0.72);
-    --glass: rgba(255, 255, 255, 0.04);
-    --border: rgba(255, 255, 255, 0.1);
-    --border2: rgba(124, 58, 237, 0.35);
-    --text: #f1f5f9;
-    --muted: #94a3b8;
-    --accent: #7c3aed;
-    --violet: #6366f1;
-    --glow: #a78bfa;
-    --blue: #6e84ee;
+    --bg: #07090c;
+    --bg2: #0b0f14;
+    --surface: rgba(15, 22, 24, 0.72);
+    --glass: rgba(255, 255, 255, 0.035);
+    --border: rgba(150, 225, 200, 0.1);
+    --border2: rgba(16, 185, 129, 0.38);
+    --text: #e8edf2;
+    --muted: #8a97a3;
+    --accent: #10b981;
+    --violet: #14b8a6;
+    --glow: #5eead4;
+    --blue: #56b6e0;
     --green: #34d399;
     --amber: #fbbf24;
     --red: #f87171;
     --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", monospace;
     --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
     --radius: 16px;
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    --shadow-accent: 0 0 0 1px rgba(16, 185, 129, 0.16), 0 16px 48px rgba(0, 0, 0, 0.55);
+    --ring: 0 0 0 3px rgba(16, 185, 129, 0.28);
   }
   html { scroll-behavior: smooth; }
   html.presentation-mode { font-size: 118%; }
   body {
-    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, #0d1224 100%);
+    background: var(--bg);
     color: var(--text);
     font-family: var(--sans);
     font-size: 15px;
     line-height: 1.6;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
   body::before {
     content: "";
     position: fixed;
-    inset: 0;
+    inset: -20%;
     background:
-      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(124, 58, 237, 0.18), transparent),
-      radial-gradient(ellipse 60% 40% at 90% 10%, rgba(99, 102, 241, 0.12), transparent);
+      radial-gradient(38% 44% at 18% 8%, rgba(16, 185, 129, 0.22), transparent 70%),
+      radial-gradient(32% 40% at 88% 14%, rgba(56, 189, 248, 0.13), transparent 70%),
+      radial-gradient(46% 50% at 70% 96%, rgba(20, 184, 166, 0.12), transparent 72%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg2) 42%, #0c1216 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    body::before { animation: aurora-drift 26s ease-in-out infinite alternate; }
+  }
+  @keyframes aurora-drift {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    50%  { transform: translate3d(1.5%, -1.5%, 0) scale(1.06); }
+    100% { transform: translate3d(-1.5%, 1%, 0) scale(1.03); }
+  }
+  /* faint technical grid for depth */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(150, 225, 200, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(150, 225, 200, 0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 30%, transparent 80%);
     pointer-events: none;
     z-index: 0;
   }
   .page { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+
+  /* sleek focus + scrollbar treatment */
+  .scn-btn:focus-visible,
+  .bento-card:focus-visible,
+  .lang-tab:focus-visible,
+  .path-btn:focus-visible,
+  nav a:focus-visible { outline: none; box-shadow: var(--ring); }
+  ::selection { background: rgba(16, 185, 129, 0.32); color: #fff; }
+  * { scrollbar-width: thin; scrollbar-color: rgba(16, 185, 129, 0.4) transparent; }
+  *::-webkit-scrollbar { width: 9px; height: 9px; }
+  *::-webkit-scrollbar-thumb {
+    background: rgba(16, 185, 129, 0.32);
+    border-radius: 6px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background: rgba(16, 185, 129, 0.5); background-clip: content-box; }
+  *::-webkit-scrollbar-track { background: transparent; }
   section { padding: 64px 0; border-bottom: 1px solid var(--border); }
   section:last-of-type { border: none; }
 
@@ -60,7 +106,7 @@
     gap: 14px;
     flex-wrap: wrap;
     padding: 12px 20px;
-    background: rgba(6, 10, 20, 0.88);
+    background: rgba(7, 9, 12, 0.88);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--border);
   }
@@ -93,23 +139,49 @@
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s, transform 0.15s;
   }
-  .btn:hover { border-color: var(--border2); background: rgba(124, 58, 237, 0.12); }
-  .btn-primary {
+  .btn:hover {
     border-color: var(--border2);
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.35), rgba(99, 102, 241, 0.2));
+    background: rgba(16, 185, 129, 0.12);
+    transform: translateY(-1px);
   }
-  .btn-primary:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn:focus-visible { outline: none; box-shadow: var(--ring); }
+  .btn-primary {
+    border-color: rgba(16, 185, 129, 0.55);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(20, 184, 166, 0.18));
+    box-shadow: 0 4px 18px rgba(16, 185, 129, 0.18);
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 26px rgba(16, 185, 129, 0.32);
+  }
   .btn-ghost { background: transparent; }
   .btn-sm { padding: 5px 10px; font-size: 11px; }
 
   .hero { padding: 72px 0 56px; text-align: center; }
   .hero-card {
+    position: relative;
     border: 1px solid var(--border);
     border-radius: 24px;
-    padding: 48px 32px;
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(18, 24, 43, 0.5));
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
+    padding: 52px 36px;
+    background:
+      radial-gradient(120% 120% at 50% -20%, rgba(16, 185, 129, 0.16), transparent 60%),
+      linear-gradient(155deg, rgba(20, 184, 166, 0.12), rgba(15, 22, 24, 0.55));
+    box-shadow: var(--shadow-accent);
+    backdrop-filter: blur(14px);
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    padding: 1px;
+    background: linear-gradient(140deg, rgba(94, 234, 212, 0.5), transparent 42%, transparent 68%, rgba(56, 189, 248, 0.3));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
   .section-label {
     font-size: 11px;
@@ -128,7 +200,7 @@
   }
   .hero h1 em {
     font-style: normal;
-    background: linear-gradient(90deg, #c4b5fd, var(--violet));
+    background: linear-gradient(90deg, #a7f3d0, var(--violet));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -190,8 +262,8 @@
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   }
   .bento-card.active {
-    border-color: rgba(167, 139, 250, 0.65);
-    box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.35), 0 0 28px rgba(124, 58, 237, 0.28), var(--shadow);
+    border-color: rgba(94, 234, 212, 0.65);
+    box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.35), 0 0 28px rgba(16, 185, 129, 0.28), var(--shadow);
   }
   .bento-card.active::after {
     content: "";
@@ -199,7 +271,7 @@
     inset: -1px;
     border-radius: var(--radius);
     pointer-events: none;
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), transparent 55%);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), transparent 55%);
   }
   .bento-foot {
     display: flex;
@@ -223,7 +295,7 @@
   .btn-sample:hover {
     border-color: var(--border2);
     color: var(--text);
-    background: rgba(124, 58, 237, 0.18);
+    background: rgba(16, 185, 129, 0.18);
   }
   .bento-card.active .btn-sample {
     border-color: var(--border2);
@@ -239,7 +311,7 @@
     font-size: 18px;
     margin-bottom: 10px;
     border: 1px solid var(--border2);
-    background: rgba(124, 58, 237, 0.15);
+    background: rgba(16, 185, 129, 0.15);
   }
   .bento-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
   .bento-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
@@ -249,7 +321,7 @@
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 28px;
-    background: rgba(10, 14, 26, 0.88);
+    background: rgba(9, 13, 15, 0.88);
     box-shadow: var(--shadow);
     backdrop-filter: blur(10px);
   }
@@ -276,8 +348,8 @@
   .scn-btn.active {
     border-color: var(--border2);
     color: var(--glow);
-    background: rgba(124, 58, 237, 0.12);
-    box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.25);
+    background: rgba(16, 185, 129, 0.12);
+    box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.25);
   }
   .scn-tag {
     font-size: 10px;
@@ -303,12 +375,12 @@
   .scenario-desc strong { color: var(--text); font-weight: 500; }
   .flow-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 20px;
     margin-top: 20px;
   }
   @media (max-width: 720px) {
-    .flow-layout { grid-template-columns: 1fr; }
+    .flow-layout { grid-template-columns: minmax(0, 1fr); }
   }
   .panel-label {
     font-size: 11px;
@@ -319,7 +391,7 @@
     margin-bottom: 10px;
   }
   .code-block {
-    background: rgba(4, 6, 14, 0.95);
+    background: rgba(5, 7, 9, 0.95);
     border: 1px solid var(--border);
     border-radius: 12px;
     font-family: var(--mono);
@@ -327,6 +399,8 @@
     line-height: 1.8;
     padding: 16px 18px;
     min-height: 260px;
+    max-width: 100%;
+    min-width: 0;
     overflow-x: auto;
   }
   .cl {
@@ -337,17 +411,17 @@
     margin: 0 -4px;
     white-space: pre;
   }
-  .cl.hl { background: rgba(124, 58, 237, 0.2); }
+  .cl.hl { background: rgba(16, 185, 129, 0.2); }
   .cl.hl2 { background: rgba(52, 211, 153, 0.12); }
   .cl.hl3 { background: rgba(251, 191, 36, 0.1); }
-  .kw { color: #93c5fd; }
-  .fn { color: #a78bfa; }
+  .kw { color: #7dd3fc; }
+  .fn { color: #5eead4; }
   .str { color: #86efac; }
   .cm { color: #64748b; font-style: italic; }
   .num { color: #fbbf24; }
   .err { color: var(--red); }
   .ev-log {
-    background: rgba(4, 6, 14, 0.95);
+    background: rgba(5, 7, 9, 0.95);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 12px 14px;
@@ -412,7 +486,7 @@
   }
   .flow-node.active {
     border-color: var(--border2);
-    background: rgba(124, 58, 237, 0.14);
+    background: rgba(16, 185, 129, 0.14);
   }
   .flow-node.done {
     border-color: rgba(52, 211, 153, 0.45);
@@ -470,7 +544,7 @@
     border-right: 1px solid var(--border);
   }
   .phase-item.active {
-    background: rgba(124, 58, 237, 0.14);
+    background: rgba(16, 185, 129, 0.14);
     border-color: var(--border2);
     color: var(--glow);
     font-weight: 600;
@@ -529,7 +603,7 @@
   .path-btn.active {
     border-color: var(--border2);
     color: var(--glow);
-    background: rgba(124, 58, 237, 0.18);
+    background: rgba(16, 185, 129, 0.18);
   }
   .path-btn[data-path="deny"].active {
     border-color: rgba(248, 113, 113, 0.45);
@@ -640,6 +714,234 @@
     .dot.active { animation: blink-dot 0.9s ease-in-out infinite; }
   }
 
+  /* ── scroll reveal: elements rise in with a staggered delay ── */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(26px);
+      transition:
+        opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    [data-reveal].is-visible { opacity: 1; transform: none; }
+  }
+
+  /* ── section rhythm: numbered eyebrow, consistent vertical spacing ── */
+  section { padding: 88px 0; scroll-margin-top: 72px; overflow-x: clip; }
+  .hero { padding: 80px 0 64px; }
+  .section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 12px;
+  }
+  .section-eyebrow .num {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--glow);
+    opacity: 0.7;
+    padding: 2px 7px;
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.08);
+  }
+  .section-eyebrow .section-label { margin-bottom: 0; }
+
+  /* ── "Why AgentKit" — plain-language value section ── */
+  .why-lead {
+    font-size: clamp(17px, 2.4vw, 21px);
+    line-height: 1.55;
+    color: var(--text);
+    max-width: 720px;
+    margin-bottom: 36px;
+    font-weight: 400;
+  }
+  .why-lead strong {
+    background: linear-gradient(90deg, #a7f3d0, var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 600;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 44px;
+  }
+  @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+  .step-card {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 20px 20px;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+  }
+  .step-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent 70%);
+    opacity: 0.7;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--glow);
+    margin-bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid var(--border2);
+    background: rgba(16, 185, 129, 0.14);
+  }
+  .step-title { font-size: 15px; font-weight: 650; margin-bottom: 6px; }
+  .step-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .step-card code {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #a7f3d0;
+    background: rgba(16, 185, 129, 0.12);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .why-card {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  }
+  .why-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border2);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+  }
+  .why-card .ico {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1px solid var(--border2);
+    background: rgba(16, 185, 129, 0.15);
+  }
+  .why-card h3 { font-size: 14px; font-weight: 650; margin-bottom: 4px; }
+  .why-card p { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+  /* inline code in section copy */
+  .section-sub code,
+  .clients-copy code,
+  .clients-list code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    color: #a7f3d0;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+
+  /* ── Polyglot clients: language pills + copy beside a code card ── */
+  .lang-tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    margin-bottom: 22px;
+  }
+  .lang-tab {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .lang-tab:hover { color: var(--text); }
+  .lang-tab.active {
+    color: var(--glow);
+    background: rgba(16, 185, 129, 0.18);
+    border-color: var(--border2);
+  }
+  .clients-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: 26px;
+    align-items: center;
+  }
+  @media (max-width: 820px) {
+    .clients-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  .clients-copy h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .clients-copy p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+  .clients-list { list-style: none; display: grid; gap: 10px; }
+  .clients-list li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .clients-list li::before { content: "→"; color: var(--glow); flex-shrink: 0; }
+  .clients-list strong { color: var(--text); font-weight: 600; }
+  .code-card-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .code-card-label .pydot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+  }
 
   footer {
     padding: 36px 20px;
@@ -665,9 +967,11 @@
 <nav>
   <span class="nav-logo">AgentKit</span>
   <a href="#hero">Intro</a>
+  <a href="#why">Why</a>
   <a href="#architecture">Architecture</a>
   <a href="#demo">Live demo</a>
   <a href="#capabilities">Capabilities</a>
+  <a href="#clients">Clients</a>
   <div class="nav-actions">
     <button type="button" class="btn btn-ghost btn-sm" id="btn-present" aria-pressed="false">Presentation mode</button>
     <a class="btn btn-ghost btn-sm" href="http://localhost:3010" target="_blank" rel="noopener">Showcase</a>
@@ -678,20 +982,80 @@
 
 <section class="hero" id="hero">
   <div class="page">
-    <div class="hero-card">
-      <div class="section-label">Headless agent runtime</div>
-      <h1>Drop it into <em>any project.</em><br>The SDK does the rest.</h1>
-      <p>TypeScript-native engine for model calls, memory, MCP, planning, workflows, and AG-UI streaming. You bring the UI. AgentKit brings the runtime.</p>
-      <div class="hero-badges">
+    <div class="hero-card" data-reveal>
+      <div class="section-label" data-reveal style="--reveal-delay:80ms">Headless agent runtime for TypeScript</div>
+      <h1 data-reveal style="--reveal-delay:160ms">Drop it into <em>any project.</em><br>The SDK does the rest.</h1>
+      <p data-reveal style="--reveal-delay:240ms">A TypeScript engine for model calls, memory, tools, MCP, planning, and live streaming. <strong style="color:var(--text)">You bring the UI — AgentKit brings the runtime.</strong></p>
+      <div class="hero-badges" data-reveal style="--reveal-delay:320ms">
         <span class="badge badge-accent">@agentkit/core</span>
         <span class="badge badge-accent">AG-UI protocol</span>
         <span class="badge">MIT license</span>
         <span class="badge">MCP + approvals</span>
         <span class="badge">TOON encoding</span>
       </div>
-      <div class="hero-jumps">
+      <div class="hero-jumps" data-reveal style="--reveal-delay:400ms">
         <a href="#demo" class="btn btn-primary">Jump to live demo</a>
-        <a href="#capabilities" class="btn btn-ghost">Capability map</a>
+        <a href="#why" class="btn btn-ghost">Why AgentKit?</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="why">
+  <div class="page">
+    <div class="section-header" data-reveal>
+      <div class="section-eyebrow"><span class="num">01</span><span class="section-label">Why AgentKit</span></div>
+      <h2>An agent <span class="dim">engine, not a framework.</span></h2>
+    </div>
+    <p class="why-lead" data-reveal style="--reveal-delay:60ms">
+      Most agent tools make you adopt their UI and their hosting. AgentKit is just a
+      library you <strong>import</strong>. Configure an agent once, then run it headless on a
+      server, in a CLI, or stream it to any frontend. You stay in control of the
+      product; the SDK handles the hard parts of running a model loop in production.
+    </p>
+
+    <div class="steps">
+      <div class="step-card" data-reveal style="--reveal-delay:0ms">
+        <div class="step-num">1</div>
+        <div class="step-title">Configure</div>
+        <p>Call <code>createAgent({ … })</code> — pick a model, add your tools, memory, and MCP servers. One config object, fully typed.</p>
+      </div>
+      <div class="step-card" data-reveal style="--reveal-delay:120ms">
+        <div class="step-num">2</div>
+        <div class="step-title">Run or stream</div>
+        <p>Use <code>agent.run()</code> for a one-shot typed result, or <code>agent.session()</code> for a live, interactive conversation.</p>
+      </div>
+      <div class="step-card" data-reveal style="--reveal-delay:240ms">
+        <div class="step-num">3</div>
+        <div class="step-title">Render</div>
+        <p>Typed events stream out — tokens, plans, approvals, cost. Your UI just listens and draws. No lock-in.</p>
+      </div>
+    </div>
+
+    <div class="why-grid">
+      <div class="why-card" data-reveal style="--reveal-delay:0ms">
+        <div class="ico">🎛️</div>
+        <div><h3>Bring your own UI</h3><p>React, Vue, Svelte, a terminal, or no UI at all. The engine never touches your front end.</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:60ms">
+        <div class="ico">🔌</div>
+        <div><h3>Any model provider</h3><p>Anthropic and OpenAI built in, or register your own. Route to a different model per call.</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:120ms">
+        <div class="ico">🧩</div>
+        <div><h3>Tools &amp; MCP</h3><p>Zod-typed tools plus Model Context Protocol servers over stdio or HTTP — connect real data and actions.</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:180ms">
+        <div class="ico">🛡️</div>
+        <div><h3>Human-in-the-loop</h3><p>Plan mode, approval gates, and elicitation arrive as events you can pause on and resolve.</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:240ms">
+        <div class="ico">🧠</div>
+        <div><h3>Smart context</h3><p>Adaptive TOON encoding and automatic compaction keep prompts small and cut token cost.</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:300ms">
+        <div class="ico">🧪</div>
+        <div><h3>Test without keys</h3><p>A deterministic mock provider and record/replay harness let you build and CI-test with zero API calls.</p></div>
       </div>
     </div>
   </div>
@@ -699,102 +1063,102 @@
 
 <section id="architecture">
   <div class="page">
-    <div class="section-header">
-      <div class="section-label">Architecture</div>
+    <div class="section-header" data-reveal>
+      <div class="section-eyebrow"><span class="num">02</span><span class="section-label">Architecture</span></div>
       <h2>Wire on the left. <span class="dim">Engine on the right.</span></h2>
-      <p class="section-sub">Your UI talks to @agentkit/client and @agentkit/server. createAgent() in core owns providers, tools, memory, and the event bus.</p>
+      <p class="section-sub">Your UI talks to <code>@agentkit/client</code> and <code>@agentkit/server</code>. <code>createAgent()</code> in core owns providers, tools, memory, and the event bus.</p>
     </div>
-    <div class="arch-wrap" aria-hidden="true">
+    <div class="arch-wrap" aria-hidden="true" data-reveal style="--reveal-delay:80ms">
       <svg viewBox="0 0 1080 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AgentKit architecture">
         <defs>
           <linearGradient id="archBg" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#16182F"/><stop offset="1" stop-color="#0A0B15"/>
+            <stop offset="0" stop-color="#0f1418"/><stop offset="1" stop-color="#070a0c"/>
           </linearGradient>
           <linearGradient id="archNode" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#242848"/><stop offset="1" stop-color="#191C34"/>
+            <stop offset="0" stop-color="#18222a"/><stop offset="1" stop-color="#11181d"/>
           </linearGradient>
           <linearGradient id="archHub" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#2C3360"/><stop offset="1" stop-color="#222748"/>
+            <stop offset="0" stop-color="#1b2a30"/><stop offset="1" stop-color="#16222a"/>
           </linearGradient>
           <linearGradient id="archCore" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stop-color="#2A3A6E"/><stop offset="1" stop-color="#3D2F6B"/>
+            <stop offset="0" stop-color="#0e3b34"/><stop offset="1" stop-color="#0d3a44"/>
           </linearGradient>
           <linearGradient id="archArrow" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#4DA3FF"/><stop offset="1" stop-color="#9B7BEF"/>
+            <stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#38bdf8"/>
           </linearGradient>
           <filter id="archGlow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <marker id="archBlue" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#6E84EE"/></marker>
-          <marker id="archViolet" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#9B7BEF"/></marker>
-          <marker id="archGray" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#6A719C"/></marker>
+          <marker id="archBlue" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#2dd4bf"/></marker>
+          <marker id="archViolet" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#38bdf8"/></marker>
+          <marker id="archGray" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#5f7780"/></marker>
         </defs>
         <rect width="1080" height="600" fill="url(#archBg)"/>
-        <text x="44" y="48" font-size="13" font-weight="700" letter-spacing="3" fill="#474D78">AGENTKIT DATA FLOW</text>
-        <rect x="92" y="150" width="304" height="420" rx="24" fill="#4D7CFF" fill-opacity="0.05"/>
-        <rect x="684" y="150" width="304" height="420" rx="24" fill="#9B7BEF" fill-opacity="0.05"/>
-        <text x="116" y="176" font-size="12" font-weight="700" letter-spacing="3" fill="#6E84EE">WIRE</text>
-        <text x="964" y="176" text-anchor="end" font-size="12" font-weight="700" letter-spacing="3" fill="#9B7BEF">ENGINE</text>
+        <text x="44" y="48" font-size="13" font-weight="700" letter-spacing="3" fill="#3a5a54">AGENTKIT DATA FLOW</text>
+        <rect x="92" y="150" width="304" height="420" rx="24" fill="#10b981" fill-opacity="0.05"/>
+        <rect x="684" y="150" width="304" height="420" rx="24" fill="#38bdf8" fill-opacity="0.05"/>
+        <text x="116" y="176" font-size="12" font-weight="700" letter-spacing="3" fill="#2dd4bf">WIRE</text>
+        <text x="964" y="176" text-anchor="end" font-size="12" font-weight="700" letter-spacing="3" fill="#38bdf8">ENGINE</text>
         <g filter="url(#archGlow)">
           <line x1="482" y1="126" x2="262" y2="180" stroke="url(#archArrow)" stroke-width="2" marker-end="url(#archBlue)"/>
-          <line x1="244" y1="272" x2="244" y2="317" stroke="#6E84EE" stroke-width="2" marker-end="url(#archBlue)"/>
-          <line x1="244" y1="410" x2="244" y2="455" stroke="#6E84EE" stroke-width="2" marker-end="url(#archBlue)"/>
-          <line x1="436" y1="233" x2="379" y2="228" stroke="#6A719C" stroke-width="2" marker-end="url(#archGray)"/>
-          <line x1="836" y1="456" x2="836" y2="411" stroke="#9B7BEF" stroke-width="2" marker-end="url(#archViolet)"/>
-          <line x1="836" y1="318" x2="836" y2="273" stroke="#9B7BEF" stroke-width="2" marker-end="url(#archViolet)"/>
-          <line x1="816" y1="180" x2="604" y2="126" stroke="#9B7BEF" stroke-width="2" marker-end="url(#archViolet)"/>
-          <line x1="376" y1="364" x2="703" y2="364" stroke="#6A719C" stroke-width="2" marker-end="url(#archGray)"/>
+          <line x1="244" y1="272" x2="244" y2="317" stroke="#2dd4bf" stroke-width="2" marker-end="url(#archBlue)"/>
+          <line x1="244" y1="410" x2="244" y2="455" stroke="#2dd4bf" stroke-width="2" marker-end="url(#archBlue)"/>
+          <line x1="436" y1="233" x2="379" y2="228" stroke="#5f7780" stroke-width="2" marker-end="url(#archGray)"/>
+          <line x1="836" y1="456" x2="836" y2="411" stroke="#38bdf8" stroke-width="2" marker-end="url(#archViolet)"/>
+          <line x1="836" y1="318" x2="836" y2="273" stroke="#38bdf8" stroke-width="2" marker-end="url(#archViolet)"/>
+          <line x1="816" y1="180" x2="604" y2="126" stroke="#38bdf8" stroke-width="2" marker-end="url(#archViolet)"/>
+          <line x1="376" y1="364" x2="703" y2="364" stroke="#5f7780" stroke-width="2" marker-end="url(#archGray)"/>
         </g>
         <g>
-          <rect x="400" y="40" width="280" height="84" rx="15" fill="url(#archHub)" stroke="#6E84EE" stroke-opacity="0.5" stroke-width="1.5"/>
+          <rect x="400" y="40" width="280" height="84" rx="15" fill="url(#archHub)" stroke="#2dd4bf" stroke-opacity="0.5" stroke-width="1.5"/>
           <text x="540" y="75" text-anchor="middle" font-size="16.5" font-weight="700" fill="#FFFFFF">Your UI</text>
-          <text x="540" y="97" text-anchor="middle" font-size="12" fill="#9AA1C6">React · Vue · vanilla · CLI</text>
+          <text x="540" y="97" text-anchor="middle" font-size="12" fill="#90aaaa">React · Vue · vanilla · CLI</text>
         </g>
         <g>
           <rect x="116" y="184" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="244" y="214" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">@agentkit/client</text>
-          <text x="244" y="236" text-anchor="middle" font-size="12" fill="#888FB4">connect · send · on</text>
+          <text x="244" y="236" text-anchor="middle" font-size="12" fill="#7e96a0">connect · send · on</text>
         </g>
         <g>
           <rect x="116" y="322" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="244" y="352" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">@agentkit/server</text>
-          <text x="244" y="374" text-anchor="middle" font-size="12" fill="#888FB4">serve · AG-UI SSE stream</text>
+          <text x="244" y="374" text-anchor="middle" font-size="12" fill="#7e96a0">serve · AG-UI SSE stream</text>
         </g>
         <g>
-          <rect x="116" y="460" width="256" height="84" rx="14" fill="url(#archCore)" stroke="#6E84EE" stroke-opacity="0.45" stroke-width="1.5"/>
+          <rect x="116" y="460" width="256" height="84" rx="14" fill="url(#archCore)" stroke="#2dd4bf" stroke-opacity="0.45" stroke-width="1.5"/>
           <text x="244" y="490" text-anchor="middle" font-size="15.5" font-weight="700" fill="#FFFFFF">createAgent</text>
-          <text x="244" y="512" text-anchor="middle" font-size="12" fill="#A8B4E8">@agentkit/core · config in, events out</text>
+          <text x="244" y="512" text-anchor="middle" font-size="12" fill="#a7f3d0">@agentkit/core · config in, events out</text>
         </g>
         <g>
           <rect x="708" y="184" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="836" y="214" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">Providers</text>
-          <text x="836" y="236" text-anchor="middle" font-size="12" fill="#888FB4">Anthropic · OpenAI · routing</text>
+          <text x="836" y="236" text-anchor="middle" font-size="12" fill="#7e96a0">Anthropic · OpenAI · routing</text>
         </g>
         <g>
           <rect x="708" y="322" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="836" y="352" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">MCP + Sources</text>
-          <text x="836" y="374" text-anchor="middle" font-size="12" fill="#888FB4">tools · read-only context feeds</text>
+          <text x="836" y="374" text-anchor="middle" font-size="12" fill="#7e96a0">tools · read-only context feeds</text>
         </g>
         <g>
           <rect x="708" y="460" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="836" y="490" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">Memory + Context</text>
-          <text x="836" y="512" text-anchor="middle" font-size="12" fill="#888FB4">TOON encoding · compaction</text>
+          <text x="836" y="512" text-anchor="middle" font-size="12" fill="#7e96a0">TOON encoding · compaction</text>
         </g>
         <g>
-          <rect x="420" y="200" width="240" height="68" rx="13" fill="#1A1C30" stroke="#9B7BEF" stroke-opacity="0.35" stroke-width="1.2"/>
-          <text x="540" y="228" text-anchor="middle" font-size="14.5" font-weight="700" fill="#D9DCEC">Orchestrator · Workflows</text>
-          <text x="540" y="250" text-anchor="middle" font-size="11.5" fill="#7E85AC">parallel agents · static DAG · approvals</text>
+          <rect x="420" y="200" width="240" height="68" rx="13" fill="#121a1e" stroke="#38bdf8" stroke-opacity="0.35" stroke-width="1.2"/>
+          <text x="540" y="228" text-anchor="middle" font-size="14.5" font-weight="700" fill="#dbe7e6">Orchestrator · Workflows</text>
+          <text x="540" y="250" text-anchor="middle" font-size="11.5" fill="#74909a">parallel agents · static DAG · approvals</text>
         </g>
-        <text x="372" y="146" text-anchor="middle" font-size="12" font-weight="600" fill="#8E96C0">events</text>
-        <text x="260" y="300" font-size="12" font-weight="600" fill="#8E96C0">send</text>
-        <text x="260" y="438" font-size="12" font-weight="600" fill="#8E96C0">run</text>
-        <text x="407" y="200" text-anchor="middle" font-size="11.5" font-weight="600" fill="#80879F">plan</text>
-        <text x="852" y="438" font-size="12" font-weight="600" fill="#A59AD8">store</text>
-        <text x="852" y="300" font-size="12" font-weight="600" fill="#A59AD8">tools</text>
-        <text x="712" y="146" text-anchor="middle" font-size="12" font-weight="600" fill="#A59AD8">tokens</text>
+        <text x="372" y="146" text-anchor="middle" font-size="12" font-weight="600" fill="#8298a0">events</text>
+        <text x="260" y="300" font-size="12" font-weight="600" fill="#8298a0">send</text>
+        <text x="260" y="438" font-size="12" font-weight="600" fill="#8298a0">run</text>
+        <text x="407" y="200" text-anchor="middle" font-size="11.5" font-weight="600" fill="#74909a">plan</text>
+        <text x="852" y="438" font-size="12" font-weight="600" fill="#7dd3fc">store</text>
+        <text x="852" y="300" font-size="12" font-weight="600" fill="#7dd3fc">tools</text>
+        <text x="712" y="146" text-anchor="middle" font-size="12" font-weight="600" fill="#7dd3fc">tokens</text>
         <g>
-          <rect x="458" y="353" width="164" height="22" rx="7" fill="#13152A"/>
-          <text x="540" y="368" text-anchor="middle" font-size="12" font-weight="600" fill="#9098BC">event bus inside core</text>
+          <rect x="458" y="353" width="164" height="22" rx="7" fill="#0e1418"/>
+          <text x="540" y="368" text-anchor="middle" font-size="12" font-weight="600" fill="#84a0a8">event bus inside core</text>
         </g>
       </svg>
     </div>
@@ -803,13 +1167,13 @@
 
 <section id="demo">
   <div class="page">
-    <div class="section-header">
-      <div class="section-label">Animated code flow</div>
+    <div class="section-header" data-reveal>
+      <div class="section-eyebrow"><span class="num">03</span><span class="section-label">Live demo</span></div>
       <h2>Watch a function <span class="dim">travel through the SDK.</span></h2>
-      <p class="section-sub">Seven patterns — from one-shot <code>agent.run()</code> to parallel subagents, workflows, and context compaction. <strong>Pattern B</strong> includes an approval gate with Approve / Deny paths (<code>session.approve</code> / <code>session.reject</code>). Pick a pattern; flow boxes, timeline, code, and event log animate together.</p>
+      <p class="section-sub">Seven real patterns — from a one-shot <code>agent.run()</code> to parallel subagents, workflows, and context compaction. <strong>Pattern B</strong> has an approval gate you can Approve or Deny (<code>session.approve</code> / <code>session.reject</code>). Pick a pattern below — the flow boxes, timeline, code, and event log all animate together.</p>
     </div>
 
-    <div class="flow-container">
+    <div class="flow-container" data-reveal style="--reveal-delay:80ms">
       <div class="scenario-grid" id="scn-grid"></div>
       <div class="scenario-desc" id="scn-desc"></div>
 
@@ -868,12 +1232,43 @@
 
 <section id="capabilities">
   <div class="page">
-    <div class="section-header">
-      <div class="section-label">Capabilities</div>
+    <div class="section-header" data-reveal>
+      <div class="section-eyebrow"><span class="num">04</span><span class="section-label">Capabilities</span></div>
       <h2>Everything in <span class="dim">one SDK surface.</span></h2>
-      <p class="section-sub">Optional quick-jump map. Click a card to run the matching pattern in the live demo above and scroll to it.</p>
+      <p class="section-sub">A quick-jump map of what the engine does. Click any card to run the matching pattern in the live demo above.</p>
     </div>
-    <div class="bento" id="bento-grid"></div>
+    <div class="bento" id="bento-grid" data-reveal style="--reveal-delay:80ms"></div>
+  </div>
+</section>
+
+<section id="clients">
+  <div class="page">
+    <div class="section-header" data-reveal>
+      <div class="section-eyebrow"><span class="num">05</span><span class="section-label">Polyglot clients</span></div>
+      <h2>Connect from <span class="dim">any language.</span></h2>
+      <p class="section-sub">The engine stays TypeScript — but the AG-UI wire is just HTTP + SSE, so any language can drive a session. Here is the same flow from the <code>clients/python</code> client.</p>
+    </div>
+
+    <div class="lang-tabs" data-reveal>
+      <a class="lang-tab" href="#demo">TypeScript</a>
+      <span class="lang-tab active">Python</span>
+    </div>
+
+    <div class="clients-grid">
+      <div class="clients-copy" data-reveal>
+        <h3>Thin by design</h3>
+        <p>Language clients don't re-implement the engine — they connect to <code>@agentkit/server</code> and receive the same typed events as <code>@agentkit/client</code>.</p>
+        <ul class="clients-list">
+          <li><strong>Same event names</strong> — <code>stream:token</code>, <code>plan:created</code>, <code>approval:request</code>, <code>done</code>.</li>
+          <li><strong>Stdlib only</strong> — no heavy dependencies; manage it with <code>uv</code> (<code>uv sync</code>, <code>uv run</code>).</li>
+          <li><strong>Full session control</strong> — <code>send</code>, <code>approve</code>, <code>answer</code>, <code>cancel</code>, <code>close</code>.</li>
+        </ul>
+      </div>
+      <div data-reveal style="--reveal-delay:120ms">
+        <div class="code-card-label"><span class="pydot"></span>Python · clients/python</div>
+        <div class="code-block"><span class="cl"><span class="kw">from</span> agentkit <span class="kw">import</span> <span class="fn">connect</span></span><span class="cl">&nbsp;</span><span class="cl"><span class="cm"># Same AG-UI wire the JS client speaks — engine stays TypeScript</span></span><span class="cl">session = <span class="fn">connect</span>(<span class="str">"http://localhost:8787"</span>, token=<span class="str">"..."</span>)</span><span class="cl">&nbsp;</span><span class="cl"><span class="cm"># Subscribe to typed events streamed from @agentkit/server</span></span><span class="cl"><span class="fn">session.on</span>(<span class="str">"stream:token"</span>, <span class="kw">lambda</span> e: <span class="fn">print</span>(e[<span class="str">"token"</span>], end=<span class="str">""</span>))</span><span class="cl"><span class="fn">session.on</span>(<span class="str">"plan:created"</span>, <span class="kw">lambda</span> e: <span class="fn">print</span>(<span class="str">"plan:"</span>, e[<span class="str">"steps"</span>], <span class="str">"steps"</span>))</span><span class="cl"><span class="fn">session.on</span>(<span class="str">"approval:request"</span>, <span class="kw">lambda</span> e: <span class="fn">session.approve</span>(e[<span class="str">"requestId"</span>]))</span><span class="cl"><span class="fn">session.on</span>(<span class="str">"done"</span>, <span class="kw">lambda</span> e: <span class="fn">print</span>(<span class="str">"\n✓ complete"</span>))</span><span class="cl">&nbsp;</span><span class="cl"><span class="cm"># Send a task — the agent plans, streams, and pauses for approval</span></span><span class="cl"><span class="fn">session.send</span>(<span class="str">"Draft and send the weekly report"</span>)</span><span class="cl"><span class="fn">session.close</span>()</span></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1589,6 +1984,16 @@ const scenarios = [
     showReplayButtons(false);
     setPlayButtons(true);
 
+    // Resting state: render the scenario at step 0 without scheduling the animation.
+    if (opts.noPlay) {
+      demoRunning = false;
+      setPlayButtons(false);
+      $("ev-log").innerHTML =
+        '<div class="ev-item" data-placeholder><span class="ev-tag orange">→</span><span class="ev-msg" style="font-style:italic">Press "Play full demo" or scroll down — events stream here.</span></div>';
+      setProgress(0, "Ready");
+      return;
+    }
+
     view.events.forEach((ev, i) => {
       const id = setTimeout(() => {
         logEv(ev);
@@ -1602,7 +2007,7 @@ const scenarios = [
           };
           gateAutoTimer = setTimeout(() => {
             resolveApprovalGate(approvalPath === "deny" ? "deny" : "approve");
-          }, 2200);
+          }, 2800);
           return;
         }
         if (ev.done) hideApprovalGate();
@@ -1686,7 +2091,50 @@ const scenarios = [
   });
 
   renderBento();
-  setTimeout(() => runScenario(1), 900);
+
+  const reducedMotion =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Scroll-reveal: each [data-reveal] rises in once, honouring its --reveal-delay stagger.
+  const revealEls = document.querySelectorAll("[data-reveal]");
+  if (!reducedMotion && "IntersectionObserver" in window) {
+    const revealObs = new IntersectionObserver(
+      (entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            obs.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+    );
+    revealEls.forEach((el) => revealObs.observe(el));
+  } else {
+    revealEls.forEach((el) => el.classList.add("is-visible"));
+  }
+
+  // Render the demo in a resting state, then play it once — when it scrolls into view,
+  // so the animation lands while the viewer is actually looking at it.
+  runScenario(1, { noPlay: true });
+  let demoAutoPlayed = false;
+  const demoEl = $("demo");
+  if (demoEl && "IntersectionObserver" in window) {
+    const demoObs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !demoAutoPlayed && !demoRunning) {
+            demoAutoPlayed = true;
+            setTimeout(() => runScenario(1, { scroll: false }), 350);
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+    demoObs.observe(demoEl);
+  } else {
+    setTimeout(() => runScenario(1), 900);
+  }
 })();
 </script>
 </body>
