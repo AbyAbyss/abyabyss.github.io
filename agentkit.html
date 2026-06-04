@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgentKit SDK | Team Demo</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #060a14;
+    --bg2: #0a0e1a;
+    --surface: rgba(18, 24, 43, 0.72);
+    --glass: rgba(255, 255, 255, 0.04);
+    --border: rgba(255, 255, 255, 0.1);
+    --border2: rgba(124, 58, 237, 0.35);
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --accent: #7c3aed;
+    --violet: #6366f1;
+    --glow: #a78bfa;
+    --blue: #6e84ee;
+    --green: #34d399;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --radius: 16px;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  }
+  html { scroll-behavior: smooth; }
+  html.presentation-mode { font-size: 118%; }
+  body {
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg2) 40%, #0d1224 100%);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(124, 58, 237, 0.18), transparent),
+      radial-gradient(ellipse 60% 40% at 90% 10%, rgba(99, 102, 241, 0.12), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .page { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+  section { padding: 64px 0; border-bottom: 1px solid var(--border); }
+  section:last-of-type { border: none; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 12px 20px;
+    background: rgba(6, 10, 20, 0.88);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-weight: 700;
+    font-size: 15px;
+    margin-right: auto;
+    background: linear-gradient(90deg, var(--glow), var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  nav a {
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  nav a:hover { color: var(--text); }
+  .nav-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .btn {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  }
+  .btn:hover { border-color: var(--border2); background: rgba(124, 58, 237, 0.12); }
+  .btn-primary {
+    border-color: var(--border2);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.35), rgba(99, 102, 241, 0.2));
+  }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-ghost { background: transparent; }
+  .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+  .hero { padding: 72px 0 56px; text-align: center; }
+  .hero-card {
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 32px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(18, 24, 43, 0.5));
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(12px);
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--glow);
+    margin-bottom: 10px;
+  }
+  .hero h1 {
+    font-size: clamp(30px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, #c4b5fd, var(--violet));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero p { color: var(--muted); max-width: 560px; margin: 0 auto 24px; font-size: 17px; }
+  .hero-badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .hero-jumps {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .hero-jumps a { text-decoration: none; }
+  .badge {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  .badge-accent { border-color: var(--border2); color: var(--glow); }
+
+  h2 { font-size: clamp(22px, 3vw, 30px); font-weight: 700; letter-spacing: -0.02em; }
+  h2 .dim { color: var(--muted); font-weight: 600; }
+  .section-sub { color: var(--muted); margin-top: 8px; max-width: 640px; }
+  .section-header { margin-bottom: 28px; }
+
+  .arch-wrap {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--glass);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(8px);
+  }
+  .arch-wrap svg { display: block; width: 100%; height: auto; }
+
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .bento-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow);
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+  }
+  .bento-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--border2);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+  .bento-card.active {
+    border-color: rgba(167, 139, 250, 0.65);
+    box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.35), 0 0 28px rgba(124, 58, 237, 0.28), var(--shadow);
+  }
+  .bento-card.active::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: var(--radius);
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), transparent 55%);
+  }
+  .bento-foot {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+    position: relative;
+    z-index: 1;
+  }
+  .btn-sample {
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .btn-sample:hover {
+    border-color: var(--border2);
+    color: var(--text);
+    background: rgba(124, 58, 237, 0.18);
+  }
+  .bento-card.active .btn-sample {
+    border-color: var(--border2);
+    color: var(--glow);
+  }
+  .bento-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border2);
+    background: rgba(124, 58, 237, 0.15);
+  }
+  .bento-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .bento-sub { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  /* primary flow demo (reference UX) */
+  .flow-container {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px;
+    background: rgba(10, 14, 26, 0.88);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+  }
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  .scn-btn {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--sans);
+    text-align: left;
+    line-height: 1.4;
+  }
+  .scn-btn:hover { border-color: var(--border2); color: var(--text); }
+  .scn-btn.active {
+    border-color: var(--border2);
+    color: var(--glow);
+    background: rgba(124, 58, 237, 0.12);
+    box-shadow: 0 0 0 1px rgba(167, 139, 250, 0.25);
+  }
+  .scn-tag {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.75;
+    margin-bottom: 4px;
+  }
+  .scn-name { font-weight: 600; color: var(--text); }
+  .scenario-desc {
+    background: rgba(0, 0, 0, 0.22);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.65;
+    display: none;
+  }
+  .scenario-desc.show { display: block; }
+  .scenario-desc strong { color: var(--text); font-weight: 500; }
+  .flow-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  @media (max-width: 720px) {
+    .flow-layout { grid-template-columns: 1fr; }
+  }
+  .panel-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .code-block {
+    background: rgba(4, 6, 14, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+    padding: 16px 18px;
+    min-height: 260px;
+    overflow-x: auto;
+  }
+  .cl {
+    display: block;
+    transition: background 0.2s;
+    border-radius: 3px;
+    padding: 0 4px;
+    margin: 0 -4px;
+    white-space: pre;
+  }
+  .cl.hl { background: rgba(124, 58, 237, 0.2); }
+  .cl.hl2 { background: rgba(52, 211, 153, 0.12); }
+  .cl.hl3 { background: rgba(251, 191, 36, 0.1); }
+  .kw { color: #93c5fd; }
+  .fn { color: #a78bfa; }
+  .str { color: #86efac; }
+  .cm { color: #64748b; font-style: italic; }
+  .num { color: #fbbf24; }
+  .err { color: var(--red); }
+  .ev-log {
+    background: rgba(4, 6, 14, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: var(--mono);
+    font-size: 12px;
+    min-height: 180px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .ev-item {
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--muted);
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+  }
+  .ev-item:last-child { border: none; }
+  .ev-tag { flex-shrink: 0; font-weight: 600; }
+  .ev-tag.orange { color: var(--glow); }
+  .ev-tag.green { color: var(--green); }
+  .ev-tag.red { color: var(--red); }
+  .ev-tag.amber { color: var(--amber); }
+  .ev-tag.blue { color: var(--blue); }
+  .ev-tag.purple { color: var(--violet); }
+  .ev-msg { opacity: 0.85; word-break: break-all; }
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .metric {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .metric-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .metric-val {
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .metric-val.green { color: var(--green); }
+  .flow-nodes-wrap { margin: 22px 0 10px; }
+  .flow-row { display: flex; align-items: stretch; gap: 0; min-height: 80px; }
+  .flow-node {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.28);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    transition: border-color 0.35s, background 0.35s;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .flow-node.active {
+    border-color: var(--border2);
+    background: rgba(124, 58, 237, 0.14);
+  }
+  .flow-node.done {
+    border-color: rgba(52, 211, 153, 0.45);
+    background: rgba(52, 211, 153, 0.08);
+  }
+  .flow-node.error {
+    border-color: rgba(248, 113, 113, 0.5);
+    background: rgba(248, 113, 113, 0.08);
+  }
+  .flow-node.warn {
+    border-color: rgba(251, 191, 36, 0.45);
+    background: rgba(251, 191, 36, 0.08);
+  }
+  .flow-node-label {
+    font-size: 9px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .flow-node-title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .flow-node-sub { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.3; }
+  .flow-arrow {
+    flex: 0 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--border);
+    font-size: 16px;
+    transition: color 0.3s;
+  }
+  .flow-arrow.active { color: var(--glow); }
+  .flow-arrow.done { color: var(--green); }
+  .phase-row {
+    display: flex;
+    gap: 0;
+    margin: 16px 0 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .phase-item {
+    flex: 1;
+    min-width: 90px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-right: none;
+    background: rgba(0, 0, 0, 0.22);
+    font-size: 11px;
+    text-align: center;
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+  }
+  .phase-item:first-child { border-radius: 8px 0 0 8px; }
+  .phase-item:last-child {
+    border-radius: 0 8px 8px 0;
+    border-right: 1px solid var(--border);
+  }
+  .phase-item.active {
+    background: rgba(124, 58, 237, 0.14);
+    border-color: var(--border2);
+    color: var(--glow);
+    font-weight: 600;
+  }
+  .phase-item.done {
+    background: rgba(52, 211, 153, 0.08);
+    border-color: rgba(52, 211, 153, 0.4);
+    color: var(--green);
+  }
+  .phase-name { font-size: 10px; font-weight: 600; }
+  .phase-time { font-size: 10px; color: var(--muted); margin-top: 1px; }
+  .step-dots { display: flex; gap: 5px; align-items: center; }
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+  }
+  .dot.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    transform: scale(1.35);
+  }
+  .dot.done { background: var(--green); border-color: var(--green); }
+  .dot.error { background: var(--red); border-color: var(--red); }
+  .demo-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .approval-path-toggle {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(0, 0, 0, 0.22);
+  }
+  .approval-path-toggle.show { display: flex; }
+  .path-toggle-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  .path-btn.active {
+    border-color: var(--border2);
+    color: var(--glow);
+    background: rgba(124, 58, 237, 0.18);
+  }
+  .path-btn[data-path="deny"].active {
+    border-color: rgba(248, 113, 113, 0.45);
+    color: var(--red);
+    background: rgba(248, 113, 113, 0.1);
+  }
+  .approval-gate-wrap {
+    display: none;
+    margin: 0 0 14px;
+  }
+  .approval-gate-wrap.show { display: block; }
+  .approval-gate-panel {
+    border: 1px solid rgba(251, 191, 36, 0.45);
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: rgba(251, 191, 36, 0.08);
+    box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.12);
+  }
+  .approval-gate-panel.rejected {
+    border-color: rgba(248, 113, 113, 0.5);
+    background: rgba(248, 113, 113, 0.08);
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.12);
+  }
+  .approval-gate-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 6px;
+  }
+  .approval-gate-preview {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .approval-gate-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .approval-gate-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-approve {
+    border-color: rgba(52, 211, 153, 0.45);
+    background: rgba(52, 211, 153, 0.14);
+    color: var(--green);
+  }
+  .btn-approve:hover {
+    background: rgba(52, 211, 153, 0.22);
+    border-color: rgba(52, 211, 153, 0.6);
+  }
+  .btn-deny {
+    border-color: rgba(248, 113, 113, 0.45);
+    background: rgba(248, 113, 113, 0.12);
+    color: var(--red);
+  }
+  .btn-deny:hover {
+    background: rgba(248, 113, 113, 0.2);
+    border-color: rgba(248, 113, 113, 0.6);
+  }
+  .btn-approve:disabled,
+  .btn-deny:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .progress-bar {
+    height: 3px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 14px 0 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--violet));
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(5px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes token-fly {
+    0% { opacity: 0; transform: translateY(-3px); }
+    100% { opacity: 1; transform: none; }
+  }
+  @keyframes blink-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .anim-pop { animation: pop-in 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) both; }
+    .anim-token { animation: token-fly 0.32s ease both; }
+    .dot.active { animation: blink-dot 0.9s ease-in-out infinite; }
+  }
+
+
+  footer {
+    padding: 36px 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+  footer a { color: var(--glow); }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">AgentKit</span>
+  <a href="#hero">Intro</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#demo">Live demo</a>
+  <a href="#capabilities">Capabilities</a>
+  <div class="nav-actions">
+    <button type="button" class="btn btn-ghost btn-sm" id="btn-present" aria-pressed="false">Presentation mode</button>
+    <a class="btn btn-ghost btn-sm" href="http://localhost:3010" target="_blank" rel="noopener">Showcase</a>
+    <button type="button" class="btn btn-primary btn-sm" id="btn-play">Play full demo</button>
+    <button type="button" class="btn btn-ghost btn-sm" id="btn-replay" hidden>Replay full demo</button>
+  </div>
+</nav>
+
+<section class="hero" id="hero">
+  <div class="page">
+    <div class="hero-card">
+      <div class="section-label">Headless agent runtime</div>
+      <h1>Drop it into <em>any project.</em><br>The SDK does the rest.</h1>
+      <p>TypeScript-native engine for model calls, memory, MCP, planning, workflows, and AG-UI streaming. You bring the UI. AgentKit brings the runtime.</p>
+      <div class="hero-badges">
+        <span class="badge badge-accent">@agentkit/core</span>
+        <span class="badge badge-accent">AG-UI protocol</span>
+        <span class="badge">MIT license</span>
+        <span class="badge">MCP + approvals</span>
+        <span class="badge">TOON encoding</span>
+      </div>
+      <div class="hero-jumps">
+        <a href="#demo" class="btn btn-primary">Jump to live demo</a>
+        <a href="#capabilities" class="btn btn-ghost">Capability map</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="architecture">
+  <div class="page">
+    <div class="section-header">
+      <div class="section-label">Architecture</div>
+      <h2>Wire on the left. <span class="dim">Engine on the right.</span></h2>
+      <p class="section-sub">Your UI talks to @agentkit/client and @agentkit/server. createAgent() in core owns providers, tools, memory, and the event bus.</p>
+    </div>
+    <div class="arch-wrap" aria-hidden="true">
+      <svg viewBox="0 0 1080 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AgentKit architecture">
+        <defs>
+          <linearGradient id="archBg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#16182F"/><stop offset="1" stop-color="#0A0B15"/>
+          </linearGradient>
+          <linearGradient id="archNode" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#242848"/><stop offset="1" stop-color="#191C34"/>
+          </linearGradient>
+          <linearGradient id="archHub" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#2C3360"/><stop offset="1" stop-color="#222748"/>
+          </linearGradient>
+          <linearGradient id="archCore" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2A3A6E"/><stop offset="1" stop-color="#3D2F6B"/>
+          </linearGradient>
+          <linearGradient id="archArrow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#4DA3FF"/><stop offset="1" stop-color="#9B7BEF"/>
+          </linearGradient>
+          <filter id="archGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <marker id="archBlue" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#6E84EE"/></marker>
+          <marker id="archViolet" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#9B7BEF"/></marker>
+          <marker id="archGray" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0.5 L9,5 L0,9.5 Z" fill="#6A719C"/></marker>
+        </defs>
+        <rect width="1080" height="600" fill="url(#archBg)"/>
+        <text x="44" y="48" font-size="13" font-weight="700" letter-spacing="3" fill="#474D78">AGENTKIT DATA FLOW</text>
+        <rect x="92" y="150" width="304" height="420" rx="24" fill="#4D7CFF" fill-opacity="0.05"/>
+        <rect x="684" y="150" width="304" height="420" rx="24" fill="#9B7BEF" fill-opacity="0.05"/>
+        <text x="116" y="176" font-size="12" font-weight="700" letter-spacing="3" fill="#6E84EE">WIRE</text>
+        <text x="964" y="176" text-anchor="end" font-size="12" font-weight="700" letter-spacing="3" fill="#9B7BEF">ENGINE</text>
+        <g filter="url(#archGlow)">
+          <line x1="482" y1="126" x2="262" y2="180" stroke="url(#archArrow)" stroke-width="2" marker-end="url(#archBlue)"/>
+          <line x1="244" y1="272" x2="244" y2="317" stroke="#6E84EE" stroke-width="2" marker-end="url(#archBlue)"/>
+          <line x1="244" y1="410" x2="244" y2="455" stroke="#6E84EE" stroke-width="2" marker-end="url(#archBlue)"/>
+          <line x1="436" y1="233" x2="379" y2="228" stroke="#6A719C" stroke-width="2" marker-end="url(#archGray)"/>
+          <line x1="836" y1="456" x2="836" y2="411" stroke="#9B7BEF" stroke-width="2" marker-end="url(#archViolet)"/>
+          <line x1="836" y1="318" x2="836" y2="273" stroke="#9B7BEF" stroke-width="2" marker-end="url(#archViolet)"/>
+          <line x1="816" y1="180" x2="604" y2="126" stroke="#9B7BEF" stroke-width="2" marker-end="url(#archViolet)"/>
+          <line x1="376" y1="364" x2="703" y2="364" stroke="#6A719C" stroke-width="2" marker-end="url(#archGray)"/>
+        </g>
+        <g>
+          <rect x="400" y="40" width="280" height="84" rx="15" fill="url(#archHub)" stroke="#6E84EE" stroke-opacity="0.5" stroke-width="1.5"/>
+          <text x="540" y="75" text-anchor="middle" font-size="16.5" font-weight="700" fill="#FFFFFF">Your UI</text>
+          <text x="540" y="97" text-anchor="middle" font-size="12" fill="#9AA1C6">React · Vue · vanilla · CLI</text>
+        </g>
+        <g>
+          <rect x="116" y="184" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+          <text x="244" y="214" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">@agentkit/client</text>
+          <text x="244" y="236" text-anchor="middle" font-size="12" fill="#888FB4">connect · send · on</text>
+        </g>
+        <g>
+          <rect x="116" y="322" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+          <text x="244" y="352" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">@agentkit/server</text>
+          <text x="244" y="374" text-anchor="middle" font-size="12" fill="#888FB4">serve · AG-UI SSE stream</text>
+        </g>
+        <g>
+          <rect x="116" y="460" width="256" height="84" rx="14" fill="url(#archCore)" stroke="#6E84EE" stroke-opacity="0.45" stroke-width="1.5"/>
+          <text x="244" y="490" text-anchor="middle" font-size="15.5" font-weight="700" fill="#FFFFFF">createAgent</text>
+          <text x="244" y="512" text-anchor="middle" font-size="12" fill="#A8B4E8">@agentkit/core · config in, events out</text>
+        </g>
+        <g>
+          <rect x="708" y="184" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+          <text x="836" y="214" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">Providers</text>
+          <text x="836" y="236" text-anchor="middle" font-size="12" fill="#888FB4">Anthropic · OpenAI · routing</text>
+        </g>
+        <g>
+          <rect x="708" y="322" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+          <text x="836" y="352" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">MCP + Sources</text>
+          <text x="836" y="374" text-anchor="middle" font-size="12" fill="#888FB4">tools · read-only context feeds</text>
+        </g>
+        <g>
+          <rect x="708" y="460" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
+          <text x="836" y="490" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">Memory + Context</text>
+          <text x="836" y="512" text-anchor="middle" font-size="12" fill="#888FB4">TOON encoding · compaction</text>
+        </g>
+        <g>
+          <rect x="420" y="200" width="240" height="68" rx="13" fill="#1A1C30" stroke="#9B7BEF" stroke-opacity="0.35" stroke-width="1.2"/>
+          <text x="540" y="228" text-anchor="middle" font-size="14.5" font-weight="700" fill="#D9DCEC">Orchestrator · Workflows</text>
+          <text x="540" y="250" text-anchor="middle" font-size="11.5" fill="#7E85AC">parallel agents · static DAG · approvals</text>
+        </g>
+        <text x="372" y="146" text-anchor="middle" font-size="12" font-weight="600" fill="#8E96C0">events</text>
+        <text x="260" y="300" font-size="12" font-weight="600" fill="#8E96C0">send</text>
+        <text x="260" y="438" font-size="12" font-weight="600" fill="#8E96C0">run</text>
+        <text x="407" y="200" text-anchor="middle" font-size="11.5" font-weight="600" fill="#80879F">plan</text>
+        <text x="852" y="438" font-size="12" font-weight="600" fill="#A59AD8">store</text>
+        <text x="852" y="300" font-size="12" font-weight="600" fill="#A59AD8">tools</text>
+        <text x="712" y="146" text-anchor="middle" font-size="12" font-weight="600" fill="#A59AD8">tokens</text>
+        <g>
+          <rect x="458" y="353" width="164" height="22" rx="7" fill="#13152A"/>
+          <text x="540" y="368" text-anchor="middle" font-size="12" font-weight="600" fill="#9098BC">event bus inside core</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="demo">
+  <div class="page">
+    <div class="section-header">
+      <div class="section-label">Animated code flow</div>
+      <h2>Watch a function <span class="dim">travel through the SDK.</span></h2>
+      <p class="section-sub">Seven patterns — from one-shot <code>agent.run()</code> to parallel subagents, workflows, and context compaction. <strong>Pattern B</strong> includes an approval gate with Approve / Deny paths (<code>session.approve</code> / <code>session.reject</code>). Pick a pattern; flow boxes, timeline, code, and event log animate together.</p>
+    </div>
+
+    <div class="flow-container">
+      <div class="scenario-grid" id="scn-grid"></div>
+      <div class="scenario-desc" id="scn-desc"></div>
+
+      <div class="approval-path-toggle" id="approval-path-toggle" aria-label="Approval demo path">
+        <span class="path-toggle-label">Pattern B</span>
+        <button type="button" class="btn btn-sm path-btn active" data-path="approve">Approve path</button>
+        <button type="button" class="btn btn-sm path-btn" data-path="deny">Deny path</button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="step-dots" id="step-dots"></div>
+          <span style="font-size:12px;color:var(--muted)" id="step-label">Select a pattern above</span>
+        </div>
+        <span style="font-size:11px;color:var(--muted)" id="phase-label"></span>
+      </div>
+
+      <div class="flow-nodes-wrap"><div class="flow-row" id="flow-row"></div></div>
+
+      <div class="approval-gate-wrap" id="approval-gate-wrap" hidden>
+        <div class="approval-gate-panel anim-pop" id="approval-gate-panel">
+          <div class="approval-gate-title">Approval gate — action paused</div>
+          <p class="approval-gate-meta" id="approval-gate-meta">tool: email__send · requestId: apr_demo</p>
+          <p class="approval-gate-preview" id="approval-preview">Send report to team@co.com</p>
+          <div class="approval-gate-actions">
+            <button type="button" class="btn btn-sm btn-approve" id="btn-approval-approve">Approve</button>
+            <button type="button" class="btn btn-sm btn-deny" id="btn-approval-deny">Deny</button>
+          </div>
+        </div>
+      </div>
+      <div class="phase-row" id="phase-row"></div>
+
+      <div class="flow-layout">
+        <div>
+          <div class="panel-label">Code</div>
+          <div class="code-block" id="code-block"><span class="cl cm">// select a pattern above</span></div>
+        </div>
+        <div>
+          <div class="panel-label">Event log</div>
+          <div class="ev-log" id="ev-log">
+            <div class="ev-item" data-placeholder><span class="ev-tag orange">—</span><span class="ev-msg" style="font-style:italic">Waiting for pattern...</span></div>
+          </div>
+          <div class="metrics">
+            <div class="metric"><div class="metric-label">tokens in</div><div class="metric-val" id="m-in">0</div></div>
+            <div class="metric"><div class="metric-label">tokens out</div><div class="metric-val" id="m-out">0</div></div>
+            <div class="metric"><div class="metric-label">cost</div><div class="metric-val green" id="m-cost">$0.000</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+      <div class="progress-meta"><span id="prog-label">Ready</span><span id="prog-pct">0%</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="capabilities">
+  <div class="page">
+    <div class="section-header">
+      <div class="section-label">Capabilities</div>
+      <h2>Everything in <span class="dim">one SDK surface.</span></h2>
+      <p class="section-sub">Optional quick-jump map. Click a card to run the matching pattern in the live demo above and scroll to it.</p>
+    </div>
+    <div class="bento" id="bento-grid"></div>
+  </div>
+</section>
+
+<footer>
+  <p>AgentKit SDK · MIT · Static demo (no API calls)</p>
+  <p style="margin-top: 8px">Interactive showcase: <a href="http://localhost:3010" target="_blank" rel="noopener">http://localhost:3010</a> (run <code>pnpm example:showcase</code>)</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  const $ = (id) => document.getElementById(id);
+  let timers = [];
+  let activeScenarioIdx = 1;
+  let demoRunning = false;
+  let approvalPath = "approve";
+  let gateAutoTimer = null;
+  let gateResolveFn = null;
+
+  const stars = ["", "★", "★★", "★★★"];
+
+  const capabilities = [
+    { id: "agent-run", icon: "⚡", title: "agent.run()", sub: "One-shot structured output.", scenario: 0 },
+    { id: "ag-ui", icon: "📡", title: "AG-UI streaming", sub: "SSE events for any UI framework.", scenario: 1 },
+    { id: "plan-todos", icon: "📋", title: "Plan + todos", sub: "plan:created and plan:step lifecycle.", scenario: 1 },
+    { id: "mcp", icon: "🔧", title: "MCP tools", sub: "Tool catalogs, calls, TOON encode.", scenario: 2 },
+    { id: "approvals", icon: "🛡", title: "Approvals", sub: "Approve or reject via session.approve() / reject().", scenario: 1 },
+    { id: "elicitation", icon: "💬", title: "Elicitation", sub: "Structured choices from the user.", scenario: 1 },
+    { id: "parallel-subagents", icon: "🤖", title: "Parallel subagents", sub: "Isolated windows, aggregated results.", scenario: 3 },
+    { id: "context-compaction", icon: "📦", title: "Context compaction", sub: "Summarise at compactAt threshold.", scenario: 6 },
+    { id: "cost-meter", icon: "💰", title: "Cost meter", sub: "Live cost:update token meter.", scenario: 1 },
+    { id: "workflows", icon: "📊", title: "Workflows", sub: "Static DAG with template refs.", scenario: 4 },
+    { id: "self-repair", icon: "🔁", title: "Self-repair", sub: "tool:error → repair → retry.", scenario: 5 },
+    { id: "audit-log", icon: "📝", title: "Event log", sub: "Typed AG-UI event stream.", scenario: 1 },
+  ];
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+const scenarios = [
+
+  /* 0 ── simple run */
+  {
+    tag:'Pattern A', name:'agent.run() — one-shot',
+    desc:'The simplest possible call. <strong>agent.run()</strong> routes through the provider registry, encodes the payload with TOON, calls the model, and returns a typed structured result. No session, no UI, no back-and-forth.',
+    complexity:1,
+    steps:[
+      {label:'call site',        title:'agent.run()',     sub:'one-shot task'},
+      {label:'provider registry',title:'route to model',  sub:'claude-opus-4-6'},
+      {label:'context engine',   title:'TOON encode',     sub:'adaptive payload'},
+      {label:'reasoning loop',   title:'model stream',    sub:'tokens returned'},
+      {label:'output',           title:'result ready',    sub:'structured + typed'},
+    ],
+    phases:[
+      {name:'init',      time:'0ms'},
+      {name:'encode',    time:'12ms'},
+      {name:'inference', time:'980ms'},
+      {name:'parse',     time:'8ms'},
+      {name:'return',    time:'~1s total'},
+    ],
+    code:[
+      {t:"import { createAgent } from '@agentkit/core'",hl:false},
+      {t:'',hl:false},
+      {t:"const agent = createAgent({",hl:false},
+      {t:"  provider: 'anthropic',",hl:false},
+      {t:"  mode: 'direct',",hl:false},
+      {t:"  logging: { level: 'info' },",hl:false},
+      {t:"})",hl:false},
+      {t:'',hl:false},
+      {t:"const result = await agent.run(",hl:true},
+      {t:"  'Summarise open GitHub issues, group by severity'",hl:true},
+      {t:")",hl:false},
+    ],
+    events:[
+      {t:200,  tag:'log',          color:'orange', msg:'{"level":"info","msg":"agent.run called"}'},
+      {t:500,  tag:'stream:start', color:'orange', msg:'model stream opened'},
+      {t:900,  tag:'stream:token', color:'blue',   msg:'"Summarising 14 open issues..."'},
+      {t:1300, tag:'stream:token', color:'blue',   msg:'"Priority: 3 critical, 6 medium, 5 low"'},
+      {t:1700, tag:'stream:end',   color:'orange', msg:'stream closed'},
+      {t:2000, tag:'cost:update',  color:'amber',  msg:'{"tokens":1840,"cost":"$0.014"}'},
+      {t:2300, tag:'done',         color:'green',  msg:'result.output ready',done:true},
+    ],
+    hlSteps:[[8,9],[3,4],[2],[8,9],[0]],
+    tokens:[[120,0,0],[480,0,0],[840,320,0],[1840,820,0.014],[1840,820,0.014]],
+  },
+
+  /* 1 ── session + plan mode */
+  {
+    tag:'Pattern B', name:'session + plan mode',
+    desc:'A full interactive session in <strong>plan</strong> mode. The SDK generates a plan and todo list, then pauses at a risky <strong>email__send</strong> for your approval gate. Use <strong>Approve path</strong> or <strong>Deny path</strong> below — Approve calls <code>session.approve(requestId)</code> and continues; Deny calls <code>session.reject(requestId)</code> and the agent recovers without running the tool.',
+    complexity:2,
+    approvalDemo:true,
+    stepsApprove:[
+      {label:'frontend',       title:'session.send()',    sub:'@agentkit/client'},
+      {label:'AG-UI wire',     title:'SSE stream',        sub:'@agentkit/server'},
+      {label:'plan mode',      title:'plan:created',      sub:'4 steps + todos'},
+      {label:'approval gate',  title:'approval:request',  sub:'Approve or Deny'},
+      {label:'execution',      title:'step 4 complete',   sub:'approval:resolved'},
+    ],
+    stepsDeny:[
+      {label:'frontend',       title:'session.send()',    sub:'@agentkit/client'},
+      {label:'AG-UI wire',     title:'SSE stream',        sub:'@agentkit/server'},
+      {label:'plan mode',      title:'plan:created',      sub:'4 steps + todos'},
+      {label:'approval gate',  title:'approval:request',  sub:'user rejected', state:'warn'},
+      {label:'execution',      title:'send skipped',      sub:'approval denied', state:'error'},
+    ],
+    phases:[
+      {name:'connect',  time:'0ms'},
+      {name:'planning', time:'620ms'},
+      {name:'step 1–3', time:'1.4s'},
+      {name:'approval', time:'user'},
+      {name:'finish',   time:'~3s'},
+    ],
+    codeApprove:[
+      {t:"// server.ts",hl:false},
+      {t:"serve(createAgent({ provider:'anthropic', mode:'plan' }), { port:8787 })",hl:false},
+      {t:'',hl:false},
+      {t:"// client.ts — wire ApprovalGate to session",hl:false},
+      {t:"const session = await connect('http://localhost:8787', { token })",hl:false},
+      {t:"session.on('approval:request', r => gate.show(r))",hl:false},
+      {t:"gate.onApprove = (id) => session.approve(id)",hl:true},
+      {t:"gate.onReject  = (id) => session.reject(id)",hl:false},
+      {t:"await session.send('Draft and send weekly report')",hl:false},
+    ],
+    codeDeny:[
+      {t:"// server.ts",hl:false},
+      {t:"serve(createAgent({ provider:'anthropic', mode:'plan' }), { port:8787 })",hl:false},
+      {t:'',hl:false},
+      {t:"// client.ts — wire ApprovalGate to session",hl:false},
+      {t:"const session = await connect('http://localhost:8787', { token })",hl:false},
+      {t:"session.on('approval:request', r => gate.show(r))",hl:false},
+      {t:"gate.onApprove = (id) => session.approve(id)",hl:false},
+      {t:"gate.onReject  = (id) => session.reject(id)",hl:true},
+      {t:"await session.send('Draft and send weekly report')",hl:false},
+    ],
+    events:[
+      {t:200,  tag:'stream:start',       color:'orange', msg:'session stream opened'},
+      {t:600,  tag:'plan:created',       color:'purple', msg:'{"steps":4,"todos":4}'},
+      {t:900,  tag:'plan:step:start',    color:'purple', msg:'{"step":1,"label":"Fetch open issues"}'},
+      {t:1100, tag:'todo:update',        color:'purple', msg:'{"completed":0,"remaining":4}'},
+      {t:1400, tag:'plan:step:done',     color:'green',  msg:'{"step":1,"elapsed":"480ms"}'},
+      {t:1650, tag:'plan:step:start',    color:'purple', msg:'{"step":2,"label":"Analyse severity"}'},
+      {t:1950, tag:'todo:update',        color:'purple', msg:'{"completed":1,"remaining":3}'},
+      {t:2200, tag:'approval:request',   color:'amber',  msg:'{"requestId":"apr_b7f2","tool":"email__send","preview":"Send report to team@co.com"}', gate:true},
+    ],
+    approvalAfter:{
+      approve:[
+        {t:400,  tag:'approval:resolved', color:'green',  msg:'{"requestId":"apr_b7f2","decision":"approved","tool":"email__send"}'},
+        {t:700,  tag:'plan:step:start',   color:'purple', msg:'{"step":4,"label":"Send report"}'},
+        {t:1000, tag:'tool:result',       color:'green',  msg:'{"tool":"email__send","status":200}'},
+        {t:1200, tag:'cost:update',       color:'amber',  msg:'{"tokens":3210,"cost":"$0.026"}'},
+        {t:1400, tag:'done',              color:'green',  msg:'session complete — gated step approved',done:true},
+      ],
+      deny:[
+        {t:400,  tag:'approval:rejected', color:'red',    msg:'{"requestId":"apr_b7f2","decision":"rejected","tool":"email__send"}'},
+        {t:650,  tag:'log',               color:'amber',  msg:'{"level":"warn","msg":"Tool blocked — approval denied"}'},
+        {t:900,  tag:'stream:token',      color:'blue',   msg:'"Report saved locally; send skipped (not approved)."'},
+        {t:1150, tag:'cost:update',       color:'amber',  msg:'{"tokens":2980,"cost":"$0.024"}'},
+        {t:1350, tag:'done',              color:'green',  msg:'session complete — agent recovered after deny',done:true},
+      ],
+    },
+    hlSteps:[[8],[4],[6,7],[5,6],[5,6,7,8]],
+    hlStepsDeny:[[8],[4],[6,7],[5,6],[5,6,7,8]],
+    tokensApprove:[[0,0,0],[400,0,0],[1100,500,0.01],[2100,900,0.018],[3210,1400,0.026]],
+    tokensDeny:[[0,0,0],[400,0,0],[1100,500,0.01],[2100,900,0.018],[2980,1200,0.024]],
+  },
+
+  /* 2 ── MCP tool call */
+  {
+    tag:'MCP', name:'MCP tool call + TOON encode',
+    desc:'The reasoning loop decides to call a GitHub MCP tool. The approval policy auto-approves based on the tool name, the MCP manager invokes it over stdio, and the source layer TOON-encodes the result before injecting it back into the context window.',
+    complexity:2,
+    steps:[
+      {label:'reasoning loop',  title:'tool decision',   sub:'model picks tool'},
+      {label:'approval policy', title:'auto-approve',    sub:'policy: allow'},
+      {label:'MCP manager',     title:'mcp:tool:call',   sub:'github__list_issues'},
+      {label:'source layer',    title:'TOON encode',     sub:'~42% fewer tokens'},
+      {label:'context',         title:'tool:result',     sub:'injected into loop'},
+    ],
+    phases:[
+      {name:'decide',   time:'0ms'},
+      {name:'policy',   time:'2ms'},
+      {name:'invoke',   time:'340ms'},
+      {name:'encode',   time:'11ms'},
+      {name:'inject',   time:'~355ms'},
+    ],
+    code:[
+      {t:"const agent = createAgent({",hl:false},
+      {t:"  provider: 'anthropic',",hl:false},
+      {t:"  mcp: {",hl:false},
+      {t:"    servers: [githubMCP, linearMCP],",hl:true},
+      {t:"    autoApprove: ['list_issues','list_prs'],",hl:true},
+      {t:"  },",hl:false},
+      {t:"  context: { encoding: 'auto' },",hl:false},
+      {t:"  approvals: { require: ['write','delete'] },",hl:false},
+      {t:"})",hl:false},
+      {t:'',hl:false},
+      {t:"await agent.run('Triage my GitHub issues by severity')",hl:false},
+    ],
+    events:[
+      {t:150,  tag:'mcp:tools:loaded',   color:'blue',   msg:'{"tools":24,"servers":["github","linear"]}'},
+      {t:400,  tag:'tool:call',          color:'orange', msg:'{"tool":"github__list_issues","input":{"state":"open"}}'},
+      {t:600,  tag:'approval:request',   color:'amber',  msg:'{"policy":"auto","tool":"github__list_issues","granted":true}'},
+      {t:850,  tag:'mcp:tool:call',      color:'blue',   msg:'{"server":"github","method":"list_issues"}'},
+      {t:1200, tag:'tool:result',        color:'green',  msg:'{"rows":14,"raw_tokens":820,"toon_tokens":476}'},
+      {t:1450, tag:'context:compacting', color:'amber',  msg:'usage at 74% of window — compacting older turns'},
+      {t:1750, tag:'context:compacted',  color:'green',  msg:'{"saved_tokens":1240,"strategy":"summarise"}'},
+      {t:2050, tag:'stream:token',       color:'blue',   msg:'"Found 14 issues: 3 critical (P0), 6 medium..."'},
+      {t:2400, tag:'cost:update',        color:'amber',  msg:'{"tokens":1340,"cost":"$0.011"}'},
+      {t:2650, tag:'done',               color:'green',  msg:'tool result injected and response complete',done:true},
+    ],
+    hlSteps:[[10],[3,4,7],[3,4],[6],[6]],
+    tokens:[[0,0,0],[200,0,0],[600,100,0.004],[980,380,0.008],[1340,580,0.011]],
+  },
+
+  /* 3 ── parallel subagents */
+  {
+    tag:'Advanced', name:'parallel subagents',
+    desc:'The orchestrator decomposes a large task into three independent subtasks. Each subagent runs with its own isolated context window in parallel — keeping each window small and focused. The lead agent aggregates results when all three finish.',
+    complexity:3,
+    steps:[
+      {label:'lead agent',       title:'decompose task',   sub:'build dependency graph'},
+      {label:'orchestrator',     title:'spawn 3 agents',   sub:'agent:spawned ×3'},
+      {label:'subagent A',       title:'fetch + analyse',  sub:'issues context'},
+      {label:'subagent B + C',   title:'draft + format',   sub:'parallel windows'},
+      {label:'lead agent',       title:'aggregate',        sub:'merge + agent:done'},
+    ],
+    phases:[
+      {name:'decompose',  time:'0ms'},
+      {name:'spawn',      time:'80ms'},
+      {name:'A runs',     time:'1.1s'},
+      {name:'B+C run',    time:'parallel'},
+      {name:'aggregate',  time:'~2.4s'},
+    ],
+    code:[
+      {t:"const agent = createAgent({",hl:false},
+      {t:"  provider: 'anthropic',",hl:false},
+      {t:"  orchestration: {",hl:true},
+      {t:"    parallel: true,",hl:true},
+      {t:"    maxAgents: 3,",hl:true},
+      {t:"    planFirst: true,",hl:true},
+      {t:"  },",hl:true},
+      {t:"  mcp: { servers },",hl:false},
+      {t:"})",hl:false},
+      {t:'',hl:false},
+      {t:"const result = await agent.run(",hl:false},
+      {t:"  'Full sprint retro: fetch, analyse, draft'",hl:false},
+      {t:")",hl:false},
+    ],
+    events:[
+      {t:100,  tag:'plan:created',   color:'purple', msg:'{"steps":3,"parallel":true,"agents":3}'},
+      {t:350,  tag:'agent:spawned',  color:'blue',   msg:'{"id":"agent-A","task":"fetch & analyse issues"}'},
+      {t:400,  tag:'agent:spawned',  color:'blue',   msg:'{"id":"agent-B","task":"draft action items"}'},
+      {t:450,  tag:'agent:spawned',  color:'blue',   msg:'{"id":"agent-C","task":"format executive summary"}'},
+      {t:700,  tag:'tool:call',      color:'orange', msg:'agent-A → github__list_issues'},
+      {t:950,  tag:'tool:result',    color:'green',  msg:'agent-A ← 14 issues (TOON-encoded)'},
+      {t:1150, tag:'stream:token',   color:'blue',   msg:'agent-B: "Action items: 1. Fix P0 crash in auth..."'},
+      {t:1400, tag:'stream:token',   color:'blue',   msg:'agent-C: "Sprint summary: 3 critical issues closed..."'},
+      {t:1700, tag:'agent:done',     color:'green',  msg:'{"id":"agent-A","tokens":820}'},
+      {t:1950, tag:'agent:done',     color:'green',  msg:'{"id":"agent-B","tokens":1140}'},
+      {t:2100, tag:'agent:done',     color:'green',  msg:'{"id":"agent-C","tokens":680}'},
+      {t:2300, tag:'cost:update',    color:'amber',  msg:'{"total_tokens":4180,"cost":"$0.033"}'},
+      {t:2600, tag:'done',           color:'green',  msg:'all subagents aggregated',done:true},
+    ],
+    hlSteps:[[2,3,4,5,6],[2,3,4,5,6],[7],[7],[0]],
+    tokens:[[0,0,0],[600,0,0],[1800,600,0.012],[3200,1400,0.025],[4180,2100,0.033]],
+  },
+
+  /* 4 ── static workflow */
+  {
+    tag:'Workflow', name:'static workflow (DAG)',
+    desc:'A developer-defined workflow with four steps runs as a DAG. Each step\'s output is template-referenced by the next via <strong>{{stepId.result}}</strong>. The workflow engine resolves dependencies, runs nodes in order, and emits step lifecycle events.',
+    complexity:3,
+    steps:[
+      {label:'workflow engine',  title:'wf.run()',         sub:'resolve DAG'},
+      {label:'step: fetch',      title:'github__list_issues', sub:'tool node'},
+      {label:'step: analyse',    title:'AI prompt node',   sub:'{{fetch.result}}'},
+      {label:'step: draft',      title:'AI prompt node',   sub:'{{analyse.result}}'},
+      {label:'step: send',       title:'email__send',      sub:'requires approval'},
+    ],
+    phases:[
+      {name:'DAG resolve',  time:'0ms'},
+      {name:'fetch',        time:'380ms'},
+      {name:'analyse',      time:'1.2s'},
+      {name:'draft',        time:'2.1s'},
+      {name:'send',         time:'2.9s'},
+    ],
+    code:[
+      {t:"const wf = agent.workflow('weekly-report')",hl:false},
+      {t:"  .step('fetch',   { tool: 'github__list_issues' })",hl:false},
+      {t:"  .step('analyse', {",hl:false},
+      {t:"    ai: 'Summarise and prioritise by severity',",hl:false},
+      {t:"    input: '{{fetch.result}}'",hl:true},
+      {t:"  })",hl:false},
+      {t:"  .step('draft', {",hl:false},
+      {t:"    ai: 'Write fix plan for the top 5 issues',",hl:false},
+      {t:"    input: '{{analyse.result}}'",hl:true},
+      {t:"  })",hl:false},
+      {t:"  .step('send', { tool: 'email__send',",hl:false},
+      {t:"    input: { body: '{{draft.result}}', to: 'team@co.com' }",hl:false},
+      {t:"  }).build()",hl:false},
+    ],
+    events:[
+      {t:100,  tag:'workflow:step:start', color:'purple', msg:'{"step":"fetch","type":"tool"}'},
+      {t:400,  tag:'tool:call',           color:'orange', msg:'github__list_issues'},
+      {t:750,  tag:'workflow:step:done',  color:'green',  msg:'{"step":"fetch","rows":14}'},
+      {t:900,  tag:'workflow:step:start', color:'purple', msg:'{"step":"analyse","type":"ai"}'},
+      {t:1300, tag:'stream:token',        color:'blue',   msg:'"3 P0 issues: auth crash, API timeout..."'},
+      {t:1600, tag:'workflow:step:done',  color:'green',  msg:'{"step":"analyse","tokens":640}'},
+      {t:1750, tag:'workflow:step:start', color:'purple', msg:'{"step":"draft","type":"ai"}'},
+      {t:2100, tag:'stream:token',        color:'blue',   msg:'"Fix plan: 1. Roll back auth middleware..."'},
+      {t:2350, tag:'workflow:step:done',  color:'green',  msg:'{"step":"draft","tokens":920}'},
+      {t:2500, tag:'approval:request',    color:'amber',  msg:'{"step":"send","tool":"email__send","to":"team@co.com"}'},
+      {t:2800, tag:'workflow:step:done',  color:'green',  msg:'{"step":"send","status":200}'},
+      {t:3000, tag:'cost:update',         color:'amber',  msg:'{"tokens":2840,"cost":"$0.023"}'},
+      {t:3200, tag:'done',                color:'green',  msg:'workflow complete — all 4 steps ran',done:true},
+    ],
+    hlSteps:[[0],[1],[4],[8],[11]],
+    tokens:[[0,0,0],[400,0,0],[1200,400,0.008],[2000,900,0.016],[2840,1400,0.023]],
+  },
+
+  /* 5 ── tool error + self-repair */
+  {
+    tag:'Resilience', name:'tool error + self-repair',
+    desc:'The model generates malformed tool arguments. Instead of surfacing the error to the developer, the SDK\'s tool layer catches the Zod validation failure, emits <strong>tool:error</strong>, constructs a self-repair prompt, and retries automatically. The developer never sees the transient failure.',
+    complexity:3,
+    steps:[
+      {label:'reasoning loop',   title:'tool:call',        sub:'model generates args'},
+      {label:'tool layer',       title:'Zod validate',     sub:'schema check fails',  state:'error'},
+      {label:'self-repair',      title:'retry prompt',     sub:'SDK repairs args',    state:'warn'},
+      {label:'tool layer',       title:'re-validate',      sub:'Zod passes ✓'},
+      {label:'context',          title:'tool:result',      sub:'injected, no error thrown'},
+    ],
+    phases:[
+      {name:'first call', time:'0ms'},
+      {name:'zod fail',   time:'2ms'},
+      {name:'repair',     time:'480ms'},
+      {name:'retry',      time:'820ms'},
+      {name:'success',    time:'~850ms'},
+    ],
+    code:[
+      {t:"// tool layer normalises all tools to one shape:",hl:false},
+      {t:"const myTool = {",hl:false},
+      {t:"  name: 'create_ticket',",hl:false},
+      {t:"  description: 'Creates a Linear ticket',",hl:false},
+      {t:"  input: z.object({",hl:true},
+      {t:"    title:    z.string().min(1),",hl:true},
+      {t:"    priority: z.enum(['urgent','high','medium','low']),",hl:true},
+      {t:"    teamId:   z.string().uuid(),",hl:true},
+      {t:"  }),",hl:true},
+      {t:"  async execute(input) { /* ... */ },",hl:false},
+      {t:"}",hl:false},
+      {t:"// SDK retries on schema failure — developer never sees it",hl:false},
+    ],
+    events:[
+      {t:150,  tag:'tool:call',         color:'orange', msg:'{"tool":"create_ticket","args":{"title":"Fix crash","priority":"P0"}}'},
+      {t:350,  tag:'tool:error',        color:'red',    msg:'ZodError: priority must be urgent|high|medium|low (got "P0")'},
+      {t:500,  tag:'log',               color:'amber',  msg:'{"level":"warn","msg":"schema mismatch — self-repair initiated"}'},
+      {t:750,  tag:'stream:token',      color:'blue',   msg:'[repair prompt] correcting priority: "P0" → "urgent"'},
+      {t:1000, tag:'tool:call',         color:'orange', msg:'{"tool":"create_ticket","args":{"title":"Fix crash","priority":"urgent"}}'},
+      {t:1200, tag:'tool:result',       color:'green',  msg:'{"id":"LIN-4821","status":"created"}'},
+      {t:1400, tag:'stream:token',      color:'blue',   msg:'"Ticket LIN-4821 created with priority urgent"'},
+      {t:1700, tag:'cost:update',       color:'amber',  msg:'{"tokens":980,"cost":"$0.008"}'},
+      {t:2000, tag:'done',              color:'green',  msg:'completed — 1 self-repair, 0 errors surfaced',done:true},
+    ],
+    hlSteps:[[0],[4,5,6,7,8],[4,5,6,7,8],[4,5,6,7,8],[0]],
+    tokens:[[0,0,0],[200,0,0],[540,180,0.003],[820,380,0.006],[980,420,0.008]],
+  },
+
+  /* 6 ── context compaction */
+  {
+    tag:'Advanced', name:'context compaction + memory',
+    desc:'A long conversation crosses the <strong>compactAt</strong> threshold (80% of the context window). The context engine summarises older turns, emits before/after events with tokens saved, and extracts durable facts into memory. The conversation continues seamlessly.',
+    complexity:3,
+    steps:[
+      {label:'context engine',   title:'usage > 80%',      sub:'compactAt threshold hit'},
+      {label:'context engine',   title:'context:compacting',sub:'emit before event'},
+      {label:'memory',           title:'summarise turns',   sub:'older turns collapsed'},
+      {label:'memory',           title:'fact extraction',   sub:'persist durable facts'},
+      {label:'context engine',   title:'context:compacted', sub:'1240 tokens freed'},
+    ],
+    phases:[
+      {name:'threshold',   time:'0ms'},
+      {name:'emit before', time:'5ms'},
+      {name:'summarise',   time:'620ms'},
+      {name:'extract',     time:'880ms'},
+      {name:'emit after',  time:'~920ms'},
+    ],
+    code:[
+      {t:"const agent = createAgent({",hl:false},
+      {t:"  provider: 'anthropic',",hl:false},
+      {t:"  context: {",hl:true},
+      {t:"    encoding:  'auto',",hl:true},
+      {t:"    compactAt: 0.8,",hl:true},
+      {t:"    strategy:  'summarise',",hl:true},
+      {t:"  },",hl:true},
+      {t:"  memory: {",hl:true},
+      {t:"    store:   'sqlite',",hl:true},
+      {t:"    extract: true,",hl:true},
+      {t:"    ttl:     '7d',",hl:true},
+      {t:"  },",hl:true},
+      {t:"})",hl:false},
+    ],
+    events:[
+      {t:100,  tag:'log',                color:'orange', msg:'context at 82% of window (32800/40000 tokens)'},
+      {t:300,  tag:'context:compacting', color:'amber',  msg:'{"current":32800,"limit":40000,"strategy":"summarise"}'},
+      {t:600,  tag:'log',                color:'orange', msg:'summarising 18 older turns into rolling memory...'},
+      {t:950,  tag:'memory:updated',     color:'purple', msg:'{"facts_extracted":3,"store":"sqlite"}'},
+      {t:1100, tag:'log',                color:'orange', msg:'fact: user prefers P0 issues first'},
+      {t:1200, tag:'log',                color:'orange', msg:'fact: team email = team@co.com'},
+      {t:1450, tag:'context:compacted',  color:'green',  msg:'{"before":32800,"after":15620,"saved":1240,"turns_collapsed":18}'},
+      {t:1700, tag:'stream:token',       color:'blue',   msg:'"Continuing — context compacted, facts preserved"'},
+      {t:2000, tag:'cost:update',        color:'amber',  msg:'{"tokens":16200,"cost":"$0.013"}'},
+      {t:2300, tag:'done',               color:'green',  msg:'compaction complete, conversation continues',done:true},
+    ],
+    hlSteps:[[2,3,4,5,6],[2,3,4,5,6],[7,8,9,10,11],[7,8,9,10,11],[2,3,4,5,6]],
+    tokens:[[32800,0,0],[32800,0,0],[33200,400,0.005],[34100,800,0.009],[16200,1100,0.013]],
+  },
+
+]
+
+
+  function syntaxHL(t) {
+    if (!t) return "";
+    const ph = [];
+    const mark = (html) => {
+      const id = ph.length;
+      ph.push(html);
+      return "\x01PH" + id + "PH\x01";
+    };
+    let s = esc(t);
+    s = s.replace(/('[^']*'|"[^"]*")/g, (m) => mark('<span class="str">' + m + "</span>"));
+    s = s.replace(/(\/\/.*)/g, (m) => mark('<span class="cm">' + m + "</span>"));
+    s = s
+      .replace(/\b(import|from|const|await|async|true|false|let|return|z)\b/g, '<span class="kw">$1</span>')
+      .replace(
+        /\b(createAgent|connect|session\.on|session\.approve|session\.reject|agent\.run|session\.send|serve|append|add|render|info|log|workflow|step|branch|build)\b/g,
+        '<span class="fn">$1</span>'
+      )
+      .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="num">$1</span>');
+    return s.replace(/\x01PH(\d+)PH\x01/g, (_, i) => ph[Number(i)]);
+  }
+
+  function setCode(lines) {
+    $("code-block").innerHTML = lines
+      .map((l, i) => `<span class="cl${l.hl ? " hl" : ""}" id="cl${i}">${syntaxHL(l.t) || "&nbsp;"}</span>`)
+      .join("");
+  }
+
+  function hlLines(idxs) {
+    document.querySelectorAll("#code-block .cl").forEach((el, i) => {
+      el.classList.toggle("hl", idxs.includes(i));
+    });
+  }
+
+  function buildFlow(steps, activeIdx) {
+    $("flow-row").innerHTML = steps
+      .map((s, i) => {
+        const isDone = i < activeIdx;
+        const isActive = i === activeIdx;
+        let state = "";
+        if (isActive) {
+          state = s.state === "error" ? " error" : s.state === "warn" ? " warn" : " active";
+        } else if (isDone) {
+          state = s.state === "error" ? " error" : s.state === "warn" ? " warn" : " done";
+        }
+        const arrowCls = isDone ? " done" : isActive ? " active" : "";
+        const arrow = i < steps.length - 1 ? `<div class="flow-arrow${arrowCls}">›</div>` : "";
+        return `<div class="flow-node${state}">
+      <div class="flow-node-label">${esc(s.label)}</div>
+      <div class="flow-node-title">${esc(s.title)}</div>
+      <div class="flow-node-sub">${esc(s.sub)}</div>
+    </div>${arrow}`;
+      })
+      .join("");
+  }
+
+  function buildPhases(phases, activeIdx) {
+    $("phase-row").innerHTML = phases
+      .map((p, i) => {
+        const cls = i < activeIdx ? " done" : i === activeIdx ? " active" : "";
+        return `<div class="phase-item${cls}"><div class="phase-name">${esc(p.name)}</div><div class="phase-time">${esc(p.time)}</div></div>`;
+      })
+      .join("");
+  }
+
+  function buildDots(n, active) {
+    $("step-dots").innerHTML = Array.from({ length: n }, (_, i) =>
+      `<div class="dot${i < active ? " done" : i === active ? " active" : ""}"></div>`
+    ).join("");
+  }
+
+  function logEv(ev) {
+    const log = $("ev-log");
+    if (log.querySelector("[data-placeholder]")) log.innerHTML = "";
+    const d = document.createElement("div");
+    d.className = "ev-item anim-token";
+    const sym = ev.done ? "✓" : ev.color === "red" ? "✕" : "→";
+    d.innerHTML = `<span class="ev-tag ${ev.color || "orange"}">${sym} ${esc(ev.tag)}</span><span class="ev-msg">${esc(ev.msg)}</span>`;
+    log.appendChild(d);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function setMetrics(arr) {
+    $("m-in").textContent = Math.round(arr[0]).toLocaleString();
+    $("m-out").textContent = Math.round(arr[1]).toLocaleString();
+    $("m-cost").textContent = "$" + arr[2].toFixed(3);
+  }
+
+  function setProgress(pct, label) {
+    $("prog-fill").style.width = pct + "%";
+    $("prog-pct").textContent = Math.round(pct) + "%";
+    $("prog-label").textContent = label;
+  }
+
+  function showReplayButtons(show) {
+    ["btn-replay"].forEach((id) => {
+      const el = $(id);
+      if (el) el.hidden = !show;
+    });
+  }
+
+  function setPlayButtons(playing) {
+    const label = playing ? "Playing..." : "Play full demo";
+    ["btn-play"].forEach((id) => {
+      const el = $(id);
+      if (el) el.textContent = label;
+    });
+  }
+
+  function clearGateTimer() {
+    if (gateAutoTimer) {
+      clearTimeout(gateAutoTimer);
+      gateAutoTimer = null;
+    }
+  }
+
+  function hideApprovalGate() {
+    clearGateTimer();
+    const wrap = $("approval-gate-wrap");
+    const panel = $("approval-gate-panel");
+    if (wrap) {
+      wrap.classList.remove("show");
+      wrap.hidden = true;
+    }
+    if (panel) panel.classList.remove("rejected");
+    ["btn-approval-approve", "btn-approval-deny"].forEach((id) => {
+      const b = $(id);
+      if (b) b.disabled = false;
+    });
+    gateResolveFn = null;
+  }
+
+  function setApprovalPathToggle(show) {
+    const el = $("approval-path-toggle");
+    if (!el) return;
+    el.classList.toggle("show", show);
+  }
+
+  function scenarioView(sc) {
+    if (!sc.approvalDemo) {
+      return {
+        steps: sc.steps,
+        code: sc.code,
+        hlSteps: sc.hlSteps,
+        tokens: sc.tokens,
+        events: sc.events,
+      };
+    }
+    const deny = approvalPath === "deny";
+    return {
+      steps: deny ? sc.stepsDeny : sc.stepsApprove,
+      code: deny ? sc.codeDeny : sc.codeApprove,
+      hlSteps: deny ? sc.hlStepsDeny || sc.hlSteps : sc.hlSteps,
+      tokens: deny ? sc.tokensDeny : sc.tokensApprove,
+      events: sc.events,
+      approvalAfter: sc.approvalAfter,
+    };
+  }
+
+  function parseApprovalPayload(msg) {
+    try {
+      return JSON.parse(msg);
+    } catch {
+      return { preview: msg, tool: "email__send", requestId: "apr_demo" };
+    }
+  }
+
+  function showApprovalGate(ev) {
+    const payload = parseApprovalPayload(ev.msg);
+    const wrap = $("approval-gate-wrap");
+    const panel = $("approval-gate-panel");
+    const preview = $("approval-preview");
+    const meta = $("approval-gate-meta");
+    if (preview) preview.textContent = payload.preview || "Action requires approval";
+    if (meta) {
+      meta.textContent =
+        "tool: " + (payload.tool || "unknown") + " · requestId: " + (payload.requestId || "apr_demo");
+    }
+    if (panel) panel.classList.toggle("rejected", approvalPath === "deny");
+    if (wrap) {
+      wrap.hidden = false;
+      wrap.classList.add("show");
+    }
+    buildFlow(scenarioView(scenarios[activeScenarioIdx]).steps, 3);
+    buildPhases(scenarios[activeScenarioIdx].phases, 3);
+    buildDots(scenarioView(scenarios[activeScenarioIdx]).steps.length, 3);
+    setProgress(72, "Waiting for approval…");
+  }
+
+  function finishScenarioRun(sc, view, totalEvents, eventIndex) {
+    const pct = Math.round(((eventIndex + 1) / totalEvents) * 100);
+    const stepIdx = Math.min(
+      Math.floor((eventIndex / totalEvents) * view.steps.length),
+      view.steps.length - 1
+    );
+    const phaseIdx = Math.min(
+      Math.floor((eventIndex / totalEvents) * sc.phases.length),
+      sc.phases.length - 1
+    );
+    buildDots(view.steps.length, stepIdx);
+    buildFlow(view.steps, stepIdx);
+    buildPhases(sc.phases, phaseIdx);
+    if (view.hlSteps && view.hlSteps[stepIdx]) hlLines(view.hlSteps[stepIdx]);
+    if (view.tokens && view.tokens[stepIdx]) setMetrics(view.tokens[stepIdx]);
+    setProgress(pct, eventIndex + 1 >= totalEvents - 1 ? "Complete ✓" : "Running…");
+    if (eventIndex + 1 >= totalEvents) {
+      buildDots(view.steps.length, view.steps.length);
+      buildPhases(sc.phases, sc.phases.length);
+      buildFlow(view.steps, view.steps.length);
+      demoRunning = false;
+      setPlayButtons(false);
+      showReplayButtons(true);
+      hideApprovalGate();
+    }
+  }
+
+  function scheduleTailEvents(sc, view, baseTime, startIndex, totalEvents, branchKey) {
+    const branch = view.approvalAfter[branchKey];
+    let offset = 0;
+    branch.forEach((ev, j) => {
+      offset += ev.t;
+      const globalIdx = startIndex + j;
+      const id = setTimeout(() => {
+        logEv(ev);
+        setProgress(
+          Math.round(((globalIdx + 1) / totalEvents) * 100),
+          ev.done ? "Complete ✓" : ev.tag
+        );
+        finishScenarioRun(sc, view, totalEvents, globalIdx);
+        if (ev.done) hideApprovalGate();
+      }, baseTime + offset);
+      timers.push(id);
+    });
+  }
+
+  function resolveApprovalGate(branchKey) {
+    if (!gateResolveFn) return;
+    const fn = gateResolveFn;
+    gateResolveFn = null;
+    clearGateTimer();
+    ["btn-approval-approve", "btn-approval-deny"].forEach((id) => {
+      const b = $(id);
+      if (b) b.disabled = true;
+    });
+    const panel = $("approval-gate-panel");
+    if (panel) panel.classList.toggle("rejected", branchKey === "deny");
+    fn(branchKey);
+  }
+
+  function runScenario(idx, opts) {
+    opts = opts || {};
+    timers.forEach(clearTimeout);
+    timers = [];
+    clearGateTimer();
+    hideApprovalGate();
+    activeScenarioIdx = idx;
+    demoRunning = true;
+    const sc = scenarios[idx];
+    const view = scenarioView(sc);
+    const tail =
+      sc.approvalDemo && view.approvalAfter
+        ? view.approvalAfter[approvalPath === "deny" ? "deny" : "approve"]
+        : [];
+    const totalEvents = view.events.length + tail.length;
+
+    document.querySelectorAll(".scn-btn").forEach((b, i) => b.classList.toggle("active", i === idx));
+    document.querySelectorAll(".bento-card").forEach((card) => {
+      const cap = capabilities.find((c) => c.id === card.dataset.feature);
+      card.classList.toggle("active", cap && cap.scenario === idx);
+    });
+
+    const desc = $("scn-desc");
+    desc.innerHTML = sc.desc;
+    desc.classList.add("show");
+
+    setApprovalPathToggle(!!sc.approvalDemo);
+    $("step-label").textContent = sc.name + (sc.approvalDemo ? " · " + approvalPath + " path" : "");
+    $("phase-label").textContent = sc.phases.map((p) => p.name).join(" · ");
+    $("ev-log").innerHTML =
+      '<div class="ev-item" style="font-style:italic"><span class="ev-tag orange">—</span><span class="ev-msg">Running...</span></div>';
+    setCode(view.code);
+    setMetrics([0, 0, 0]);
+    setProgress(0, "Starting...");
+    buildDots(view.steps.length, 0);
+    buildFlow(view.steps, 0);
+    buildPhases(sc.phases, 0);
+    showReplayButtons(false);
+    setPlayButtons(true);
+
+    view.events.forEach((ev, i) => {
+      const id = setTimeout(() => {
+        logEv(ev);
+        finishScenarioRun(sc, view, totalEvents, i);
+        if (ev.gate && view.approvalAfter) {
+          showApprovalGate(ev);
+          setProgress(72, "Waiting for approval…");
+          gateResolveFn = (branchKey) => {
+            hideApprovalGate();
+            scheduleTailEvents(sc, view, ev.t, view.events.length, totalEvents, branchKey);
+          };
+          gateAutoTimer = setTimeout(() => {
+            resolveApprovalGate(approvalPath === "deny" ? "deny" : "approve");
+          }, 2200);
+          return;
+        }
+        if (ev.done) hideApprovalGate();
+      }, ev.t);
+      timers.push(id);
+    });
+
+    if (opts.scroll) {
+      const demo = $("demo");
+      if (demo) demo.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+
+  function renderBento() {
+    $("bento-grid").innerHTML = capabilities
+      .map(
+        (c) =>
+          `<article class="bento-card" data-feature="${esc(c.id)}" tabindex="0" role="button" aria-label="${esc(c.title)}">
+            <div class="bento-icon">${c.icon}</div>
+            <div class="bento-title">${esc(c.title)}</div>
+            <div class="bento-sub">${esc(c.sub)}</div>
+          </article>`
+      )
+      .join("");
+  }
+
+  $("scn-grid").innerHTML = scenarios
+    .map(
+      (sc, i) =>
+        `<button type="button" class="scn-btn" data-scn="${i}">
+    <div class="scn-tag">${esc(sc.tag)} &nbsp;${stars[sc.complexity]}</div>
+    <div class="scn-name">${esc(sc.name)}</div>
+  </button>`
+    )
+    .join("");
+
+  document.querySelectorAll(".scn-btn").forEach((btn) => {
+    btn.addEventListener("click", () => runScenario(Number(btn.dataset.scn), { scroll: false }));
+  });
+
+  function bindPlay() {
+    if (demoRunning) return;
+    runScenario(activeScenarioIdx, { scroll: false });
+  }
+
+  $("btn-play").addEventListener("click", bindPlay);
+  $("btn-replay").addEventListener("click", bindPlay);
+
+  $("btn-present").addEventListener("click", function () {
+    const on = document.documentElement.classList.toggle("presentation-mode");
+    this.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+
+  document.querySelectorAll(".path-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      approvalPath = btn.dataset.path;
+      document.querySelectorAll(".path-btn").forEach((b) => {
+        b.classList.toggle("active", b.dataset.path === approvalPath);
+      });
+      if (activeScenarioIdx === 1 && !demoRunning) runScenario(1, { scroll: false });
+    });
+  });
+
+  $("btn-approval-approve").addEventListener("click", () => resolveApprovalGate("approve"));
+  $("btn-approval-deny").addEventListener("click", () => resolveApprovalGate("deny"));
+
+  $("bento-grid").addEventListener("click", (e) => {
+    const card = e.target.closest(".bento-card[data-feature]");
+    if (!card) return;
+    const cap = capabilities.find((c) => c.id === card.dataset.feature);
+    if (cap) runScenario(cap.scenario, { scroll: true });
+  });
+
+  $("bento-grid").addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const card = e.target.closest(".bento-card[data-feature]");
+    if (!card) return;
+    e.preventDefault();
+    const cap = capabilities.find((c) => c.id === card.dataset.feature);
+    if (cap) runScenario(cap.scenario, { scroll: true });
+  });
+
+  renderBento();
+  setTimeout(() => runScenario(1), 900);
+})();
+</script>
+</body>
+</html>
