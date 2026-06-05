@@ -985,13 +985,14 @@
     <div class="hero-card" data-reveal>
       <div class="section-label" data-reveal style="--reveal-delay:80ms">Headless agent runtime for TypeScript</div>
       <h1 data-reveal style="--reveal-delay:160ms">Drop it into <em>any project.</em><br>The SDK does the rest.</h1>
-      <p data-reveal style="--reveal-delay:240ms">A TypeScript engine for model calls, memory, tools, MCP, planning, and live streaming. <strong style="color:var(--text)">You bring the UI — AgentKit brings the runtime.</strong></p>
+      <p data-reveal style="--reveal-delay:240ms">A config-first headless engine for models, memory, tools, MCP, planning, and live streaming — same API in-process and over the wire. <strong style="color:var(--text)">You bring the UI — AgentKit brings the runtime.</strong></p>
       <div class="hero-badges" data-reveal style="--reveal-delay:320ms">
         <span class="badge badge-accent">@agentkit/core</span>
-        <span class="badge badge-accent">AG-UI protocol</span>
-        <span class="badge">MIT license</span>
+        <span class="badge badge-accent">Model hot-swap</span>
+        <span class="badge badge-accent">Ollama + BYOK</span>
+        <span class="badge">AG-UI wire parity</span>
         <span class="badge">MCP + approvals</span>
-        <span class="badge">TOON encoding</span>
+        <span class="badge">MIT license</span>
       </div>
       <div class="hero-jumps" data-reveal style="--reveal-delay:400ms">
         <a href="#demo" class="btn btn-primary">Jump to live demo</a>
@@ -1008,17 +1009,18 @@
       <h2>An agent <span class="dim">engine, not a framework.</span></h2>
     </div>
     <p class="why-lead" data-reveal style="--reveal-delay:60ms">
-      Most agent tools make you adopt their UI and their hosting. AgentKit is just a
-      library you <strong>import</strong>. Configure an agent once, then run it headless on a
-      server, in a CLI, or stream it to any frontend. You stay in control of the
-      product; the SDK handles the hard parts of running a model loop in production.
+      Most agent tools make you adopt their UI and their hosting. AgentKit is a
+      <strong>config-first headless SDK</strong> you import — same verbs in-process,
+      over <code>@agentkit/client</code>, and in React hooks. Configure once with
+      progressive disclosure (Level 0–3), then run headless on a server, in a CLI, or
+      stream to any frontend.
     </p>
 
     <div class="steps">
       <div class="step-card" data-reveal style="--reveal-delay:0ms">
         <div class="step-num">1</div>
         <div class="step-title">Configure</div>
-        <p>Call <code>createAgent({ … })</code> — pick a model, add your tools, memory, and MCP servers. One config object, fully typed.</p>
+        <p>Call <code>createAgent({ … })</code> or a preset (<code>createUIPreset</code>, <code>createCLIPreset</code>, <code>createBackendPreset</code>) — registry, tools, memory, MCP. One config object, fully typed.</p>
       </div>
       <div class="step-card" data-reveal style="--reveal-delay:120ms">
         <div class="step-num">2</div>
@@ -1039,23 +1041,35 @@
       </div>
       <div class="why-card" data-reveal style="--reveal-delay:60ms">
         <div class="ico">🔌</div>
-        <div><h3>Any model provider</h3><p>Anthropic and OpenAI built in, or register your own. Route to a different model per call.</p></div>
+        <div><h3>Cloud + local models</h3><p>Anthropic, OpenAI, built-in Ollama, and <code>createOpenAICompatibleProvider</code>. Registry + <code>listOllamaModels()</code> — no custom fetch glue.</p></div>
       </div>
-      <div class="why-card" data-reveal style="--reveal-delay:120ms">
+      <div class="why-card" data-reveal style="--reveal-delay:90ms">
+        <div class="ico">🔄</div>
+        <div><h3>Model hot-swap</h3><p><code>ModelRegistry.resolveActive()</code> on every <code>send()</code>. Switch with <code>agent.models.setDefault()</code> — session memory preserved.</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:150ms">
+        <div class="ico">🔗</div>
+        <div><h3>Wire parity</h3><p><code>session.models.list/setDefault/test/add/refresh</code> on client and server (<code>GET/POST /models/*</code> via <code>handleModelRoutes</code>).</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:210ms">
         <div class="ico">🧩</div>
         <div><h3>Tools &amp; MCP</h3><p>Zod-typed tools plus Model Context Protocol servers over stdio or HTTP — connect real data and actions.</p></div>
       </div>
-      <div class="why-card" data-reveal style="--reveal-delay:180ms">
+      <div class="why-card" data-reveal style="--reveal-delay:270ms">
         <div class="ico">🛡️</div>
         <div><h3>Human-in-the-loop</h3><p>Plan mode, approval gates, and elicitation arrive as events you can pause on and resolve.</p></div>
       </div>
-      <div class="why-card" data-reveal style="--reveal-delay:240ms">
+      <div class="why-card" data-reveal style="--reveal-delay:330ms">
         <div class="ico">🧠</div>
         <div><h3>Smart context</h3><p>Adaptive TOON encoding and automatic compaction keep prompts small and cut token cost.</p></div>
       </div>
-      <div class="why-card" data-reveal style="--reveal-delay:300ms">
+      <div class="why-card" data-reveal style="--reveal-delay:390ms">
+        <div class="ico">⚛️</div>
+        <div><h3>React model picker</h3><p><code>useModels(baseUrl)</code> + <code>ModelPicker</code> — zero custom fetch for model switching in UI apps.</p></div>
+      </div>
+      <div class="why-card" data-reveal style="--reveal-delay:450ms">
         <div class="ico">🧪</div>
-        <div><h3>Test without keys</h3><p>A deterministic mock provider and record/replay harness let you build and CI-test with zero API calls.</p></div>
+        <div><h3>Test without keys</h3><p>Mock provider, record/replay harness, and <code>examples/ollama-local</code> — build and CI-test with zero API calls.</p></div>
       </div>
     </div>
   </div>
@@ -1066,7 +1080,7 @@
     <div class="section-header" data-reveal>
       <div class="section-eyebrow"><span class="num">02</span><span class="section-label">Architecture</span></div>
       <h2>Wire on the left. <span class="dim">Engine on the right.</span></h2>
-      <p class="section-sub">Your UI talks to <code>@agentkit/client</code> and <code>@agentkit/server</code>. <code>createAgent()</code> in core owns providers, tools, memory, and the event bus.</p>
+      <p class="section-sub">Your UI talks to <code>@agentkit/client</code> and <code>@agentkit/server</code>. <code>createAgent()</code> in core owns the model registry, providers, tools, memory, and the event bus — same contract in-process and over HTTP.</p>
     </div>
     <div class="arch-wrap" aria-hidden="true" data-reveal style="--reveal-delay:80ms">
       <svg viewBox="0 0 1080 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AgentKit architecture">
@@ -1117,12 +1131,12 @@
         <g>
           <rect x="116" y="184" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="244" y="214" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">@agentkit/client</text>
-          <text x="244" y="236" text-anchor="middle" font-size="12" fill="#7e96a0">connect · send · on</text>
+          <text x="244" y="236" text-anchor="middle" font-size="12" fill="#7e96a0">connect · send · on · models.*</text>
         </g>
         <g>
           <rect x="116" y="322" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="244" y="352" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">@agentkit/server</text>
-          <text x="244" y="374" text-anchor="middle" font-size="12" fill="#7e96a0">serve · AG-UI SSE stream</text>
+          <text x="244" y="374" text-anchor="middle" font-size="12" fill="#7e96a0">serve · SSE · handleModelRoutes</text>
         </g>
         <g>
           <rect x="116" y="460" width="256" height="84" rx="14" fill="url(#archCore)" stroke="#2dd4bf" stroke-opacity="0.45" stroke-width="1.5"/>
@@ -1132,7 +1146,7 @@
         <g>
           <rect x="708" y="184" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
           <text x="836" y="214" text-anchor="middle" font-size="15.5" font-weight="700" fill="#F1F2F9">Providers</text>
-          <text x="836" y="236" text-anchor="middle" font-size="12" fill="#7e96a0">Anthropic · OpenAI · routing</text>
+          <text x="836" y="236" text-anchor="middle" font-size="12" fill="#7e96a0">Anthropic · OpenAI · Ollama</text>
         </g>
         <g>
           <rect x="708" y="322" width="256" height="84" rx="14" fill="url(#archNode)" stroke="#FFFFFF" stroke-opacity="0.10"/>
@@ -1170,7 +1184,7 @@
     <div class="section-header" data-reveal>
       <div class="section-eyebrow"><span class="num">03</span><span class="section-label">Live demo</span></div>
       <h2>Watch a function <span class="dim">travel through the SDK.</span></h2>
-      <p class="section-sub">Seven real patterns — from a one-shot <code>agent.run()</code> to parallel subagents, workflows, and context compaction. <strong>Pattern B</strong> has an approval gate you can Approve or Deny (<code>session.approve</code> / <code>session.reject</code>). Pick a pattern below — the flow boxes, timeline, code, and event log all animate together.</p>
+      <p class="section-sub">Eight real patterns — from a one-shot <code>agent.run()</code> to model hot-swap mid-session, parallel subagents, workflows, and context compaction. <strong>Pattern B</strong> has an approval gate you can Approve or Deny (<code>session.approve</code> / <code>session.reject</code>). <strong>Pattern E</strong> switches models via <code>session.models.setDefault()</code> with memory preserved. Pick a pattern below — the flow boxes, timeline, code, and event log all animate together.</p>
     </div>
 
     <div class="flow-container" data-reveal style="--reveal-delay:80ms">
@@ -1235,7 +1249,7 @@
     <div class="section-header" data-reveal>
       <div class="section-eyebrow"><span class="num">04</span><span class="section-label">Capabilities</span></div>
       <h2>Everything in <span class="dim">one SDK surface.</span></h2>
-      <p class="section-sub">A quick-jump map of what the engine does. Click any card to run the matching pattern in the live demo above.</p>
+      <p class="section-sub">A quick-jump map of what the engine does — including model hot-swap, local Ollama, wire parity, and presets (Level 0–3 progressive disclosure). Click any card to run the matching pattern in the live demo above.</p>
     </div>
     <div class="bento" id="bento-grid" data-reveal style="--reveal-delay:80ms"></div>
   </div>
@@ -1246,7 +1260,7 @@
     <div class="section-header" data-reveal>
       <div class="section-eyebrow"><span class="num">05</span><span class="section-label">Polyglot clients</span></div>
       <h2>Connect from <span class="dim">any language.</span></h2>
-      <p class="section-sub">The engine stays TypeScript — but the AG-UI wire is just HTTP + SSE, so any language can drive a session. Here is the same flow from the <code>clients/python</code> client.</p>
+      <p class="section-sub">The engine stays TypeScript — but the AG-UI wire is HTTP + SSE with full model-route parity. Any language can drive a session; Python below, TypeScript via <code>session.models.*</code>.</p>
     </div>
 
     <div class="lang-tabs" data-reveal>
@@ -1257,10 +1271,11 @@
     <div class="clients-grid">
       <div class="clients-copy" data-reveal>
         <h3>Thin by design</h3>
-        <p>Language clients don't re-implement the engine — they connect to <code>@agentkit/server</code> and receive the same typed events as <code>@agentkit/client</code>.</p>
+        <p>Language clients don't re-implement the engine — they connect to <code>@agentkit/server</code> and receive the same typed events and model routes as <code>@agentkit/client</code>. Composer UI uses shared <code>handleModelRoutes</code> from <code>@agentkit/server</code>.</p>
         <ul class="clients-list">
           <li><strong>Same event names</strong> — <code>stream:token</code>, <code>plan:created</code>, <code>approval:request</code>, <code>done</code>.</li>
-          <li><strong>Stdlib only</strong> — no heavy dependencies; manage it with <code>uv</code> (<code>uv sync</code>, <code>uv run</code>).</li>
+          <li><strong>Model routes</strong> — <code>GET /models</code>, <code>POST /models/default</code>, <code>/models/test</code>, <code>/models/add</code>, <code>/models/refresh</code>.</li>
+          <li><strong>Client parity</strong> — <code>session.models.list()</code>, <code>setDefault()</code>, <code>test()</code>, <code>add()</code>, <code>refresh()</code>.</li>
           <li><strong>Full session control</strong> — <code>send</code>, <code>approve</code>, <code>answer</code>, <code>cancel</code>, <code>close</code>.</li>
         </ul>
       </div>
@@ -1274,7 +1289,7 @@
 
 <footer>
   <p>AgentKit SDK · MIT · Static demo (no API calls)</p>
-  <p style="margin-top: 8px">Interactive showcase: <a href="http://localhost:3010" target="_blank" rel="noopener">http://localhost:3010</a> (run <code>pnpm example:showcase</code>)</p>
+  <p style="margin-top: 8px">Examples: <a href="http://localhost:3010" target="_blank" rel="noopener">showcase</a> (<code>pnpm example:showcase</code>) · <code>pnpm example:ollama</code> · docs/sdk-design-principles.md</p>
 </footer>
 
 <script>
@@ -1294,9 +1309,14 @@
   const capabilities = [
     { id: "agent-run", icon: "⚡", title: "agent.run()", sub: "One-shot structured output.", scenario: 0 },
     { id: "ag-ui", icon: "📡", title: "AG-UI streaming", sub: "SSE events for any UI framework.", scenario: 1 },
+    { id: "model-hot-swap", icon: "🔄", title: "Model hot-swap", sub: "setDefault() mid-session — memory preserved.", scenario: 7 },
+    { id: "local-ollama", icon: "🦙", title: "Local Ollama", sub: "Built-in provider + listOllamaModels().", scenario: 7 },
     { id: "plan-todos", icon: "📋", title: "Plan + todos", sub: "plan:created and plan:step lifecycle.", scenario: 1 },
     { id: "mcp", icon: "🔧", title: "MCP tools", sub: "Tool catalogs, calls, TOON encode.", scenario: 2 },
     { id: "approvals", icon: "🛡", title: "Approvals", sub: "Approve or reject via session.approve() / reject().", scenario: 1 },
+    { id: "wire-parity", icon: "🔗", title: "Wire parity", sub: "GET/POST /models/* via handleModelRoutes.", scenario: 7 },
+    { id: "presets", icon: "🎛", title: "Presets", sub: "createUIPreset · createCLIPreset · createBackendPreset.", scenario: 7 },
+    { id: "use-models", icon: "⚛️", title: "useModels()", sub: "React hook + ModelPicker integration.", scenario: 7 },
     { id: "elicitation", icon: "💬", title: "Elicitation", sub: "Structured choices from the user.", scenario: 1 },
     { id: "parallel-subagents", icon: "🤖", title: "Parallel subagents", sub: "Isolated windows, aggregated results.", scenario: 3 },
     { id: "context-compaction", icon: "📦", title: "Context compaction", sub: "Summarise at compactAt threshold.", scenario: 6 },
@@ -1322,7 +1342,7 @@ const scenarios = [
     complexity:1,
     steps:[
       {label:'call site',        title:'agent.run()',     sub:'one-shot task'},
-      {label:'provider registry',title:'route to model',  sub:'claude-opus-4-6'},
+      {label:'provider registry',title:'ModelRegistry.resolveActive()',sub:'ollama → anthropic'},
       {label:'context engine',   title:'TOON encode',     sub:'adaptive payload'},
       {label:'reasoning loop',   title:'model stream',    sub:'tokens returned'},
       {label:'output',           title:'result ready',    sub:'structured + typed'},
@@ -1389,7 +1409,7 @@ const scenarios = [
     ],
     codeApprove:[
       {t:"// server.ts",hl:false},
-      {t:"serve(createAgent({ provider:'anthropic', mode:'plan' }), { port:8787 })",hl:false},
+      {t:"serve(createAgent(createUIPreset({ mode:'plan' })), { port:8787 })",hl:false},
       {t:'',hl:false},
       {t:"// client.ts — wire ApprovalGate to session",hl:false},
       {t:"const session = await connect('http://localhost:8787', { token })",hl:false},
@@ -1400,7 +1420,7 @@ const scenarios = [
     ],
     codeDeny:[
       {t:"// server.ts",hl:false},
-      {t:"serve(createAgent({ provider:'anthropic', mode:'plan' }), { port:8787 })",hl:false},
+      {t:"serve(createAgent(createUIPreset({ mode:'plan' })), { port:8787 })",hl:false},
       {t:'',hl:false},
       {t:"// client.ts — wire ApprovalGate to session",hl:false},
       {t:"const session = await connect('http://localhost:8787', { token })",hl:false},
@@ -1693,6 +1713,59 @@ const scenarios = [
     tokens:[[32800,0,0],[32800,0,0],[33200,400,0.005],[34100,800,0.009],[16200,1100,0.013]],
   },
 
+  /* 7 ── Pattern E: model hot-swap */
+  {
+    tag:'Pattern E', name:'model hot-swap mid-session',
+    desc:'Start on a local <strong>ollama/llama3.2</strong> model, then call <code>session.models.setDefault()</code> to switch to cloud — <strong>ModelRegistry.resolveActive()</strong> picks the new provider on the next <code>send()</code> while conversation memory stays intact. Server exposes <code>GET/POST /models/*</code> via shared <code>handleModelRoutes</code>; React apps use <code>useModels</code> + <code>ModelPicker</code>.',
+    complexity:2,
+    steps:[
+      {label:'client',           title:'session.models.list()', sub:'GET /models'},
+      {label:'hot-swap',         title:'setDefault()',          sub:'POST /models/default'},
+      {label:'ModelRegistry',    title:'resolveActive()',       sub:'next send() only'},
+      {label:'provider',         title:'anthropic stream',      sub:'memory preserved'},
+      {label:'React (optional)', title:'useModels + picker',    sub:'@agentkit/react'},
+    ],
+    phases:[
+      {name:'list',     time:'0ms'},
+      {name:'switch',   time:'18ms'},
+      {name:'resolve',  time:'4ms'},
+      {name:'inference',time:'920ms'},
+      {name:'continue', time:'~1s'},
+    ],
+    code:[
+      {t:"import { createAgent, createUIPreset } from '@agentkit/core'",hl:false},
+      {t:"import { connect } from '@agentkit/client'",hl:false},
+      {t:'',hl:false},
+      {t:"const agent = createAgent(createUIPreset({",hl:false},
+      {t:"  provider: {",hl:false},
+      {t:"    default: 'ollama/llama3.2',",hl:true},
+      {t:"    userConfigurable: true,",hl:true},
+      {t:"    registry: { custom: [",hl:true},
+      {t:"      { id: 'ollama/llama3.2', provider: 'ollama', model: 'llama3.2' },",hl:true},
+      {t:"      { id: 'anthropic/claude-sonnet-4-6', provider: 'anthropic', model: 'claude-sonnet-4-6' },",hl:true},
+      {t:"    ]},",hl:true},
+      {t:"  },",hl:false},
+      {t:"}))",hl:false},
+      {t:'',hl:false},
+      {t:"const session = await connect('http://localhost:8787')",hl:false},
+      {t:"await session.models.setDefault('anthropic/claude-sonnet-4-6')",hl:true},
+      {t:"await session.send('Continue — same memory, cloud model now')",hl:true},
+    ],
+    events:[
+      {t:150,  tag:'log',          color:'orange', msg:'{"level":"info","msg":"active model: ollama/llama3.2"}'},
+      {t:400,  tag:'log',          color:'blue',   msg:'GET /models → 2 entries (userConfigurable: true)'},
+      {t:650,  tag:'log',          color:'purple', msg:'POST /models/default → anthropic/claude-sonnet-4-6'},
+      {t:900,  tag:'stream:start', color:'orange', msg:'ModelRegistry.resolveActive() → anthropic'},
+      {t:1200, tag:'stream:token', color:'blue',   msg:'"Picking up where we left off — context intact..."'},
+      {t:1550, tag:'memory:hit',   color:'purple', msg:'{"turns":6,"store":"memory","preserved":true}'},
+      {t:1850, tag:'stream:end',   color:'orange', msg:'stream closed'},
+      {t:2100, tag:'cost:update',  color:'amber',  msg:'{"tokens":1420,"cost":"$0.011","model":"claude-sonnet-4-6"}'},
+      {t:2400, tag:'done',         color:'green',  msg:'hot-swap complete — no session restart',done:true},
+    ],
+    hlSteps:[[14],[15],[15,16],[16],[5,6,7,8,9]],
+    tokens:[[0,0,0],[0,0,0],[0,0,0],[820,280,0.006],[1420,520,0.011]],
+  },
+
 ]
 
 
@@ -1710,7 +1783,7 @@ const scenarios = [
     s = s
       .replace(/\b(import|from|const|await|async|true|false|let|return|z)\b/g, '<span class="kw">$1</span>')
       .replace(
-        /\b(createAgent|connect|session\.on|session\.approve|session\.reject|agent\.run|session\.send|serve|append|add|render|info|log|workflow|step|branch|build)\b/g,
+        /\b(createAgent|createUIPreset|createCLIPreset|createBackendPreset|connect|session\.on|session\.approve|session\.reject|session\.models|agent\.run|agent\.models|session\.send|serve|handleModelRoutes|listOllamaModels|useModels|ModelPicker|append|add|render|info|log|workflow|step|branch|build|setDefault)\b/g,
         '<span class="fn">$1</span>'
       )
       .replace(/\b(\d+(?:\.\d+)?)\b/g, '<span class="num">$1</span>');
