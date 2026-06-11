@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SERPENT HYDRA // ORB CONTAINMENT</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #07040f; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  #hud {
+    position: fixed; top: 18px; left: 22px;
+    font-family: 'Courier New', monospace;
+    color: #ffb37a; pointer-events: none;
+    text-shadow: 0 0 12px rgba(255, 122, 24, .6);
+    letter-spacing: 2px; font-size: 13px; line-height: 1.9;
+  }
+  #hud .big { font-size: 26px; color: #ff7a18; font-weight: bold; }
+  #hud .dim { color: #6f5fa8; font-size: 11px; }
+  #arms {
+    position: fixed; top: 18px; right: 18px; text-align: right;
+    font-family: 'Courier New', monospace; font-size: 10px;
+    letter-spacing: 2px; line-height: 2; pointer-events: none;
+  }
+  #arms span { display: block; opacity: .85; }
+  #tag {
+    position: fixed; bottom: 14px; right: 18px;
+    font-family: 'Courier New', monospace; font-size: 10px;
+    color: #4a3f73; letter-spacing: 3px; pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <div class="big" id="score">0</div>
+  <div>ORBS CAPTURED</div>
+  <div class="dim" id="stats">ACTIVE 0 &nbsp;|&nbsp; FPS 60 &nbsp;|&nbsp; BREACHES 0</div>
+</div>
+<div id="arms"></div>
+<div id="tag">HYDRA UNIT MK-V :: 4 ARMS :: SECTOR 7</div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   SETUP / FRAME-RATE OPTIMIZATION
+   ============================================================ */
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d', { alpha: false });
+const DPR = Math.min(window.devicePixelRatio || 1, 1.75);
+let W = 0, H = 0;
+let bgCanvas = null;
+
+function makeGlowSprite(size, inner, outer) {
+  const s = document.createElement('canvas');
+  s.width = s.height = size;
+  const g = s.getContext('2d');
+  const grad = g.createRadialGradient(size/2, size/2, 0, size/2, size/2, size/2);
+  grad.addColorStop(0, inner);
+  grad.addColorStop(0.25, outer);
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, size, size);
+  return s;
+}
+const orbSprite    = makeGlowSprite(96, 'rgba(255,255,255,1)', 'rgba(80,240,225,0.85)');
+const orangeSpark  = makeGlowSprite(48, 'rgba(255,235,210,1)', 'rgba(255,122,24,0.8)');
+const cyanSpark    = makeGlowSprite(48, 'rgba(220,255,252,1)', 'rgba(57,216,255,0.8)');
+const violetSpark  = makeGlowSprite(48, 'rgba(245,225,255,1)', 'rgba(194,101,255,0.8)');
+const amberSpark   = makeGlowSprite(48, 'rgba(255,245,215,1)', 'rgba(255,176,46,0.8)');
+const SPRITES = [orbSprite, orangeSpark, cyanSpark, violetSpark, amberSpark];
+
+function buildBackground() {
+  bgCanvas = document.createElement('canvas');
+  bgCanvas.width = W * DPR; bgCanvas.height = H * DPR;
+  const g = bgCanvas.getContext('2d');
+  g.setTransform(DPR, 0, 0, DPR, 0, 0);
+  const grad = g.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0,   '#0b0618');
+  grad.addColorStop(0.55,'#0d0820');
+  grad.addColorStop(1,   '#150a26');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(120, 70, 200, 0.10)';
+  g.lineWidth = 1;
+  const horizon = H * 0.62;
+  for (let i = 0; i <= 14; i++) {
+    const y = horizon + Math.pow(i / 14, 1.8) * (H - horizon);
+    g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke();
+  }
+  for (let i = -10; i <= 22; i++) {
+    g.beginPath();
+    g.moveTo(W * 0.5 + i * 40, horizon);
+    g.lineTo(W * 0.5 + i * 220, H);
+    g.stroke();
+  }
+  const sun = g.createRadialGradient(W*0.5, horizon, 10, W*0.5, horizon, H*0.5);
+  sun.addColorStop(0, 'rgba(255,90,140,0.10)');
+  sun.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = sun;
+  g.fillRect(0, 0, W, H);
+}
+
+/* ============================================================
+   PARTICLES (pooled)
+   ============================================================ */
+const MAX_PARTICLES = 1200;
+const particles = new Array(MAX_PARTICLES);
+for (let i = 0; i < MAX_PARTICLES; i++)
+  particles[i] = { active:false, x:0, y:0, vx:0, vy:0, life:0, max:1, size:1, sprite:0, drag:1 };
+let pCursor = 0;
+
+function spawnParticle(x, y, vx, vy, life, size, sprite, drag) {
+  const p = particles[pCursor];
+  pCursor = (pCursor + 1) % MAX_PARTICLES;
+  p.active = true; p.x = x; p.y = y; p.vx = vx; p.vy = vy;
+  p.life = life; p.max = life; p.size = size; p.sprite = sprite; p.drag = drag;
+}
+function burst(x, y, count, sprite, speed) {
+  for (let i = 0; i < count; i++) {
+    const a = Math.random() * Math.PI * 2;
+    const v = speed * (0.3 + Math.random());
+    spawnParticle(x, y, Math.cos(a)*v, Math.sin(a)*v,
+      0.45 + Math.random()*0.55, 6 + Math.random()*16, sprite, 0.92);
+  }
+}
+function updateParticles(dt) {
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const p = particles[i];
+    if (!p.active) continue;
+    p.life -= dt;
+    if (p.life <= 0) { p.active = false; continue; }
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.vx *= p.drag; p.vy *= p.drag;
+  }
+}
+function drawParticles() {
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    const p = particles[i];
+    if (!p.active) continue;
+    const t = p.life / p.max;
+    const s = p.size * (0.4 + t);
+    ctx.globalAlpha = t * 0.9;
+    ctx.drawImage(SPRITES[p.sprite], p.x - s/2, p.y - s/2, s, s);
+  }
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ============================================================
+   ORBS
+   ============================================================ */
+const orbs = [];
+let breaches = 0;
+function boundaryX() { return W * 0.5; }
+
+function spawnOrb() {
+  const pattern = Math.random();
+  orbs.push({
+    bx: W + 40,
+    by: 60 + Math.random() * (H - 160),
+    x: W + 40, y: 0,
+    vx: -(260 + Math.random() * 220),
+    t: Math.random() * Math.PI * 2,
+    amp: 40 + Math.random() * 110,
+    freq: 2.2 + Math.random() * 4.5,
+    spiralR: 26 + Math.random() * 70,
+    spiralW: 4 + Math.random() * 5,
+    mode: pattern < 0.45 ? 0 : pattern < 0.8 ? 1 : 2,
+    r: 9 + Math.random() * 6
+  });
+}
+
+function updateOrbs(dt) {
+  const bx = boundaryX();
+  for (let i = orbs.length - 1; i >= 0; i--) {
+    const o = orbs[i];
+    o.t += dt;
+    const distToWall = o.bx - bx;
+    let damp = 1;
+    if (distToWall < 200) {
+      damp = Math.max(0.04, distToWall / 200);
+      if ((o.t * 60 | 0) % 4 === 0)
+        spawnParticle(o.x, o.y, (Math.random()-0.5)*40, (Math.random()-0.5)*40, 0.3, 8, 2, 0.9);
+    }
+    o.bx += o.vx * damp * dt;
+    if (o.bx < bx + o.r) o.bx = bx + o.r;
+
+    if (o.mode === 0) {
+      o.x = o.bx;
+      o.y = o.by + Math.sin(o.t * o.freq) * o.amp;
+    } else if (o.mode === 1) {
+      const ang = o.t * o.spiralW;
+      o.x = o.bx + Math.cos(ang) * o.spiralR;
+      o.y = o.by + Math.sin(ang) * o.spiralR + Math.sin(o.t * 1.3) * o.amp * 0.4;
+    } else {
+      const tri = Math.abs(((o.t * o.freq) % 2) - 1) * 2 - 1;
+      o.x = o.bx;
+      o.y = o.by + tri * o.amp;
+    }
+    o.y = Math.max(20, Math.min(H - 20, o.y));
+    if (o.x < bx + o.r) o.x = bx + o.r;
+
+    spawnParticle(o.x, o.y, (Math.random()-0.5)*20, (Math.random()-0.5)*20, 0.35, o.r * 1.6, 0, 0.9);
+  }
+}
+
+function drawOrbs() {
+  ctx.globalCompositeOperation = 'lighter';
+  for (const o of orbs) {
+    const s = o.r * 5;
+    ctx.drawImage(orbSprite, o.x - s/2, o.y - s/2, s, s);
+    ctx.fillStyle = '#eafffd';
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, o.r * 0.55, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ============================================================
+   HYDRA — multiple anchored IK arms, each with a skill
+   ------------------------------------------------------------
+   VIPER  : baseline hunter, fastest steering
+   TITAN  : STRETCH — segments elongate up to 2.1x base length,
+            letting it reach far beyond its default size
+   BOLT   : DASH — short-cooldown lunge at 4x speed
+   WARDEN : MAGNET — tractor field drags nearby orbs into its jaws
+   ============================================================ */
+const HUB = { x: 60, y: 0 };
+
+const ARM_DEFS = [
+  { name:'VIPER',  skill:'none',    color:'#ff7a18', rgb:'255,122,24',  spark:1, segs:40, reachMul:1.00, speedMul:1.00, accel:10 },
+  { name:'TITAN',  skill:'stretch', color:'#ffb02e', rgb:'255,176,46',  spark:4, segs:32, reachMul:0.58, speedMul:0.80, accel:7,  maxStretch:2.1 },
+  { name:'BOLT',   skill:'dash',    color:'#39d8ff', rgb:'57,216,255',  spark:2, segs:28, reachMul:0.72, speedMul:0.95, accel:13 },
+  { name:'WARDEN', skill:'magnet',  color:'#c265ff', rgb:'194,101,255', spark:3, segs:34, reachMul:0.85, speedMul:0.85, accel:8 }
+];
+
+const arms = ARM_DEFS.map((def, i) => {
+  const a = Object.assign({}, def);
+  a.idx = i;
+  a.anchor = { x: 60, y: 0 };
+  a.head = { x: 200 + i * 50, y: 200 + i * 50, vx: 0, vy: 0 };
+  a.pts = [];
+  for (let s = 0; s < a.segs; s++) a.pts.push({ x: 60, y: 0 });
+  a.baseSegLen = 14;
+  a.segLen = 14;
+  a.stretch = 1;       // current stretch factor (TITAN)
+  a.dashT = 0;         // active dash timer (BOLT)
+  a.cooldown = 0;      // skill cooldown
+  a.jaw = 0;
+  a.target = null;
+  a.maxSpeed = 1500;
+  return a;
+});
+
+function armMaxReach(a) {
+  return a.segs * a.baseSegLen * (a.maxStretch || 1) * 0.98;
+}
+
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  buildBackground();
+
+  HUB.x = Math.min(64, W * 0.08);
+  HUB.y = H - Math.min(64, H * 0.06);
+
+  // longest arm must cover the entire boundary line + capture margin
+  const farX = boundaryX() + 140 - HUB.x;
+  const farY = HUB.y;
+  const needed = Math.hypot(farX, farY) * 1.1;
+
+  arms.forEach((a, i) => {
+    // anchors fan out of the hub housing
+    const ang = -Math.PI * 0.5 + (i - (arms.length-1)/2) * 0.45;
+    a.anchor.x = HUB.x + Math.cos(ang) * 26;
+    a.anchor.y = HUB.y + Math.sin(ang) * 26;
+    // stretch arm sizes against its MAX stretch so it covers everything when grown
+    const cover = a.skill === 'stretch' ? needed / (a.maxStretch * 0.92) : needed * a.reachMul;
+    a.baseSegLen = Math.min(36, Math.max(7, cover / a.segs));
+    a.segLen = a.baseSegLen * a.stretch;
+    a.maxSpeed = Math.max(1400, (W + H) * 0.85) * a.speedMul;
+  });
+
+  // skill legend
+  document.getElementById('arms').innerHTML = arms.map(a => {
+    const tag = a.skill === 'none' ? '' :
+      a.skill === 'stretch' ? ' [STRETCH]' :
+      a.skill === 'dash' ? ' [DASH]' : ' [MAGNET]';
+    return '<span style="color:' + a.color + ';text-shadow:0 0 10px ' + a.color + '">' + a.name + tag + '</span>';
+  }).join('');
+}
+window.addEventListener('resize', resize);
+
+/* ---- target assignment: threat-sorted, one orb per arm ---- */
+function assignTargets() {
+  for (const a of arms) a.target = null;
+  if (!orbs.length) return;
+  const sorted = orbs.slice().sort((p, q) => p.bx - q.bx);
+  for (const o of sorted) {
+    let best = null, bestScore = Infinity;
+    for (const a of arms) {
+      if (a.target) continue;
+      const da = Math.hypot(o.x - a.anchor.x, o.y - a.anchor.y);
+      if (da > armMaxReach(a)) continue;           // physically unreachable
+      const dh = Math.hypot(o.x - a.head.x, o.y - a.head.y);
+      if (dh < bestScore) { bestScore = dh; best = a; }
+    }
+    if (best) best.target = o;
+  }
+  // guarantee: most threatening orb ALWAYS has a hunter
+  const threat = sorted[0];
+  if (!arms.some(a => a.target === threat)) {
+    let best = null, bd = Infinity;
+    for (const a of arms) {
+      if (Math.hypot(threat.x - a.anchor.x, threat.y - a.anchor.y) > armMaxReach(a)) continue;
+      const d = Math.hypot(threat.x - a.head.x, threat.y - a.head.y);
+      if (d < bd) { bd = d; best = a; }
+    }
+    if (best) best.target = threat;
+  }
+}
+
+function updateArm(a, dt) {
+  const h = a.head;
+  const t = a.target;
+  a.cooldown = Math.max(0, a.cooldown - dt);
+
+  /* ---- SKILL: STRETCH — grow segments to extend reach ---- */
+  if (a.skill === 'stretch') {
+    let want = 1;
+    if (t) {
+      const dAnchor = Math.hypot(t.x - a.anchor.x, t.y - a.anchor.y);
+      const baseReach = a.segs * a.baseSegLen * 0.92;
+      if (dAnchor > baseReach) want = Math.min(a.maxStretch, dAnchor / baseReach + 0.08);
+    }
+    a.stretch += (want - a.stretch) * (1 - Math.exp(-5 * dt));
+    a.segLen = a.baseSegLen * a.stretch;
+    // growth sparks while elongating
+    if (a.stretch > 1.12 && Math.random() < 0.5) {
+      const p = a.pts[(Math.random() * a.segs) | 0];
+      spawnParticle(p.x, p.y, (Math.random()-0.5)*60, (Math.random()-0.5)*60, 0.3, 10, a.spark, 0.9);
+    }
+  }
+
+  /* ---- SKILL: DASH — lunge burst ---- */
+  let speedBoost = 1;
+  if (a.skill === 'dash') {
+    a.dashT = Math.max(0, a.dashT - dt);
+    if (t && a.cooldown <= 0 && a.dashT <= 0) {
+      const d = Math.hypot(t.x - h.x, t.y - h.y);
+      if (d > 90 && d < 600) { a.dashT = 0.32; a.cooldown = 2.2; }
+    }
+    if (a.dashT > 0) {
+      speedBoost = 4;
+      spawnParticle(h.x, h.y, -h.vx*0.15, -h.vy*0.15, 0.25, 18, a.spark, 0.85);
+    }
+  }
+
+  /* ---- SKILL: MAGNET — tractor field drags orbs in ---- */
+  if (a.skill === 'magnet') {
+    const R = 190;
+    for (const o of orbs) {
+      const dx = h.x - o.x, dy = h.y - o.y;
+      const d = Math.hypot(dx, dy);
+      if (d < R && d > 1) {
+        const pull = (1 - d / R) * 240 * dt;
+        o.bx += (dx / d) * pull;
+        o.by += (dy / d) * pull;
+        o.amp = Math.max(8, o.amp - 90 * dt);     // damp wiggle while caught
+        if (Math.random() < 0.3)
+          spawnParticle(o.x, o.y, dx/d*120, dy/d*120, 0.25, 8, a.spark, 0.9);
+      }
+    }
+  }
+
+  /* ---- steering with predictive interception ---- */
+  let tx, ty;
+  if (t) {
+    const dist = Math.hypot(t.x - h.x, t.y - h.y);
+    const lead = Math.min(0.35, dist / a.maxSpeed);
+    tx = t.x + t.vx * lead * 0.7;
+    ty = t.y + Math.sin(t.t * t.freq + lead * t.freq) * (t.mode === 1 ? 0 : t.amp * 0.3);
+    a.jaw = Math.min(1, a.jaw + dt * 6);
+  } else {
+    const ph = perfTime * 0.0006 + a.idx * 1.7;
+    tx = boundaryX() - 120 - a.idx * 60 + Math.cos(ph * 1.7) * 80;
+    ty = H * (0.25 + a.idx * 0.17) + Math.sin(ph * 2.3) * H * 0.18;
+    a.jaw = Math.max(0, a.jaw - dt * 3);
+  }
+
+  const ddx = tx - h.x, ddy = ty - h.y;
+  const d = Math.hypot(ddx, ddy) || 1;
+  const sp = (t ? a.maxSpeed : a.maxSpeed * 0.32) * speedBoost;
+  const k = 1 - Math.exp(-a.accel * dt);
+  h.vx += ((ddx / d) * sp - h.vx) * k;
+  h.vy += ((ddy / d) * sp - h.vy) * k;
+  h.x += h.vx * dt;
+  h.y += h.vy * dt;
+
+  // clamp head to current (possibly stretched) reach
+  const reach = a.segs * a.segLen * 0.98;
+  const ax = a.anchor.x, ay = a.anchor.y;
+  const rdx = h.x - ax, rdy = h.y - ay;
+  const rd = Math.hypot(rdx, rdy);
+  if (rd > reach) {
+    h.x = ax + (rdx / rd) * reach;
+    h.y = ay + (rdy / rd) * reach;
+  }
+
+  // FABRIK two-pass solve, tail pinned to anchor
+  const pts = a.pts, SL = a.segLen, N = a.segs;
+  for (let iter = 0; iter < 3; iter++) {
+    pts[0].x = h.x; pts[0].y = h.y;
+    for (let i = 1; i < N; i++) {
+      let dx = pts[i].x - pts[i-1].x, dy = pts[i].y - pts[i-1].y;
+      const l = Math.hypot(dx, dy) || 1;
+      pts[i].x = pts[i-1].x + (dx / l) * SL;
+      pts[i].y = pts[i-1].y + (dy / l) * SL;
+    }
+    pts[N-1].x = ax; pts[N-1].y = ay;
+    for (let i = N - 2; i >= 0; i--) {
+      let dx = pts[i].x - pts[i+1].x, dy = pts[i].y - pts[i+1].y;
+      const l = Math.hypot(dx, dy) || 1;
+      pts[i].x = pts[i+1].x + (dx / l) * SL;
+      pts[i].y = pts[i+1].y + (dy / l) * SL;
+    }
+  }
+  h.x = pts[0].x; h.y = pts[0].y;
+
+  // capture
+  const headR = 26 + a.jaw * 10;
+  for (let i = orbs.length - 1; i >= 0; i--) {
+    const o = orbs[i];
+    const dx = o.x - h.x, dy = o.y - h.y;
+    if (dx*dx + dy*dy < (headR + o.r) * (headR + o.r)) {
+      burst(o.x, o.y, 22, 0, 320);
+      burst(o.x, o.y, 12, a.spark, 200);
+      orbs.splice(i, 1);
+      score++;
+      shock = 1;
+      document.getElementById('score').textContent = score;
+    }
+  }
+}
+
+function drawArm(a) {
+  const pts = a.pts, N = a.segs;
+  const stretched = a.stretch > 1.1;
+
+  // underglow spine in the arm's color (brighter while stretched/dashing)
+  ctx.globalCompositeOperation = 'lighter';
+  const glowA = 0.30 + (stretched ? 0.25 : 0) + (a.dashT > 0 ? 0.35 : 0);
+  ctx.strokeStyle = 'rgba(' + a.rgb + ',' + glowA + ')';
+  ctx.lineWidth = 18;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < N; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.stroke();
+  ctx.globalCompositeOperation = 'source-over';
+
+  // armored plates
+  for (let i = N - 1; i >= 1; i--) {
+    const p = pts[i], b = pts[i-1];
+    const ang = Math.atan2(b.y - p.y, b.x - p.x);
+    const tt = 1 - i / N;
+    const w = 4 + tt * 13;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(ang);
+    const grad = ctx.createLinearGradient(0, -w, 0, w);
+    grad.addColorStop(0, '#3b3550');
+    grad.addColorStop(0.5, '#191428');
+    grad.addColorStop(1, '#2c2440');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(-2, -w, a.segLen + 4, w * 2, w * 0.6);
+    ctx.fill();
+    ctx.fillStyle = (i % 3 === 0)
+      ? 'rgba(' + a.rgb + ',' + (0.5 + 0.4 * Math.sin(perfTime * 0.004 + i)) + ')'
+      : 'rgba(120,90,200,0.22)';
+    ctx.fillRect(a.segLen * 0.35, -w * 0.7, 2.5, w * 1.4);
+    ctx.restore();
+  }
+
+  // head
+  const h = pts[0], n = pts[1];
+  const ang = Math.atan2(h.y - n.y, h.x - n.x);
+  ctx.save();
+  ctx.translate(h.x, h.y);
+
+  // magnet field rings (drawn unrotated)
+  if (a.skill === 'magnet') {
+    ctx.globalCompositeOperation = 'lighter';
+    for (let r = 0; r < 2; r++) {
+      const rad = 60 + r * 60 + (perfTime * 0.06 % 60);
+      ctx.strokeStyle = 'rgba(' + a.rgb + ',' + (0.22 * (1 - rad/190)) + ')';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, rad, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  ctx.rotate(ang);
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.drawImage(SPRITES[a.spark], -36, -36, 72, 72);
+  ctx.globalCompositeOperation = 'source-over';
+
+  const jaw = a.jaw;
+  const hg = ctx.createLinearGradient(0, -16, 0, 16);
+  hg.addColorStop(0, '#4a4163');
+  hg.addColorStop(0.5, '#221b38');
+  hg.addColorStop(1, '#3a2f52');
+  ctx.fillStyle = hg;
+  ctx.beginPath();
+  ctx.moveTo(-12, -14);
+  ctx.lineTo(14, -9 - jaw * 7);
+  ctx.lineTo(26, -2 - jaw * 9);
+  ctx.lineTo(26,  2 + jaw * 9);
+  ctx.lineTo(14,  9 + jaw * 7);
+  ctx.lineTo(-12, 14);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(' + a.rgb + ',0.75)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  if (jaw > 0.1) {
+    ctx.fillStyle = '#ffd9b0';
+    ctx.beginPath();
+    ctx.moveTo(22, -3 - jaw*8); ctx.lineTo(30, 0); ctx.lineTo(22, -1); ctx.closePath();
+    ctx.moveTo(22,  3 + jaw*8); ctx.lineTo(30, 0); ctx.lineTo(22,  1); ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.fillStyle = a.color;
+  ctx.shadowColor = a.color; ctx.shadowBlur = 12;
+  ctx.beginPath();
+  ctx.arc(5, -7, 3, 0, Math.PI*2);
+  ctx.arc(5,  7, 3, 0, Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.restore();
+}
+
+function drawHub() {
+  ctx.fillStyle = '#1c1530';
+  ctx.strokeStyle = 'rgba(255,122,24,0.6)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(HUB.x, HUB.y, 34, 0, Math.PI * 2);
+  ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = 'rgba(120,90,200,0.4)';
+  ctx.beginPath();
+  ctx.arc(HUB.x, HUB.y, 46 + Math.sin(perfTime*0.003) * 4, 0, Math.PI * 2);
+  ctx.stroke();
+  // socket lights, one per arm
+  for (const a of arms) {
+    ctx.fillStyle = a.color;
+    ctx.beginPath();
+    ctx.arc(a.anchor.x, a.anchor.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/* ============================================================
+   BOUNDARY FIELD
+   ============================================================ */
+let shock = 0;
+function drawBoundary() {
+  const bx = boundaryX();
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  const pulse = 0.10 + 0.05 * Math.sin(perfTime * 0.004) + shock * 0.30;
+  const grad = ctx.createLinearGradient(bx - 60, 0, bx + 12, 0);
+  grad.addColorStop(0, 'rgba(255,90,140,0)');
+  grad.addColorStop(1, 'rgba(255,90,140,' + pulse + ')');
+  ctx.fillStyle = grad;
+  ctx.fillRect(bx - 60, 0, 72, H);
+  ctx.strokeStyle = 'rgba(255,120,170,' + (0.35 + shock * 0.5) + ')';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([14, 10]);
+  ctx.lineDashOffset = -perfTime * 0.03;
+  ctx.beginPath();
+  ctx.moveTo(bx, 0); ctx.lineTo(bx, H);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ============================================================
+   MAIN LOOP
+   ============================================================ */
+let score = 0;
+let last = performance.now();
+let perfTime = 0;
+let spawnTimer = 1.0;
+let spawnInterval = 2.0;
+let fpsAcc = 0, fpsCount = 0, fpsShown = 60;
+
+function frame(now) {
+  const rawDt = (now - last) / 1000;
+  last = now;
+  const dt = Math.min(rawDt, 1 / 30);
+  perfTime = now;
+
+  fpsAcc += rawDt; fpsCount++;
+  if (fpsAcc >= 0.5) {
+    fpsShown = Math.round(fpsCount / fpsAcc);
+    fpsAcc = 0; fpsCount = 0;
+    document.getElementById('stats').textContent =
+      'ACTIVE ' + orbs.length + ' \u00A0|\u00A0 FPS ' + fpsShown + ' \u00A0|\u00A0 BREACHES ' + breaches;
+  }
+
+  spawnTimer -= dt;
+  if (spawnTimer <= 0 && orbs.length < 10) {
+    spawnOrb();
+    if (Math.random() < 0.25 && orbs.length < 9) spawnOrb(); // occasional double wave
+    spawnInterval = Math.max(0.7, spawnInterval * 0.985);
+    spawnTimer = spawnInterval * (0.6 + Math.random() * 0.8);
+  }
+
+  shock = Math.max(0, shock - dt * 3);
+
+  updateOrbs(dt);
+  assignTargets();
+  for (const a of arms) updateArm(a, dt);
+  updateParticles(dt);
+
+  ctx.drawImage(bgCanvas, 0, 0, W, H);
+  drawBoundary();
+  drawParticles();
+  drawOrbs();
+  for (let i = arms.length - 1; i >= 0; i--) drawArm(arms[i]);
+  drawHub();
+
+  requestAnimationFrame(frame);
+}
+
+resize();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
