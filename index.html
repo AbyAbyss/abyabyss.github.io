@@ -767,6 +767,23 @@
                 color: var(--muted);
                 cursor: default;
             }
+            .card-links {
+                margin-top: 15px;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 7px 18px;
+            }
+            .card-links .repo {
+                margin-top: 0;
+            }
+            .repo.sec {
+                color: var(--muted);
+                font-weight: 500;
+            }
+            .repo.sec:hover {
+                color: var(--accent);
+            }
             .pill.work {
                 background: var(--bg-2);
                 color: var(--muted);
@@ -1672,8 +1689,12 @@
                         name: "AgentKit",
                         meta: "Agent Runtime SDK \u00b7 TypeScript",
                         priv: true,
-                        link: {
+                        site: {
                             href: "agentkit/",
+                            label: "Visit the site",
+                        },
+                        docs: {
+                            href: "agentkit/doc/docs/getting-started/",
                             label: "Read the docs",
                         },
                         desc:
@@ -1879,6 +1900,10 @@
                         name: "sandkit",
                         meta: "Code Playground SDK \u00b7 TypeScript",
                         repo: "https://github.com/AbyAbyss/sandkit",
+                        site: {
+                            href: "sandkit/",
+                            label: "Try it live",
+                        },
                         desc:
                             "Embed a multi-language code playground in any React app with a single component. JavaScript and " +
                             "Python run entirely in the browser on QuickJS and Pyodide \u2014 ~50ms, no API key, code never leaves " +
@@ -1943,6 +1968,10 @@
                         name: "Yankit",
                         meta: "macOS Utility \u00b7 Swift",
                         repo: "https://github.com/AbyAbyss/Yankit",
+                        site: {
+                            href: "Yankit",
+                            label: "Visit the site",
+                        },
                         desc:
                             "A fast, free, open-source macOS clipboard manager \u2014 it remembers the text, images and files you " +
                             "copy and pastes any of them back with \u2318\u21e7V. History lives in SQLite with payloads on disk rather " +
@@ -1956,6 +1985,10 @@
                         name: "wimys_crumb",
                         meta: "Disk Scanner \u00b7 Swift",
                         repo: "https://github.com/AbyAbyss/wimys_crumb",
+                        site: {
+                            href: "wimys_crumb",
+                            label: "Visit the site",
+                        },
                         desc:
                             "A macOS disk-space scanner that walks ~5M files in a few minutes and shows exactly where the space " +
                             "went. The scan tree streams into SQLite on disk rather than memory, so browsing a 5M-file scan stays " +
@@ -2250,23 +2283,30 @@
 
                 /* ---------------- render projects ---------------- */
                 function linkFor(p) {
-                    if (p.repo) {
-                        return (
-                            '<a class="repo" href="' +
-                            p.repo +
-                            '" target="_blank" rel="noopener">View on GitHub &#8599;</a>'
-                        );
-                    }
-                    if (p.link) {
-                        return (
-                            '<a class="repo" href="' +
-                            p.link.href +
+                    var out = [];
+                    function add(href, label, secondary) {
+                        out.push(
+                            '<a class="repo' +
+                            (secondary ? " sec" : "") +
+                            '" href="' +
+                            href +
                             '" target="_blank" rel="noopener">' +
-                            p.link.label +
+                            label +
                             " &#8599;</a>"
                         );
                     }
-                    return '<span class="repo muted">Private repository</span>';
+                    /* live site first, then docs, then the repo */
+                    if (p.site) add(p.site.href, p.site.label, false);
+                    if (p.docs) add(p.docs.href, p.docs.label, out.length > 0);
+                    if (p.link) add(p.link.href, p.link.label, out.length > 0);
+                    if (p.repo)
+                        add(p.repo, "View on GitHub", out.length > 0);
+                    if (!out.length) {
+                        out.push(
+                            '<span class="repo muted">Private repository</span>'
+                        );
+                    }
+                    return '<div class="card-links">' + out.join("") + "</div>";
                 }
 
                 var ossGrid = document.getElementById("ossGrid");
