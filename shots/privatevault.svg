@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" role="img" aria-label="PrivateVault — media encrypted on device, stored in your own Google Drive">
+  <defs>
+    <linearGradient id="pvbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2c36"/><stop offset="1" stop-color="#121c23"/>
+    </linearGradient>
+    <linearGradient id="pvac" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2ed3a7"/><stop offset="1" stop-color="#1c9b97"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#pvbg)"/>
+  <g opacity=".45" stroke="#27353f" stroke-width="1">
+    <path d="M0 135h960M0 270h960M0 405h960M240 0v540M480 0v540M720 0v540"/>
+  </g>
+
+  <!-- phone -->
+  <rect x="118" y="128" width="184" height="300" rx="26" fill="#16222b" stroke="#33454f" stroke-width="2"/>
+  <rect x="132" y="152" width="156" height="252" rx="14" fill="#111a21"/>
+  <rect x="188" y="138" width="44" height="6" rx="3" fill="#33454f"/>
+  <g fill="#1f2e39">
+    <rect x="146" y="168" width="60" height="60" rx="8"/><rect x="214" y="168" width="60" height="60" rx="8"/>
+    <rect x="146" y="236" width="60" height="60" rx="8"/><rect x="214" y="236" width="60" height="60" rx="8"/>
+    <rect x="146" y="304" width="60" height="60" rx="8"/><rect x="214" y="304" width="60" height="60" rx="8"/>
+  </g>
+  <g fill="#2ed3a7" opacity=".55" font-family="ui-monospace,monospace" font-size="9">
+    <text x="154" y="202">a3f9</text><text x="222" y="202">7c1e</text>
+    <text x="154" y="270">b820</text><text x="222" y="270">04df</text>
+    <text x="154" y="338">e56b</text><text x="222" y="338">91a7</text>
+  </g>
+
+  <!-- lock -->
+  <g transform="translate(420 232)">
+    <rect x="0" y="26" width="76" height="60" rx="11" fill="url(#pvac)"/>
+    <path d="M17 26v-14a21 21 0 0 1 42 0v14" fill="none" stroke="#2ed3a7" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="38" cy="52" r="7" fill="#08140f"/>
+    <rect x="35" y="55" width="6" height="14" rx="3" fill="#08140f"/>
+  </g>
+
+  <!-- arrow -->
+  <path d="M318 278h88M496 278h84" stroke="#2ed3a7" stroke-width="2.5" stroke-dasharray="7 7" fill="none"/>
+  <path d="M580 278l-11-7v14z" fill="#2ed3a7"/>
+  <path d="M406 278l-11-7v14z" fill="#2ed3a7"/>
+
+  <!-- drive -->
+  <g transform="translate(600 208)">
+    <rect x="0" y="0" width="230" height="140" rx="14" fill="#16222b" stroke="#33454f"/>
+    <path d="M62 96 96 38h38l-34 58z" fill="#2ed3a7" opacity=".85"/>
+    <path d="M100 96h68l-19-32h-68z" fill="#28c098" opacity=".7"/>
+    <path d="M43 96h125l-19 32H62z" fill="#1c9b97" opacity=".75"/>
+    <text x="115" y="128" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="12" fill="#7e8e99">your Google Drive</text>
+  </g>
+
+  <text x="480" y="440" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="13" fill="#7e8e99">No backend · encryption independent of the device lock screen</text>
+  <text x="480" y="484" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="24" font-weight="800" fill="url(#pvac)">PrivateVault</text>
+  <text x="480" y="508" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="13" fill="#7e8e99">Encrypted on device, stored in a Drive folder only it can see</text>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" role="img" aria-label="DevConnect — database, docs, REST and plugins in one desktop app">
+  <defs>
+    <linearGradient id="dcbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1d2c36"/><stop offset="1" stop-color="#121c23"/>
+    </linearGradient>
+    <linearGradient id="dcac" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2ed3a7"/><stop offset="1" stop-color="#1c9b97"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="540" fill="url(#dcbg)"/>
+  <g opacity=".5" stroke="#27353f" stroke-width="1">
+    <path d="M0 135h960M0 270h960M0 405h960M240 0v540M480 0v540M720 0v540"/>
+  </g>
+
+  <!-- window chrome -->
+  <rect x="120" y="96" width="720" height="348" rx="14" fill="#16222b" stroke="#33454f"/>
+  <path d="M120 110a14 14 0 0 1 14-14h692a14 14 0 0 1 14 14v26H120z" fill="#1f2e39"/>
+  <circle cx="146" cy="116" r="5" fill="#e0685f"/><circle cx="164" cy="116" r="5" fill="#e3b341"/><circle cx="182" cy="116" r="5" fill="#2ed3a7"/>
+
+  <!-- sidebar -->
+  <rect x="120" y="136" width="150" height="308" fill="#18242d"/>
+  <g fill="#2ed3a7" opacity=".9">
+    <rect x="140" y="160" width="10" height="10" rx="2"/>
+    <rect x="140" y="192" width="10" height="10" rx="2"/>
+    <rect x="140" y="224" width="10" height="10" rx="2"/>
+    <rect x="140" y="256" width="10" height="10" rx="2"/>
+  </g>
+  <g fill="#7e8e99">
+    <rect x="160" y="161" width="78" height="8" rx="4"/>
+    <rect x="160" y="193" width="60" height="8" rx="4"/>
+    <rect x="160" y="225" width="70" height="8" rx="4"/>
+    <rect x="160" y="257" width="52" height="8" rx="4"/>
+  </g>
+
+  <!-- editor pane -->
+  <rect x="286" y="156" width="538" height="132" rx="8" fill="#111a21" stroke="#27353f"/>
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="13">
+    <text x="304" y="182" fill="#2ed3a7">SELECT</text><text x="358" y="182" fill="#c9d6de">id, email, created_at</text>
+    <text x="304" y="204" fill="#2ed3a7">FROM</text><text x="346" y="204" fill="#c9d6de">users</text>
+    <text x="304" y="226" fill="#2ed3a7">WHERE</text><text x="356" y="226" fill="#c9d6de">plan = 'pro'</text>
+    <text x="304" y="248" fill="#2ed3a7">ORDER BY</text><text x="382" y="248" fill="#c9d6de">created_at DESC;</text>
+  </g>
+  <rect x="304" y="264" width="2" height="14" fill="#2ed3a7"><animate attributeName="opacity" values="1;0;1" dur="1.1s" repeatCount="indefinite"/></rect>
+
+  <!-- results -->
+  <rect x="286" y="302" width="538" height="122" rx="8" fill="#111a21" stroke="#27353f"/>
+  <rect x="286" y="302" width="538" height="26" rx="8" fill="#1f2e39"/>
+  <g fill="#7e8e99"><rect x="304" y="311" width="54" height="8" rx="4"/><rect x="400" y="311" width="86" height="8" rx="4"/><rect x="540" y="311" width="70" height="8" rx="4"/></g>
+  <g fill="#3d5361">
+    <rect x="304" y="344" width="46" height="7" rx="3.5"/><rect x="400" y="344" width="120" height="7" rx="3.5"/><rect x="540" y="344" width="88" height="7" rx="3.5"/>
+    <rect x="304" y="370" width="46" height="7" rx="3.5"/><rect x="400" y="370" width="104" height="7" rx="3.5"/><rect x="540" y="370" width="96" height="7" rx="3.5"/>
+    <rect x="304" y="396" width="46" height="7" rx="3.5"/><rect x="400" y="396" width="132" height="7" rx="3.5"/><rect x="540" y="396" width="74" height="7" rx="3.5"/>
+  </g>
+
+  <text x="480" y="484" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="24" font-weight="800" fill="url(#dcac)">DevConnect</text>
+  <text x="480" y="508" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="13" fill="#7e8e99">Databases · Docs · REST · Plugins — one desktop app</text>
+</svg>

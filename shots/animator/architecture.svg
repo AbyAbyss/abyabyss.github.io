@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 540" width="1200" height="540" role="img" aria-label="ANIMATRON architecture">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#13131c"/>
+      <stop offset="100%" stop-color="#0d0d12"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#666688"/>
+    </marker>
+    <marker id="arrow-pink" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ff3cac"/>
+    </marker>
+    <marker id="arrow-teal" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#00f5d4"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="540" fill="url(#bg)"/>
+
+  <g font-family="'Inter', 'Helvetica Neue', system-ui, sans-serif">
+    <!-- Column headers -->
+    <text x="120" y="40" font-size="11" font-weight="700" letter-spacing="2" fill="#666688">UI</text>
+    <text x="430" y="40" font-size="11" font-weight="700" letter-spacing="2" fill="#666688">STATE</text>
+    <text x="710" y="40" font-size="11" font-weight="700" letter-spacing="2" fill="#666688">ENGINES</text>
+    <text x="980" y="40" font-size="11" font-weight="700" letter-spacing="2" fill="#666688">OUTPUT</text>
+
+    <!-- UI column -->
+    <g transform="translate(40, 60)">
+      <rect width="240" height="60" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#f0f0ff">Left panel</text>
+      <text x="20" y="46" font-size="11" fill="#a0a0c0">Scenes · Templates · BG · Assets</text>
+    </g>
+    <g transform="translate(40, 140)">
+      <rect width="240" height="80" rx="8" fill="#1a1a28" stroke="#ff3cac"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#ff8acb">SceneCanvas (SVG)</text>
+      <text x="20" y="46" font-size="11" fill="#a0a0c0">Background → Characters →</text>
+      <text x="20" y="62" font-size="11" fill="#a0a0c0">Assets → Captions → Effects</text>
+    </g>
+    <g transform="translate(40, 240)">
+      <rect width="240" height="60" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#f0f0ff">Right panel</text>
+      <text x="20" y="46" font-size="11" fill="#a0a0c0">Properties (context-aware)</text>
+    </g>
+    <g transform="translate(40, 320)">
+      <rect width="240" height="60" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#f0f0ff">Timeline</text>
+      <text x="20" y="46" font-size="11" fill="#a0a0c0">Ruler · Tracks · Keyframes</text>
+    </g>
+    <g transform="translate(40, 400)">
+      <rect width="240" height="60" rx="8" fill="#1a1a28" stroke="#a050ff"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#c9a5ff">AI panels</text>
+      <text x="20" y="46" font-size="11" fill="#a0a0c0">Palette · Character · Script · …</text>
+    </g>
+
+    <!-- State column -->
+    <g transform="translate(370, 60)">
+      <rect width="200" height="60" rx="8" fill="#1a1a28" stroke="#00f5d4"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#7fffe4">projectStore</text>
+      <text x="20" y="46" font-size="10" fill="#a0a0c0">Scenes · keyframes · assets · effects</text>
+    </g>
+    <g transform="translate(370, 140)">
+      <rect width="200" height="50" rx="8" fill="#1a1a28" stroke="#00f5d4"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#7fffe4">characterStore</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">Character library</text>
+    </g>
+    <g transform="translate(370, 210)">
+      <rect width="200" height="50" rx="8" fill="#1a1a28" stroke="#00f5d4"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#7fffe4">timelineStore</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">currentTime · isPlaying · zoom</text>
+    </g>
+    <g transform="translate(370, 280)">
+      <rect width="200" height="50" rx="8" fill="#1a1a28" stroke="#00f5d4"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#7fffe4">uiStore + historyStore</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">Selection · undo/redo</text>
+    </g>
+    <g transform="translate(370, 350)">
+      <rect width="200" height="50" rx="8" fill="#1a1a28" stroke="#a050ff"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#c9a5ff">aiStore</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">Keys · provider · overrides</text>
+    </g>
+
+    <!-- Engines column -->
+    <g transform="translate(650, 60)">
+      <rect width="220" height="50" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#f0f0ff">AnimationLoop (rAF)</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">advances playhead</text>
+    </g>
+    <g transform="translate(650, 130)">
+      <rect width="220" height="50" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#f0f0ff">KeyframeInterpolator</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">position · easing curves</text>
+    </g>
+    <g transform="translate(650, 200)">
+      <rect width="220" height="50" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#f0f0ff">PoseInterpolator</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">emotions · mouth open</text>
+    </g>
+    <g transform="translate(650, 270)">
+      <rect width="220" height="50" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#f0f0ff">BodyAnimationEngine</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">walk · run · jump · wave · …</text>
+    </g>
+    <g transform="translate(650, 340)">
+      <rect width="220" height="50" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#f0f0ff">CameraEngine</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">pan · zoom · shake</text>
+    </g>
+    <g transform="translate(650, 410)">
+      <rect width="220" height="50" rx="8" fill="#1a1a28" stroke="#a050ff"/>
+      <text x="20" y="22" font-size="13" font-weight="600" fill="#c9a5ff">aiRouter</text>
+      <text x="20" y="40" font-size="10" fill="#a0a0c0">resolveProvider → fetch</text>
+    </g>
+
+    <!-- Output column -->
+    <g transform="translate(940, 60)">
+      <rect width="220" height="80" rx="8" fill="#1a1a28" stroke="#ffe600"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#ffe88a">FrameCapture</text>
+      <text x="20" y="46" font-size="10" fill="#a0a0c0">SVG → canvas → PNG</text>
+      <text x="20" y="62" font-size="10" fill="#a0a0c0">→ JSZip sequence / single</text>
+    </g>
+    <g transform="translate(940, 160)">
+      <rect width="220" height="60" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#f0f0ff">IndexedDB autosave</text>
+      <text x="20" y="46" font-size="10" fill="#a0a0c0">every 30s + Cmd+S</text>
+    </g>
+    <g transform="translate(940, 240)">
+      <rect width="220" height="60" rx="8" fill="#1a1a28" stroke="#2a2a40"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#f0f0ff">.anim.json file</text>
+      <text x="20" y="46" font-size="10" fill="#a0a0c0">download / import</text>
+    </g>
+    <g transform="translate(940, 320)">
+      <rect width="220" height="60" rx="8" fill="#1a1a28" stroke="#a050ff"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#c9a5ff">api.anthropic.com</text>
+      <text x="20" y="46" font-size="10" fill="#a0a0c0">direct browser → provider</text>
+    </g>
+    <g transform="translate(940, 400)">
+      <rect width="220" height="60" rx="8" fill="#1a1a28" stroke="#a050ff"/>
+      <text x="20" y="26" font-size="13" font-weight="600" fill="#c9a5ff">api.openai.com</text>
+      <text x="20" y="46" font-size="10" fill="#a0a0c0">direct browser → provider</text>
+    </g>
+
+    <!-- Arrows -->
+    <!-- UI → state -->
+    <line x1="280" y1="90"  x2="370" y2="90"  stroke="#666688" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="280" y1="180" x2="370" y2="180" stroke="#ff3cac" stroke-width="1.5" marker-end="url(#arrow-pink)"/>
+    <line x1="280" y1="270" x2="370" y2="270" stroke="#666688" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="280" y1="350" x2="370" y2="305" stroke="#666688" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="280" y1="430" x2="370" y2="375" stroke="#a050ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- state → engines (mostly reads from store) -->
+    <line x1="570" y1="85"  x2="650" y2="85"  stroke="#00f5d4" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-teal)"/>
+    <line x1="570" y1="155" x2="650" y2="155" stroke="#00f5d4" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-teal)"/>
+    <line x1="570" y1="225" x2="650" y2="225" stroke="#00f5d4" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-teal)"/>
+    <line x1="570" y1="295" x2="650" y2="295" stroke="#00f5d4" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-teal)"/>
+    <line x1="570" y1="365" x2="650" y2="365" stroke="#00f5d4" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-teal)"/>
+    <line x1="570" y1="375" x2="650" y2="435" stroke="#a050ff" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+
+    <!-- engines → output -->
+    <line x1="870" y1="100" x2="940" y2="100" stroke="#ffe600" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="870" y1="435" x2="940" y2="350" stroke="#a050ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="870" y1="435" x2="940" y2="430" stroke="#a050ff" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- store → output -->
+    <line x1="570" y1="90"  x2="930" y2="185" stroke="#666688" stroke-width="1" stroke-dasharray="2 3" opacity="0.7" marker-end="url(#arrow)"/>
+    <line x1="570" y1="100" x2="930" y2="265" stroke="#666688" stroke-width="1" stroke-dasharray="2 3" opacity="0.7" marker-end="url(#arrow)"/>
+
+    <!-- Legend -->
+    <g transform="translate(60, 495)" font-size="10" fill="#a0a0c0">
+      <line x1="0" y1="0" x2="30" y2="0" stroke="#666688" stroke-width="1.5"/>
+      <text x="38" y="3">writes</text>
+      <line x1="100" y1="0" x2="130" y2="0" stroke="#00f5d4" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="138" y="3">reads (per-frame)</text>
+      <line x1="260" y1="0" x2="290" y2="0" stroke="#a050ff" stroke-width="1.5"/>
+      <text x="298" y="3">AI flow</text>
+      <line x1="360" y1="0" x2="390" y2="0" stroke="#ffe600" stroke-width="1.5"/>
+      <text x="398" y="3">export pipeline</text>
+    </g>
+  </g>
+</svg>
