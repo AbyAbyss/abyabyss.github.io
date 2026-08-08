@@ -4,8 +4,10 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>
-            Aby Saji Pappachan — Technical Lead · Backend &amp; AI Engineer
+            [Preview] Aby Saji Pappachan — Technical Lead · Backend &amp; AI
+            Engineer
         </title>
+        <meta name="robots" content="noindex" />
         <meta
             name="description"
             content="Aby Saji Pappachan — Technical Lead at Josys with 8 years building scalable backend systems and AI-powered products. Open to senior Backend / Platform / AI roles in the UK."
@@ -678,6 +680,7 @@
             }
             .shot.contain img {
                 object-fit: contain;
+                object-position: center;
                 padding: 16px;
             }
             .shot.noimg {
@@ -741,6 +744,28 @@
                 color: var(--accent);
                 border: 1px solid var(--accent-bd);
                 white-space: nowrap;
+            }
+            .pill.priv {
+                background: rgba(224, 122, 95, 0.12);
+                color: #e08b6f;
+                border-color: rgba(224, 122, 95, 0.34);
+            }
+            .preview-bar {
+                background: var(--accent-soft);
+                border-bottom: 1px solid var(--accent-bd);
+                color: var(--accent);
+                font-size: 13.5px;
+                font-weight: 600;
+                text-align: center;
+                padding: 9px 16px;
+            }
+            .preview-bar span {
+                color: var(--muted);
+                font-weight: 500;
+            }
+            .repo.muted {
+                color: var(--muted);
+                cursor: default;
             }
             .pill.work {
                 background: var(--bg-2);
@@ -1140,6 +1165,13 @@
         </style>
     </head>
     <body>
+        <div class="preview-bar">
+            Preview build — 16 projects instead of 6.
+            <span
+                >Not linked from the site. Happy with it? Copy this page over
+                index.html.</span
+            >
+        </div>
         <nav id="nav">
             <div class="nav-in">
                 <a href="#top" class="brand"
@@ -1463,11 +1495,15 @@
             <section class="section alt" id="projects">
                 <div class="wrap">
                     <div class="s-head reveal">
-                        <div class="s-kicker">Open Source</div>
-                        <h2>Selected projects</h2>
+                        <div class="s-kicker">Personal Projects</div>
+                        <h2>Things I've built</h2>
                         <p>
-                            Tools and SDKs I've designed and built &mdash; click
-                            a screenshot to view the gallery.
+                            Agent runtimes, developer tools, media pipelines and
+                            native apps &mdash; click a screenshot to view the
+                            gallery. Repos marked
+                            <b style="color: #e08b6f">Private</b> aren't public
+                            yet; where there's a live build, the card links to
+                            it instead.
                         </p>
                     </div>
                     <div class="grid oss" id="ossGrid"></div>
@@ -1633,25 +1669,192 @@
                 var R = "https://raw.githubusercontent.com/AbyAbyss/";
                 var OSS = [
                     {
-                        name: "Yankit",
-                        meta: "macOS Utility · Swift",
-                        repo: "https://github.com/AbyAbyss/Yankit",
+                        name: "AgentKit",
+                        meta: "Agent Runtime SDK \u00b7 TypeScript",
+                        priv: true,
+                        link: {
+                            href: "agentkit/",
+                            label: "Read the docs",
+                        },
                         desc:
-                            "A native macOS utility built in Swift, a fast, keyboard-driven clipboard companion " +
-                            "for yanking, stashing and recalling snippets without breaking flow.",
-                        tech: ["Swift", "macOS", "SwiftUI"],
+                            "A headless, framework-agnostic TypeScript agent runtime you drop into an existing project \u2014 " +
+                            "11 packages covering providers, memory, tools, MCP, planning, approvals and workflows, streamed " +
+                            "to any UI over an AG-UI event protocol. Six LLM providers, Zod-typed tools, per-run cost and " +
+                            "token budgets, and a mock provider so every example runs with zero API keys.",
+                        tech: [
+                            "TypeScript",
+                            "Node.js",
+                            "MCP",
+                            "Zod",
+                            "Turborepo",
+                            "SSE",
+                        ],
                         fit: true,
-                        shots: [R + "Yankit/main/docs/panel.svg"],
+                        shots: [
+                            "shots/agentkit/banner.svg",
+                            "shots/agentkit/architecture.svg",
+                        ],
+                    },
+                    {
+                        name: "ApplyJobBot",
+                        meta: "AI Job Platform \u00b7 FastAPI + Next.js",
+                        priv: true,
+                        desc:
+                            "An AI job-discovery and assisted-application platform that finds and scores roles across major " +
+                            "job sites, then applies only on explicit approval. Five deployable apps, an encrypted credential " +
+                            "vault, self-healing browser selectors, and a safety invariant enforced server-side \u2014 nothing " +
+                            "is ever auto-submitted. 436 tests.",
+                        tech: [
+                            "Python",
+                            "FastAPI",
+                            "Next.js",
+                            "PostgreSQL",
+                            "Celery",
+                            "Playwright",
+                        ],
+                        shots: [
+                            "dashboard",
+                            "discover",
+                            "pipeline",
+                            "run-log",
+                            "application-kit",
+                            "landing_page",
+                            "job-site",
+                            "event-log",
+                        ].map(function (s) {
+                            return "shots/applyjobbot/" + s + ".png";
+                        }),
+                    },
+                    {
+                        name: "ffmpeg-mcp",
+                        meta: "MCP Video Editor \u00b7 Python",
+                        repo: "https://github.com/AbyAbyss/ffmpeg-mcp-video-editor",
+                        desc:
+                            "Gives any MCP client a real video editor \u2014 38 typed tools over ffmpeg, Whisper and MediaPipe " +
+                            "instead of a shell escape hatch. Non-blocking jobs with real ffmpeg progress and working cancel, " +
+                            "face-tracked landscape-to-vertical reframing, word-level auto-captioning, and whole-timeline " +
+                            "renders in a single pass. 727 tests, and the unit suite runs with no ffmpeg installed.",
+                        tech: [
+                            "Python",
+                            "MCP",
+                            "FFmpeg",
+                            "Whisper",
+                            "OpenCV",
+                        ],
+                        fit: true,
+                        shots: [
+                            "banner",
+                            "reframe",
+                            "architecture",
+                        ].map(function (s) {
+                            return (
+                                R +
+                                "ffmpeg-mcp-video-editor/main/docs/" +
+                                s +
+                                ".svg"
+                            );
+                        }),
+                    },
+                    {
+                        name: "redis_gui",
+                        meta: "Redis Client \u00b7 Go + React",
+                        repo: "https://github.com/AbyAbyss/redis_gui",
+                        desc:
+                            "A full Redis GUI that ships as one static Go binary and runs as a local web app, a native desktop " +
+                            "app, or headless in Docker. SCAN keyspace browser with per-type viewers, 1 Hz metrics, a coalesced " +
+                            "MONITOR stream and a memory analyzer over WebSocket, plus RBAC, an audit log and AES-256-GCM " +
+                            "encrypted credentials.",
+                        tech: [
+                            "Go",
+                            "Redis",
+                            "React",
+                            "TypeScript",
+                            "WebSockets",
+                            "SQLite",
+                        ],
+                        shots: [
+                            "keyspace",
+                            "workbench",
+                            "cli",
+                            "monitor",
+                            "metrics",
+                            "memory",
+                        ].map(function (s) {
+                            return (
+                                R +
+                                "redis_gui/main/docs/screenshots/" +
+                                s +
+                                ".png"
+                            );
+                        }),
+                    },
+                    {
+                        name: "ANIMATRON",
+                        meta: "Animation Studio \u00b7 React",
+                        priv: true,
+                        link: {
+                            href: "animator/",
+                            label: "Open the live app",
+                        },
+                        desc:
+                            "A browser-based SVG character animation studio \u2014 rig characters, animate them on a multi-track " +
+                            "timeline, sync lips to audio and export, with no install and no server. Anatomically pivoted joint " +
+                            "rigs, RMS-driven auto lip sync, deterministic particle effects, and an AI co-pilot whose output is " +
+                            "validated against the renderer's real enums so it can never corrupt undo/redo.",
+                        tech: [
+                            "React",
+                            "TypeScript",
+                            "SVG",
+                            "Web Audio",
+                            "Zustand",
+                            "Claude + GPT-4o",
+                        ],
+                        shots: [
+                            "shots/animator/editor.png",
+                            "shots/animator/ai-critic.png",
+                            "shots/animator/effects.png",
+                            "shots/animator/architecture.svg",
+                        ],
+                    },
+                    {
+                        name: "ReelForge",
+                        meta: "AI Video Generator \u00b7 Python",
+                        priv: true,
+                        desc:
+                            "A local-first AI faceless-video generator: a topic, story or script becomes a scene plan, visuals, " +
+                            "narration, word-timed captions and a finished 1080\u00d71920 MP4. Clip mode turns one long video into " +
+                            "several shorts \u2014 local Whisper, LLM-picked moments snapped to speech boundaries, and a 9:16 crop " +
+                            "centred on the speaker via median-of-12-frames YuNet face detection.",
+                        tech: [
+                            "Python",
+                            "FastAPI",
+                            "Next.js",
+                            "FFmpeg",
+                            "Whisper",
+                            "OpenCV",
+                        ],
+                        shots: [
+                            "create-topic.png",
+                            "editor.png",
+                            "clip-real-footage.jpg",
+                            "clip-face-crop.jpg",
+                            "create-ideas.png",
+                            "library.png",
+                            "upload.png",
+                        ].map(function (s) {
+                            return "shots/reelforge/" + s;
+                        }),
                     },
                     {
                         name: "dockman",
-                        meta: "Docker Manager · Tauri",
+                        meta: "Docker Manager \u00b7 Tauri",
                         repo: "https://github.com/AbyAbyss/dockman",
                         desc:
-                            "A lightweight Docker management desktop app built with Tauri and TypeScript, manage " +
-                            "containers, images, volumes, networks and builds, run containers with live progress, " +
-                            "and monitor everything from one fast, native window.",
-                        tech: ["TypeScript", "Tauri", "Rust", "Docker"],
+                            "A native desktop app that drives Docker and Podman side by side from one window \u2014 containers, " +
+                            "images, volumes, networks, builds and the runtime binaries themselves. An interactive shell into any " +
+                            "running container, a network topology map with live bandwidth, a build layer waterfall, and automatic " +
+                            "Docker retry when a Podman run hits an architecture mismatch.",
+                        tech: ["Rust", "Tauri", "React", "TypeScript", "Docker", "Podman"],
                         shots: [
                             "dashboard",
                             "containers",
@@ -1673,41 +1876,18 @@
                         }),
                     },
                     {
-                        name: "redis_gui",
-                        meta: "Redis Client · Webview",
-                        repo: "https://github.com/AbyAbyss/redis_gui",
-                        desc:
-                            "A graphical Redis client built in TypeScript with a lightweight Webview shell, browse " +
-                            "the keyspace, run commands in a CLI and workbench, and watch live memory, metrics and " +
-                            "monitor streams.",
-                        tech: ["TypeScript", "Webview", "Redis"],
-                        shots: [
-                            "keyspace",
-                            "workbench",
-                            "cli",
-                            "monitor",
-                            "metrics",
-                            "memory",
-                        ].map(function (s) {
-                            return (
-                                R +
-                                "redis_gui/main/docs/screenshots/" +
-                                s +
-                                ".png"
-                            );
-                        }),
-                    },
-                    {
                         name: "sandkit",
-                        meta: "Code Playground SDK · TypeScript",
+                        meta: "Code Playground SDK \u00b7 TypeScript",
                         repo: "https://github.com/AbyAbyss/sandkit",
                         desc:
-                            "An open-source SDK for embedding interactive, multi-language code playgrounds, a " +
-                            "Turborepo monorepo with a Hono backend and multi-engine execution via Piston, Pyodide " +
-                            "and QuickJS.",
+                            "Embed a multi-language code playground in any React app with a single component. JavaScript and " +
+                            "Python run entirely in the browser on QuickJS and Pyodide \u2014 ~50ms, no API key, code never leaves " +
+                            "the machine \u2014 while Go, Rust and Bash execute on a self-hosted Piston engine behind a Hono API and " +
+                            "a BullMQ queue. Ships with key management, usage metering and Stripe billing.",
                         tech: [
                             "TypeScript",
                             "Hono",
+                            "WebAssembly",
                             "Turborepo",
                             "Pyodide",
                             "QuickJS",
@@ -1716,14 +1896,89 @@
                         shots: ["sandkit.svg"],
                     },
                     {
+                        name: "DevConnect",
+                        meta: "All-in-one Dev Tool \u00b7 Tauri",
+                        priv: true,
+                        desc:
+                            "A developer desktop app combining a multi-database client, a REST client, a rich document editor " +
+                            "and a VSCode-style plugin system. MySQL, PostgreSQL, SQLite, MongoDB and Redis behind one UI with " +
+                            "IntelliSense and a schema explorer \u2014 and docs where live database queries and REST requests embed " +
+                            "as blocks. Shipped through CI with parallel stable and alpha channels.",
+                        tech: [
+                            "Rust",
+                            "Tauri",
+                            "React",
+                            "TypeScript",
+                            "PostgreSQL",
+                            "MongoDB",
+                        ],
+                        shots: ["shots/devconnect.svg"],
+                    },
+                    {
+                        name: "GraceTrack",
+                        meta: "Offline-first Mobile App \u00b7 Flutter",
+                        priv: true,
+                        desc:
+                            "An offline-first giving tracker with no backend, no accounts and no analytics \u2014 data lives on the " +
+                            "device and, optionally, in the user's own Google Sheet through a drive.file scope that can only see " +
+                            "the one file it created. Rule-based income splits stored as immutable snapshots, recurrence " +
+                            "detection, timezone- and OEM-aware notifications, and honest multi-currency handling.",
+                        tech: [
+                            "Flutter",
+                            "Dart",
+                            "Riverpod",
+                            "Drift/SQLite",
+                            "OAuth",
+                        ],
+                        fit: true,
+                        shots: [
+                            "shots/gracetrack/screen-home.svg",
+                            "shots/gracetrack/screen-entry.svg",
+                            "shots/gracetrack/screen-reports.svg",
+                            "shots/gracetrack/screen-history.svg",
+                            "shots/gracetrack/privacy.svg",
+                        ],
+                    },
+                    {
+                        name: "Yankit",
+                        meta: "macOS Utility \u00b7 Swift",
+                        repo: "https://github.com/AbyAbyss/Yankit",
+                        desc:
+                            "A fast, free, open-source macOS clipboard manager \u2014 it remembers the text, images and files you " +
+                            "copy and pastes any of them back with \u2318\u21e7V. History lives in SQLite with payloads on disk rather " +
+                            "than in RAM, so it idles around 40 MB, and it deliberately skips password-manager content and stays " +
+                            "out of Spotlight and Time Machine.",
+                        tech: ["Swift", "SwiftUI", "AppKit", "macOS", "SQLite"],
+                        fit: true,
+                        shots: [R + "Yankit/main/docs/panel.svg"],
+                    },
+                    {
+                        name: "wimys_crumb",
+                        meta: "Disk Scanner \u00b7 Swift",
+                        repo: "https://github.com/AbyAbyss/wimys_crumb",
+                        desc:
+                            "A macOS disk-space scanner that walks ~5M files in a few minutes and shows exactly where the space " +
+                            "went. The scan tree streams into SQLite on disk rather than memory, so browsing a 5M-file scan stays " +
+                            "under 200 MB resident. Groups every node_modules, DerivedData and Caches across the whole drive, and " +
+                            "funnels all deletes through one protected-path-aware service with Undo.",
+                        tech: ["Swift", "SwiftUI", "GRDB", "SQLite", "macOS"],
+                        fit: true,
+                        shots: [
+                            "overview",
+                            "architecture",
+                        ].map(function (s) {
+                            return R + "wimys_crumb/main/docs/" + s + ".svg";
+                        }),
+                    },
+                    {
                         name: "InkTerm",
-                        meta: "AI Terminal · TypeScript",
+                        meta: "AI Terminal \u00b7 Tauri",
                         repo: "https://github.com/AbyAbyss/InkTerm",
                         desc:
-                            "A modern, themeable terminal built in TypeScript with a built-in AI agent and MCP " +
-                            "(Model Context Protocol) support, LLM-powered help and tooling, straight in the " +
-                            "command line.",
-                        tech: ["TypeScript", "AI Agent", "MCP", "Terminal"],
+                            "A cross-platform desktop terminal with a stylized UI \u2014 multi-tab sessions, a file-browser overlay, " +
+                            "live CPU/memory/network stats, an AI agent panel and MCP server management with per-server tool " +
+                            "toggles. Five themes in a frameless transparent window. Still in active development.",
+                        tech: ["Rust", "Tauri", "React", "TypeScript", "MCP"],
                         shots: [
                             "terminal",
                             "ai-agent",
@@ -1742,17 +1997,18 @@
                     },
                     {
                         name: "RestClient",
-                        meta: "REST Client · Tauri",
+                        meta: "REST Client \u00b7 Tauri",
                         repo: "https://github.com/AbyAbyss/RestClient",
                         desc:
-                            "A fast, open-source desktop REST client with a cartoon UI, send HTTP requests, " +
-                            "manage collections and environments, run Postman-style test scripts, inspect " +
-                            "response timelines, and load-test APIs with built-in performance runs.",
+                            "An open-source desktop REST client with a cartoon UI, Postman-compatible test scripts and built-in " +
+                            "load testing. A full response timeline breaks out DNS, TCP, TLS, TTFB and download, while Rust " +
+                            "spawns concurrent async workers for performance runs with virtual users, ramp-up profiles and " +
+                            "saved-run comparison.",
                         tech: [
-                            "TypeScript",
-                            "React",
-                            "Tauri",
                             "Rust",
+                            "Tauri",
+                            "React",
+                            "TypeScript",
                             "SQLite",
                         ],
                         shots: [
@@ -1765,6 +2021,39 @@
                         ].map(function (s) {
                             return R + "RestClient/main/docs/" + s + ".png";
                         }),
+                    },
+                    {
+                        name: "PrivateVault",
+                        meta: "Encrypted Vault \u00b7 Flutter",
+                        priv: true,
+                        desc:
+                            "A cross-platform privacy vault that encrypts media on the device and stores it in the user's own " +
+                            "Google Drive appdata folder, hidden from the normal Drive UI. Vault encryption is independent of " +
+                            "the device lock screen, so the blobs are useless without the passphrase \u2014 and decrypted data is " +
+                            "never written to disk. Ships a documented container format and a standalone CLI decryptor.",
+                        tech: [
+                            "Flutter",
+                            "Dart",
+                            "AES",
+                            "Argon2",
+                            "OAuth",
+                            "Google Drive API",
+                        ],
+                        fit: true,
+                        shots: ["shots/privatevault.svg"],
+                    },
+                    {
+                        name: "Term REST Client",
+                        meta: "Terminal REST Client \u00b7 Go",
+                        repo: "https://github.com/AbyAbyss/cli-rest-client",
+                        desc:
+                            "A terminal-based REST client in pure Go with a tview UI \u2014 collections, all common HTTP methods, a " +
+                            "JSON body editor with syntax highlighting, a response viewer, two themes and full keyboard " +
+                            "navigation. One binary, no external services.",
+                        tech: ["Go", "tview", "Terminal UI", "REST"],
+                        shots: [
+                            R + "cli-rest-client/main/assets/screenshot.png",
+                        ],
                     },
                 ];
                 var WORK = [
@@ -1960,6 +2249,26 @@
                 }
 
                 /* ---------------- render projects ---------------- */
+                function linkFor(p) {
+                    if (p.repo) {
+                        return (
+                            '<a class="repo" href="' +
+                            p.repo +
+                            '" target="_blank" rel="noopener">View on GitHub &#8599;</a>'
+                        );
+                    }
+                    if (p.link) {
+                        return (
+                            '<a class="repo" href="' +
+                            p.link.href +
+                            '" target="_blank" rel="noopener">' +
+                            p.link.label +
+                            " &#8599;</a>"
+                        );
+                    }
+                    return '<span class="repo muted">Private repository</span>';
+                }
+
                 var ossGrid = document.getElementById("ossGrid");
                 OSS.forEach(function (p, i) {
                     var card = el("article", "card reveal");
@@ -1990,7 +2299,11 @@
                         '<div class="card-b">' +
                         '<div class="card-top"><h3>' +
                         p.name +
-                        '</h3><span class="pill">Open Source</span></div>' +
+                        "</h3>" +
+                        (p.priv
+                            ? '<span class="pill priv">Private</span>'
+                            : '<span class="pill">Open Source</span>') +
+                        "</div>" +
                         '<div class="card-meta">' +
                         p.meta +
                         "</div>" +
@@ -1998,9 +2311,7 @@
                         p.desc +
                         "</p>" +
                         tags(p.tech) +
-                        '<a class="repo" href="' +
-                        p.repo +
-                        '" target="_blank" rel="noopener">View on GitHub &#8599;</a>' +
+                        linkFor(p) +
                         "</div>";
                     ossGrid.appendChild(card);
                 });
