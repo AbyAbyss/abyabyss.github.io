@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="250" viewBox="0 0 1280 250" fill="none" role="img" aria-label="How it works: Discover, Score, Review, Approve, Apply">
+  <defs>
+    <linearGradient id="fpanel" x1="0" y1="0" x2="1280" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0f172a"/><stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+    <linearGradient id="n1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6366f1"/><stop offset="1" stop-color="#4f46e5"/></linearGradient>
+    <linearGradient id="n2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="n3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ec4899"/><stop offset="1" stop-color="#db2777"/></linearGradient>
+    <linearGradient id="n4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10b981"/><stop offset="1" stop-color="#059669"/></linearGradient>
+    <linearGradient id="n5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#0284c7"/></linearGradient>
+    <marker id="arr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#64748b"/></marker>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="250" rx="24" fill="url(#fpanel)"/>
+  <text x="44" y="46" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="800" fill="#ffffff">How it works</text>
+  <text x="210" y="46" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="14" fill="#94a3b8">— automation does the work, you keep the decisions</text>
+
+  <!-- connectors with a subtle flowing dash -->
+  <g stroke="#475569" stroke-width="2.5" marker-end="url(#arr)">
+    <line x1="190" y1="140" x2="372" y2="140"/>
+    <line x1="452" y1="140" x2="634" y2="140"/>
+    <line x1="714" y1="140" x2="896" y2="140"/>
+    <line x1="976" y1="140" x2="1158" y2="140"/>
+  </g>
+  <g stroke="#a5b4fc" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="2 14" opacity="0.9">
+    <line x1="190" y1="140" x2="372" y2="140"><animate attributeName="stroke-dashoffset" from="16" to="0" dur="1s" repeatCount="indefinite"/></line>
+    <line x1="452" y1="140" x2="634" y2="140"><animate attributeName="stroke-dashoffset" from="16" to="0" dur="1s" repeatCount="indefinite"/></line>
+    <line x1="714" y1="140" x2="896" y2="140"><animate attributeName="stroke-dashoffset" from="16" to="0" dur="1s" repeatCount="indefinite"/></line>
+    <line x1="976" y1="140" x2="1158" y2="140"><animate attributeName="stroke-dashoffset" from="16" to="0" dur="1s" repeatCount="indefinite"/></line>
+  </g>
+
+  <g font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" text-anchor="middle">
+    <!-- 1 Discover -->
+    <circle cx="150" cy="140" r="38" fill="url(#n1)"/>
+    <g stroke="#ffffff" stroke-width="2.6" fill="none" stroke-linecap="round"><circle cx="146" cy="136" r="9"/><line x1="153" y1="143" x2="160" y2="150"/></g>
+    <text x="150" y="206" font-size="16" font-weight="700" fill="#e2e8f0">Discover</text>
+    <text x="150" y="226" font-size="12.5" fill="#94a3b8">fetch jobs</text>
+    <!-- 2 Score -->
+    <circle cx="412" cy="140" r="38" fill="url(#n2)"/>
+    <path d="M412 122 l4 12 l12 4 l-12 4 l-4 12 l-4 -12 l-12 -4 l12 -4 z" fill="#ffffff"/>
+    <text x="412" y="206" font-size="16" font-weight="700" fill="#e2e8f0">Score</text>
+    <text x="412" y="226" font-size="12.5" fill="#94a3b8">AI fit %</text>
+    <!-- 3 Review -->
+    <circle cx="674" cy="140" r="38" fill="url(#n3)"/>
+    <g stroke="#ffffff" stroke-width="2.6" fill="none"><path d="M658 140 q16 -16 32 0 q-16 16 -32 0 z"/><circle cx="674" cy="140" r="4.5" fill="#ffffff" stroke="none"/></g>
+    <text x="674" y="206" font-size="16" font-weight="700" fill="#e2e8f0">Review</text>
+    <text x="674" y="226" font-size="12.5" fill="#94a3b8">you read</text>
+    <!-- 4 Approve (the gate) -->
+    <circle cx="936" cy="140" r="44" fill="none" stroke="#34d399" stroke-width="2" stroke-dasharray="4 5" opacity="0.8"/>
+    <circle cx="936" cy="140" r="38" fill="url(#n4)"/>
+    <path d="M922 140 l9 9 l18 -20" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <rect x="892" y="78" width="88" height="24" rx="12" fill="#022c22" stroke="#34d399"/>
+    <text x="936" y="95" font-size="12" font-weight="700" fill="#6ee7b7">the gate</text>
+    <text x="936" y="206" font-size="16" font-weight="700" fill="#e2e8f0">Approve</text>
+    <text x="936" y="226" font-size="12.5" fill="#94a3b8">you decide</text>
+    <!-- 5 Apply -->
+    <circle cx="1198" cy="140" r="38" fill="url(#n5)"/>
+    <path d="M1182 148 l34 -14 l-14 34 l-5 -13 l-13 -5 z" fill="#ffffff"/>
+    <text x="1198" y="206" font-size="16" font-weight="700" fill="#e2e8f0">Apply</text>
+    <text x="1198" y="226" font-size="12.5" fill="#94a3b8">form filled</text>
+  </g>
+</svg>

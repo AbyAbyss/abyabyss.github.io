@@ -1,0 +1,101 @@
+<svg width="420" height="880" viewBox="0 0 420 880" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="yscreen"><rect x="10" y="10" width="400" height="860" rx="46"/></clipPath>
+  </defs>
+
+  <!-- phone frame -->
+  <rect x="0" y="0" width="420" height="880" rx="56" fill="#000000"/>
+  <rect x="10" y="10" width="400" height="860" rx="46" fill="#121618"/>
+
+  <g clip-path="url(#yscreen)" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+    <text x="44" y="46" font-size="14" font-weight="600" fill="#F1EDE6">9:41</text>
+    <rect x="176" y="26" width="68" height="22" rx="11" fill="#000000"/>
+
+    <text x="36" y="104" font-size="24" font-weight="800" fill="#F1EDE6">History</text>
+    <text x="36" y="126" font-size="13" fill="#8A9198">Every gift and every income, in one place</text>
+
+    <!-- filter chips -->
+    <g font-size="12.5" font-weight="600">
+      <rect x="36" y="142" width="52" height="32" rx="16" fill="#5CC892"/>
+      <text x="62" y="163" text-anchor="middle" fill="#12312A">All</text>
+      <rect x="96" y="142" width="76" height="32" rx="16" fill="#FFFFFF" fill-opacity="0.06"/>
+      <text x="134" y="163" text-anchor="middle" fill="#AEB4B9">Income</text>
+      <rect x="180" y="142" width="66" height="32" rx="16" fill="#FFFFFF" fill-opacity="0.06"/>
+      <text x="213" y="163" text-anchor="middle" fill="#AEB4B9">Gifts</text>
+    </g>
+
+    <!-- syncing pill -->
+    <rect x="284" y="142" width="108" height="32" rx="16" fill="#E6AE4E" fill-opacity="0.14"/>
+    <circle cx="302" cy="158" r="4" fill="#E6AE4E">
+      <animate attributeName="fill-opacity" values="1;0.35;1" dur="1.8s" repeatCount="indefinite"/>
+    </circle>
+    <text x="314" y="163" font-size="12" font-weight="600" fill="#E6AE4E">Syncing…</text>
+
+    <!-- TODAY -->
+    <text x="36" y="212" font-size="12" letter-spacing="1.2" font-weight="700" fill="#8A9198">TODAY</text>
+    <rect x="28" y="224" width="364" height="128" rx="20" fill="#1B2124"/>
+    <g>
+      <circle cx="60" cy="260" r="16" fill="#5CC892" fill-opacity="0.14"/>
+      <path d="M60 253 L60 267 M54 261 L60 267 L66 261" stroke="#5CC892" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="88" y="256" font-size="13.5" font-weight="700" fill="#F1EDE6">Tithe · Local Church</text>
+      <text x="88" y="273" font-size="11.5" fill="#8A9198">9:12 AM · "May offering"</text>
+      <circle cx="358" cy="250" r="3" fill="#E6AE4E"/>
+      <text x="376" y="266" text-anchor="end" font-size="14" font-weight="700" fill="#5CC892">−₹2,000</text>
+    </g>
+    <line x1="44" y1="288" x2="376" y2="288" stroke="#FFFFFF" stroke-opacity="0.07"/>
+    <g>
+      <circle cx="60" cy="320" r="16" fill="#E6AE4E" fill-opacity="0.14"/>
+      <path d="M60 313 L60 327 M54 319 L60 313 L66 319" stroke="#E6AE4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="88" y="316" font-size="13.5" font-weight="600" fill="#F1EDE6">Salary</text>
+      <text x="88" y="333" font-size="11.5" fill="#8A9198">8:04 AM · split into 2 categories</text>
+      <text x="376" y="326" text-anchor="end" font-size="14" font-weight="600" fill="#E6AE4E">+₹20,000</text>
+    </g>
+
+    <!-- YESTERDAY -->
+    <text x="36" y="392" font-size="12" letter-spacing="1.2" font-weight="700" fill="#8A9198">YESTERDAY</text>
+    <rect x="28" y="404" width="364" height="68" rx="20" fill="#1B2124"/>
+    <g>
+      <circle cx="60" cy="438" r="16" fill="#B5623C" fill-opacity="0.18"/>
+      <path d="M60 431 L60 445 M54 439 L60 445 L66 439" stroke="#B5623C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="88" y="434" font-size="13.5" font-weight="700" fill="#F1EDE6">Charity · Food bank</text>
+      <text x="88" y="451" font-size="11.5" fill="#8A9198">6:40 PM</text>
+      <text x="376" y="444" text-anchor="end" font-size="14" font-weight="700" fill="#5CC892">−₹500</text>
+    </g>
+
+    <!-- THIS WEEK -->
+    <text x="36" y="512" font-size="12" letter-spacing="1.2" font-weight="700" fill="#8A9198">THIS WEEK</text>
+    <rect x="28" y="524" width="364" height="128" rx="20" fill="#1B2124"/>
+    <g>
+      <circle cx="60" cy="560" r="16" fill="#6B4E8C" fill-opacity="0.2"/>
+      <path d="M60 553 L60 567 M54 561 L60 567 L66 561" stroke="#9B7FC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="88" y="556" font-size="13.5" font-weight="700" fill="#F1EDE6">Missions · SIM worker</text>
+      <text x="88" y="573" font-size="11.5" fill="#8A9198">Mon</text>
+      <text x="376" y="566" text-anchor="end" font-size="14" font-weight="700" fill="#5CC892">−₹1,000</text>
+    </g>
+    <line x1="44" y1="588" x2="376" y2="588" stroke="#FFFFFF" stroke-opacity="0.07"/>
+    <g>
+      <circle cx="60" cy="620" r="16" fill="#E6AE4E" fill-opacity="0.14"/>
+      <path d="M60 613 L60 627 M54 619 L60 613 L66 619" stroke="#E6AE4E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="88" y="616" font-size="13.5" font-weight="600" fill="#F1EDE6">Freelance</text>
+      <text x="88" y="633" font-size="11.5" fill="#8A9198">Sun · "logo project"</text>
+      <text x="376" y="626" text-anchor="end" font-size="14" font-weight="600" fill="#E6AE4E">+₹6,000</text>
+    </g>
+
+    <!-- tap-to-edit hint -->
+    <rect x="76" y="682" width="268" height="40" rx="20" fill="#FFFFFF" fill-opacity="0.05"/>
+    <text x="210" y="707" text-anchor="middle" font-size="12.5" fill="#8A9198">Tap any entry to edit or delete it</text>
+
+    <!-- floating nav bar -->
+    <rect x="36" y="792" width="348" height="58" rx="24" fill="#1B2124" fill-opacity="0.96" stroke="#FFFFFF" stroke-opacity="0.08"/>
+    <g stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M84 826 L84 814 L92 807 L100 814 L100 826 Z" stroke="#8A9198"/>
+      <circle cx="146" cy="818" r="8" stroke="#5CC892"/><path d="M146 813 L146 818 L150 821" stroke="#5CC892"/>
+      <path d="M270 826 L270 818 M278 826 L278 812 M286 826 L286 821" stroke="#8A9198"/>
+      <circle cx="336" cy="815" r="4.5" stroke="#8A9198"/><path d="M328 828 C328 823 344 823 344 828" stroke="#8A9198"/>
+    </g>
+    <circle cx="210" cy="818" r="26" fill="#5CC892"/>
+    <path d="M210 808 L210 828 M200 818 L220 818" stroke="#12312A" stroke-width="2.6" stroke-linecap="round"/>
+
+    <rect x="150" y="856" width="120" height="4" rx="2" fill="#FFFFFF" fill-opacity="0.3"/>
+  </g>
+</svg>

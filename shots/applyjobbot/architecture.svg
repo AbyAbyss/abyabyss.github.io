@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="460" viewBox="0 0 1280 460" fill="none" role="img" aria-label="Architecture: browser to FastAPI control plane, routing runs to a local runner or the cloud worker, backed by Postgres and Redis">
+  <defs>
+    <linearGradient id="apanel" x1="0" y1="0" x2="1280" y2="460" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#15182e"/>
+    </linearGradient>
+    <linearGradient id="cWeb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#0f172a"/></linearGradient>
+    <linearGradient id="cApi" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="cLocal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#0369a1"/></linearGradient>
+    <linearGradient id="cCloud" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#db2777"/><stop offset="1" stop-color="#9d174d"/></linearGradient>
+    <marker id="aarr" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6 z" fill="#94a3b8"/></marker>
+    <filter id="ashadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.35"/></filter>
+  </defs>
+
+  <rect x="0" y="0" width="1280" height="460" rx="24" fill="url(#apanel)"/>
+  <text x="44" y="50" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="20" font-weight="800" fill="#ffffff">Architecture</text>
+  <text x="205" y="50" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="14" fill="#94a3b8">— one control plane, automation runs locally or in the cloud</text>
+
+  <g font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+    <!-- Browser -->
+    <g filter="url(#ashadow)"><rect x="490" y="84" width="300" height="78" rx="16" fill="url(#cWeb)" stroke="#334155"/></g>
+    <circle cx="528" cy="123" r="15" fill="#38bdf8" fill-opacity="0.18"/>
+    <path d="M528 110 a13 13 0 1 0 0.1 0 z M515 123 h26 M528 110 a20 13 0 0 1 0 26 a20 13 0 0 1 0 -26" stroke="#38bdf8" stroke-width="1.8" fill="none"/>
+    <text x="556" y="119" font-size="16" font-weight="700" fill="#e2e8f0">Browser</text>
+    <text x="556" y="140" font-size="12.5" fill="#94a3b8">Next.js dashboard</text>
+
+    <!-- API -->
+    <g filter="url(#ashadow)"><rect x="470" y="206" width="340" height="92" rx="16" fill="url(#cApi)"/></g>
+    <text x="640" y="244" text-anchor="middle" font-size="18" font-weight="800" fill="#ffffff">FastAPI control plane</text>
+    <text x="640" y="268" text-anchor="middle" font-size="12.5" fill="#e0e7ff">scoring · routing · approval gate</text>
+
+    <!-- Postgres + Redis (side) -->
+    <g filter="url(#ashadow)"><rect x="868" y="212" width="170" height="38" rx="10" fill="#0f172a" stroke="#334155"/></g>
+    <circle cx="892" cy="231" r="6" fill="#38bdf8"/>
+    <text x="908" y="236" font-size="13" font-weight="600" fill="#cbd5e1">PostgreSQL</text>
+    <g filter="url(#ashadow)"><rect x="868" y="256" width="170" height="38" rx="10" fill="#0f172a" stroke="#334155"/></g>
+    <circle cx="892" cy="275" r="6" fill="#f87171"/>
+    <text x="908" y="280" font-size="13" font-weight="600" fill="#cbd5e1">Redis · queue</text>
+
+    <!-- Local runner -->
+    <g filter="url(#ashadow)"><rect x="250" y="346" width="320" height="86" rx="16" fill="url(#cLocal)"/></g>
+    <text x="410" y="384" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">Local Runner — your machine</text>
+    <text x="410" y="406" text-anchor="middle" font-size="12.5" fill="#e0f2fe">Playwright · credentials never leave</text>
+
+    <!-- Cloud worker -->
+    <g filter="url(#ashadow)"><rect x="710" y="346" width="320" height="86" rx="16" fill="url(#cCloud)"/></g>
+    <text x="870" y="384" text-anchor="middle" font-size="16" font-weight="700" fill="#ffffff">Cloud Worker — Pro / Enterprise</text>
+    <text x="870" y="406" text-anchor="middle" font-size="12.5" fill="#fce7f3">auto-apply · approved-only</text>
+  </g>
+
+  <!-- connectors -->
+  <g stroke="#64748b" stroke-width="2.2" fill="none" marker-end="url(#aarr)">
+    <line x1="640" y1="162" x2="640" y2="204"/>
+    <path d="M560 298 C500 322 440 326 410 344"/>
+    <path d="M720 298 C780 322 840 326 870 344"/>
+    <line x1="810" y1="231" x2="866" y2="231"/>
+    <line x1="810" y1="266" x2="866" y2="275"/>
+  </g>
+  <text x="654" y="190" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12" fill="#94a3b8">REST + Socket.io</text>
+  <text x="372" y="330" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#7dd3fc">runner online → queued</text>
+  <text x="900" y="330" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="12.5" font-weight="600" fill="#f9a8d4">no runner → cloud_queued</text>
+</svg>
