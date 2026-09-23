@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Malayalam PDF to Unicode Converter | ML-TT, Karthika, Revathi to Unicode</title>
+<meta name="description" content="Free, private converter that recovers Unicode Malayalam from PDFs using legacy ASCII fonts (ML-TT Karthika, Revathi, Ambili, Vinay). Copy-paste gives junk like ssZh-Øns‚? Get ദൈവത്തിന്റെ back. Download DOCX or TXT. Runs in your browser, no upload.">
+<link rel="canonical" href="https://abyabyss.github.io/malayalam-pdf-recovery/">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Aby Saji Pappachan">
+<meta name="theme-color" content="#0b5d44">
+
+<!-- Link previews (WhatsApp, LinkedIn, X, Facebook) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Aby Saji Pappachan">
+<meta property="og:title" content="Malayalam PDF to Unicode Converter">
+<meta property="og:description" content="Fix garbled Malayalam text copied from old PDFs. ML-TT to Unicode, DOCX export, fully in your browser.">
+<meta property="og:url" content="https://abyabyss.github.io/malayalam-pdf-recovery/">
+<meta property="og:image" content="https://abyabyss.github.io/malayalam-pdf-recovery/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="ml_IN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Malayalam PDF to Unicode Converter">
+<meta name="twitter:description" content="Fix garbled Malayalam text copied from old PDFs. ML-TT to Unicode, DOCX export, no upload.">
+<meta name="twitter:image" content="https://abyabyss.github.io/malayalam-pdf-recovery/preview.png">
+
+<!-- Structured data: tells search engines this is a free web app -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Malayalam PDF Text Recovery",
+  "alternateName": "Malayalam PDF to Unicode Converter",
+  "url": "https://abyabyss.github.io/malayalam-pdf-recovery/",
+  "image": "https://abyabyss.github.io/malayalam-pdf-recovery/preview.png",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any (web browser)",
+  "browserRequirements": "Requires JavaScript",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "GBP" },
+  "inLanguage": ["en", "ml"],
+  "description": "Converts legacy ASCII Malayalam (ML-TT, Karthika, Revathi, Ambili, Vinay) in PDFs to Unicode Malayalam. Exports DOCX, TXT and Markdown. Runs entirely in the browser; files are never uploaded.",
+  "featureList": ["ML-TT to Unicode conversion", "Automatic encoding detection", "DOCX export with bold, headings and alignment", "TXT and Markdown export", "Works offline, no upload"],
+  "author": { "@type": "Person", "name": "Aby Saji Pappachan", "url": "https://abyabyss.github.io" }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "Why does Malayalam text from my PDF paste as junk?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Many Malayalam PDFs were typeset with legacy fonts such as ML-TT Karthika, Revathi, Ambili or Vinay. These fonts draw Malayalam letters on English character codes, so copying gives text like ssZh-Øns‚ instead of ദൈവത്തിന്റെ. This tool converts those codes to Unicode Malayalam." } },
+    { "@type": "Question", "name": "Is my PDF uploaded anywhere?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. The PDF is read and converted entirely inside your browser. Nothing is sent to a server." } },
+    { "@type": "Question", "name": "Does it work on scanned PDFs?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. Scanned PDFs are images with no text inside, so they need OCR. This tool works on PDFs where you can select text, even if the copied text looks garbled." } }
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Chettan+2:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Manjari:wght@400;700&family=Noto+Sans+Malayalam:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- Libraries (cached by the browser after first load; nothing is uploaded anywhere) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="malayalam-legacy-converter.js"></script>
+
+<style>
+/* ------------------------------------------------------------------
+   Design tokens
+   Kerala paper + kasavu (the gold border of a mundu) + deep palm green.
+   ------------------------------------------------------------------ */
+:root {
+  --paper: #f3f4ef;
+  --surface: #ffffff;
+  --surface-2: #eceee7;
+  --ink: #15201b;
+  --muted: #5a665f;
+  --line: #d9ddd4;
+  --line-strong: #c3c9bd;
+  --primary: #0b5d44;
+  --primary-ink: #ffffff;
+  --primary-soft: #dcebe4;
+  --kasavu: #b8892c;
+  --kasavu-ink: #7f5d16;
+  --kasavu-soft: #f3e8cf;
+  --raw: #6d5a45;
+  --good: #1c7440; --warn: #9a5a0a; --bad: #b3261e;
+  --hl: #f6e7b8;
+  /* legacy token names still used by the script */
+  --code: var(--surface-2); --accent: var(--primary); --bg: var(--paper); --panel: var(--surface);
+
+  --f-display: "Baloo Chettan 2", "Noto Sans Malayalam", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ml: "Manjari", "Noto Sans Malayalam", "Malayalam Sangam MN", "Malayalam MN", "Nirmala UI", Kartika, sans-serif;
+  --mono: var(--f-mono);
+
+  --r-sm: 6px; --r-md: 10px; --r-lg: 16px;
+  --shadow: 0 1px 2px rgb(20 32 27 / .06), 0 8px 24px -12px rgb(20 32 27 / .18);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1512; --surface: #161e1a; --surface-2: #1d2621;
+    --ink: #e6ece7; --muted: #95a39b; --line: #27322c; --line-strong: #36433c;
+    --primary: #56c49a; --primary-ink: #07261b; --primary-soft: #183a2e;
+    --kasavu: #d8b25a; --kasavu-ink: #e6c67a; --kasavu-soft: #2e2716;
+    --raw: #c2a887; --good: #7fd49a; --warn: #e9ad5b; --bad: #f29389; --hl: #4a3d12;
+    --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 10px 30px -14px rgb(0 0 0 / .7);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1512; --surface: #161e1a; --surface-2: #1d2621;
+  --ink: #e6ece7; --muted: #95a39b; --line: #27322c; --line-strong: #36433c;
+  --primary: #56c49a; --primary-ink: #07261b; --primary-soft: #183a2e;
+  --kasavu: #d8b25a; --kasavu-ink: #e6c67a; --kasavu-soft: #2e2716;
+  --raw: #c2a887; --good: #7fd49a; --warn: #e9ad5b; --bad: #f29389; --hl: #4a3d12;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 10px 30px -14px rgb(0 0 0 / .7);
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ base */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.55 var(--f-body);
+  padding-inline: 16px;
+}
+main { max-width: 1240px; margin: 0 auto; padding-block: 8px 72px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+a { color: var(--primary); text-underline-offset: 3px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.15; text-wrap: balance; margin: 0; }
+h2 { font-size: 21px; }
+p { margin: 0; }
+code { font-family: var(--f-mono); font-size: .92em; background: var(--surface-2); padding: 1px 6px; border-radius: 4px; }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--f-mono); font-size: 13px; overflow-wrap: anywhere; }
+.ml { font-family: var(--ml); font-size: 18px; line-height: 1.75; }
+:focus-visible { outline: 2px solid var(--kasavu); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ------------------------------------------------------------------ controls */
+button, .btn {
+  font: 500 14px/1 var(--f-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+  padding: 9px 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: background .15s, border-color .15s, color .15s;
+}
+button:hover, .btn:hover { border-color: var(--ink); }
+button.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-ink); font-weight: 600; }
+button.primary:hover { filter: brightness(1.08); }
+button.quiet { background: transparent; }
+button:disabled { opacity: .4; cursor: not-allowed; }
+select, input[type=text], textarea {
+  font: 14px/1.3 var(--f-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 8px 10px; max-width: 100%;
+}
+input[type=checkbox] { accent-color: var(--primary); width: 16px; height: 16px; margin: 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.opts { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; }
+.opts label { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; }
+label.opts { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; }
+.eyebrow { font: 600 11.5px/1 var(--f-body); letter-spacing: .09em; text-transform: uppercase; color: var(--kasavu-ink); }
+
+/* ------------------------------------------------------------------ top bar + hero */
+.topbar { max-width: 1240px; margin: 0 auto; padding-block: 18px 6px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 700 17px/1 var(--f-display); color: var(--ink); text-decoration: none; }
+.brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--primary); color: var(--primary-ink); display: grid; place-items: center; font: 700 17px/1 var(--ml); padding-top: 3px; }
+.topnav { display: flex; gap: 18px; font-size: 14px; }
+.topnav a { color: var(--muted); text-decoration: none; }
+.topnav a:hover { color: var(--ink); }
+
+.hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 36px; align-items: center; padding-block: 28px 8px; }
+.hero h1 { font-size: clamp(32px, 4.6vw, 52px); letter-spacing: -.015em; }
+.hero h1 .ml-word { font-family: var(--ml); color: var(--primary); font-weight: 700; }
+.hero .sub { font-size: 17px; color: var(--muted); margin-top: 14px; max-width: 58ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.chip { font-size: 13px; padding: 6px 11px; border-radius: 99px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); display: inline-flex; gap: 6px; align-items: center; }
+.chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--kasavu); }
+
+/* the decode specimen: legacy bytes above, Unicode below, kasavu rule between */
+.specimen { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 22px 24px; position: relative; overflow: hidden; }
+.specimen::after { content: ""; position: absolute; inset: auto 0 0 0; height: 5px; background: linear-gradient(90deg, var(--kasavu) 0 70%, var(--primary) 70% 100%); }
+.spec-row { display: grid; gap: 6px; }
+.spec-row + .spec-row { margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line-strong); }
+.spec-legacy { font: 500 clamp(22px, 3vw, 30px)/1.3 var(--f-mono); color: var(--raw); letter-spacing: .02em; overflow-wrap: anywhere; }
+.spec-legacy span { border-bottom: 2px solid var(--kasavu-soft); margin-right: 1px; }
+.spec-uni { font: 700 clamp(30px, 4.2vw, 44px)/1.35 var(--ml); color: var(--ink); }
+.spec-meta { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.spec-meta b { color: var(--ink); font-weight: 600; }
+
+/* ------------------------------------------------------------------ panels */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; min-width: 0; }
+.panel-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 20px; margin-bottom: 16px; }
+.panel-head .lede { color: var(--muted); font-size: 14px; margin-top: 4px; max-width: 70ch; }
+
+/* upload + job ticket */
+.intake { padding: 0; overflow: hidden; box-shadow: var(--shadow); }
+.drop {
+  display: grid; justify-items: center; gap: 6px; text-align: center; cursor: pointer;
+  padding: 40px 20px; margin: 14px; border: 2px dashed var(--line-strong); border-radius: var(--r-md);
+  background: repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--kasavu) 5%, transparent) 14px 15px);
+  transition: border-color .15s, background-color .15s;
+}
+.drop:hover { border-color: var(--primary); }
+.drop.over { border-color: var(--primary); background-color: var(--primary-soft); }
+.drop-icon { width: 46px; height: 46px; border-radius: 12px; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; margin-bottom: 6px; }
+.drop strong { font: 700 20px/1.2 var(--f-display); }
+.drop .hint { font-size: 13px; color: var(--muted); }
+.drop .browse { color: var(--primary); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.stat { padding: 14px 18px; min-width: 0; }
+.stat + .stat { border-left: 1px solid var(--line); }
+.stat .k { font: 600 11px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+.stat .v { font-weight: 600; font-size: 15px; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.bar { height: 3px; background: var(--surface-2); }
+.bar > div { height: 100%; width: 0; background: var(--kasavu); transition: width .25s; }
+.msg { padding: 11px 14px; border-radius: var(--r-md); background: var(--surface-2); font-size: 14px; }
+#notice { margin: 0 14px 14px; border-left: 3px solid var(--line-strong); }
+#notice.bad { color: var(--bad); border-left-color: var(--bad); }
+#notice.warn { color: var(--warn); border-left-color: var(--warn); }
+.msg.bad { color: var(--bad); } .msg.warn { color: var(--warn); }
+
+/* ------------------------------------------------------------------ output */
+.toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fmt-box { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; padding: 12px 14px; background: var(--surface-2); border-radius: var(--r-md); margin-block: 14px 10px; }
+.fmt-box .label { font: 600 11px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.seg { display: inline-flex; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px; gap: 2px; }
+.seg button { border: 0; border-radius: 5px; padding: 7px 12px; background: transparent; }
+.seg button[aria-pressed="true"] { background: var(--primary); color: var(--primary-ink); }
+#fmtOpts input:disabled + span, #fmtOpts label:has(input:disabled) { opacity: .5; }
+#fmtNote { font-size: 12.5px; color: var(--muted); flex-basis: 100%; }
+.docx-opts { margin-bottom: 14px; }
+
+.cmp {
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  border: 1px solid var(--line); border-radius: var(--r-md); overflow: auto; max-height: 72vh; background: var(--surface);
+}
+.cmp .hd { position: sticky; top: 0; z-index: 1; padding: 10px 16px; font: 600 11px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface); border-bottom: 1px solid var(--line); }
+.cmp .hd:first-child { background: var(--surface-2); }
+.cmp .c { padding: 12px 16px; border-bottom: 1px solid var(--line); white-space: pre-wrap; overflow-wrap: anywhere; min-width: 0; }
+.cmp .c.raw { font-family: var(--f-mono); font-size: 12.5px; line-height: 1.6; color: var(--raw); background: var(--surface-2); border-right: 1px solid var(--line); }
+.cmp .c.ml { font-size: 18px; line-height: 1.8; }
+.cmp .c.ml h1, .cmp .c.ml h2 { font-family: var(--ml); margin: 0; line-height: 1.45; }
+.cmp .c.ml h1 { font-size: 1.5em; } .cmp .c.ml h2 { font-size: 1.22em; }
+.cmp .pg { grid-column: 1 / -1; padding: 7px 16px; font: 600 12px/1 var(--f-body); letter-spacing: .06em; text-transform: uppercase; color: var(--kasavu-ink); background: var(--kasavu-soft); border-bottom: 1px solid var(--line); }
+
+/* ------------------------------------------------------------------ fonts table + options */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+th { font: 600 11px/1.2 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); white-space: nowrap; }
+td .muted { font-size: 12px; }
+.pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font: 600 12px/1.4 var(--f-body); background: var(--surface-2); font-variant-numeric: tabular-nums; }
+.pill.good { color: var(--good); background: color-mix(in srgb, var(--good) 12%, transparent); }
+.pill.warn { color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, transparent); }
+.pill.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, transparent); }
+.stylebox label { display: inline-flex; gap: 4px; align-items: center; margin-right: 10px; font-size: 13px; }
+.subgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+.subgrid > *, .try, .try > *, details.fold, .about-wrap > * { min-width: 0; }
+select { min-width: 0; text-overflow: ellipsis; }
+.subcard { border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-content: start; }
+.subcard h3 { font-size: 15px; font-family: var(--f-body); font-weight: 600; }
+.subcard .opts { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+/* ------------------------------------------------------------------ disclosure panels (debugger, tests) */
+details.fold > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary::after { content: "+"; font: 400 22px/1 var(--f-body); color: var(--muted); }
+details.fold[open] > summary::after { content: "–"; }
+details.fold[open] > summary { margin-bottom: 16px; }
+details.fold summary h2 { font-size: 18px; }
+details.fold summary .lede { color: var(--muted); font-size: 13.5px; margin-top: 3px; }
+
+.tabs { display: inline-flex; gap: 2px; margin-bottom: 14px; background: var(--surface-2); padding: 3px; border-radius: 8px; }
+.tabs button { border: 0; background: transparent; border-radius: 5px; padding: 7px 12px; }
+.tabs button[aria-selected="true"] { background: var(--surface); box-shadow: 0 1px 2px rgb(0 0 0 / .12); }
+.span-card { border: 1px solid var(--line); border-radius: var(--r-md); padding: 12px 14px; margin-bottom: 10px; display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 4px 14px; }
+.span-card .k { color: var(--muted); font: 600 11px/1.9 var(--f-body); letter-spacing: .06em; text-transform: uppercase; }
+.span-card .v { min-width: 0; overflow-wrap: anywhere; }
+.span-card.flag { border-color: var(--warn); box-shadow: inset 3px 0 0 var(--warn); }
+.pager { justify-content: center; margin-top: 10px; }
+mark { background: var(--hl); color: inherit; border-radius: 3px; padding: 0 2px; }
+.try { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin-top: 18px; }
+.try .msg .ml { font-size: 24px; }
+
+/* ------------------------------------------------------------------ about */
+.about-wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.about { display: grid; gap: 22px; }
+.about .qa { display: grid; gap: 8px; }
+.about .qa + .qa { padding-top: 22px; border-top: 1px solid var(--line); }
+.about h2 { font-size: 19px; }
+.about p, .about ol { max-width: 68ch; color: var(--ink); }
+.about ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.about-ml { background: var(--kasavu-soft); border-color: color-mix(in srgb, var(--kasavu) 40%, transparent); position: sticky; top: 16px; display: grid; gap: 12px; }
+.about-ml h2 { font-family: var(--ml); font-size: 22px; line-height: 1.5; }
+.about-ml p { font-size: 16.5px; line-height: 1.85; }
+
+.site-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 13px; padding-top: 6px; border-top: 1px solid var(--line); }
+
+/* ------------------------------------------------------------------ responsive */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; gap: 24px; padding-top: 16px; }
+  .about-wrap { grid-template-columns: 1fr; }
+  .about-ml { position: static; }
+}
+@media (max-width: 720px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stat:nth-child(3) { border-left: 0; }
+  .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .cmp { grid-template-columns: 1fr; }
+  .cmp .c.raw { border-right: 0; border-bottom: 0; padding-bottom: 4px; }
+  .cmp .hd:nth-child(2) { display: none; }
+  .span-card { grid-template-columns: 1fr; }
+  .topnav { display: none; }
+  .panel { padding: 16px; }
+  .drop { padding: 28px 14px; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="#top" id="top" aria-label="Malayalam PDF to Unicode, home"><span class="brand-mark" aria-hidden="true">അ</span>Malayalam PDF to Unicode</a>
+  <nav class="topnav" aria-label="Page">
+    <a href="#about">How it works</a>
+    <a href="#tests">Test the converter</a>
+    <a href="https://github.com/AbyAbyss">GitHub</a>
+  </nav>
+</div>
+
+<main>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">ML-TT · Karthika · Revathi · Ambili · Vinay</p>
+      <h1 style="margin-top:12px">Get the <span class="ml-word">മലയാളം</span> back from old PDFs</h1>
+      <p class="sub">Text copied from PDFs set in legacy Malayalam fonts pastes as junk. Drop the PDF here and get real Unicode Malayalam you can search, edit and paste anywhere, with bold, headings and alignment kept.</p>
+      <div class="chips" aria-label="Highlights">
+        <span class="chip">Runs in your browser</span>
+        <span class="chip">PDF never uploaded</span>
+        <span class="chip">Word, TXT and Markdown</span>
+      </div>
+    </div>
+    <figure class="specimen" aria-label="Example conversion" style="margin:0">
+      <div class="spec-row">
+        <div class="spec-meta"><span>What you get when you copy</span><span><b>ML-TT</b> · Mac Roman</span></div>
+        <div class="spec-legacy" aria-label="ssZh-Øns‚ hN\w"><span>ss</span><span>Z</span><span>h</span>-<span>Ø</span><span>n</span><span>s</span><span>‚</span> <span>h</span><span>N</span><span>\</span><span>w</span></div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-meta"><span>What this tool gives back</span><span><b>Unicode</b> · searchable</span></div>
+        <div class="spec-uni" lang="ml">ദൈവത്തിന്റെ വചനം</div>
+      </div>
+    </figure>
+  </header>
+
+  <!-- 1. Input -->
+  <section class="panel intake" aria-label="Upload">
+    <div id="drop" class="drop" tabindex="0" role="button" aria-label="Choose a PDF">
+      <span class="drop-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 17v-6"/><path d="m9 14 3-3 3 3"/></svg>
+      </span>
+      <strong>Drop a Malayalam PDF here</strong>
+      <span class="hint">or <span class="browse">browse your files</span> · works on PDFs where you can select text</span>
+      <input id="file" type="file" accept="application/pdf,.pdf" hidden>
+    </div>
+    <div id="notice" class="msg hidden"></div>
+    <div class="bar"><div id="progress"></div></div>
+    <div class="stats">
+      <div class="stat"><div class="k">File</div><div class="v" id="sFile">None</div></div>
+      <div class="stat"><div class="k">Pages</div><div class="v" id="sPages">–</div></div>
+      <div class="stat"><div class="k">Detected encoding</div><div class="v" id="sEnc">–</div></div>
+      <div class="stat"><div class="k">Status</div><div class="v" id="sStatus">Waiting for a PDF</div></div>
+    </div>
+  </section>
+
+  <!-- 2. Output -->
+  <section class="panel hidden" id="outPanel">
+    <div class="toolbar">
+      <div class="row" style="gap:14px">
+        <h2>Recovered text</h2>
+        <select id="pageSel" aria-label="Page"></select>
+      </div>
+      <div class="actions">
+        <button id="btnCopy">Copy recovered text</button>
+        <button id="btnTxt">Download .txt</button>
+        <button id="btnMd" class="hidden">Download .md</button>
+        <button id="btnDocx" class="primary">Download .docx</button>
+      </div>
+    </div>
+    <div class="fmt-box" id="fmtBox">
+      <span class="label">Output</span>
+      <div class="seg" role="group" aria-label="Output format">
+        <button type="button" data-fmt="rich" aria-pressed="true">Keep formatting</button>
+        <button type="button" data-fmt="plain" aria-pressed="false">Plain text</button>
+      </div>
+      <span class="opts" id="fmtOpts">
+        <label><input type="checkbox" id="fBold" checked disabled> Bold / italic</label>
+        <label><input type="checkbox" id="fHead" checked disabled> Headings</label>
+        <label><input type="checkbox" id="fSize" disabled> Original font sizes</label>
+        <label><input type="checkbox" id="fAlign" checked disabled> Alignment</label>
+      </span>
+      <span id="fmtNote">Plain text: DOCX, copy and TXT carry text only.</span>
+    </div>
+    <div class="opts docx-opts">
+      <label>Word font
+        <select id="docxFont">
+          <option>Noto Sans Malayalam</option><option>Kartika</option><option>Nirmala UI</option>
+          <option>Malayalam Sangam MN</option><option>Manjari</option><option>Rachana</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="docxBreaks" checked> Page break per PDF page</label>
+    </div>
+    <div class="cmp" id="cmp"></div>
+  </section>
+
+  <!-- 3. Fonts / encoding choice -->
+  <section class="panel hidden" id="fontPanel">
+    <div class="panel-head">
+      <div>
+        <h2>Fonts and encodings</h2>
+        <p class="lede">Each font in the PDF is detected on its own. If a guess looks wrong, change it here and the text re-converts instantly.</p>
+      </div>
+    </div>
+    <div class="table-wrap"><table id="fontTable"></table></div>
+    <div class="subgrid">
+      <div class="subcard">
+        <h3>Set every Malayalam font at once</h3>
+        <div class="row">
+          <select id="allEnc" aria-label="Encoding for all fonts"></select>
+          <select id="allCs" aria-label="Character set for all fonts"><option value="auto">Auto charset</option><option value="win">Windows-1252</option><option value="mac">Mac Roman</option><option value="std">PDF StandardEncoding</option></select>
+          <button id="applyAll">Apply</button>
+        </div>
+      </div>
+      <div class="subcard">
+        <h3>Clean-up</h3>
+        <div class="opts">
+          <label>In-word "-"
+            <select id="optHyphen">
+              <option value="auto">Auto</option>
+              <option value="remove">Remove (line-break hyphen)</option>
+              <option value="nta">Read as ണ്ട (byte 0xAD)</option>
+              <option value="keep">Keep</option>
+            </select>
+          </label>
+          <label><input type="checkbox" id="optJoin" checked> Join lines into paragraphs</label>
+        </div>
+      </div>
+      <div class="subcard">
+        <h3>Spelling style</h3>
+        <div class="opts">
+          <label>Ordinals
+            <select id="optOrdinal"><option value="independent">32-ആം (no dotted circle)</option><option value="sign">32-ാം (as printed)</option></select>
+          </label>
+          <label>Chillu
+            <select id="optChillu"><option value="atomic">Atomic ൻ ർ ൽ (modern)</option><option value="zwj">ന്‍ with ZWJ (old)</option></select>
+          </label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Debugger -->
+  <section class="panel hidden" id="dbgPanel">
+    <details class="fold">
+      <summary>
+        <div>
+          <h2>Encoding debugger</h2>
+          <p class="lede">Every text span with its font, code points and bytes. Use it when a letter comes out wrong.</p>
+        </div>
+      </summary>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="spans" aria-selected="true">Text spans</button>
+        <button role="tab" data-tab="bytes" aria-selected="false">Glyph inventory</button>
+      </div>
+      <div data-pane="spans">
+        <div class="row" style="margin-bottom:12px">
+          <select id="dbgPage" aria-label="Page"></select>
+          <input type="text" id="dbgFilter" placeholder="Filter raw or converted text" aria-label="Filter spans">
+          <label class="opts"><input type="checkbox" id="dbgFlagged"> Only suspicious spans</label>
+          <span class="muted" id="dbgCount"></span>
+        </div>
+        <div id="dbgList"></div>
+        <div class="row pager">
+          <button id="dbgPrev">Previous</button><span id="dbgPos" class="muted"></span><button id="dbgNext">Next</button>
+        </div>
+      </div>
+      <div data-pane="bytes" class="hidden">
+        <p class="muted" style="margin-bottom:12px; max-width:80ch">Every byte found in legacy-encoded spans, with what the current mapping turns it into. Unmapped bytes above 0x7F are the first place to look when a glyph comes out wrong. Type a correction to override it (applies immediately; export to keep it).</p>
+        <div class="row" style="margin-bottom:12px">
+          <button id="ovExport">Export overrides (.json)</button>
+          <label class="btn">Import overrides <input type="file" id="ovImport" accept=".json,application/json" hidden></label>
+          <button id="ovClear" class="quiet">Clear overrides</button>
+        </div>
+        <div class="table-wrap"><table id="byteTable"></table></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- 5. Test panel -->
+  <section class="panel" id="tests">
+    <details id="testDetails" class="fold">
+      <summary>
+        <div>
+          <h2>Test the converter</h2>
+          <p class="lede">Known legacy → Unicode examples, and a box to try your own copied text. No PDF needed.</p>
+        </div>
+      </summary>
+      <div class="table-wrap"><table id="testTable"></table></div>
+      <div class="try">
+        <h3 style="font-size:16px">Try a string</h3>
+        <div class="row">
+          <input type="text" id="tryIn" value="ssZh-Øns‚" style="flex:1; min-width:0; flex-basis:220px" class="mono" aria-label="Legacy text">
+          <select id="tryEnc" aria-label="Encoding"></select>
+          <select id="tryCs" aria-label="Character set"><option value="auto">Auto charset</option><option value="win">Windows-1252</option><option value="mac">Mac Roman</option><option value="std">PDF StandardEncoding</option></select>
+          <button id="tryDetect">Detect</button>
+        </div>
+        <div class="msg"><div class="ml" id="tryOut"></div><div class="mono muted" id="tryCp"></div><div class="muted" id="tryDet"></div></div>
+      </div>
+    </details>
+  </section>
+
+  <!-- 6. About / FAQ (also what search engines read) -->
+  <div class="about-wrap">
+    <section class="panel about" lang="en" id="about">
+      <div class="qa">
+        <h2>Why does Malayalam text from my PDF paste as junk?</h2>
+        <p>Many Malayalam books, magazines, newspapers and church publications were typeset with legacy fonts
+        such as <strong>ML-TT Karthika, Revathi, Ambili, Vinay, Thunchan or Indulekha</strong>. These fonts draw
+        Malayalam letters on top of English character codes, so when you copy the text you get something like
+        <code>ssZh-Øns‚</code> instead of <span class="ml" lang="ml">ദൈവത്തിന്റെ</span>. This tool reads those codes
+        and converts them to proper <strong>Unicode Malayalam</strong> that you can search, edit and paste anywhere:
+        Word, Google Docs, WhatsApp or a website.</p>
+      </div>
+      <div class="qa">
+        <h2>How to convert a Malayalam PDF to Unicode</h2>
+        <ol>
+          <li>Drop your PDF into the box at the top of the page.</li>
+          <li>The font encoding is detected automatically (ML-TT, Windows or Mac character sets).</li>
+          <li>Check the side-by-side preview, then download a <strong>Word (DOCX)</strong>, <strong>TXT</strong> or Markdown file, or copy the text.</li>
+        </ol>
+      </div>
+      <div class="qa">
+        <h2>Is my PDF uploaded?</h2>
+        <p>No. The PDF is opened and converted inside your browser. Nothing is sent to a server, and once the page has
+        loaded it works offline.</p>
+      </div>
+      <div class="qa">
+        <h2>Does it work on scanned PDFs?</h2>
+        <p>No. A scanned PDF is a picture of the page with no text inside, so it needs OCR (optical character recognition).
+        This tool is for PDFs where you can select text, even if the copied text looks garbled. It is more accurate than OCR
+        for those files because it decodes the exact characters the typesetter used.</p>
+      </div>
+      <div class="qa">
+        <h2>Does it keep bold, headings and alignment?</h2>
+        <p>Yes. With <em>Keep formatting</em> selected, the Word file keeps bold and italic text, headings, font sizes,
+        centred and right-aligned lines, and paragraph indents from the PDF.</p>
+      </div>
+    </section>
+
+    <section class="panel about-ml" lang="ml" id="about-ml">
+      <p class="eyebrow" lang="en">മലയാളത്തിൽ</p>
+      <h2>PDF-ൽ നിന്ന് കോപ്പി ചെയ്യുമ്പോൾ മലയാളം തെറ്റായി വരുന്നുണ്ടോ?</h2>
+      <p class="ml">ML-TT കാർത്തിക, രേവതി, അമ്പിളി, വിനയ് പോലുള്ള പഴയ ASCII ഫോണ്ടുകളിൽ തയ്യാറാക്കിയ PDF-കളിൽ നിന്ന്
+      കോപ്പി ചെയ്യുമ്പോൾ മലയാളത്തിന് പകരം <code>ssZh-Øns‚</code> പോലുള്ള അക്ഷരങ്ങളാണ് വരുന്നത്. ഈ ടൂൾ അത്
+      ശരിയായ യൂണിക്കോഡ് മലയാളമാക്കി മാറ്റുന്നു. Word (DOCX), TXT ഫയലുകളായി ഡൗൺലോഡ് ചെയ്യാം.</p>
+      <p class="ml">നിങ്ങളുടെ ഫയൽ എവിടേക്കും അപ്‌ലോഡ് ചെയ്യപ്പെടുന്നില്ല. എല്ലാം നിങ്ങളുടെ ബ്രൗസറിൽ തന്നെ നടക്കുന്നു.</p>
+    </section>
+  </div>
+
+  <footer class="site-footer muted">
+    <span>Made by <a href="https://abyabyss.github.io">Aby Saji Pappachan</a> · <a href="https://github.com/AbyAbyss">GitHub</a></span>
+    <span>Converter tables cross-checked against the Payyans maps by Swathanthra Malayalam Computing</span>
+  </footer>
+</main>
+
+<script>
+'use strict';
+const ML = window.MalayalamLegacy;
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const hex = (n, w) => n.toString(16).toUpperCase().padStart(w || 4, '0');
+const codepoints = (s, max) => {
+  const arr = Array.from(s); const shown = arr.slice(0, max || 60);
+  return shown.map((c) => 'U+' + hex(c.codePointAt(0))).join(' ') + (arr.length > shown.length ? ' …' : '');
+};
+
+/* ---------------- state ---------------- */
+const state = {
+  fileName: '', numPages: 0,
+  pages: [],     // [{num, lines:[{runs:[runIdx], y, xEnd, paraBreak}]}]
+  runs: [],      // [{page, line, font, raw, flagged}]
+  fonts: new Map(), // fontId -> {id, name, count, chars, det, enc, cs}
+  dbgPage: 0, dbgFilter: '', dbgOnlyFlag: false, dbgOffset: 0
+};
+const BASE_TABLES = {};
+for (const e of ML.encodings) BASE_TABLES[e.id] = ML.getTableView(e.id);
+let overrides = {}; // encId -> {viewChar: unicode}
+try { overrides = JSON.parse(localStorage.getItem('mlr-overrides') || '{}') || {}; } catch (_) { overrides = {}; }
+
+function applyOverrides() {
+  for (const e of ML.encodings) {
+    const def = ML.getEncoding(e.id);
+    ML.registerEncoding(e.id, Object.assign({}, def, { table: Object.assign({}, BASE_TABLES[e.id], overrides[e.id] || {}) }));
+  }
+  try { localStorage.setItem('mlr-overrides', JSON.stringify(overrides)); } catch (_) {}
+}
+applyOverrides();
+
+/* ---------------- encoding selects ---------------- */
+function encOptions(includeNone) {
+  let h = includeNone ? '<option value="none">Keep as-is (not legacy)</option>' : '';
+  for (const e of ML.encodings) h += `<option value="${e.id}">${esc(e.label)}</option>`;
+  return h;
+}
+$('allEnc').innerHTML = encOptions(true);
+$('allEnc').value = 'mltt';
+$('tryEnc').innerHTML = encOptions(false);
+
+/* ---------------- UI helpers ---------------- */
+function setStatus(t) { $('sStatus').textContent = t; }
+function setProgress(f) { $('progress').style.width = Math.round(f * 100) + '%'; }
+function notice(text, kind) {
+  const n = $('notice');
+  if (!text) { n.classList.add('hidden'); return; }
+  n.className = 'msg ' + (kind || ''); n.textContent = text;
+}
+
+/* ---------------- file input ---------------- */
+const drop = $('drop');
+drop.addEventListener('click', () => $('file').click());
+drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('file').click(); } });
+drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+drop.addEventListener('drop', (e) => {
+  e.preventDefault(); drop.classList.remove('over');
+  const f = [...e.dataTransfer.files].find((f) => /pdf$/i.test(f.type) || /\.pdf$/i.test(f.name));
+  if (f) handleFile(f); else notice('That was not a PDF file.', 'bad');
+});
+$('file').addEventListener('change', (e) => { if (e.target.files[0]) handleFile(e.target.files[0]); e.target.value = ''; });
+
+/* ---------------- PDF extraction ---------------- */
+async function handleFile(file) {
+  if (!window.pdfjsLib) { notice('PDF.js did not load. Open this page once while online so the browser can cache the libraries.', 'bad'); return; }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  Object.assign(state, { fileName: file.name, numPages: 0, pages: [], runs: [], fonts: new Map(), dbgOffset: 0, dbgPage: 0 });
+  $('sFile').textContent = file.name; $('sPages').textContent = '…'; $('sEnc').textContent = '…';
+  notice(''); setProgress(0); setStatus('Reading PDF');
+  ['fontPanel', 'outPanel', 'dbgPanel'].forEach((id) => $(id).classList.add('hidden'));
+
+  let pdf;
+  try {
+    const data = new Uint8Array(await file.arrayBuffer());
+    pdf = await pdfjsLib.getDocument({ data, isEvalSupported: false }).promise;
+  } catch (err) {
+    setStatus('Failed');
+    notice(err && err.name === 'PasswordException' ? 'This PDF is password protected.' : 'Could not open this PDF: ' + (err && err.message), 'bad');
+    return;
+  }
+  state.numPages = pdf.numPages;
+  $('sPages').textContent = pdf.numPages;
+
+  for (let p = 1; p <= pdf.numPages; p++) {
+    setStatus(`Extracting page ${p} of ${pdf.numPages}`);
+    const page = await pdf.getPage(p);
+    // The operator list forces fonts to load, which exposes their real names (e.g. "ABCDEF+ML-TTKarthika").
+    try { await page.getOperatorList(); } catch (_) {}
+    const tc = await page.getTextContent({ disableNormalization: true, includeMarkedContent: false });
+    extractPage(p, page, tc);
+    page.cleanup();
+    setProgress(p / pdf.numPages * 0.9);
+  }
+
+  setStatus('Detecting encodings');
+  detectFonts();
+  const totalChars = state.runs.reduce((n, r) => n + r.raw.replace(/\s/g, '').length, 0);
+  if (totalChars < Math.max(5, state.numPages * 3)) {
+    setStatus('No text layer'); setProgress(1);
+    $('sEnc').textContent = 'n/a';
+    notice('No usable text layer found. OCR would be required.', 'bad');
+    return;
+  }
+  setProgress(1);
+  renderAll();
+  setStatus('Done');
+  pdf.destroy();
+}
+
+/* bold / italic from the PDF font object (flags + name), overridable per font in the UI */
+const BOLD_RE = /bold|black|heavy|semibold|demi|extrab|ultrab|[-,_ ]bd\b|\bbd$|-B$|,B$/i;
+const ITALIC_RE = /italic|oblique|slant|kursiv|[-,_ ]it\b|-I$|,I$/i;
+function fontStyleInfo(page, id, name) {
+  let bold = BOLD_RE.test(name), italic = ITALIC_RE.test(name);
+  try {
+    if (page.commonObjs.has(id)) {
+      const f = page.commonObjs.get(id);
+      if (f) { bold = bold || !!f.bold || !!f.black; italic = italic || !!f.italic; }
+    }
+  } catch (_) {}
+  return { bold, italic };
+}
+
+function fontRealName(page, id, style) {
+  try {
+    if (page.commonObjs.has(id)) {
+      const f = page.commonObjs.get(id);
+      if (f && f.name) return f.name;
+    }
+  } catch (_) {}
+  return style && style.fontFamily ? `${id} (${style.fontFamily})` : id;
+}
+
+function extractPage(pnum, page, tc) {
+  const pageObj = { num: pnum, lines: [] };
+  let line = null, prev = null;
+
+  const newLine = (y) => { line = { runs: [], y, xStart: null, xEnd: 0, height: 0 }; pageObj.lines.push(line); prev = null; };
+
+  for (const it of tc.items) {
+    if (!('str' in it)) continue;
+    const x = it.transform[4], y = it.transform[5];
+    const size = Math.hypot(it.transform[2], it.transform[3]) || it.height || 10;
+    if (!line || (prev && Math.abs(y - line.y) > size * 0.5)) newLine(y);
+
+    if (it.str.length) {
+      if (!state.fonts.has(it.fontName)) {
+        const name = fontRealName(page, it.fontName, tc.styles[it.fontName]);
+        const st = fontStyleInfo(page, it.fontName, name);
+        state.fonts.set(it.fontName, { id: it.fontName, name, count: 0, text: '', bold: st.bold, italic: st.italic, autoBold: st.bold, autoItalic: st.italic });
+      }
+      const font = state.fonts.get(it.fontName);
+      const gap = prev ? x - prev.xEnd : 0;
+      const needSpace = prev && (gap > size * 0.2 || gap < -size) && !/\s$/.test(prev.run.raw) && !/^\s/.test(it.str);
+      const sz = Math.round(size * 2) / 2;
+      if (prev && prev.run.font === it.fontName && Math.abs(prev.run.size - sz) < 0.6) {
+        prev.run.raw += (needSpace ? ' ' : '') + it.str;
+      } else {
+        if (needSpace && prev) prev.run.raw += ' ';
+        const run = { page: pnum, line: pageObj.lines.length - 1, font: it.fontName, raw: it.str, size: sz, chars: 0 };
+        state.runs.push(run); line.runs.push(state.runs.length - 1);
+        prev = { run };
+        font.count++;
+      }
+      prev.xEnd = x + (it.width || 0);
+      prev.run.chars += it.str.replace(/\s/g, '').length;
+      if (line.xStart === null) line.xStart = x;
+      line.xEnd = Math.max(line.xEnd, x + (it.width || 0));
+      line.height = Math.max(line.height, size);
+      if (font.text.length < 20000) font.text += it.str + ' ';
+    }
+    if (it.hasEOL) { line = null; prev = null; }
+  }
+  pageObj.lines = pageObj.lines.filter((l) => l.runs.length);
+  markParagraphs(pageObj);
+  state.pages.push(pageObj);
+}
+
+/* paragraph breaks: larger-than-usual vertical gap, or a short line ending a sentence */
+function markParagraphs(pg) {
+  const L = pg.lines;
+  const gaps = [];
+  for (let i = 1; i < L.length; i++) { const d = Math.abs(L[i - 1].y - L[i].y); if (d > 0) gaps.push(d); }
+  gaps.sort((a, b) => a - b);
+  const median = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 0;
+  const rights = L.map((l) => l.xEnd).sort((a, b) => a - b);
+  const typicalRight = rights.length ? rights[Math.floor(rights.length * 0.8)] : 0;
+  L.forEach((l, i) => {
+    if (i === 0) { l.paraBreak = true; return; }
+    const d = Math.abs(L[i - 1].y - l.y);
+    const prevShort = L[i - 1].xEnd < typicalRight - Math.max(l.height * 2, (typicalRight - (L[i - 1].xStart || 0)) * 0.08);
+    const indented = L[i - 1].xStart !== null && l.xStart !== null && l.xStart - L[i - 1].xStart > Math.max(4, l.height * 0.6);
+    const sizeJump = Math.abs(l.height - L[i - 1].height) > Math.max(l.height, L[i - 1].height) * 0.15;
+    l.paraBreak = Boolean((median && d > median * 1.45) || prevShort || indented || sizeJump);
+  });
+}
+
+/* ---------------- detection ---------------- */
+function detectFonts() {
+  for (const f of state.fonts.values()) {
+    f.det = ML.detectMalayalamEncoding(f.text, { fontName: f.name });
+    f.enc = (f.det.encoding === 'unicode') ? 'none' : f.det.encoding;
+    f.cs = f.det.charset || 'auto';
+  }
+  // Fonts whose text is pure ASCII give no hint about the charset; all fonts in one PDF
+  // were normally set on the same machine, so borrow the charset of the fonts that do show it.
+  const votes = {};
+  for (const f of state.fonts.values()) {
+    if (f.enc === 'none' || !/[^\x00-\x7f]/.test(f.text)) continue;
+    votes[f.cs] = (votes[f.cs] || 0) + f.text.length;
+  }
+  const dominant = Object.keys(votes).sort((a, b) => votes[b] - votes[a])[0];
+  if (dominant) for (const f of state.fonts.values()) {
+    if (f.enc !== 'none' && !/[^\x00-\x7f]/.test(f.text) && f.cs !== dominant) {
+      f.cs = dominant; f.det.reason += `; ASCII-only, so using the document's ${ML.CHARSET_LABELS[dominant]} charset`;
+    }
+  }
+}
+
+function convOpts() {
+  return { hyphen: $('optHyphen').value, chillu: $('optChillu').value, ordinal: $('optOrdinal').value };
+}
+
+function convertRun(run, extra) {
+  const f = state.fonts.get(run.font);
+  if (!f || f.enc === 'none') return { text: run.raw, tokens: [], charset: null, pending: [] };
+  return ML.convertDetailed(run.raw, f.enc, Object.assign(convOpts(), { charset: f.cs }, extra || {}));
+}
+
+/* ---------------- document model ----------------
+   pages -> paragraphs -> { raw, text (plain), segs [{text,bold,italic,size}|{br}], align, level, size } */
+function fmtMode() { return document.querySelector('[data-fmt][aria-pressed="true"]').dataset.fmt; }
+function fmtOpts() {
+  const rich = fmtMode() === 'rich';
+  return { rich, bold: rich && $('fBold').checked, head: rich && $('fHead').checked, size: rich && $('fSize').checked, align: rich && $('fAlign').checked };
+}
+
+/* body text size = the size that carries the most characters */
+function bodyFontSize() {
+  const w = new Map();
+  for (const r of state.runs) w.set(r.size, (w.get(r.size) || 0) + (r.chars || r.raw.length));
+  let best = 12, bw = -1;
+  for (const [k, v] of w) if (v > bw) { best = k; bw = v; }
+  return best;
+}
+
+function pushSeg(segs, seg) {
+  const last = segs[segs.length - 1];
+  if (last && !last.br && !seg.br && last.bold === seg.bold && last.italic === seg.italic && last.size === seg.size) last.text += seg.text;
+  else segs.push(seg);
+}
+
+function paraAlign(lines, left, right) {
+  const W = right - left;
+  if (W <= 0 || !lines.length) return 'left';
+  let centered = 0, righted = 0;
+  for (const l of lines) {
+    const lg = l.xStart - left, rg = right - l.xEnd;
+    if (lg > W * 0.06 && Math.abs(lg - rg) < W * 0.06) centered++;
+    else if (rg < W * 0.03 && lg > W * 0.25) righted++;
+  }
+  if (centered === lines.length) return 'center';
+  if (righted === lines.length) return 'right';
+  // justified body text: every line but the last runs to the right edge
+  if (lines.length >= 2 && lines.slice(0, -1).every((l) => right - l.xEnd < W * 0.03)) return 'justify';
+  return 'left';
+}
+
+function buildDocument() {
+  const join = $('optJoin').checked;
+  const body = bodyFontSize();
+  state.bodySize = body;
+  const out = [];
+  for (const pg of state.pages) {
+    const left = Math.min(...pg.lines.map((l) => l.xStart ?? Infinity));
+    const right = Math.max(...pg.lines.map((l) => l.xEnd));
+    const paras = [];
+    let cur = null;
+    let carry = null; // e/ee/ai/ra signs left at a line end, waiting for their consonant on the next line
+    const flushCarry = () => {
+      if (!carry || !cur) return;
+      const lastSeg = [...cur.segs].reverse().find((g) => !g.br);
+      const t = carry.pending.join('');
+      if (lastSeg) lastSeg.text += t; cur.text += t;
+    };
+    for (const l of pg.lines) {
+      const runs = l.runs.map((i) => state.runs[i]);
+      const raw = runs.map((r) => r.raw).join('').trim();
+      const carried = carry && runs.length && runs[0].font === carry.font;
+      if (carry && !carried) { flushCarry(); }
+      const convs = runs.map((r, k) => convertRun(r, {
+        carryIn: k === 0 && carried ? carry.pending : undefined,
+        holdTrailing: k === runs.length - 1
+      }));
+      const lastConv = convs[convs.length - 1];
+      const nextCarry = lastConv && lastConv.pending && lastConv.pending.length ? { font: runs[runs.length - 1].font, pending: lastConv.pending } : null;
+      carry = null;
+      const lineSegs = runs.map((r, k) => {
+        const f = state.fonts.get(r.font);
+        return { text: convs[k].text, bold: !!f.bold, italic: !!f.italic, size: r.size };
+      });
+      // trim the line ends
+      if (lineSegs.length) { lineSegs[0].text = lineSegs[0].text.replace(/^\s+/, ''); const z = lineSegs[lineSegs.length - 1]; z.text = z.text.replace(/\s+$/, ''); }
+      const text = lineSegs.map((g) => g.text).join('');
+      if (!cur || (l.paraBreak && !carried) || !join) { cur = { raw: [], text: '', segs: [], lines: [], chars: new Map() }; paras.push(cur); }
+      if (cur.lines.length) {
+        // hyphenated line end: "…ക-" + "ാരം" -> join without the hyphen
+        const lastSeg = [...cur.segs].reverse().find((g) => !g.br);
+        if (join && carried) { /* word continues on this line: no space */ }
+        else if (join && lastSeg && /[\u0D00-\u0D7F]-$/.test(cur.text)) { lastSeg.text = lastSeg.text.slice(0, -1); cur.text = cur.text.slice(0, -1); }
+        else if (join) { if (lastSeg) lastSeg.text += ' '; cur.text += ' '; }
+        else { cur.segs.push({ br: true }); cur.text += '\n'; }
+      }
+      cur.text += text;
+      for (const g of lineSegs) { if (g.text) pushSeg(cur.segs, Object.assign({}, g)); cur.chars.set(g.size, (cur.chars.get(g.size) || 0) + g.text.length); }
+      cur.raw.push(raw); cur.lines.push(l);
+      carry = nextCarry;
+    }
+    flushCarry();
+    out.push({
+      num: pg.num,
+      paras: paras.map((p) => {
+        let size = body, bw = -1;
+        for (const [k, v] of p.chars) if (v > bw) { size = k; bw = v; }
+        const short = p.text.length <= 160;
+        const level = short && size >= body * 1.45 ? 1 : short && size >= body * 1.18 ? 2 : 0;
+        const align = paraAlign(p.lines, left, right);
+        // first-line indent (pt): first line starts further right than the column's left edge
+        const firstIndent = (align === 'left' || align === 'justify') && p.lines.length && p.lines[0].xStart - left > 3 && p.lines[0].xStart - left < (right - left) * 0.25 ? Math.round(p.lines[0].xStart - left) : 0;
+        return { raw: p.raw.join(join ? ' ' : '\n'), text: p.text, segs: p.segs, size, level, align, firstIndent };
+      }).filter((p) => p.raw || p.text)
+    });
+  }
+  return out;
+}
+
+function documentToText(doc, which) {
+  return doc.map((pg) => `===== Page ${pg.num} =====\n\n` + pg.paras.map((p) => p[which]).join('\n\n')).join('\n\n\n') + '\n';
+}
+
+/* ---------------- rendering ---------------- */
+let DOC = [];
+
+function renderAll() {
+  ['fontPanel', 'outPanel', 'dbgPanel'].forEach((id) => $(id).classList.remove('hidden'));
+  renderFontTable();
+  const pageOpts = '<option value="0">All pages</option>' + state.pages.map((p) => `<option value="${p.num}">Page ${p.num}</option>`).join('');
+  $('pageSel').innerHTML = pageOpts;
+  $('dbgPage').innerHTML = pageOpts;
+  refresh();
+}
+
+function refresh() {
+  flagRuns();
+  DOC = buildDocument();
+  renderSummary();
+  renderCompare();
+  renderSpans();
+  renderBytes();
+}
+
+function renderSummary() {
+  // dominant legacy font = most spans
+  const legacy = [...state.fonts.values()].filter((f) => f.enc !== 'none').sort((a, b) => b.count - a.count);
+  if (!legacy.length) {
+    const uni = [...state.fonts.values()].some((f) => f.det.encoding === 'unicode');
+    $('sEnc').textContent = uni ? 'Already Unicode' : 'No legacy Malayalam found';
+    if (!uni) notice('No font looked like legacy Malayalam. If the text is Malayalam, pick an encoding for its font in the table below.', 'warn');
+    return;
+  }
+  const f = legacy[0];
+  const encLabel = ML.encodings.find((e) => e.id === f.enc).label.split(' (')[0];
+  const cs = ML.CHARSET_LABELS[f.cs] || 'auto charset';
+  const manual = f.enc !== f.det.encoding || (f.det.charset && f.cs !== f.det.charset);
+  $('sEnc').textContent = `${encLabel} · ${cs}` + (manual ? ' (manual)' : ` · ${Math.round(f.det.confidence * 100)}%`);
+  if (!manual && f.det.confidence < 0.6) notice('Detection confidence is low. Compare the columns below and adjust the encoding per font if needed.', 'warn');
+  else notice('');
+}
+
+function renderFontTable() {
+  let h = '<thead><tr><th>Font</th><th>Spans</th><th>Sample (raw)</th><th>Detected</th><th>Encoding</th><th>Charset</th><th>Style</th></tr></thead><tbody>';
+  for (const f of state.fonts.values()) {
+    const d = f.det;
+    const conf = d.encoding === 'none' || d.encoding === 'unicode' ? '' : ` <span class="pill ${d.confidence >= 0.75 ? 'good' : d.confidence >= 0.5 ? 'warn' : 'bad'}">${Math.round(d.confidence * 100)}%</span>`;
+    h += `<tr data-font="${esc(f.id)}">
+      <td class="mono">${esc(f.name)}</td>
+      <td>${f.count}</td>
+      <td class="mono">${esc(f.text.slice(0, 60))}</td>
+      <td>${esc(d.label)}${conf}<div class="muted" style="font-size:12px">${esc(d.reason)}</div></td>
+      <td><select data-k="enc">${encOptions(true)}</select></td>
+      <td><select data-k="cs"><option value="auto">Auto</option><option value="win">Windows-1252</option><option value="mac">Mac Roman</option><option value="std">PDF StandardEncoding</option></select></td>
+      <td class="stylebox"><label title="Bold"><input type="checkbox" data-k="b"${f.bold ? ' checked' : ''}><b>B</b></label><label title="Italic"><input type="checkbox" data-k="i"${f.italic ? ' checked' : ''}><i>I</i></label>${(f.autoBold || f.autoItalic) ? '<div class="muted" style="font-size:11px">from font</div>' : ''}</td>
+    </tr>`;
+  }
+  $('fontTable').innerHTML = h + '</tbody>';
+  $('fontTable').querySelectorAll('tr[data-font]').forEach((tr) => {
+    const f = state.fonts.get(tr.dataset.font);
+    const se = tr.querySelector('[data-k=enc]'), sc = tr.querySelector('[data-k=cs]');
+    se.value = f.enc; sc.value = f.cs;
+    se.onchange = () => { f.enc = se.value; refresh(); };
+    sc.onchange = () => { f.cs = sc.value; refresh(); };
+    tr.querySelector('[data-k=b]').onchange = (e) => { f.bold = e.target.checked; refresh(); };
+    tr.querySelector('[data-k=i]').onchange = (e) => { f.italic = e.target.checked; refresh(); };
+  });
+}
+
+$('applyAll').onclick = () => {
+  for (const f of state.fonts.values()) {
+    if (f.det.encoding === 'unicode' || (f.det.encoding === 'none' && /Latin font/.test(f.det.reason))) continue;
+    f.enc = $('allEnc').value; f.cs = $('allCs').value;
+  }
+  renderFontTable(); refresh();
+};
+['optHyphen', 'optJoin', 'optChillu', 'optOrdinal'].forEach((id) => $(id).addEventListener('change', () => state.pages.length && refresh()));
+
+function renderCompare() {
+  const sel = +$('pageSel').value;
+  const pages = sel ? DOC.filter((p) => p.num === sel) : DOC;
+  const fo = fmtOpts();
+  let h = '<div class="hd">Original extracted text</div><div class="hd">Recovered Unicode</div>';
+  let rows = 0;
+  for (const pg of pages) {
+    h += `<div class="pg">Page ${pg.num}</div>`;
+    for (const p of pg.paras) {
+      if (rows++ > 4000) break;
+      h += `<div class="c raw">${esc(p.raw)}</div><div class="c ml" lang="ml">${fo.rich ? paraToHtml(p, fo, 'preview') : esc(p.text)}</div>`;
+    }
+  }
+  if (rows > 4000) h += '<div class="pg">Preview truncated. Pick a single page above; downloads always include everything.</div>';
+  $('cmp').innerHTML = h;
+}
+$('pageSel').onchange = renderCompare;
+
+/* ---------------- formatting serialisers ---------------- */
+function segsToHtml(p, fo, ctx) {
+  const body = state.bodySize || 12;
+  return p.segs.map((g) => {
+    if (g.br) return '<br>';
+    let t = esc(g.text);
+    if (fo.size && ctx !== 'preview') t = `<span style="font-size:${g.size}pt">${t}</span>`;
+    else if (fo.size && ctx === 'preview' && Math.abs(g.size - body) > 0.6) t = `<span style="font-size:${(g.size / body).toFixed(2)}em">${t}</span>`;
+    if (fo.italic !== false && fo.bold && g.italic) t = `<i>${t}</i>`;
+    if (fo.bold && g.bold) t = `<b>${t}</b>`;
+    return t;
+  }).join('');
+}
+function paraToHtml(p, fo, ctx) {
+  const tag = fo.head && p.level ? 'h' + p.level : 'p';
+  const css = [];
+  if (fo.align && p.align !== 'left') css.push(`text-align:${p.align}`);
+  if (fo.align && p.firstIndent) css.push(`text-indent:${ctx === 'preview' ? (p.firstIndent / (state.bodySize || 12)).toFixed(2) + 'em' : p.firstIndent + 'pt'}`);
+  const style = css.length ? ` style="${css.join(';')}"` : '';
+  const inner = segsToHtml(p, fo, ctx);
+  return ctx === 'preview' ? (tag === 'p' ? (style ? `<div${style}>${inner}</div>` : inner) : `<${tag}${style}>${inner}</${tag}>`) : `<${tag}${style}>${inner}</${tag}>`;
+}
+function documentToHtml(doc, fo) {
+  const body = doc.map((pg) => pg.paras.map((p) => paraToHtml(p, fo, 'export')).join('\n')).join('\n<hr>\n');
+  return `<meta charset="utf-8"><div lang="ml" style="font-family:'Noto Sans Malayalam','Nirmala UI',Kartika,sans-serif">${body}</div>`;
+}
+function documentToMarkdown(doc, fo) {
+  const mdEsc = (t) => t.replace(/([*_`#\\])/g, '\\$1');
+  return doc.map((pg) => `<!-- Page ${pg.num} -->\n\n` + pg.paras.map((p) => {
+    let t = p.segs.map((g) => {
+      if (g.br) return '  \n';
+      let x = mdEsc(g.text);
+      const lead = x.match(/^\s*/)[0], trail = x.match(/\s*$/)[0]; x = x.trim();
+      if (!x) return lead + trail;
+      if (fo.bold && g.italic) x = `*${x}*`;
+      if (fo.bold && g.bold) x = `**${x}**`;
+      return lead + x + trail;
+    }).join('');
+    if (fo.head && p.level) t = '#'.repeat(p.level) + ' ' + t.replace(/\*\*/g, '');
+    return t;
+  }).join('\n\n')).join('\n\n---\n\n') + '\n';
+}
+
+/* ---------------- output format toggle ---------------- */
+function syncFmtUi() {
+  const rich = fmtMode() === 'rich';
+  ['fBold', 'fHead', 'fSize', 'fAlign'].forEach((id) => $(id).disabled = !rich);
+  $('btnMd').classList.toggle('hidden', !rich);
+  $('fmtNote').textContent = rich
+    ? 'Keep formatting: DOCX, Markdown and Copy (pastes with formatting into Word / Google Docs) keep the selected styles. TXT is always plain.'
+    : 'Plain text: DOCX, copy and TXT carry text only.';
+}
+document.querySelectorAll('[data-fmt]').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('[data-fmt]').forEach((x) => x.setAttribute('aria-pressed', x === b));
+  syncFmtUi();
+  try { localStorage.setItem('mlr-fmt', b.dataset.fmt); } catch (_) {}
+  if (state.pages.length) renderCompare();
+});
+['fBold', 'fHead', 'fSize', 'fAlign'].forEach((id) => $(id).addEventListener('change', () => state.pages.length && renderCompare()));
+try { const saved = localStorage.getItem('mlr-fmt'); if (saved === 'plain') document.querySelector('[data-fmt="plain"]').click(); } catch (_) {}
+syncFmtUi();
+
+/* ---------------- debugger ---------------- */
+function flagRuns() {
+  for (const r of state.runs) {
+    const f = state.fonts.get(r.font);
+    r.flagged = false;
+    if (f.enc === 'none') continue;
+    const c = convertRun(r);
+    r.flagged = c.tokens.some((t) => t.unknownGlyph) || ML.scoreMalayalam(c.text).errors > 0;
+  }
+}
+
+const PAGE_SIZE = 50;
+function filteredRuns() {
+  const pg = +$('dbgPage').value, q = $('dbgFilter').value.trim(), only = $('dbgFlagged').checked;
+  return state.runs.filter((r) => {
+    if (pg && r.page !== pg) return false;
+    if (only && !r.flagged) return false;
+    if (q) { const c = convertRun(r).text; if (!r.raw.includes(q) && !c.includes(q)) return false; }
+    return true;
+  });
+}
+
+function renderSpans() {
+  const list = filteredRuns();
+  if (state.dbgOffset >= list.length) state.dbgOffset = 0;
+  const slice = list.slice(state.dbgOffset, state.dbgOffset + PAGE_SIZE);
+  $('dbgCount').textContent = `${list.length} span${list.length === 1 ? '' : 's'}`;
+  $('dbgPos').textContent = list.length ? ` ${state.dbgOffset + 1}–${state.dbgOffset + slice.length} ` : ' ';
+  $('dbgPrev').disabled = state.dbgOffset === 0;
+  $('dbgNext').disabled = state.dbgOffset + PAGE_SIZE >= list.length;
+  let h = '';
+  for (const r of slice) {
+    const f = state.fonts.get(r.font);
+    const c = convertRun(r);
+    const encLabel = f.enc === 'none' ? 'Keep as-is' : `${f.enc} / ${ML.CHARSET_LABELS[c.charset]}${f.cs === 'auto' ? ' (auto)' : ''}`;
+    const bytes = c.charset ? Array.from(ML.toByteString(r.raw, c.charset), (ch) => ch.charCodeAt(0) <= 0xFF ? hex(ch.charCodeAt(0), 2) : 'U+' + hex(ch.codePointAt(0))).join(' ') : '';
+    const unknown = c.tokens.filter((t) => t.unknownGlyph).map((t) => '0x' + hex(t.src.charCodeAt(0), 2));
+    h += `<div class="span-card${r.flagged ? ' flag' : ''}">
+      <div class="k">Page / line</div><div class="v">${r.page} / ${r.line + 1}</div>
+      <div class="k">Raw</div><div class="v mono">${esc(r.raw)}</div>
+      <div class="k">Font</div><div class="v mono">${esc(f.name)}</div>
+      <div class="k">Code points</div><div class="v mono muted">${esc(codepoints(r.raw))}</div>
+      ${bytes ? `<div class="k">Bytes</div><div class="v mono muted">${esc(bytes.length > 400 ? bytes.slice(0, 400) + ' …' : bytes)}</div>` : ''}
+      <div class="k">Encoding</div><div class="v">${esc(encLabel)}${unknown.length ? ` <span class="pill warn">unmapped: ${esc([...new Set(unknown)].join(' '))}</span>` : ''}</div>
+      <div class="k">Converted</div><div class="v ml" lang="ml">${esc(c.text)}</div>
+      <div class="k">Out code points</div><div class="v mono muted">${esc(codepoints(c.text, 40))}</div>
+    </div>`;
+  }
+  $('dbgList').innerHTML = h || '<p class="muted">No spans match.</p>';
+}
+$('dbgPrev').onclick = () => { state.dbgOffset = Math.max(0, state.dbgOffset - PAGE_SIZE); renderSpans(); };
+$('dbgNext').onclick = () => { state.dbgOffset += PAGE_SIZE; renderSpans(); };
+['dbgPage', 'dbgFlagged'].forEach((id) => $(id).addEventListener('change', () => { state.dbgOffset = 0; renderSpans(); }));
+$('dbgFilter').addEventListener('input', () => { state.dbgOffset = 0; renderSpans(); });
+
+document.querySelectorAll('[role=tab]').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', x === b));
+  document.querySelectorAll('[data-pane]').forEach((p) => p.classList.toggle('hidden', p.dataset.pane !== b.dataset.tab));
+});
+
+function renderBytes() {
+  // byte inventory per (encoding, charset) actually in use
+  const inv = new Map(); // key enc|byte -> {enc, byte, count, ctx}
+  for (const r of state.runs) {
+    const f = state.fonts.get(r.font);
+    if (f.enc === 'none') continue;
+    const cs = convertRun(r).charset;
+    const bytes = ML.toByteString(r.raw, cs);
+    for (let i = 0; i < bytes.length; i++) {
+      const b = bytes.charCodeAt(i);
+      if (b > 0xFF || b <= 0x20) continue;
+      const k = f.enc + '|' + b;
+      let e = inv.get(k);
+      if (!e) { e = { enc: f.enc, byte: b, count: 0, ctx: r.raw.slice(Math.max(0, i - 6), i + 7) }; inv.set(k, e); }
+      e.count++;
+    }
+  }
+  const rows = [...inv.values()].sort((a, b) => a.enc.localeCompare(b.enc) || a.byte - b.byte);
+  let h = '<thead><tr><th>Enc.</th><th>Byte</th><th>cp1252</th><th>Mac</th><th>Count</th><th>Maps to</th><th>Example</th><th>Override</th></tr></thead><tbody>';
+  const mac = (b) => b < 0x80 ? String.fromCharCode(b) : new TextDecoder('macintosh').decode(new Uint8Array([b]));
+  for (const e of rows) {
+    const view = ML.byteToWinChar(e.byte);
+    const table = ML.getTableView(e.enc);
+    const mapped = table[view];
+    const ov = overrides[e.enc] && overrides[e.enc][view];
+    const isUnknown = mapped === undefined && e.byte >= 0x80;
+    h += `<tr${isUnknown ? ' style="background:color-mix(in srgb, var(--warn) 12%, transparent)"' : ''}>
+      <td>${esc(e.enc)}</td><td class="mono">0x${hex(e.byte, 2)}</td><td class="mono">${esc(view)}</td><td class="mono">${esc(mac(e.byte))}</td>
+      <td>${e.count}</td><td class="ml">${mapped === undefined ? '<span class="muted">unmapped</span>' : esc(mapped || '∅')}</td>
+      <td class="mono muted">${esc(e.ctx)}</td>
+      <td><input type="text" class="ml" style="width:90px" data-enc="${e.enc}" data-view="${esc(view)}" value="${esc(ov || '')}" placeholder="…"></td></tr>`;
+  }
+  $('byteTable').innerHTML = h + '</tbody>';
+  $('byteTable').querySelectorAll('input[data-enc]').forEach((inp) => inp.onchange = () => {
+    const m = overrides[inp.dataset.enc] = overrides[inp.dataset.enc] || {};
+    if (inp.value.trim()) m[inp.dataset.view] = inp.value.trim().normalize('NFC'); else delete m[inp.dataset.view];
+    applyOverrides(); refresh();
+  });
+}
+$('ovExport').onclick = () => saveBlob(new Blob([JSON.stringify(overrides, null, 2)], { type: 'application/json' }), 'malayalam-mapping-overrides.json');
+$('ovImport').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  try { overrides = JSON.parse(await f.text()); applyOverrides(); if (state.pages.length) refresh(); notice('Overrides imported.'); }
+  catch (err) { notice('Could not read overrides: ' + err.message, 'bad'); }
+  e.target.value = '';
+};
+$('ovClear').onclick = () => { overrides = {}; applyOverrides(); if (state.pages.length) refresh(); };
+
+/* ---------------- export ---------------- */
+function baseName() { return (state.fileName || 'recovered').replace(/\.pdf$/i, '') + '-unicode'; }
+function saveBlob(blob, name) {
+  if (typeof window.saveAs === 'function') { window.saveAs(blob, name); return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+
+$('btnTxt').onclick = () => {
+  const txt = documentToText(DOC, 'text');
+  saveBlob(new Blob([new TextEncoder().encode(txt)], { type: 'text/plain;charset=utf-8' }), baseName() + '.txt');
+};
+
+$('btnMd').onclick = () => {
+  const md = documentToMarkdown(DOC, fmtOpts());
+  saveBlob(new Blob([new TextEncoder().encode(md)], { type: 'text/markdown;charset=utf-8' }), baseName() + '.md');
+};
+
+$('btnCopy').onclick = async () => {
+  const txt = documentToText(DOC, 'text');
+  const fo = fmtOpts();
+  try {
+    if (fo.rich && window.ClipboardItem) {
+      await navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([documentToHtml(DOC, fo)], { type: 'text/html' }),
+        'text/plain': new Blob([txt], { type: 'text/plain' })
+      })]);
+    } else {
+      await navigator.clipboard.writeText(txt);
+    }
+  }
+  catch (_) {
+    const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove();
+  }
+  $('btnCopy').textContent = 'Copied'; setTimeout(() => $('btnCopy').textContent = 'Copy recovered text', 1500);
+};
+
+$('btnDocx').onclick = async () => {
+  if (!window.docx) { notice('docx library did not load. Open the page once while online so it gets cached.', 'bad'); return; }
+  const D = window.docx;
+  const fontName = $('docxFont').value;
+  const font = { ascii: fontName, hAnsi: fontName, cs: fontName, eastAsia: fontName };
+  const runOpts = { font, size: 24, sizeComplexScript: 24, language: { value: 'ml-IN', bidirectional: 'ml-IN' } };
+  const fo = fmtOpts();
+  const children = [];
+  DOC.forEach((pg, i) => {
+    children.push(new D.Paragraph({
+      pageBreakBefore: $('docxBreaks').checked && i > 0,
+      alignment: D.AlignmentType.LEFT,
+      spacing: { after: 120 },
+      children: [new D.TextRun({ text: `Page ${pg.num}`, color: '888888', size: 18, font: { ascii: 'Calibri', hAnsi: 'Calibri' } })]
+    }));
+    for (const p of pg.paras) {
+      if (!fo.rich) {
+        const lines = p.text.split('\n');
+        children.push(new D.Paragraph({
+          spacing: { after: 160, line: 360 },
+          children: lines.map((t, j) => new D.TextRun(Object.assign({ text: t, break: j > 0 ? 1 : 0 }, runOpts)))
+        }));
+        continue;
+      }
+      const heading = fo.head && p.level ? (p.level === 1 ? D.HeadingLevel.HEADING_1 : D.HeadingLevel.HEADING_2) : undefined;
+      const scale = !fo.size && heading ? (p.level === 1 ? 1.6 : 1.3) : 1;
+      let pendingBreak = 0;
+      const runs = [];
+      for (const g of p.segs) {
+        if (g.br) { pendingBreak++; continue; }
+        // Word applies complex-script properties (bCs, iCs, szCs) to Malayalam, so set both variants
+        const hp = fo.size ? Math.max(2, Math.round(g.size * 2)) : Math.round(24 * scale);
+        const b = (fo.bold && g.bold) || (!!heading && !fo.bold);
+        const it = fo.bold && g.italic;
+        runs.push(new D.TextRun(Object.assign({}, runOpts, {
+          text: g.text, break: pendingBreak || undefined,
+          bold: b, boldComplexScript: b, italics: it, italicsComplexScript: it,
+          size: hp, sizeComplexScript: hp, color: heading ? '000000' : undefined
+        })));
+        pendingBreak = 0;
+      }
+      // always write the alignment explicitly: some DOCX viewers carry the previous paragraph's alignment over when it is missing
+      const align = fo.align ? ({ center: D.AlignmentType.CENTER, right: D.AlignmentType.RIGHT, justify: D.AlignmentType.BOTH || 'both' }[p.align] || D.AlignmentType.LEFT) : undefined;
+      children.push(new D.Paragraph({ heading, alignment: align, indent: fo.align && p.firstIndent ? { firstLine: p.firstIndent * 20 } : undefined, spacing: { before: heading ? 240 : 0, after: 160, line: 360 }, children: runs }));
+    }
+  });
+  const doc = new D.Document({
+    creator: 'Malayalam PDF Text Recovery',
+    title: baseName(),
+    styles: { default: { document: { run: runOpts } } },
+    sections: [{ children }]
+  });
+  const blob = await D.Packer.toBlob(doc);
+  saveBlob(blob, baseName() + '.docx');
+};
+
+/* ---------------- test panel ---------------- */
+function renderTests() {
+  const res = ML.runSelfTests();
+  const pass = res.filter((r) => r.pass).length;
+  let h = `<thead><tr><th>Legacy</th><th>Encoding</th><th>Expected</th><th>Got</th><th>Result</th><th>What it checks</th></tr></thead><tbody>`;
+  for (const r of res) {
+    h += `<tr><td class="mono">${esc(r.legacy)}</td><td class="mono">${esc(r.encoding)}</td><td class="ml">${esc(r.expected)}</td><td class="ml">${esc(r.got)}</td>
+      <td><span class="pill ${r.pass ? 'good' : 'bad'}">${r.pass ? 'pass' : 'FAIL'}</span></td><td class="muted">${esc(r.note)}</td></tr>`;
+  }
+  $('testTable').innerHTML = h + `</tbody><caption style="caption-side:bottom; text-align:left; padding-top:8px" class="muted">${pass} of ${res.length} passing</caption>`;
+}
+function runTry() {
+  const out = ML.convertDetailed($('tryIn').value, $('tryEnc').value, { charset: $('tryCs').value });
+  $('tryOut').textContent = out.text;
+  $('tryCp').textContent = codepoints(out.text) + (out.charset ? `  ·  charset used: ${out.charset}` : '');
+}
+['tryIn', 'tryEnc', 'tryCs'].forEach((id) => $(id).addEventListener('input', runTry));
+$('tryDetect').onclick = () => {
+  const d = ML.detectMalayalamEncoding($('tryIn').value);
+  $('tryDet').textContent = `Detected: ${d.label} (${Math.round(d.confidence * 100)}%). ${d.reason}`;
+  if (d.encoding !== 'none' && d.encoding !== 'unicode') { $('tryEnc').value = d.encoding; $('tryCs').value = d.charset; runTry(); }
+};
+renderTests(); runTry();
+</script>
+</body>
+</html>
