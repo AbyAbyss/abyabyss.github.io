@@ -1701,6 +1701,39 @@
                         ],
                     },
                     {
+                        name: "Helpy",
+                        meta: "AI Desktop Companion \u00b7 Tauri + Rust",
+                        priv: true,
+                        site: {
+                            href: "helpy/",
+                            label: "Visit the site",
+                        },
+                        link: {
+                            href: "helpy/#tour",
+                            label: "Watch the 45 second tour",
+                        },
+                        desc:
+                            "An AI companion that lives next to your cursor. Ask out loud and it looks at your screen, then " +
+                            "highlights the real button, draws arrows and lines over your apps, and walks you through step by step. " +
+                            "Say a task and it plans background agents, asks before anything risky, and can undo every file change. " +
+                            "Works with Anthropic, OpenAI, Gemini or a local model, on macOS, Windows and Linux.",
+                        tech: [
+                            "Rust",
+                            "Tauri",
+                            "React",
+                            "TypeScript",
+                            "MCP",
+                            "Whisper",
+                        ],
+                        shots: [
+                            "walkthrough",
+                            "plan-card",
+                            "card-dark",
+                        ].map(function (s) {
+                            return "shots/helpy/" + s + ".png";
+                        }),
+                    },
+                    {
                         name: "ApplyJobBot",
                         meta: "AI Job Platform \u00b7 FastAPI + Next.js",
                         priv: true,
