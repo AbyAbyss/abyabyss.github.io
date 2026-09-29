@@ -1,0 +1,1387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aby Saji Pappachan · Portfolio in Motion</title>
+<meta name="description" content="Aby Saji Pappachan, Technical Lead with 8 years building scalable backend systems and AI-powered products. Walsall, West Midlands. Open to senior Backend, Platform and AI roles.">
+<meta name="author" content="Aby Saji Pappachan">
+<meta property="og:title" content="Aby Saji Pappachan · Portfolio in Motion">
+<meta property="og:description" content="8 years building scalable backend systems and AI-powered products.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#e9edea">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ff4b2b'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='700' text-anchor='middle' fill='%23fff'%3EA%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Caveat:wght@500..700&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400..700&display=swap">
+<style>
+  :root {
+    --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+    --sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+    --mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+    --hand: "Caveat", "Segoe Print", "Comic Sans MS", cursive;
+
+    /* The stage colours. Script morphs these as each scene arrives. */
+    --bg: #e9edea;
+    --fg: #101715;
+    --acc: #ff4b2b;
+    --mute: color-mix(in srgb, var(--fg) 58%, transparent);
+    --hair: color-mix(in srgb, var(--fg) 22%, transparent);
+
+    /* Cut paper stays paper on every stage. */
+    --paper: #fbf8ef;
+    --ink: #101715;
+    --ink-2: #4a4f4a;
+    --tape: rgba(255, 210, 92, 0.85);
+    --mint: #2ed3a7;
+    --shadow: 0 1px 1px rgba(16, 23, 21, 0.12), 0 18px 30px -14px rgba(16, 23, 21, 0.5);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { background: #e9edea; overflow-x: clip; }
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-stopped { overflow: hidden; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 400 18px/1.55 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  h1, h2, h3, p, ul { margin: 0; }
+  ul { padding: 0; list-style: none; }
+  :focus-visible { outline: 3px solid var(--acc); outline-offset: 3px; }
+  .mono { font: 500 12px/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
+  .hand { font-family: var(--hand); font-weight: 600; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pad { padding-inline: clamp(18px, 4.5vw, 72px); }
+
+  /* ---------- Preloader ---------- */
+  .pre { display: none; position: fixed; inset: 0; z-index: 100; background: #0d1513; color: #eef3ef; grid-template-rows: 1fr auto; padding: clamp(18px, 4.5vw, 72px); }
+  html.js .pre { display: grid; }
+  .pre-name { align-self: center; justify-self: center; text-align: center; font: 500 clamp(18px, 2.4vw, 30px)/1.2 var(--display); font-style: italic; }
+  .pre-name small { display: block; margin-top: 10px; font: 500 12px/1 var(--mono); letter-spacing: 0.2em; text-transform: uppercase; font-style: normal; color: #8fa39a; }
+  .pre-row { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+  .pre-n { font: 800 clamp(90px, 18vw, 260px)/0.8 var(--display); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; color: var(--acc); }
+  .pre-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: rgba(238, 243, 239, 0.12); }
+  .pre-bar i { display: block; height: 100%; width: 100%; transform-origin: left; transform: scaleX(0); background: var(--acc); }
+
+  /* ---------- Chrome: nav, progress, cursor ---------- */
+  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(18px, 4.5vw, 72px); color: #fff; mix-blend-mode: difference; pointer-events: none; }
+  .nav a, .nav button { pointer-events: auto; }
+  .nav a { text-decoration: none; }
+  .nav-name { font: 700 18px/1 var(--display); font-style: italic; }
+  .nav-scene { position: absolute; left: 50%; transform: translateX(-50%); overflow: hidden; }
+  .nav-links { display: flex; gap: 22px; }
+  .nav-links a { position: relative; }
+  .nav-links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform 300ms cubic-bezier(0.7, 0, 0.2, 1); }
+  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .rail { position: fixed; right: 0; top: 0; bottom: 0; width: 4px; z-index: 49; background: transparent; mix-blend-mode: difference; }
+  .rail i { display: block; height: 100%; background: #fff; transform-origin: top; transform: scaleY(0); }
+  .cursor { display: none; position: fixed; left: 0; top: 0; z-index: 90; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #fff; mix-blend-mode: difference; pointer-events: none; place-items: center; }
+  .cursor span { font: 500 10px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: #000; opacity: 0; }
+  @media (hover: hover) and (pointer: fine) { html.motion .cursor { display: grid; } html.motion, html.motion a, html.motion button { cursor: none; } }
+
+  /* ---------- Shared type ---------- */
+  .title { font: 800 clamp(56px, 11.5vw, 190px)/0.86 var(--display); letter-spacing: -0.035em; text-transform: uppercase; }
+  .title em { font-style: italic; font-weight: 500; text-transform: none; letter-spacing: -0.02em; }
+  .mask .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+  .mask .ch { display: inline-block; }
+  .kicker { color: var(--acc); }
+  .tape { position: absolute; z-index: 3; width: 96px; height: 26px; background: var(--tape); clip-path: polygon(3% 0, 97% 6%, 100% 50%, 96% 100%, 2% 94%, 0 45%); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
+  .scene { position: relative; }
+
+  /* ---------- Scene 1: hero ---------- */
+  .hero { position: relative; height: 100svh; min-height: 620px; overflow: hidden; display: grid; place-items: center; }
+  .hero-top { position: absolute; top: 68px; left: 0; right: 0; display: flex; justify-content: space-between; gap: 12px; color: var(--mute); }
+  .hero-name { position: relative; z-index: 2; text-align: center; font: 800 clamp(64px, 12.4vw, 230px)/0.84 var(--display); letter-spacing: -0.04em; text-transform: uppercase; }
+  .hero-name .ln { display: block; white-space: nowrap; }
+  .hero-name .l2 { font-style: italic; letter-spacing: -0.03em; }
+  .hero-name .w { display: inline-block; }
+  .hero-name .ch { display: inline-block; will-change: transform; }
+  .hero-say { position: absolute; z-index: 1; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1000px, 88vw); text-align: center; font: 500 clamp(30px, 5vw, 76px)/1.04 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
+  .hero-say em { color: var(--acc); font-style: italic; }
+  .hero-say .wd { display: inline-block; }
+  .hero-sub { position: absolute; z-index: 1; left: 50%; bottom: 13svh; transform: translateX(-50%); width: min(560px, 84vw); text-align: center; color: var(--mute); font-size: 16px; }
+  .cue { position: absolute; z-index: 3; left: 50%; bottom: 26px; transform: translateX(-50%); display: grid; justify-items: center; gap: 8px; color: var(--mute); }
+  .cue i { width: 1px; height: 38px; background: var(--fg); transform-origin: top; animation: cue 1.8s ease-in-out infinite; }
+  @keyframes cue { 0% { transform: scaleY(0); } 55% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+  /* Cut-outs stuck onto the stage */
+  .cut { position: absolute; z-index: 3; will-change: transform; }
+  .cut-in { position: relative; }
+  .c-pass { left: 5vw; top: 22svh; width: 250px; }
+  .c-pass .cut-in { background: var(--paper); color: var(--ink); padding: 18px 18px 16px; box-shadow: var(--shadow); transform: rotate(-5deg); }
+  .c-pass .tape { top: -12px; left: 76px; transform: rotate(3deg); }
+  .pass-h { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
+  .pass-h b { width: 44px; height: 44px; display: grid; place-items: center; background: var(--ink); color: var(--mint); font: 700 italic 18px/1 var(--display); }
+  .pass-h span { font: 700 16px/1.05 var(--display); }
+  .pass-l { display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; margin-top: 10px; font-size: 13px; line-height: 1.3; }
+  .pass-l dt { font: 500 10px/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: #6b706b; }
+  .pass-l dd { margin: 0; }
+  .c-note { right: 6vw; top: 20svh; width: 200px; }
+  .c-note .cut-in { background: #fff0a6; color: #2b2610; padding: 18px 16px 20px; box-shadow: var(--shadow); font: 600 27px/1.02 var(--hand); transform: rotate(4deg); }
+  .c-strip { right: 4vw; bottom: 24svh; }
+  .c-strip .cut-in { background: var(--mint); color: #08110e; padding: 10px 22px 12px; font: 800 24px/1 var(--display); letter-spacing: 0.02em; text-transform: uppercase; box-shadow: var(--shadow); transform: rotate(-6deg); clip-path: polygon(0 8%, 4% 0, 9% 10%, 14% 0, 20% 9%, 26% 0, 100% 0, 98% 30%, 100% 62%, 97% 100%, 0 100%, 2% 55%); }
+  .c-stamp { left: 7vw; bottom: 22svh; }
+  .c-stamp .cut-in { border: 3px double var(--acc); color: var(--acc); padding: 12px 16px 10px; font: 500 12px/1.35 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; text-align: center; transform: rotate(-9deg); border-radius: 4px; }
+  .c-stamp .cut-in b { display: block; font: 800 20px/1 var(--display); letter-spacing: 0.04em; margin-bottom: 4px; }
+  .c-badge { left: calc(50% - 65px); top: 15svh; width: 130px; height: 130px; }
+  .c-badge svg { width: 100%; height: 100%; overflow: visible; }
+  .c-badge text { font: 500 11.5px var(--mono); letter-spacing: 0.22em; text-transform: uppercase; fill: var(--fg); }
+  .c-badge .core { fill: var(--acc); }
+
+  /* ---------- Scene 2: manifesto ---------- */
+  .about { padding-block: 22vh 12vh; }
+  .manifesto { font: 500 clamp(30px, 4.9vw, 78px)/1.06 var(--display); letter-spacing: -0.02em; max-width: 20em; text-wrap: pretty; }
+  .manifesto .wd { transition: none; }
+  .manifesto.q { margin-top: 16vh; margin-left: auto; font-style: italic; max-width: 19em; }
+  .manifesto .hl { color: var(--acc); }
+  .about-small { margin: 12vh 0 0 auto; max-width: 30em; color: var(--mute); font-size: 19px; }
+  .stats { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 34px 22px; margin-top: 18vh; padding-bottom: 6vh; }
+  .stat { position: relative; padding: 22px 20px 24px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); grid-column: span 2; will-change: transform; }
+  .stat:nth-child(4) { grid-column: 2 / span 2; }
+  .stat:nth-child(5) { grid-column: 4 / span 2; }
+  .stat b { display: block; font: 800 clamp(48px, 6vw, 92px)/0.9 var(--display); letter-spacing: -0.03em; font-variant-numeric: lining-nums tabular-nums; }
+  .stat span { display: block; margin-top: 10px; color: var(--ink-2); font-size: 16px; line-height: 1.35; }
+  .stat:nth-child(1) { transform: rotate(-2deg); } .stat:nth-child(2) { transform: rotate(1.5deg); background: #d6f3e8; }
+  .stat:nth-child(3) { transform: rotate(-1deg); background: #fff0a6; } .stat:nth-child(4) { transform: rotate(2deg); }
+  .stat:nth-child(5) { transform: rotate(-1.5deg); background: #d6f3e8; }
+  .stat .tape { top: -12px; left: 24px; transform: rotate(-5deg); width: 76px; }
+
+  /* ---------- Scene 3: experience filmstrip ---------- */
+  .xp { position: relative; height: 100svh; min-height: 640px; overflow: hidden; --fx: 0px; }
+  .xp::before, .xp::after { content: ""; position: absolute; left: 0; right: 0; height: 26px; z-index: 5; pointer-events: none; background: repeating-linear-gradient(90deg, transparent 0 14px, color-mix(in srgb, var(--fg) 30%, transparent) 14px 30px, transparent 30px 44px); background-size: 44px 100%; background-position: var(--fx) 0; -webkit-mask: linear-gradient(transparent 6px, #000 6px, #000 20px, transparent 20px); mask: linear-gradient(transparent 6px, #000 6px, #000 20px, transparent 20px); }
+  .xp::before { top: 0; } .xp::after { bottom: 0; }
+  .xp-track { display: flex; align-items: stretch; height: 100%; width: max-content; padding: 64px 0 56px; }
+  .panel { position: relative; flex: 0 0 auto; width: min(80vw, 1040px); display: grid; align-content: center; padding: 0 clamp(20px, 4vw, 64px); border-left: 1px dashed var(--hair); }
+  .panel-intro { width: min(70vw, 900px); border-left: 0; }
+  .yr { position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 0; font: 800 clamp(200px, 34vw, 520px)/0.8 var(--display); letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--fg) 35%, transparent); pointer-events: none; font-variant-numeric: lining-nums; white-space: nowrap; }
+  .p-body { position: relative; z-index: 1; max-width: 720px; }
+  .p-when { color: var(--acc); }
+  .p-role { margin-top: 10px; font: 800 clamp(34px, 4.6vw, 68px)/0.96 var(--display); letter-spacing: -0.03em; }
+  .p-org { margin-top: 8px; font: 500 15px/1.3 var(--mono); color: var(--mute); }
+  .p-list { margin-top: 22px; display: grid; gap: 10px; }
+  .p-list li { position: relative; padding-left: 26px; font-size: clamp(15px, 1.25vw, 17.5px); line-height: 1.45; }
+  .p-list li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 12px; height: 2px; background: var(--acc); }
+  .xp-hint { margin-top: 26px; color: var(--mute); }
+  .xp-bar { position: absolute; left: clamp(18px, 4.5vw, 72px); right: clamp(18px, 4.5vw, 72px); bottom: 34px; height: 3px; background: var(--hair); z-index: 6; }
+  .xp-bar i { display: block; height: 100%; background: var(--acc); transform-origin: left; transform: scaleX(0); }
+
+  /* ---------- Scene 4: work ---------- */
+  .work { padding-top: 18vh; }
+  .work-head { margin-bottom: 10vh; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .work-head p { color: var(--mute); max-width: 26em; justify-self: end; }
+  .stack { position: relative; padding-bottom: 6vh; }
+  .pcard {
+    position: sticky; top: calc(9vh + var(--i) * 22px); height: min(78vh, 660px); min-height: 480px; margin-bottom: 14vh;
+    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 48px);
+    background: var(--paper); color: var(--ink); padding: clamp(18px, 2.4vw, 34px); box-shadow: var(--shadow); transform-origin: 50% 0;
+  }
+  .pcard .shade { position: absolute; inset: 0; background: #0d1513; opacity: 0; pointer-events: none; z-index: 4; }
+  .pcard .tape { top: -13px; left: 40px; transform: rotate(-4deg); }
+  .pframe { position: relative; overflow: hidden; background: #0d1513; }
+  .pframe img { position: absolute; left: 0; top: -8%; width: 100%; height: 116%; object-fit: cover; object-position: top left; }
+  .pframe.fit { background: #f4f6f5; }
+  .pframe.fit img { object-fit: contain; object-position: center; }
+  .pbody { display: flex; flex-direction: column; justify-content: center; gap: 14px; min-width: 0; }
+  .pbody .mono { color: var(--acc); }
+  .pname { font: 800 clamp(40px, 5.2vw, 84px)/0.9 var(--display); letter-spacing: -0.035em; text-transform: uppercase; overflow-wrap: anywhere; }
+  .pdesc { font-size: clamp(14.5px, 1.15vw, 17px); line-height: 1.5; color: var(--ink-2); }
+  .ptech { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ptech span { font: 500 11.5px/1 var(--mono); padding: 6px 8px; border: 1px solid rgba(16, 23, 21, 0.2); }
+  .plinks { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .plinks a { font: 500 13px/1.2 var(--mono); text-decoration: none; border-bottom: 2px solid var(--acc); padding-bottom: 2px; }
+  .plinks a:hover { background: rgba(255, 75, 43, 0.12); }
+  .badge-priv { align-self: flex-start; padding: 4px 8px 3px; border: 2px solid var(--acc); color: var(--acc); font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-3deg); }
+  .pcount { position: absolute; right: 22px; top: 14px; font: 500 12px/1 var(--mono); color: #7a7f7a; letter-spacing: 0.1em; z-index: 2; }
+
+  .idx-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 8vh 16px; border-bottom: 2px solid var(--fg); }
+  .idx-head h3 { font: 500 clamp(28px, 3.4vw, 52px)/1 var(--display); font-style: italic; }
+  .idx { border-top: 0; }
+  .row { display: grid; grid-template-columns: 56px minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr); align-items: baseline; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--hair); text-decoration: none; position: relative; transition: padding-left 350ms cubic-bezier(0.2, 0.7, 0.2, 1), color 250ms; }
+  .row .n { font: 500 12px var(--mono); color: var(--mute); }
+  .row .nm { font: 700 clamp(28px, 3.6vw, 54px)/1 var(--display); letter-spacing: -0.02em; }
+  .row .mt { color: var(--mute); font-size: 15px; }
+  .row .tc { color: var(--mute); font: 500 12px/1.4 var(--mono); text-align: right; }
+  .row::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform 450ms cubic-bezier(0.7, 0, 0.2, 1); }
+  .row:hover, .row:focus-visible { padding-left: 22px; color: var(--acc); }
+  .row:hover::after, .row:focus-visible::after { transform: scaleX(1); }
+  .peek { position: fixed; left: 0; top: 0; z-index: 60; width: 320px; aspect-ratio: 16 / 10; pointer-events: none; opacity: 0; overflow: hidden; background: #0d1513; box-shadow: var(--shadow); border: 6px solid var(--paper); }
+  .peek img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+  .peek.fit img { object-fit: contain; background: #f4f6f5; }
+
+  /* ---------- Scene 5: platforms ---------- */
+  .plat { padding-block: 20vh 14vh; }
+  .plat-head { margin-bottom: 10vh; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .plat-head p { color: var(--mute); max-width: 26em; justify-self: end; }
+  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 34px 26px; perspective: 1400px; }
+  .card { position: relative; background: var(--paper); color: var(--ink); padding: 26px 22px 24px; box-shadow: var(--shadow); transform: rotate(var(--r, 0deg)); }
+  .card:nth-child(3n+1) { --r: -0.9deg; } .card:nth-child(3n+2) { --r: 0.7deg; } .card:nth-child(3n) { --r: -0.4deg; }
+  .card .org { color: var(--acc); }
+  .card h3 { margin-top: 8px; font: 800 26px/1 var(--display); letter-spacing: -0.02em; }
+  .card p { margin-top: 10px; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
+  .card .ptech { margin-top: 14px; }
+
+  /* ---------- Scene 6: skills ---------- */
+  .skills { padding-block: 16vh 14vh; overflow: hidden; }
+  .skills-head { margin-bottom: 8vh; }
+  .mqs { display: grid; gap: clamp(10px, 2vw, 26px); }
+  .mq { position: relative; padding-top: 30px; will-change: transform; }
+  .mq-label { position: absolute; left: clamp(18px, 4.5vw, 72px); top: 0; z-index: 2; font-size: 30px; line-height: 1; color: var(--fg); background: var(--bg); padding: 2px 10px 2px 0; transform: rotate(-3deg); }
+  .mq-view { overflow: hidden; }
+  .mq-in { display: flex; width: max-content; will-change: transform; }
+  .mq-in span { flex: none; padding-right: 0.5em; font: 800 clamp(58px, 9.4vw, 150px)/1.02 var(--display); letter-spacing: -0.03em; text-transform: uppercase; white-space: nowrap; }
+  .mq:nth-child(even) .mq-in span { color: transparent; -webkit-text-stroke: 2px var(--fg); }
+  .mq-in i { font-style: normal; color: var(--acc); padding-right: 0.4em; }
+  html:not(.motion) .mq-view { overflow-x: auto; }
+
+  /* ---------- Scene 7: contact ---------- */
+  .contact { padding-block: 22vh 10vh; min-height: 100svh; display: grid; align-content: space-between; gap: 12vh; }
+  .px { font: 500 clamp(58px, 12.6vw, 220px)/0.86 var(--display); letter-spacing: -0.04em; text-transform: uppercase; }
+  .px .w { display: inline-block; white-space: nowrap; }
+  .px .ch { display: inline-block; }
+  .px em { font-style: italic; color: var(--acc); }
+  .contact-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px 60px; align-items: end; }
+  .contact-grid > p { font: 500 clamp(22px, 2.4vw, 34px)/1.25 var(--display); max-width: 20em; }
+  .lines { display: grid; }
+  .lines a, .lines div { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--hair); text-decoration: none; }
+  .lines .l { color: var(--mute); }
+  .lines .v { font: 500 clamp(17px, 1.6vw, 22px)/1.2 var(--display); text-align: right; overflow-wrap: anywhere; }
+  .lines a:hover .v { color: var(--acc); }
+  .cta { display: inline-grid; place-items: center; width: clamp(150px, 15vw, 210px); aspect-ratio: 1; border-radius: 50%; background: var(--acc); color: #fff; text-decoration: none; font: 800 clamp(20px, 1.9vw, 28px)/1 var(--display); text-transform: uppercase; text-align: center; }
+  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; padding-top: 18px; border-top: 1px solid var(--hair); color: var(--mute); font-size: 14px; }
+  .foot a { text-underline-offset: 3px; }
+  .copy { font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 8px; margin-left: 8px; border: 1px solid var(--hair); background: transparent; color: var(--fg); }
+  .copy:hover { border-color: var(--acc); color: var(--acc); }
+
+
+  /* ---------- No motion: a plain, complete page ---------- */
+  html:not(.motion) .hero { height: auto; min-height: 0; display: block; text-align: center; padding: 130px clamp(18px, 4.5vw, 72px) 90px; overflow: visible; }
+  html:not(.motion) .hero-top, html:not(.motion) .cue, html:not(.motion) .cut:not(.c-stamp) { display: none; }
+  html:not(.motion) .hero-say, html:not(.motion) .hero-sub { position: static; transform: none; margin: 34px auto 0; }
+  html:not(.motion) .c-stamp { position: static; display: block; width: max-content; margin: 34px auto 0; }
+  html:not(.motion) .hero-name { font-size: clamp(56px, 11vw, 190px); }
+  html:not(.motion) .xp { height: auto; min-height: 0; overflow: visible; }
+  html:not(.motion) .xp::before, html:not(.motion) .xp::after, html:not(.motion) .xp-bar { display: none; }
+  html:not(.motion) .xp-track { display: block; width: auto; padding: 14vh 0 4vh; }
+  html:not(.motion) .panel, html:not(.motion) .panel-intro { width: auto; padding: 0 0 12vh; border-left: 0; }
+  html:not(.motion) .yr { position: relative; top: auto; transform: none; display: block; font-size: clamp(120px, 24vw, 300px); margin-bottom: 1vw; }
+  html:not(.motion) .pcard { position: relative; top: auto; height: auto; margin-bottom: 8vh; }
+  html:not(.motion) .row .tc { text-align: right; }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 900px) {
+    .nav-scene, .nav-links a:not(:last-child) { display: none; }
+    .hero-top { top: 62px; }
+    .c-pass { width: 170px; left: 3vw; top: 17svh; } .c-pass .pass-l dt:nth-of-type(n+3), .c-pass .pass-l dd:nth-of-type(n+3) { display: none; }
+    .c-note, .c-stamp, .c-badge { display: none; } .c-strip { right: 3vw; bottom: 21svh; } .c-strip .cut-in { font-size: 18px; }
+    .about { padding-block: 16vh 8vh; } .manifesto.q { margin-top: 10vh; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stat, .stat:nth-child(4), .stat:nth-child(5) { grid-column: auto; }
+    .stat:nth-child(5) { grid-column: 1 / -1; }
+    .xp { height: auto; overflow: visible; min-height: 0; }
+    .xp::before, .xp::after, .xp-bar { display: none; }
+    .xp-track { display: block; width: auto; padding: 14vh 0 4vh; }
+    .panel, .panel-intro { width: auto; padding: 0 0 12vh; border-left: 0; }
+    .yr { position: relative; top: auto; transform: none; display: block; font-size: 30vw; margin-bottom: 2vw; }
+    .work-head p, .plat-head p { justify-self: start; }
+    .contact-grid { grid-template-columns: minmax(0, 1fr); }
+    .pcard { position: relative; top: auto; height: auto; margin-bottom: 8vh; grid-template-columns: minmax(0, 1fr); }
+    .pframe { aspect-ratio: 16 / 10; }
+    .row { grid-template-columns: 34px minmax(0, 1fr); } .row .mt, .row .tc { grid-column: 2; text-align: left; }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .peek { display: none; }
+    .contact { min-height: 0; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 17px; }
+    .hero-name { font-size: 15.4vw; } .hero-top span:nth-child(2) { display: none; }
+    .cards { grid-template-columns: minmax(0, 1fr); }
+    .stats { gap: 26px 14px; } .stat { padding: 16px 14px 18px; }
+    .lines .v { font-size: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .cue i { animation: none; } }
+</style>
+</head>
+<body>
+<script>
+  // Motion is on only when the script runs, GSAP loaded, and the visitor hasn't asked for less.
+  (function () {
+    var less = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    document.documentElement.classList.add(less ? "still" : "js");
+  })();
+</script>
+
+<div class="pre" id="pre" aria-hidden="true">
+  <div class="pre-name">Aby Saji Pappachan<small>Portfolio in motion</small></div>
+  <div class="pre-row"><span class="mono">Loading the showreel</span><span class="pre-n" id="pre-n">000</span></div>
+  <div class="pre-bar"><i id="pre-bar"></i></div>
+</div>
+
+<div class="cursor" id="cursor" aria-hidden="true"><span id="cursor-t"></span></div>
+<div class="rail" aria-hidden="true"><i id="rail"></i></div>
+<div class="peek" id="peek" aria-hidden="true"><img alt=""></div>
+
+<header class="nav">
+  <a class="nav-name" href="#top">Aby Saji Pappachan</a>
+  <span class="nav-scene mono"><span id="scene-name" style="display:inline-block">Intro</span></span>
+  <nav class="nav-links mono" aria-label="Sections">
+    <a href="#about">About</a><a href="#experience">Experience</a><a href="#work">Work</a><a href="#skills">Skills</a><a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <section class="hero scene" data-bg="#e9edea" data-fg="#101715" data-acc="#ff4b2b" data-label="Intro" aria-label="Introduction">
+    <div class="hero-top pad mono"><span>Portfolio · Volume 8</span><span>Backend, platform and AI engineering</span><span>Walsall, West Midlands, UK</span></div>
+
+    <div class="cut c-pass" data-dx="-22" data-dy="-8" data-rot="-14"><div class="cut-in">
+      <span class="tape" aria-hidden="true"></span>
+      <div class="pass-h"><b aria-hidden="true">ASP</b><span>Aby Saji<br>Pappachan</span></div>
+      <dl class="pass-l">
+        <dt>Role</dt><dd>Technical Lead</dd>
+        <dt>Years</dt><dd>8, across four startups</dd>
+        <dt>Focus</dt><dd>Backend · Platform · AI and LLMs</dd>
+        <dt>Speaks</dt><dd>TypeScript · Node.js · Go · Python</dd>
+      </dl>
+    </div></div>
+    <div class="cut c-note" data-dx="20" data-dy="-12" data-rot="12"><div class="cut-in">available now, for the right role</div></div>
+    <div class="cut c-strip" data-dx="24" data-dy="10" data-rot="10"><div class="cut-in">Backend &amp; AI</div></div>
+    <div class="cut c-stamp" data-dx="-20" data-dy="12" data-rot="-12"><div class="cut-in"><b>UK</b>right to work<br>no sponsorship required</div></div>
+    <div class="cut c-badge" data-dx="6" data-dy="-14" data-rot="0"><div class="cut-in">
+      <svg viewBox="0 0 130 130" aria-hidden="true"><defs><path id="ring" d="M65 65 m-52 0 a52 52 0 1 1 104 0 a52 52 0 1 1 -104 0"/></defs>
+        <circle class="core" cx="65" cy="65" r="14"/><text><textPath href="#ring">Backend · Platform · AI · Backend · Platform · AI ·</textPath></text></svg>
+    </div></div>
+
+    <h1 class="hero-name" id="hero-name" aria-label="Aby Saji Pappachan">
+      <span class="ln l1" aria-hidden="true">Aby Saji</span>
+      <span class="ln l2" aria-hidden="true">Pappachan</span>
+    </h1>
+    <p class="hero-say" id="hero-say">I build backend systems that scale, and <em>AI that ships.</em></p>
+    <p class="hero-sub" id="hero-sub">Eight years architecting distributed systems, secure platforms and LLM-powered products, from high-performance MCP platforms to production AI agents.</p>
+    <div class="cue mono" aria-hidden="true"><span>Scroll</span><i></i></div>
+  </section>
+
+  <section class="about pad scene" id="about" data-bg="#f1e6cf" data-fg="#1c1712" data-acc="#d8431f" data-label="About">
+    <p class="mono kicker" style="margin-bottom:5vh">About</p>
+    <p class="manifesto" data-scrub>My whole career, 8 years across four startups, has been owning products end to end: a Zero Trust security product built from nothing to 10+ enterprise customers, a company-wide reporting platform, and production LLM and MCP infrastructure.</p>
+    <p class="manifesto q" data-scrub>I'm the person people bring "could we actually do this?" to, before anyone spends money finding out. At every company I've worked at, product managers, architects and sales brought me ideas to assess, and my proofs of concept repeatedly became the base implementation months later.</p>
+    <p class="about-small" data-fade>I work mostly in TypeScript and Node.js, with Go and Python where they fit, across NestJS services, event-driven systems on AWS, and MCP and LLM platforms. I like pairing leadership with hands-on work: mentoring a team, setting the review standards, and building things that scale and keep working.</p>
+    <div class="stats" id="stats">
+      <div class="stat" data-speed="0.9"><span class="tape" aria-hidden="true"></span><b data-to="8" data-suffix=" yrs">8 yrs</b><span>backend, platform and AI engineering</span></div>
+      <div class="stat" data-speed="1.5"><b data-to="2" data-suffix="M+">2M+</b><span>users of a browser extension I built</span></div>
+      <div class="stat" data-speed="0.6"><b data-to="50" data-suffix="k">50k</b><span>messages a day through my notification platform</span></div>
+      <div class="stat" data-speed="1.2"><b data-to="45" data-suffix="%">45%</b><span>lower infrastructure cost from my analytics stack</span></div>
+      <div class="stat" data-speed="0.8"><span class="tape" aria-hidden="true" style="left:auto;right:24px"></span><b data-to="300" data-suffix="+">300+</b><span>SaaS providers in my simulation framework</span></div>
+    </div>
+  </section>
+
+  <section class="xp scene" id="experience" data-bg="#0d1513" data-fg="#eef3ef" data-acc="#2ed3a7" data-label="Experience" aria-label="Experience">
+    <div class="xp-track" id="xp-track">
+      <article class="panel panel-intro">
+        <div class="p-body">
+          <p class="mono kicker">Experience</p>
+          <h2 class="title" style="margin-top:14px">Career<br><em>timeline</em></h2>
+          <p class="p-org" style="margin-top:22px;max-width:32em;font:400 18px/1.5 var(--sans);color:var(--mute)">From full-stack workflow platforms to Zero Trust security to leading AI and data platforms. Every company I have worked for has asked me to come back.</p>
+          <p class="xp-hint mono">Keep scrolling <span aria-hidden="true">→</span></p>
+        </div>
+      </article>
+      <article class="panel"><span class="yr" aria-hidden="true">2025</span><div class="p-body">
+        <p class="p-when mono">2025 to Jun 2026</p><h3 class="p-role">Technical Lead</h3><p class="p-org">Josys Digital Technologies</p>
+        <ul class="p-list">
+          <li>Promoted to Technical Lead after two consecutive years rated top performer. Selected for Architect in 2026.</li>
+          <li>Led and mentored a team of 4 engineers through design reviews, pairing and code review.</li>
+          <li>Coordinated delivery across 3 product teams as the backend architecture owner, setting the interface contracts between services.</li>
+          <li>Owned code review and engineering standards across every project in the company, and ran technical interviews and onboarding for new backend hires.</li>
+          <li>Built MCP clients and servers that cut integration time for new services from 2 weeks to 2 days.</li>
+          <li>Shipped an internal LLM platform for context-aware retrieval that saved the team 8 hours a week, with 60% less manual querying.</li>
+          <li>Designed an analytics stack, Airbyte → DuckDB → Apache Airflow: about 70% faster queries above 50M rows, 45% lower infrastructure cost, and reports down from 25 minutes to under 2.</li>
+        </ul></div></article>
+      <article class="panel"><span class="yr" aria-hidden="true">2022</span><div class="p-body">
+        <p class="p-when mono">2022 to Mar 2025</p><h3 class="p-role">Senior Software Engineer</h3><p class="p-org">Josys Digital Technologies</p>
+        <ul class="p-list">
+          <li>Championed NestJS as the company-wide backend standard across 12+ microservices, cutting new-engineer onboarding from 6 weeks to 3.</li>
+          <li>Built a notification platform handling 50,000 messages a day, consolidating 8 flows into one across email, Slack and Teams.</li>
+          <li>Built a browser extension serving over 2 million users from a single codebase across Chromium and Firefox, Manifest V2 and V3, with silent activation for enterprise deployment.</li>
+          <li>Built a simulation framework covering 300+ integrated SaaS providers. It cut testing infrastructure cost 35%, never needed a bug fix, and became the customer-facing production sandbox.</li>
+          <li>Led the security project and team, building a Go service that orchestrates Semgrep, Gitleaks and Trivy across the GitHub repository estate.</li>
+          <li>Built a multi-database GraphQL platform with automatic schema generation and dynamic filter conversion.</li>
+          <li>Rated top performer two years running.</li>
+        </ul></div></article>
+      <article class="panel"><span class="yr" aria-hidden="true">2019</span><div class="p-body">
+        <p class="p-when mono">2019 to Aug 2022</p><h3 class="p-role">Member of Technical Staff (MTS-1)</h3><p class="p-org">InstaSafe, Bengaluru</p>
+        <ul class="p-list">
+          <li>Designed and built a Zero Trust Network Access (ZTNA) solution from scratch, part of a new product line that brought in 10+ enterprise customers.</li>
+          <li>Built a gateway server for agentless access to private web apps, cutting enterprise customer onboarding time 40%.</li>
+          <li>Led 3 engineers delivering 6 security product enhancements, each from design through production.</li>
+          <li>Built a cross-platform desktop client for secure access to private resources.</li>
+        </ul></div></article>
+      <article class="panel"><span class="yr" aria-hidden="true">2018</span><div class="p-body">
+        <p class="p-when mono">2018 to May 2019</p><h3 class="p-role">Earlier experience</h3><p class="p-org">GrowthEnabler · Haappy, Bengaluru</p>
+        <ul class="p-list">
+          <li>GrowthEnabler, Aug 2018 to May 2019: built a full-stack SRM workflow platform and a startup-to-corporate matching system.</li>
+          <li>Haappy, Jan to Aug 2018: built WebTV websites and an internal CRM for task and workflow tracking.</li>
+        </ul></div></article>
+      <article class="panel" style="width:min(70vw,820px)"><span class="yr" aria-hidden="true">2013</span><div class="p-body">
+        <p class="p-when mono">2013 to 2017</p><h3 class="p-role">B.E. Computer Science &amp; Engineering</h3><p class="p-org">East Point College of Engineering, Bengaluru</p></div></article>
+    </div>
+    <div class="xp-bar" aria-hidden="true"><i id="xp-bar"></i></div>
+  </section>
+
+  <section class="work pad scene" id="work" data-bg="#dfe9e4" data-fg="#0f1714" data-acc="#e5432a" data-label="Work">
+    <div class="work-head">
+      <div><p class="mono kicker" style="margin-bottom:16px">Personal projects</p><h2 class="title mask" data-split>Things I've built</h2></div>
+      <p>Agent runtimes, developer tools, media pipelines and native apps. Projects stamped Private aren't public yet; where there's a live build, the card links to it instead.</p>
+    </div>
+    <div class="stack" id="stack"></div>
+    <div class="idx-head"><h3>And the rest of the shelf</h3><span class="mono" style="color:var(--mute)" id="idx-count"></span></div>
+    <div class="idx" id="idx"></div>
+  </section>
+
+  <section class="plat pad scene" id="platforms" data-bg="#15110f" data-fg="#f4ece1" data-acc="#ff7a4d" data-label="Platforms">
+    <div class="plat-head">
+      <div><p class="mono kicker" style="margin-bottom:16px">Professional work</p><h2 class="title mask" data-split>Platforms <em>&amp;</em> systems</h2></div>
+      <p>Backend, data and AI platforms I delivered at Josys and InstaSafe.</p>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <section class="skills scene" id="skills" data-bg="#2ed3a7" data-fg="#08110e" data-acc="#08110e" data-label="Skills">
+    <div class="skills-head pad">
+      <p class="mono" style="margin-bottom:16px">Skills</p>
+      <h2 class="title mask" data-split>Technical <em>toolkit</em></h2>
+    </div>
+    <div class="mqs" id="mqs"></div>
+    <ul class="sr" id="skills-sr"></ul>
+  </section>
+
+  <section class="contact pad scene" id="contact" data-bg="#0d1513" data-fg="#eef3ef" data-acc="#ff5b3a" data-label="Contact">
+    <div>
+      <p class="mono kicker" style="margin-bottom:5vh">Contact</p>
+      <h2 class="px" id="px" aria-label="Let's build something worth shipping.">Let's build something <em>worth shipping.</em></h2>
+    </div>
+    <div class="contact-grid">
+      <div>
+        <p>Available immediately. Open to senior Backend, Platform and AI roles across the West Midlands, or remote in the UK.</p>
+        <p style="margin-top:34px"><a class="cta mag" href="mailto:abyrocksaji@gmail.com" data-cursor="Write">Say hello</a></p>
+      </div>
+      <div class="lines">
+        <div><span class="l mono">Email</span><span class="v"><a href="mailto:abyrocksaji@gmail.com" id="email" style="border:0;padding:0;display:inline">abyrocksaji@gmail.com</a><button class="copy" type="button" id="copy-email">Copy</button></span></div>
+        <a href="tel:+447435067875"><span class="l mono">Phone</span><span class="v">+44 7435 067875</span></a>
+        <a href="https://www.linkedin.com/in/aby-saji/" target="_blank" rel="noopener"><span class="l mono">LinkedIn</span><span class="v">linkedin.com/in/aby-saji</span></a>
+        <a href="https://github.com/AbyAbyss" target="_blank" rel="noopener"><span class="l mono">GitHub</span><span class="v">github.com/AbyAbyss</span></a>
+        <a href="Aby_Saji_Pappachan_Technical_Lead.pdf" download="Aby_Saji_Pappachan_Technical_Lead.pdf"><span class="l mono">CV</span><span class="v">Download the PDF ↓</span></a>
+      </div>
+    </div>
+    <footer class="foot">
+      <span>Aby Saji Pappachan · Technical Lead · Backend &amp; AI Engineer · Walsall, West Midlands</span>
+      <span><a href="index.html">The main portfolio</a> · <a href="explore.html">3D version</a></span>
+      <span>Motion by GSAP and Lenis. Set in Bodoni Moda, Instrument Sans, DM Mono and Caveat.</span>
+    </footer>
+  </section>
+</main>
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<script src="vendor/lenis.min.js"></script>
+<script>
+(function () {
+  "use strict";
+                var R = "https://raw.githubusercontent.com/AbyAbyss/";
+                var OSS = [
+                    {
+                        name: "AgentKit",
+                        meta: "Agent Runtime SDK \u00b7 TypeScript",
+                        priv: true,
+                        site: {
+                            href: "agentkit/",
+                            label: "Visit the site",
+                        },
+                        docs: {
+                            href: "agentkit/doc/docs/getting-started/",
+                            label: "Read the docs",
+                        },
+                        link: {
+                            href: "agentkit/#tour",
+                            label: "Watch the 40 second tour",
+                        },
+                        desc:
+                            "An MIT-licensed, config-first headless agent runtime for TypeScript. Multi-provider with " +
+                            "mid-session model hot-swapping, full MCP support over stdio and HTTP, human-in-the-loop plan mode " +
+                            "and approval gates, and a record-and-replay harness so agent behaviour is tested deterministically " +
+                            "in CI with no API keys and no spend.",
+                        tech: [
+                            "TypeScript",
+                            "Node.js",
+                            "MCP",
+                            "Zod",
+                            "Turborepo",
+                            "SSE",
+                        ],
+                        fit: true,
+                        shots: [
+                            "shots/agentkit/tour-poster.jpg",
+                            "shots/agentkit/banner.svg",
+                            "shots/agentkit/architecture.svg",
+                        ],
+                    },
+                    {
+                        name: "Helpy",
+                        meta: "AI Desktop Companion \u00b7 Tauri + Rust",
+                        priv: true,
+                        site: {
+                            href: "helpy/",
+                            label: "Visit the site",
+                        },
+                        link: {
+                            href: "helpy/#tour",
+                            label: "Watch the 45 second tour",
+                        },
+                        desc:
+                            "An AI companion that lives next to your cursor. Ask out loud and it looks at your screen, then " +
+                            "highlights the real button, draws arrows and lines over your apps, and walks you through step by step. " +
+                            "Say a task and it plans background agents, asks before anything risky, and can undo every file change. " +
+                            "Works with Anthropic, OpenAI, Gemini or a local model, on macOS, Windows and Linux.",
+                        tech: [
+                            "Rust",
+                            "Tauri",
+                            "React",
+                            "TypeScript",
+                            "MCP",
+                            "Whisper",
+                        ],
+                        shots: [
+                            "walkthrough",
+                            "plan-card",
+                            "card-dark",
+                        ].map(function (s) {
+                            return "shots/helpy/" + s + ".png";
+                        }),
+                    },
+                    {
+                        name: "ApplyJobBot",
+                        meta: "AI Job Platform \u00b7 FastAPI + Next.js",
+                        priv: true,
+                        desc:
+                            "An AI job-discovery and assisted-application platform that finds and scores roles across major " +
+                            "job sites, then applies only on explicit approval. Five deployable apps, an encrypted credential " +
+                            "vault, self-healing browser selectors, and a safety invariant enforced server-side, so nothing " +
+                            "is ever auto-submitted. 436 tests.",
+                        tech: [
+                            "Python",
+                            "FastAPI",
+                            "Next.js",
+                            "PostgreSQL",
+                            "Celery",
+                            "Playwright",
+                        ],
+                        shots: [
+                            "dashboard",
+                            "discover",
+                            "pipeline",
+                            "run-log",
+                            "application-kit",
+                            "landing_page",
+                            "job-site",
+                            "event-log",
+                        ].map(function (s) {
+                            return "shots/applyjobbot/" + s + ".png";
+                        }),
+                    },
+                    {
+                        name: "ffmpeg-mcp",
+                        meta: "MCP Video Editor \u00b7 Python",
+                        repo: "https://github.com/AbyAbyss/ffmpeg-mcp-video-editor",
+                        desc:
+                            "Gives any MCP client a real video editor: 38 typed tools over ffmpeg, Whisper and MediaPipe " +
+                            "instead of a shell escape hatch. Non-blocking jobs with real ffmpeg progress and working cancel, " +
+                            "face-tracked landscape-to-vertical reframing, word-level auto-captioning, and whole-timeline " +
+                            "renders in a single pass. 727 tests, and the unit suite runs with no ffmpeg installed.",
+                        tech: [
+                            "Python",
+                            "MCP",
+                            "FFmpeg",
+                            "Whisper",
+                            "OpenCV",
+                        ],
+                        fit: true,
+                        shots: [
+                            "banner",
+                            "reframe",
+                            "architecture",
+                        ].map(function (s) {
+                            return (
+                                R +
+                                "ffmpeg-mcp-video-editor/main/docs/" +
+                                s +
+                                ".svg"
+                            );
+                        }),
+                    },
+                    {
+                        name: "redis_gui",
+                        meta: "Redis Client \u00b7 Go + React",
+                        repo: "https://github.com/AbyAbyss/redis_gui",
+                        desc:
+                            "A full Redis GUI that ships as one static Go binary and runs as a local web app, a native desktop " +
+                            "app, or headless in Docker. SCAN keyspace browser with per-type viewers, 1 Hz metrics, a coalesced " +
+                            "MONITOR stream and a memory analyzer over WebSocket, plus RBAC, an audit log and AES-256-GCM " +
+                            "encrypted credentials.",
+                        tech: [
+                            "Go",
+                            "Redis",
+                            "React",
+                            "TypeScript",
+                            "WebSockets",
+                            "SQLite",
+                        ],
+                        shots: [
+                            "keyspace",
+                            "workbench",
+                            "cli",
+                            "monitor",
+                            "metrics",
+                            "memory",
+                        ].map(function (s) {
+                            return (
+                                R +
+                                "redis_gui/main/docs/screenshots/" +
+                                s +
+                                ".png"
+                            );
+                        }),
+                    },
+                    {
+                        name: "ANIMATRON",
+                        meta: "Animation Studio \u00b7 React",
+                        priv: true,
+                        link: {
+                            href: "animator/",
+                            label: "Open the live app",
+                        },
+                        desc:
+                            "A browser-based SVG character animation studio: rig characters, animate them on a multi-track " +
+                            "timeline, sync lips to audio and export, with no install and no server. Anatomically pivoted joint " +
+                            "rigs, RMS-driven auto lip sync, deterministic particle effects, and an AI co-pilot whose output is " +
+                            "validated against the renderer's real enums so it can never corrupt undo/redo.",
+                        tech: [
+                            "React",
+                            "TypeScript",
+                            "SVG",
+                            "Web Audio",
+                            "Zustand",
+                            "Claude + GPT-4o",
+                        ],
+                        shots: [
+                            "shots/animator/editor.png",
+                            "shots/animator/ai-critic.png",
+                            "shots/animator/effects.png",
+                            "shots/animator/architecture.svg",
+                        ],
+                    },
+                    {
+                        name: "ReelForge",
+                        meta: "AI Video Generator \u00b7 Python",
+                        priv: true,
+                        desc:
+                            "A local-first AI faceless-video generator: a topic, story or script becomes a scene plan, visuals, " +
+                            "narration, word-timed captions and a finished 1080\u00d71920 MP4. Clip mode turns one long video into " +
+                            "several shorts using local Whisper, LLM-picked moments snapped to speech boundaries, and a 9:16 crop " +
+                            "centred on the speaker via median-of-12-frames YuNet face detection.",
+                        tech: [
+                            "Python",
+                            "FastAPI",
+                            "Next.js",
+                            "FFmpeg",
+                            "Whisper",
+                            "OpenCV",
+                        ],
+                        shots: [
+                            "create-topic.png",
+                            "editor.png",
+                            "clip-real-footage.jpg",
+                            "clip-face-crop.jpg",
+                            "create-ideas.png",
+                            "library.png",
+                            "upload.png",
+                        ].map(function (s) {
+                            return "shots/reelforge/" + s;
+                        }),
+                    },
+                    {
+                        name: "dockman",
+                        meta: "Docker Manager \u00b7 Tauri",
+                        repo: "https://github.com/AbyAbyss/dockman",
+                        desc:
+                            "A native desktop app that drives Docker and Podman side by side from one window: containers, " +
+                            "images, volumes, networks, builds and the runtime binaries themselves. An interactive shell into any " +
+                            "running container, a network topology map with live bandwidth, a build layer waterfall, and automatic " +
+                            "Docker retry when a Podman run hits an architecture mismatch.",
+                        tech: ["Rust", "Tauri", "React", "TypeScript", "Docker", "Podman"],
+                        shots: [
+                            "dashboard",
+                            "containers",
+                            "images",
+                            "volumes",
+                            "networks",
+                            "builds",
+                            "binaries",
+                            "run-container",
+                            "run-container-progress",
+                            "settings",
+                        ].map(function (s) {
+                            return (
+                                R +
+                                "dockman/main/docs/screenshots/" +
+                                s +
+                                ".png"
+                            );
+                        }),
+                    },
+                    {
+                        name: "sandkit",
+                        meta: "Code Playground SDK \u00b7 TypeScript",
+                        repo: "https://github.com/AbyAbyss/sandkit",
+                        site: {
+                            href: "sandkit/",
+                            label: "Try it live",
+                        },
+                        desc:
+                            "Embed a multi-language code playground in any React app with a single component. JavaScript and " +
+                            "Python run entirely in the browser on QuickJS and Pyodide (~50ms, no API key, code never leaves " +
+                            "the machine), while Go, Rust and Bash execute on a self-hosted Piston engine behind a Hono API and " +
+                            "a BullMQ queue. Ships with key management, usage metering and Stripe billing.",
+                        tech: [
+                            "TypeScript",
+                            "Hono",
+                            "WebAssembly",
+                            "Turborepo",
+                            "Pyodide",
+                            "QuickJS",
+                        ],
+                        fit: true,
+                        shots: ["sandkit.svg"],
+                    },
+                    {
+                        name: "DevConnect",
+                        meta: "All-in-one Dev Tool \u00b7 Tauri",
+                        priv: true,
+                        desc:
+                            "A developer desktop app combining a multi-database client, a REST client, a rich document editor " +
+                            "and a VSCode-style plugin system. MySQL, PostgreSQL, SQLite, MongoDB and Redis behind one UI with " +
+                            "IntelliSense and a schema explorer, plus docs where live database queries and REST requests embed " +
+                            "as blocks. Shipped through CI with parallel stable and alpha channels.",
+                        tech: [
+                            "Rust",
+                            "Tauri",
+                            "React",
+                            "TypeScript",
+                            "PostgreSQL",
+                            "MongoDB",
+                        ],
+                        shots: ["shots/devconnect.svg"],
+                    },
+                    {
+                        name: "GraceTrack",
+                        meta: "Offline-first Mobile App \u00b7 Flutter",
+                        priv: true,
+                        desc:
+                            "An offline-first giving tracker with no backend, no accounts and no analytics. Data lives on the " +
+                            "device and, optionally, in the user's own Google Sheet through a drive.file scope that can only see " +
+                            "the one file it created. Rule-based income splits stored as immutable snapshots, recurrence " +
+                            "detection, timezone- and OEM-aware notifications, and honest multi-currency handling.",
+                        tech: [
+                            "Flutter",
+                            "Dart",
+                            "Riverpod",
+                            "Drift/SQLite",
+                            "OAuth",
+                        ],
+                        fit: true,
+                        shots: [
+                            "shots/gracetrack/screen-home.svg",
+                            "shots/gracetrack/screen-entry.svg",
+                            "shots/gracetrack/screen-reports.svg",
+                            "shots/gracetrack/screen-history.svg",
+                            "shots/gracetrack/privacy.svg",
+                        ],
+                    },
+                    {
+                        name: "Yankit",
+                        meta: "macOS Utility \u00b7 Swift",
+                        repo: "https://github.com/AbyAbyss/Yankit",
+                        site: {
+                            href: "Yankit",
+                            label: "Visit the site",
+                        },
+                        desc:
+                            "A fast, free, open-source macOS clipboard manager. It remembers the text, images and files you " +
+                            "copy and pastes any of them back with \u2318\u21e7V. History lives in SQLite with payloads on disk rather " +
+                            "than in RAM, so it idles around 40 MB, and it deliberately skips password-manager content and stays " +
+                            "out of Spotlight and Time Machine.",
+                        tech: ["Swift", "SwiftUI", "AppKit", "macOS", "SQLite"],
+                        fit: true,
+                        shots: [R + "Yankit/main/docs/panel.svg"],
+                    },
+                    {
+                        name: "wimys_crumb",
+                        meta: "Disk Scanner \u00b7 Swift",
+                        repo: "https://github.com/AbyAbyss/wimys_crumb",
+                        site: {
+                            href: "wimys_crumb",
+                            label: "Visit the site",
+                        },
+                        desc:
+                            "A macOS disk-space scanner that walks ~5M files in a few minutes and shows exactly where the space " +
+                            "went. The scan tree streams into SQLite on disk rather than memory, so browsing a 5M-file scan stays " +
+                            "under 200 MB resident. Groups every node_modules, DerivedData and Caches across the whole drive, and " +
+                            "funnels all deletes through one protected-path-aware service with Undo.",
+                        tech: ["Swift", "SwiftUI", "GRDB", "SQLite", "macOS"],
+                        fit: true,
+                        shots: [
+                            "overview",
+                            "architecture",
+                        ].map(function (s) {
+                            return R + "wimys_crumb/main/docs/" + s + ".svg";
+                        }),
+                    },
+                    {
+                        name: "InkTerm",
+                        meta: "AI Terminal \u00b7 Tauri",
+                        repo: "https://github.com/AbyAbyss/InkTerm",
+                        desc:
+                            "A cross-platform desktop terminal with a stylized UI: multi-tab sessions, a file-browser overlay, " +
+                            "live CPU/memory/network stats, an AI agent panel and MCP server management with per-server tool " +
+                            "toggles. Five themes in a frameless transparent window. Still in active development.",
+                        tech: ["Rust", "Tauri", "React", "TypeScript", "MCP"],
+                        shots: [
+                            "terminal",
+                            "ai-agent",
+                            "mcp",
+                            "retro-mcp",
+                            "dark-pro",
+                            "settings",
+                        ].map(function (s) {
+                            return (
+                                R +
+                                "InkTerm/main/docs/screenshots/" +
+                                s +
+                                ".png"
+                            );
+                        }),
+                    },
+                    {
+                        name: "RestClient",
+                        meta: "REST Client \u00b7 Tauri",
+                        repo: "https://github.com/AbyAbyss/RestClient",
+                        desc:
+                            "An open-source desktop REST client with a cartoon UI, Postman-compatible test scripts and built-in " +
+                            "load testing. A full response timeline breaks out DNS, TCP, TLS, TTFB and download, while Rust " +
+                            "spawns concurrent async workers for performance runs with virtual users, ramp-up profiles and " +
+                            "saved-run comparison.",
+                        tech: [
+                            "Rust",
+                            "Tauri",
+                            "React",
+                            "TypeScript",
+                            "SQLite",
+                        ],
+                        shots: [
+                            "screenshot-main",
+                            "screenshot-timeline",
+                            "screenshot-tests",
+                            "screenshot-environments",
+                            "screenshot-perf-config",
+                            "screenshot-perf-results",
+                        ].map(function (s) {
+                            return R + "RestClient/main/docs/" + s + ".png";
+                        }),
+                    },
+                    {
+                        name: "PrivateVault",
+                        meta: "Encrypted Vault \u00b7 Flutter",
+                        priv: true,
+                        desc:
+                            "A cross-platform privacy vault that encrypts media on the device and stores it in the user's own " +
+                            "Google Drive appdata folder, hidden from the normal Drive UI. Vault encryption is independent of " +
+                            "the device lock screen, so the blobs are useless without the passphrase, and decrypted data is " +
+                            "never written to disk. Ships a documented container format and a standalone CLI decryptor.",
+                        tech: [
+                            "Flutter",
+                            "Dart",
+                            "AES",
+                            "Argon2",
+                            "OAuth",
+                            "Google Drive API",
+                        ],
+                        fit: true,
+                        shots: ["shots/privatevault.svg"],
+                    },
+                    {
+                        name: "Term REST Client",
+                        meta: "Terminal REST Client \u00b7 Go",
+                        repo: "https://github.com/AbyAbyss/cli-rest-client",
+                        desc:
+                            "A terminal-based REST client in pure Go with a tview UI: collections, all common HTTP methods, a " +
+                            "JSON body editor with syntax highlighting, a response viewer, two themes and full keyboard " +
+                            "navigation. One binary, no external services.",
+                        tech: ["Go", "tview", "Terminal UI", "REST"],
+                        shots: [
+                            R + "cli-rest-client/main/assets/screenshot.png",
+                        ],
+                    },
+                ];
+                var WORK = [
+                    {
+                        name: "LLM & MCP Platform",
+                        org: "Josys",
+                        meta: "AI / LLM Systems",
+                        desc:
+                            "An internal LLM platform for context-aware retrieval across production data, with a graph database " +
+                            "for semantic querying. Saved the team 8 hours a week with 60% less manual querying. MCP clients and " +
+                            "servers cut integration time for new services from 2 weeks to 2 days.",
+                        tech: ["LLMs", "RAG", "LangChain", "MCP", "Graph DB", "Node.js"],
+                    },
+                    {
+                        name: "Analytics Platform",
+                        org: "Josys",
+                        meta: "Data &amp; Analytics",
+                        desc:
+                            "A reporting and analytics stack: Airbyte ingestion, DuckDB for columnar analytics and Apache Airflow " +
+                            "for orchestration. About 70% faster queries above 50M rows, 45% lower infrastructure cost, and " +
+                            "reports down from 25 minutes to under 2.",
+                        tech: ["Airbyte", "DuckDB", "Apache Airflow", "Python", "ETL"],
+                    },
+                    {
+                        name: "Notification Platform",
+                        org: "Josys",
+                        meta: "Platform Engineering",
+                        desc:
+                            "One notification service handling 50,000 messages a day, consolidating 8 separate flows across " +
+                            "email, Slack and Teams, on REST and AWS SQS. Built as part of rolling out NestJS as the standard " +
+                            "across 12+ microservices, which cut onboarding from 6 weeks to 3.",
+                        tech: ["NestJS", "TypeScript", "AWS SQS", "Slack", "Microsoft Teams"],
+                    },
+                    {
+                        name: "Enterprise Browser Extension",
+                        org: "Josys",
+                        meta: "Web Extensions",
+                        desc:
+                            "A browser extension serving over 2 million users from one codebase across Chromium and Firefox, " +
+                            "supporting Manifest V2 and V3, with silent activation for enterprise deployment.",
+                        tech: ["TypeScript", "WebExtensions", "Chromium", "Firefox"],
+                    },
+                    {
+                        name: "SaaS Simulation Framework",
+                        org: "Josys",
+                        meta: "Testing Infrastructure",
+                        desc:
+                            "Simulates 300+ integrated SaaS providers for testing at scale. Cut testing infrastructure cost 35%, " +
+                            "never needed a bug fix, and became the customer-facing production sandbox.",
+                        tech: ["Node.js", "Golang", "AWS ECS", "Docker"],
+                    },
+                    {
+                        name: "Security Scanning Service",
+                        org: "Josys",
+                        meta: "Security · Team lead",
+                        desc:
+                            "Led the security project and team: a Go service that orchestrates Semgrep, Gitleaks and Trivy " +
+                            "across the company's GitHub repository estate.",
+                        tech: ["Go", "Semgrep", "Gitleaks", "Trivy", "GitHub"],
+                    },
+                    {
+                        name: "GraphQL Multi-DB Platform",
+                        org: "Josys",
+                        meta: "GraphQL · Multi-DB",
+                        desc:
+                            "A multi-database GraphQL platform with automatic schema generation, unifying MySQL, MongoDB and " +
+                            "PostgreSQL behind one API with dynamic filter conversion.",
+                        tech: ["GraphQL", "NestJS", "MySQL", "MongoDB", "PostgreSQL"],
+                    },
+                    {
+                        name: "ZTNA Solution",
+                        org: "InstaSafe",
+                        meta: "Security · R&amp;D",
+                        desc:
+                            "A Zero Trust Network Access product built from scratch: a cross-platform desktop client plus a " +
+                            "gateway server for agentless access to private web apps. Helped bring in 10+ enterprise customers " +
+                            "and cut customer onboarding time 40%.",
+                        tech: ["Node.js", "Spring Boot", "ZTNA", "Secure Gateway"],
+                    },
+                    {
+                        name: "Dev-Connector",
+                        org: "Side project",
+                        meta: "Desktop · P2P",
+                        desc:
+                            "A decentralised, privacy-first API client that needs no server: a Tauri (Rust) desktop shell with " +
+                            "GunDB peer-to-peer sync. REST and GraphQL today, gRPC planned.",
+                        tech: ["React", "Tauri", "Rust", "GunDB"],
+                    },
+                ];
+                var SKILLS = [
+                    ["Languages", ["TypeScript", "JavaScript", "Node.js", "Go", "Python", "Java", "SQL", "Lua"]],
+                    ["Backend", ["NestJS", "Spring Boot", "FastAPI", "REST", "GraphQL", "Microservices", "Event-driven architecture"]],
+                    ["Web & Client", ["React", "Next.js", "Angular", "Electron", "Tauri", "Cross-browser extensions"]],
+                    ["Cloud & Infra", ["AWS (ECS, SQS, SNS, S3)", "Docker", "Kubernetes", "CI/CD"]],
+                    ["Data & Search", ["PostgreSQL", "MySQL", "MongoDB", "OpenSearch", "Redis", "Airflow", "Airbyte", "DuckDB"]],
+                    ["AI & LLM", ["MCP", "LLMs", "RAG", "LangChain", "AI agents"]],
+                    ["Security", ["Zero Trust Network Access", "WireGuard", "Semgrep", "Gitleaks", "Trivy"]],
+                ];
+
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
+  var esc = function (s) { return String(s).replace(/&(?!amp;|lt;|gt;|#)/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
+  var byName = function (n) { return OSS.filter(function (p) { return p.name === n; })[0]; };
+
+  /* ---------- Content that comes from data ---------- */
+  var STACK = ["AgentKit", "Helpy", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
+  var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0; });
+
+  function linksOf(p) {
+    var o = [];
+    if (p.site) o.push('<a href="' + p.site.href + '" data-cursor="Open">' + esc(p.site.label) + " ↗</a>");
+    if (p.docs) o.push('<a href="' + p.docs.href + '" data-cursor="Open">' + esc(p.docs.label) + " ↗</a>");
+    if (p.link) o.push('<a href="' + p.link.href + '" data-cursor="Open">' + esc(p.link.label) + " ↗</a>");
+    if (p.repo) o.push('<a href="' + p.repo + '" target="_blank" rel="noopener" data-cursor="Open">View on GitHub ↗</a>');
+    return o.length ? '<div class="plinks">' + o.join("") + "</div>" : "";
+  }
+  var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
+  $("#stack").innerHTML = STACK.map(function (p, i) {
+    return '<article class="pcard" style="--i:' + i + '"><span class="tape" aria-hidden="true"></span><span class="shade"></span>' +
+      '<span class="pcount">' + pad2(i + 1) + " / " + pad2(STACK.length) + "</span>" +
+      '<div class="pframe' + (p.fit ? " fit" : "") + '"><img loading="lazy" src="' + p.shots[0] + '" alt="' + esc(p.name) + ' screenshot"></div>' +
+      '<div class="pbody"><p class="mono">' + p.meta + "</p>" + (p.priv ? '<span class="badge-priv">Private</span>' : "") +
+      '<h3 class="pname">' + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
+      '<div class="ptech">' + p.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" + linksOf(p) + "</div></article>";
+  }).join("");
+  $("#idx-count").textContent = INDEX.length + " more";
+  $("#idx").innerHTML = INDEX.map(function (p, i) {
+    var href = p.site ? p.site.href : p.repo || "";
+    var tag = href ? "a" : "div";
+    return "<" + tag + ' class="row" ' + (href ? 'href="' + href + '"' + (p.repo && !p.site ? ' target="_blank" rel="noopener"' : "") : "") + ' data-peek="' + i + '" data-cursor="View">' +
+      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + (p.priv ? " · Private" : "") + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
+  }).join("");
+  $("#cards").innerHTML = WORK.map(function (w) {
+    return '<article class="card"><p class="org mono">' + esc(w.org) + " · " + w.meta + "</p><h3>" + esc(w.name) + "</h3><p>" + esc(w.desc) + '</p><div class="ptech">' + w.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div></article>";
+  }).join("");
+  $("#mqs").innerHTML = SKILLS.map(function (g) {
+    var run = g[1].map(function (s) { return "<span>" + esc(s) + "<i>✦</i></span>"; }).join("");
+    return '<div class="mq" aria-hidden="true"><p class="mq-label hand">' + esc(g[0]) + '</p><div class="mq-view"><div class="mq-in">' + run + run + "</div></div></div>";
+  }).join("");
+  $("#skills-sr").innerHTML = SKILLS.map(function (g) { return "<li>" + esc(g[0]) + ": " + g[1].map(esc).join(", ") + "</li>"; }).join("");
+
+  /* ---------- Small helpers ---------- */
+  function splitChars(el, keepAria) {
+    var t = el.textContent;
+    if (!keepAria) el.setAttribute("aria-label", t);
+    var chars = [];
+    var nodes = [].slice.call(el.childNodes);
+    el.textContent = "";
+    var walk = function (node, parent) {
+      if (node.nodeType === 3) {
+        node.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { parent.appendChild(document.createTextNode(" ")); return; }
+          var w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
+          [].slice.call(part).forEach(function (c) { var s = document.createElement("span"); s.className = "ch"; s.textContent = c; w.appendChild(s); chars.push(s); });
+          parent.appendChild(w);
+        });
+      } else if (node.nodeType === 1) {
+        var clone = node.cloneNode(false);
+        parent.appendChild(clone);
+        [].slice.call(node.childNodes).forEach(function (c) { walk(c, clone); });
+      }
+    };
+    nodes.forEach(function (n) { walk(n, el); });
+    return chars;
+  }
+  function splitWords(el) {
+    var words = [];
+    var walk = function (node, parent) {
+      if (node.nodeType === 3) {
+        node.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { parent.appendChild(document.createTextNode(" ")); return; }
+          var s = document.createElement("span"); s.className = "wd"; s.textContent = part; parent.appendChild(s); words.push(s);
+        });
+      } else if (node.nodeType === 1) {
+        var clone = node.cloneNode(false); parent.appendChild(clone);
+        [].slice.call(node.childNodes).forEach(function (c) { walk(c, clone); });
+      }
+    };
+    var kids = [].slice.call(el.childNodes); el.textContent = "";
+    kids.forEach(function (n) { walk(n, el); });
+    return words;
+  }
+
+  /* ---------- Copy email (works without motion) ---------- */
+  var copyBtn = $("#copy-email");
+  copyBtn.addEventListener("click", function () {
+    var done = function () { copyBtn.textContent = "Copied"; setTimeout(function () { copyBtn.textContent = "Copy"; }, 1500); };
+    var pick = function () { var r = document.createRange(); r.selectNodeContents($("#email")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+    if (navigator.clipboard) navigator.clipboard.writeText("abyrocksaji@gmail.com").then(done, pick); else pick();
+  });
+
+  /* ---------- Motion ---------- */
+  var root = document.documentElement;
+  if (!root.classList.contains("js") || !window.gsap || !window.ScrollTrigger) { root.classList.remove("js"); return; }
+  root.classList.add("motion");
+  var failsafe = setTimeout(function () { $("#pre").style.display = "none"; if (window.lenis) window.lenis.start(); }, 9000);
+
+  try {
+  gsap.registerPlugin(ScrollTrigger);
+  var lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
+  window.lenis = lenis;
+  lenis.on("scroll", ScrollTrigger.update);
+  gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+  gsap.ticker.lagSmoothing(0);
+  lenis.stop();
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener("click", function (e) {
+      var id = a.getAttribute("href");
+      var t = id === "#top" ? 0 : $(id);
+      if (t === null) return;
+      e.preventDefault();
+      lenis.scrollTo(t, { duration: 1.6, easing: function (x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; } });
+    });
+  });
+
+  var finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  /* Cursor */
+  if (finePointer) {
+    var cur = $("#cursor"), curT = $("#cursor-t");
+    var cx = gsap.quickTo(cur, "x", { duration: 0.35, ease: "power3" }), cy = gsap.quickTo(cur, "y", { duration: 0.35, ease: "power3" });
+    addEventListener("pointermove", function (e) { cx(e.clientX); cy(e.clientY); }, { passive: true });
+    document.addEventListener("pointerover", function (e) {
+      var t = e.target.closest("[data-cursor], a, button");
+      if (!t) return;
+      var label = t.getAttribute("data-cursor") || "";
+      curT.textContent = label;
+      gsap.to(cur, { width: label ? 84 : 44, height: label ? 84 : 44, marginLeft: label ? -42 : -22, marginTop: label ? -42 : -22, duration: 0.35, ease: "power3.out" });
+      gsap.to(curT, { opacity: label ? 1 : 0, duration: 0.2 });
+    });
+    document.addEventListener("pointerout", function (e) {
+      if (!e.target.closest("[data-cursor], a, button")) return;
+      gsap.to(cur, { width: 16, height: 16, marginLeft: -8, marginTop: -8, duration: 0.35, ease: "power3.out" });
+      gsap.to(curT, { opacity: 0, duration: 0.15 });
+    });
+  }
+
+  /* Progress rail and scene name, page rotation of the badge */
+  ScrollTrigger.create({ start: 0, end: "max", onUpdate: function (s) { $("#rail").style.transform = "scaleY(" + s.progress.toFixed(4) + ")"; } });
+  gsap.to(".c-badge svg", { rotation: 720, ease: "none", scrollTrigger: { trigger: document.body, start: 0, end: "max", scrub: true } });
+
+  var mm = gsap.matchMedia();
+
+  /* ===== Scene 1: hero, pinned ===== */
+  var nameChars = [];
+  $$("#hero-name .ln").forEach(function (ln) { nameChars = nameChars.concat(splitChars(ln, true)); });
+  var sayWords = splitWords($("#hero-say"));
+  gsap.set(nameChars, { yPercent: 130, rotation: 9, opacity: 0, fontWeight: 420 });
+  gsap.set(sayWords, { opacity: 0, yPercent: 50 });
+  gsap.set("#hero-sub", { opacity: 0, y: 20 });
+  gsap.set(".cut-in", { scale: 0, opacity: 0 });
+  gsap.set(".hero-top, .cue", { opacity: 0 });
+  gsap.set(".nav", { yPercent: -100 });
+
+  mm.add("(min-width: 1px)", function () {
+    var tl = gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=190%", pin: true, scrub: 0.7, anticipatePin: 1 } });
+    // The name swells as you scroll, then tears apart in opposite directions.
+    tl.to(nameChars, { fontWeight: 900, duration: 0.8, ease: "none", stagger: { each: 0.03, from: "center" } }, 0)
+      .fromTo(".hero-top, .cue", { opacity: 1 }, { opacity: 0, duration: 0.2, immediateRender: false }, 0)
+      .to(".cut", { x: function (i, el) { return (parseFloat(el.dataset.dx) * innerWidth) / 100; }, y: function (i, el) { return (parseFloat(el.dataset.dy) * innerHeight) / 100; }, rotation: function (i, el) { return parseFloat(el.dataset.rot); }, duration: 1.6, ease: "none" }, 0)
+      .fromTo(nameChars, { yPercent: 0, rotation: 0, x: 0, opacity: 1 }, { yPercent: function () { return gsap.utils.random(-150, -60); }, rotation: function () { return gsap.utils.random(-40, 40); }, x: function () { return gsap.utils.random(-120, 120); }, opacity: 0, duration: 0.7, ease: "power2.in", immediateRender: false, stagger: { each: 0.02, from: "random" } }, 0.85)
+      .to(sayWords, { opacity: 1, yPercent: 0, duration: 0.4, ease: "power2.out", stagger: 0.08 }, 1.25)
+      .to("#hero-sub", { opacity: 1, y: 0, duration: 0.4 }, 1.9)
+      .fromTo(".cut-in", { opacity: 1 }, { opacity: 0, duration: 0.4, immediateRender: false }, 2.1)
+      .to({}, { duration: 0.4 });
+  });
+
+  /* ===== Scene 2: manifesto, word by word ===== */
+  $$("[data-scrub]").forEach(function (el) {
+    var w = splitWords(el);
+    gsap.fromTo(w, { opacity: 0.12 }, { opacity: 1, ease: "none", stagger: 0.1, scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 50%", scrub: true } });
+  });
+  gsap.from("[data-fade]", { opacity: 0, y: 50, duration: 1, ease: "power3.out", scrollTrigger: { trigger: "[data-fade]", start: "top 88%", toggleActions: "play none none reverse" } });
+  $$(".stat").forEach(function (el) {
+    var s = parseFloat(el.dataset.speed || 1);
+    gsap.fromTo(el, { y: 110 * s }, { y: -70 * s, ease: "none", scrollTrigger: { trigger: "#stats", start: "top bottom", end: "bottom top", scrub: true } });
+    var b = $("b", el), to = parseFloat(b.dataset.to), suffix = b.dataset.suffix || "", o = { v: 0 };
+    ScrollTrigger.create({ trigger: el, start: "top 88%", once: true, onEnter: function () {
+      gsap.to(o, { v: to, duration: 1.6, ease: "power3.out", onUpdate: function () { b.textContent = Math.round(o.v) + suffix; } });
+    } });
+    b.textContent = "0" + suffix;
+    gsap.from(el, { rotation: gsap.getProperty(el, "rotation") + gsap.utils.random(-8, 8), duration: 1.1, ease: "elastic.out(1, 0.55)", scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" } });
+  });
+
+  /* ===== Scene 3: horizontal filmstrip ===== */
+  mm.add("(min-width: 901px)", function () {
+    var track = $("#xp-track"), pin = $(".xp");
+    var dist = function () { return Math.max(0, track.scrollWidth - innerWidth); };
+    var move = gsap.to(track, { x: function () { return -dist(); }, ease: "none", scrollTrigger: { trigger: pin, start: "top top", end: function () { return "+=" + dist(); }, pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true,
+      onUpdate: function (s) { pin.style.setProperty("--fx", (-dist() * s.progress).toFixed(1) + "px"); $("#xp-bar").style.transform = "scaleX(" + s.progress.toFixed(4) + ")"; } } });
+    $$(".panel").forEach(function (p) {
+      var yr = $(".yr", p), items = $$(".p-list li, .p-role, .p-when, .p-org", p);
+      if (yr) gsap.fromTo(yr, { xPercent: 30 }, { xPercent: -30, ease: "none", scrollTrigger: { trigger: p, containerAnimation: move, start: "left right", end: "right left", scrub: true } });
+      gsap.from(items, { opacity: 0, x: 60, duration: 0.7, ease: "power3.out", stagger: 0.06, scrollTrigger: { trigger: p, containerAnimation: move, start: "left 78%", toggleActions: "play none none reverse" } });
+    });
+    return function () { pin.style.removeProperty("--fx"); };
+  });
+  mm.add("(max-width: 900px)", function () {
+    $$(".panel").forEach(function (p) {
+      gsap.from($$(".p-body > *, .p-list li", p), { opacity: 0, y: 40, duration: 0.8, ease: "power3.out", stagger: 0.05, scrollTrigger: { trigger: p, start: "top 80%", toggleActions: "play none none reverse" } });
+    });
+  });
+
+  /* ===== Scene 4: stacking project cards ===== */
+  mm.add("(min-width: 901px)", function () {
+    var cards = $$(".pcard");
+    cards.forEach(function (c, i) {
+      var next = cards[i + 1];
+      if (next) {
+        gsap.to(c, { scale: 0.92, rotation: i % 2 ? 1.6 : -1.6, ease: "none", scrollTrigger: { trigger: next, start: "top 92%", end: "top 12%", scrub: true } });
+        gsap.to($(".shade", c), { opacity: 0.6, ease: "none", scrollTrigger: { trigger: next, start: "top 92%", end: "top 12%", scrub: true } });
+      }
+      gsap.fromTo($("img", $(".pframe", c)), { yPercent: -6 }, { yPercent: 6, ease: "none", scrollTrigger: { trigger: c, start: "top bottom", end: "bottom top", scrub: true } });
+    });
+  });
+  $$(".pcard").forEach(function (c) {
+    gsap.from($(".pframe", c), { clipPath: "inset(0 100% 0 0)", duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: c, start: "top 78%", toggleActions: "play none none reverse" } });
+    var name = $(".pname", c), ch = splitChars(name);
+    name.classList.add("mask");
+    gsap.from(ch, { yPercent: 110, duration: 0.9, ease: "expo.out", stagger: 0.02, scrollTrigger: { trigger: c, start: "top 70%", toggleActions: "play none none reverse" } });
+    gsap.from($$(".pbody > :not(.pname)", c), { opacity: 0, y: 30, duration: 0.8, ease: "power3.out", stagger: 0.07, scrollTrigger: { trigger: c, start: "top 66%", toggleActions: "play none none reverse" } });
+  });
+  gsap.from(".row", { opacity: 0, y: 40, duration: 0.8, ease: "power3.out", stagger: 0.05, scrollTrigger: { trigger: "#idx", start: "top 85%", toggleActions: "play none none reverse" } });
+
+  /* Hover preview that follows the pointer */
+  if (finePointer) {
+    var peek = $("#peek"), pimg = $("img", peek);
+    var px = gsap.quickTo(peek, "x", { duration: 0.5, ease: "power3" }), py = gsap.quickTo(peek, "y", { duration: 0.5, ease: "power3" });
+    var prot = gsap.quickTo(peek, "rotation", { duration: 0.6, ease: "power3" });
+    var lastX = 0;
+    addEventListener("pointermove", function (e) { px(e.clientX + 28); py(e.clientY - 100); prot(gsap.utils.clamp(-8, 8, (e.clientX - lastX) * 0.4)); lastX = e.clientX; }, { passive: true });
+    $$(".row").forEach(function (r) {
+      r.addEventListener("pointerenter", function () {
+        var p = INDEX[+r.dataset.peek];
+        pimg.src = p.shots[0]; peek.classList.toggle("fit", !!p.fit);
+        gsap.to(peek, { opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", overwrite: "auto" });
+      });
+      r.addEventListener("pointerleave", function () { gsap.to(peek, { opacity: 0, scale: 0.85, duration: 0.25, overwrite: "auto" }); });
+    });
+    gsap.set(peek, { scale: 0.85 });
+  }
+
+  /* ===== Scene 5: platform cards flip up ===== */
+  gsap.set(".card", { transformOrigin: "50% 100%" });
+  ScrollTrigger.batch(".card", { start: "top 90%", onEnter: function (b) { gsap.fromTo(b, { opacity: 0, y: 90, rotationX: -40 }, { opacity: 1, y: 0, rotationX: 0, duration: 1, ease: "power3.out", stagger: 0.1, overwrite: true }); }, onLeaveBack: function (b) { gsap.to(b, { opacity: 0, y: 90, rotationX: -40, duration: 0.5, overwrite: true }); }, onEnterBack: function (b) { gsap.to(b, { opacity: 1, y: 0, rotationX: 0, duration: 0.8, ease: "power3.out", stagger: 0.08, overwrite: true }); } });
+  gsap.set(".card", { opacity: 0 });
+
+  /* Big titles, letter by letter, in both directions */
+  $$("[data-split]").forEach(function (el) {
+    var ch = splitChars(el);
+    gsap.from(ch, { yPercent: 115, rotation: 6, duration: 1.1, ease: "expo.out", stagger: 0.025, scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } });
+  });
+
+
+  /* ===== Scene 6: skills ticker, driven by scroll speed ===== */
+  var rows = $$(".mq").map(function (row, i) {
+    var inner = $(".mq-in", row);
+    return { row: row, inner: inner, dir: i % 2 ? 1 : -1, pos: 0, half: 0, set: gsap.quickSetter(inner, "x", "px"), skew: gsap.quickSetter(row, "skewX", "deg") };
+  });
+  var measure = function () { rows.forEach(function (r) { r.half = r.inner.scrollWidth / 2; r.pos = r.dir > 0 ? -r.half : 0; }); };
+  var vel = 0, smooth = 0;
+  ScrollTrigger.create({ onUpdate: function (s) { vel = s.getVelocity(); } });
+  gsap.ticker.add(function (time, dt) {
+    smooth += (vel - smooth) * 0.12; vel *= 0.9;
+    var sk = gsap.utils.clamp(-14, 14, -smooth / 260);
+    rows.forEach(function (r) {
+      if (!r.half) return;
+      var hover = r.row.matches(":hover") ? 0.15 : 1;
+      var speed = (46 + Math.min(Math.abs(smooth) * 0.12, 900)) * hover;
+      r.pos += r.dir * speed * (dt / 1000) * (smooth < 0 ? -1 : 1);
+      if (r.pos <= -r.half) r.pos += r.half;
+      if (r.pos > 0) r.pos -= r.half;
+      r.set(r.pos); r.skew(sk);
+    });
+  });
+  gsap.from(".mq-label", { opacity: 0, x: -40, rotation: -12, duration: 0.7, ease: "back.out(2)", stagger: 0.08, scrollTrigger: { trigger: "#mqs", start: "top 80%", toggleActions: "play none none reverse" } });
+
+  /* ===== Scene 7: letters swell near the pointer ===== */
+  var pxChars = splitChars($("#px"));
+  gsap.from(pxChars, { yPercent: 110, opacity: 0, rotation: 8, duration: 1.1, ease: "expo.out", stagger: 0.03, scrollTrigger: { trigger: "#px", start: "top 85%", toggleActions: "play none none reverse" } });
+  if (finePointer) {
+    var pxSetters = pxChars.map(function (c) { return gsap.quickSetter(c, "fontWeight"); });
+    var mx = -999, my = -999, queued = false;
+    var paint = function () {
+      queued = false;
+      pxChars.forEach(function (c, i) {
+        var r = c.getBoundingClientRect(), d = Math.hypot(mx - (r.left + r.width / 2), my - (r.top + r.height / 2));
+        pxSetters[i](Math.round(500 + 400 * Math.max(0, 1 - d / 260)));
+      });
+    };
+    addEventListener("pointermove", function (e) { mx = e.clientX; my = e.clientY; if (!queued) { queued = true; requestAnimationFrame(paint); } }, { passive: true });
+    addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(paint); } }, { passive: true });
+    $$(".mag").forEach(function (b) {
+      var bx = gsap.quickTo(b, "x", { duration: 0.6, ease: "elastic.out(1, 0.5)" }), by = gsap.quickTo(b, "y", { duration: 0.6, ease: "elastic.out(1, 0.5)" });
+      b.addEventListener("pointermove", function (e) { var r = b.getBoundingClientRect(); bx((e.clientX - r.left - r.width / 2) * 0.4); by((e.clientY - r.top - r.height / 2) * 0.4); });
+      b.addEventListener("pointerleave", function () { bx(0); by(0); });
+    });
+  }
+  gsap.from(".lines > *", { opacity: 0, y: 30, duration: 0.8, ease: "power3.out", stagger: 0.08, scrollTrigger: { trigger: ".lines", start: "top 88%", toggleActions: "play none none reverse" } });
+
+  /* The stage colours come last: the pins above have to exist first. */
+  /* Stage colours follow the scenes, both ways */
+  var scenes = $$(".scene[data-bg]");
+  var sceneName = $("#scene-name");
+  function stage(s) {
+    gsap.to(root, { "--bg": s.dataset.bg, "--fg": s.dataset.fg, "--acc": s.dataset.acc, duration: 0.8, ease: "power2.out", overwrite: "auto" });
+    gsap.to("html", { backgroundColor: s.dataset.bg, duration: 0.8, overwrite: "auto" });
+    if (sceneName.textContent !== s.dataset.label) {
+      gsap.timeline().to(sceneName, { yPercent: -120, opacity: 0, duration: 0.2 }).add(function () { sceneName.textContent = s.dataset.label; }).set(sceneName, { yPercent: 120 }).to(sceneName, { yPercent: 0, opacity: 1, duration: 0.3, ease: "power3.out" });
+    }
+  }
+  scenes.forEach(function (s, i) {
+    if (i === 0) return;
+    ScrollTrigger.create({ trigger: s, start: "top 55%", end: "bottom 55%", onEnter: function () { stage(s); }, onEnterBack: function () { stage(s); }, onLeaveBack: i === 1 ? function () { stage(scenes[0]); } : undefined });
+  });
+
+
+  /* ===== Opening sequence ===== */
+  var counter = { v: 0 }, pre = $("#pre"), preN = $("#pre-n"), preBar = $("#pre-bar");
+  var loaded = new Promise(function (res) { if (document.readyState === "complete") res(); else addEventListener("load", res, { once: true }); });
+  var ready = Promise.race([Promise.all([document.fonts ? document.fonts.ready : 0, loaded]), new Promise(function (r) { setTimeout(r, 4500); })]);
+  var fill = gsap.to(counter, { v: 92, duration: 1.7, ease: "power2.out", onUpdate: function () { preN.textContent = pad3(counter.v); preBar.style.transform = "scaleX(" + counter.v / 100 + ")"; } });
+  function pad3(v) { v = Math.round(v); return (v < 10 ? "00" : v < 100 ? "0" : "") + v; }
+  ready.then(function () {
+    fill.kill();
+    gsap.to(counter, { v: 100, duration: 0.5, ease: "power2.out", onUpdate: function () { preN.textContent = pad3(counter.v); preBar.style.transform = "scaleX(" + counter.v / 100 + ")"; }, onComplete: open });
+  });
+  function open() {
+    clearTimeout(failsafe);
+    var t = gsap.timeline({ defaults: { ease: "expo.out" } });
+    t.to(".pre-name, .pre-row .mono", { opacity: 0, y: -20, duration: 0.5 })
+     .to(".pre", { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: "expo.inOut" }, 0.35)
+     .to(nameChars, { yPercent: 0, rotation: 0, opacity: 1, duration: 1.3, stagger: { each: 0.045, from: "start" } }, 0.9)
+     .to(".hero-top, .cue", { opacity: 1, duration: 0.8 }, 1.5)
+     .to(".cut-in", { scale: 1, opacity: 1, duration: 0.9, ease: "back.out(1.8)", stagger: 0.12 }, 1.55)
+     .to(".nav", { yPercent: 0, duration: 0.9 }, 1.7)
+     .add(function () { $("#pre").style.display = "none"; lenis.start(); ScrollTrigger.refresh(); }, 1.5);
+  }
+  loaded.then(function () { ScrollTrigger.refresh(); });
+  if (document.fonts) document.fonts.ready.then(function () { measure(); ScrollTrigger.refresh(); });
+  addEventListener("resize", function () { measure(); });
+  measure();
+
+  } catch (err) {
+    console.error(err);
+    clearTimeout(failsafe);
+    root.classList.remove("motion", "js");
+    $("#pre").style.display = "none";
+  }
+})();
+</script>
+</body>
+</html>
