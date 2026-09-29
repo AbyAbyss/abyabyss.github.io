@@ -287,9 +287,13 @@
   .anat-head .title { font-size: clamp(44px, 6.2vw, 108px); }
   .anat-head p { margin-top: 22px; max-width: 24em; color: var(--mute); }
   .anat-head .mono { color: var(--acc); margin-bottom: 14px; }
-  #watch { display: block; height: min(86svh, 900px); width: auto; max-width: 100%; margin-inline: auto; overflow: visible; }
+  #machine { display: block; height: min(86svh, 900px); width: auto; max-width: 100%; margin-inline: auto; overflow: visible; }
   .wt * { vector-effect: non-scaling-stroke; }
-  .wt text { font-family: var(--display); }
+  .wt text { font-family: var(--mono); font-weight: 700; }
+  .wt .disp { font-family: var(--display); }
+  .cur { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .legend li em { display: block; font: 500 11px/1.4 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acc); margin-bottom: 3px; }
   .lyr { transition: opacity 350ms ease, filter 350ms ease; }
   .wt[data-a] .lyr { opacity: 0.28; }
   .wt[data-a] .lyr.on { opacity: 1; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--acc) 75%, transparent)); }
@@ -300,18 +304,18 @@
   .legend li b { display: block; font: 800 clamp(17px, 1.5vw, 24px)/1.1 var(--display); text-transform: uppercase; letter-spacing: -0.01em; }
   .legend li span { display: block; max-height: 0; overflow: hidden; opacity: 0; font-size: 15px; line-height: 1.45; transition: max-height 400ms ease, opacity 300ms ease, margin 300ms ease; }
   .legend li.on:not(.intro) { color: var(--fg); border-color: var(--acc); padding-left: 28px; }
-  .legend li.on:not(.intro) span { max-height: 96px; opacity: 1; margin-top: 6px; }
+  .legend li.on:not(.intro) span { max-height: 118px; opacity: 1; margin-top: 6px; }
   html:not(.motion) .anat { height: auto; min-height: 0; padding-block: 12vh; overflow: visible; }
   html:not(.motion) .legend li span { max-height: none; opacity: 1; margin-top: 4px; }
   html:not(.motion) .legend .intro { display: none; }
   @media (max-width: 1000px) {
     .anat { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; padding-top: 62px; align-items: start; }
     .anat-head .title { font-size: clamp(34px, 9vw, 60px); } .anat-head p { display: none; }
-    #watch { height: 100%; max-height: 52svh; }
+    #machine { height: 100%; max-height: 52svh; }
     html.motion .legend li:not(.on) { display: none; }
     .legend { min-height: 128px; align-content: start; }
   }
-  @media (max-width: 1000px) { html:not(.motion) #watch { height: auto; max-height: none; width: min(100%, 520px); } html:not(.motion) .anat { grid-template-rows: auto; } }
+  @media (max-width: 1000px) { html:not(.motion) #machine { height: auto; max-height: none; width: min(100%, 520px); } html:not(.motion) .anat { grid-template-rows: auto; } }
 
   /* ---------- No motion: a plain, complete page ---------- */
   html:not(.motion) .hero { height: auto; min-height: 0; display: block; text-align: center; padding: 130px clamp(18px, 4.5vw, 72px) 90px; overflow: visible; }
@@ -358,7 +362,7 @@
     .stats { gap: 26px 14px; } .stat { padding: 16px 14px 18px; }
     .lines .v { font-size: 16px; }
   }
-  @media (prefers-reduced-motion: reduce) { .cue i { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .cue i, .cur { animation: none; } }
 </style>
 </head>
 <body>
@@ -436,13 +440,13 @@
     </div>
   </section>
 
-  <section class="anat scene" id="anatomy" data-bg="#0c2233" data-fg="#eaf3f5" data-acc="#ffb648" data-label="Anatomy" aria-label="Anatomy of a system">
+  <section class="anat scene" id="anatomy" data-bg="#0c2233" data-fg="#eaf3f5" data-acc="#ffb648" data-label="Anatomy" aria-label="Anatomy of a developer's machine">
     <div class="anat-head">
-      <p class="mono">Anatomy of a system</p>
+      <p class="mono">Inside the machine</p>
       <h2 class="title">Taken<br>apart, <em>put<br>back.</em></h2>
-      <p>A watch is a good picture of how I think about software. Every part has one job, the parts have to mesh, and it only tells the time when they all do.</p>
+      <p>A laptop is where all of this gets built, so it's how I explain it. Every part has one job, the parts have to fit together, and nothing runs until they all do.</p>
     </div>
-    <svg id="watch" class="wt" viewBox="0 0 900 1260" role="img" aria-label="An exploded watch. From top to bottom: crystal, bezel, hands, dial, rotor, gear train, balance wheel, mainspring, case and case back, each standing for one layer of a software system."></svg>
+    <svg id="machine" class="wt" viewBox="0 0 900 1200" role="img" aria-label="An exploded laptop. From top to bottom: display, keyboard, logic board, AI chip, memory and storage, ports and radios, battery and cooling, and the case, each standing for one layer of a software system."></svg>
     <ol class="legend" id="legend" aria-label="What each part stands for"></ol>
   </section>
 
@@ -1162,90 +1166,98 @@
     "Let's talk <i>✦</i> Available now <i>✦</i>"
   ];
 
-  /* ---------- Anatomy: a watch, drawn as a stack of discs seen at an angle ---------- */
+  /* ---------- Anatomy: a developer's laptop, drawn as isometric slabs ---------- */
   var ANAT = [
-    ["Interface", "The surface people touch: React, Next.js and a browser extension serving 2M+ users."],
-    ["Contracts", "REST and GraphQL APIs, and the interface contracts between teams."],
-    ["Signals", "Metrics, logs and load tests that tell the time on production."],
-    ["Product", "Owning products end to end, from first prototype to enterprise customers."],
-    ["AI", "LLM platforms, RAG, MCP clients and servers, and AI agents."],
-    ["Services", "NestJS, Spring Boot and FastAPI microservices that mesh together."],
-    ["Events", "Event-driven systems on AWS SQS and SNS, 50,000 messages a day."],
-    ["Data", "PostgreSQL, MongoDB, OpenSearch, Redis, Airflow and DuckDB."],
-    ["Infrastructure", "AWS ECS, Docker, Kubernetes and CI/CD carrying everything."],
-    ["Security", "Zero Trust networking, Semgrep, Gitleaks and Trivy, sealed in."]
+    ["Interface", "Display", "The surface people touch: React, Next.js and a browser extension serving 2M+ users."],
+    ["Product", "Keyboard", "Owning products end to end, from the first prototype to enterprise customers."],
+    ["Services", "Logic board", "NestJS, Spring Boot and FastAPI microservices, each chip with one job."],
+    ["AI", "AI chip", "LLM platforms, RAG, MCP clients and servers, and AI agents."],
+    ["Data", "Memory and storage", "PostgreSQL, MongoDB, OpenSearch, Redis, Airflow and DuckDB."],
+    ["APIs and events", "Ports and radios", "REST and GraphQL contracts, plus event-driven systems on AWS SQS and SNS at 50,000 messages a day."],
+    ["Infrastructure", "Battery and cooling", "AWS ECS, Docker, Kubernetes and CI/CD, with the load tests that keep it honest."],
+    ["Security", "Case", "Zero Trust networking, Semgrep, Gitleaks and Trivy, sealed in."]
   ];
   (function () {
-    var K = 0.42, MID = 610, GAP = 18, SPREAD = 98;
+    var SIN = 0.4, R2 = 0.70711, W = 480, D = 300, MID = 600, GAP = 22, SPREAD = 118;
+    var ISO = "matrix(" + R2 + " " + f2(R2 * SIN) + " " + -R2 + " " + f2(R2 * SIN) + " 0 0)";
+    function f2(n) { return Math.round(n * 10000) / 10000; }
     var f = function (n) { return Math.round(n * 10) / 10; };
-    var ring = function (ro, ri, fill, stroke) {
-      return '<path fill-rule="evenodd" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2" d="M' + -ro + ' 0a' + ro + ' ' + ro + ' 0 1 0 ' + 2 * ro + ' 0a' + ro + ' ' + ro + ' 0 1 0 ' + -2 * ro + ' 0M' + -ri + ' 0a' + ri + ' ' + ri + ' 0 1 1 ' + 2 * ri + ' 0a' + ri + ' ' + ri + ' 0 1 1 ' + -2 * ri + ' 0Z"/>';
-    };
-    var gearPath = function (n, ro, ri) {
-      var d = "", st = (Math.PI * 2) / n;
-      for (var i = 0; i < n; i++) {
-        var a = i * st, pts = [[ri, a], [ro, a + st * 0.16], [ro, a + st * 0.44], [ri, a + st * 0.6]];
-        for (var j = 0; j < 4; j++) d += (i === 0 && j === 0 ? "M" : "L") + f(Math.cos(pts[j][1]) * pts[j][0]) + " " + f(Math.sin(pts[j][1]) * pts[j][0]);
-      }
-      return d + "Z";
-    };
-    var spiral = function (r0, r1, turns) {
-      var d = "", N = turns * 36;
-      for (var i = 0; i <= N; i++) { var t = i / N, a = t * turns * Math.PI * 2, r = r0 + (r1 - r0) * t; d += (i ? "L" : "M") + f(Math.cos(a) * r) + " " + f(Math.sin(a) * r); }
-      return d;
-    };
-    var ticks = function (n, r0, r1, every, col, hot) {
-      var o = "";
-      for (var i = 0; i < n; i++) {
-        var a = (i / n) * Math.PI * 2, big = i % every === 0, ra = big ? r0 - 8 : r0;
-        o += '<line x1="' + f(Math.cos(a) * ra) + '" y1="' + f(Math.sin(a) * ra) + '" x2="' + f(Math.cos(a) * r1) + '" y2="' + f(Math.sin(a) * r1) + '" stroke="' + (big && hot ? hot : col) + '" stroke-width="' + (big ? 3 : 1.6) + '"/>';
-      }
+    var P = function (x, y) { return [R2 * (x - y), R2 * SIN * (x + y)]; };
+    var at = function (v) { return f(v[0]) + " " + f(v[1]); };
+    var rect = function (x, y, w, h, fill, o) { o = o || {}; return '<rect x="' + f(x) + '" y="' + f(y) + '" width="' + f(w) + '" height="' + f(h) + '"' + (o.rx ? ' rx="' + o.rx + '"' : "") + ' fill="' + fill + '"' + (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 1.5) + '"' : "") + (o.cls ? ' class="' + o.cls + '"' : "") + "/>"; };
+    var circ = function (x, y, r, fill, o) { o = o || {}; return '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="' + f(r) + '" fill="' + fill + '"' + (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 1.5) + '"' : "") + (o.dash ? ' stroke-dasharray="' + o.dash + '"' : "") + "/>"; };
+    var line = function (x1, y1, x2, y2, stroke, sw, extra) { return '<line x1="' + f(x1) + '" y1="' + f(y1) + '" x2="' + f(x2) + '" y2="' + f(y2) + '" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linecap="round"' + (extra || "") + "/>"; };
+    var poly = function (pts, stroke, sw) { return '<polyline points="' + pts.map(function (q) { return q[0] + "," + q[1]; }).join(" ") + '" fill="none" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linejoin="round" stroke-linecap="round"/>'; };
+    var txt = function (x, y, str, size, fill, o) { o = o || {}; return '<text x="' + f(x) + '" y="' + f(y) + '" font-size="' + size + '" fill="' + fill + '" text-anchor="middle"' + (o.ls ? ' letter-spacing="' + o.ls + '"' : "") + (o.cls ? ' class="' + o.cls + '"' : "") + (o.style ? ' font-style="' + o.style + '"' : "") + ">" + str + "</text>"; };
+    var pins = function (x, y, w, h, col) {
+      var o = "", n = Math.max(3, Math.floor(w / 13)), st = w / n;
+      for (var i = 0; i < n; i++) { var px = x + st * (i + 0.5) - 2; o += rect(px, y - 6, 4, 6, col) + rect(px, y + h, 4, 6, col); }
+      var m = Math.max(3, Math.floor(h / 13)), sv = h / m;
+      for (var j = 0; j < m; j++) { var py = y + sv * (j + 0.5) - 2; o += rect(x - 6, py, 6, 4, col) + rect(x + w, py, 6, 4, col); }
       return o;
     };
-    var screws = function (n, r, rs, fill) {
-      var o = "";
-      for (var i = 0; i < n; i++) { var a = (i / n) * Math.PI * 2 + 0.3; o += '<g transform="translate(' + f(Math.cos(a) * r) + " " + f(Math.sin(a) * r) + ') rotate(' + i * 37 + ')"><circle r="' + rs + '" fill="' + fill + '" stroke="#0b1211" stroke-width="1.5"/><line x1="' + -rs * 0.7 + '" x2="' + rs * 0.7 + '" stroke="#0b1211" stroke-width="2"/></g>'; }
-      return o;
+    var chip = function (x, y, w, h, label, size) { return pins(x, y, w, h, "#b7c7c1") + rect(x, y, w, h, "#1b2226", { rx: 5, stroke: "#b7c7c1", sw: 1.5 }) + circ(x + 9, y + 9, 3, "#b7c7c1") + txt(x + w / 2, y + h / 2 + size * 0.35, label, size, "#f1f4f2"); };
+
+    var layers = [], lay = function (i, o) {
+      var base = MID + (i - 3.5) * GAP, exp = MID + (i - 3.5) * SPREAD, w = o.w || W, d = o.d || D, t = o.t;
+      var B = P(w / 2, -d / 2), C = P(w / 2, d / 2), L = P(-w / 2, d / 2);
+      var sideR = '<path d="M' + at(B) + "L" + at(C) + "L" + f(C[0]) + " " + f(C[1] + t) + "L" + f(B[0]) + " " + f(B[1] + t) + 'Z" fill="' + o.sideR + '"/>';
+      var sideL = '<path d="M' + at(L) + "L" + at(C) + "L" + f(C[0]) + " " + f(C[1] + t) + "L" + f(L[0]) + " " + f(L[1] + t) + 'Z" fill="' + o.sideL + '"/>';
+      var top = rect(-w / 2, -d / 2, w, d, o.top, { rx: 12, stroke: o.edge, sw: 2 });
+      var lifts = (o.lifts || []).map(function (l) { return '<g class="lift" data-lift="' + l[1] + '"><g transform="' + ISO + '">' + l[0] + "</g></g>"; }).join("");
+      layers.push('<g class="lyr" data-i="' + i + '" data-base="' + f(base) + '" transform="translate(450 ' + f(exp) + ')">' + sideR + sideL + '<g transform="' + ISO + '">' + top + (o.plane || "") + "</g>" + lifts + "</g>");
     };
-    var layers = [], lay = function (i, R, thick, side, inner, extra) {
-      var base = MID + (i - 4.5) * GAP, exp = MID + (i - 4.5) * SPREAD;
-      var band = thick ? '<path d="M' + -R + " 0A" + R + " " + f(R * K) + " 0 0 0 " + R + " 0L" + R + " " + thick + "A" + R + " " + f(R * K) + " 0 0 1 " + -R + " " + thick + 'Z" fill="' + side + '"/>' : "";
-      layers.push('<g class="lyr" data-i="' + i + '" data-base="' + f(base) + '" transform="translate(450 ' + f(exp) + ')">' + band + '<g transform="scale(1 ' + K + ')">' + inner + "</g>" + (extra || "") + "</g>");
-    };
-    // 0 crystal
-    lay(0, 292, 8, "rgba(150,205,235,.45)", '<circle r="292" fill="rgba(170,220,250,.16)" stroke="rgba(255,255,255,.65)" stroke-width="2"/><circle r="268" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/><path d="M-218 -84A234 234 0 0 1 -66 -224" fill="none" stroke="rgba(255,255,255,.75)" stroke-width="12" stroke-linecap="round"/><path d="M-238 -30A240 240 0 0 1 -232 -60" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="8" stroke-linecap="round"/>');
-    // 1 bezel
-    lay(1, 304, 22, "#7d8986", ring(304, 256, "#cfd8d4", "#7d8986") + ticks(60, 268, 288, 5, "#243230", "#ff4b2b"));
-    // 2 hands
-    lay(2, 260, 0, "", '<g class="spin hh" transform="rotate(305)"><circle r="150" fill="none" stroke="none"/><path d="M-12 24L-7 -138L0 -156L7 -138L12 24Z" fill="#f1f4f2" stroke="#101715" stroke-width="1.6"/></g><g class="spin hm" transform="rotate(60)"><circle r="232" fill="none" stroke="none"/><path d="M-9 30L-5 -222L0 -236L5 -222L9 30Z" fill="#f1f4f2" stroke="#101715" stroke-width="1.6"/></g><g class="spin hs" transform="rotate(200)"><circle r="258" fill="none" stroke="none"/><path d="M-2.5 70L-1.5 -250L1.5 -250L2.5 70Z" fill="#ff4b2b"/><circle cx="0" cy="52" r="9" fill="#ff4b2b"/></g><circle r="15" fill="#f1f4f2" stroke="#101715" stroke-width="2"/><circle r="5" fill="#ff4b2b"/>');
-    // 3 dial
-    var dialMarks = "";
-    for (var h = 0; h < 12; h++) dialMarks += '<rect x="-6" y="-238" width="12" height="38" fill="#101715" transform="rotate(' + h * 30 + ')"/>';
-    var dots = "";
-    for (var m = 0; m < 60; m++) if (m % 5) dots += '<circle cx="' + f(Math.cos((m / 60) * 6.2832) * 244) + '" cy="' + f(Math.sin((m / 60) * 6.2832) * 244) + '" r="2.4" fill="#5a5348"/>';
-    var sub = function (x) { return '<g transform="translate(' + x + ' 26)"><circle r="46" fill="#ece4cf" stroke="#101715" stroke-width="1.6"/>' + ticks(12, 38, 44, 3, "#101715") + '<path d="M0 6L0 -34" stroke="#ff4b2b" stroke-width="2.5"/></g>'; };
-    lay(3, 258, 6, "#bfb391", '<circle r="258" fill="#f5efdf" stroke="#c9bd9e" stroke-width="2"/><circle r="250" fill="none" stroke="#d9cfb3" stroke-width="1.5"/>' + dialMarks + dots + sub(-104) + sub(104) + '<text y="-120" text-anchor="middle" font-size="58" font-style="italic" font-weight="700" fill="#101715">ASP</text><text y="150" text-anchor="middle" font-size="21" letter-spacing="5" fill="#5a5348">TECHNICAL LEAD</text><text y="182" text-anchor="middle" font-size="17" letter-spacing="4" fill="#8a8068">BACKEND &amp; AI</text>');
-    // 4 rotor (AI)
-    lay(4, 250, 0, "", '<g class="spin rot"><circle r="250" fill="none" stroke="none"/><path d="M-250 0A250 250 0 0 0 250 0L120 0A120 120 0 0 1 -120 0Z" fill="#d9aa47" stroke="#7a5a14" stroke-width="2.5"/><circle cx="-160" cy="110" r="34" fill="#7a5a14"/><circle cx="0" cy="170" r="34" fill="#7a5a14"/><circle cx="160" cy="110" r="34" fill="#7a5a14"/><circle cx="-92" cy="52" r="12" fill="#2ed3a7"/><circle cx="92" cy="52" r="12" fill="#2ed3a7"/><text y="238" text-anchor="middle" font-size="60" font-weight="800" fill="#7a5a14" transform="translate(0 -60)">AI</text></g><circle r="34" fill="#dfe6e2" stroke="#101715" stroke-width="2"/><circle r="10" fill="#ff4b2b"/>');
-    // 5 gear train (services)
-    var gdef = [[-70, -50, 118, 30, -1, "#e3b552"], [115, -80, 74, 19, 1, "#c9a145"], [70, 45, 52, 13, 1, "#e3b552"], [-125, 115, 62, 16, 1, "#b98f38"], [-45, -208, 36, 10, 1, "#e3b552"]];
-    var gears = gdef.map(function (g) {
-      var ro = g[2], holes = "";
-      for (var k = 0; k < 3; k++) holes += '<circle cx="' + f(Math.cos((k * 2 * Math.PI) / 3) * ro * 0.42) + '" cy="' + f(Math.sin((k * 2 * Math.PI) / 3) * ro * 0.42) + '" r="' + f(ro * 0.16) + '" fill="#37504b"/>';
-      return '<g class="gp" transform="translate(' + g[0] + " " + g[1] + ')"><g class="spin gr" data-t="' + g[3] + '" data-d="' + g[4] + '"><path d="' + gearPath(g[3], ro, ro - Math.max(10, ro * 0.13)) + '" fill="' + g[5] + '" stroke="#6b4f14" stroke-width="1.6"/><circle r="' + f(ro * 0.66) + '" fill="none" stroke="#7a5a14" stroke-width="1.5"/>' + holes + '</g><circle r="' + f(Math.max(6, ro * 0.1)) + '" fill="#ff4b2b" stroke="#7a1d0c" stroke-width="1.2"/></g>';
-    }).join("");
-    lay(5, 254, 12, "#22322f", '<circle r="254" fill="#37504b" stroke="#1c2b28" stroke-width="2"/><circle r="238" fill="none" stroke="#4a6862" stroke-width="1.5"/>' + gears);
-    // 6 balance wheel (events)
-    lay(6, 232, 10, "#1d2a28", '<circle r="232" fill="#2a3a37" stroke="#141d1b" stroke-width="2"/><g class="spin bal"><circle r="130" fill="none" stroke="none"/><circle r="118" fill="none" stroke="#e3b552" stroke-width="16"/><line x1="-118" x2="118" stroke="#e3b552" stroke-width="8"/><line y1="-118" y2="118" stroke="#e3b552" stroke-width="8"/>' + screws(6, 118, 8, "#c99a38") + '<path d="' + spiral(12, 52, 5) + '" fill="none" stroke="#ff4b2b" stroke-width="2"/></g><circle r="9" fill="#dfe6e2" stroke="#101715" stroke-width="1.5"/>');
-    // 7 mainspring barrel (data)
-    lay(7, 212, 26, "#22211d", '<circle r="212" fill="#3b3a34" stroke="#181713" stroke-width="2"/><circle r="198" fill="none" stroke="#8f8a78" stroke-width="2"/><g class="spin spr"><circle r="200" fill="none" stroke="none"/><path d="' + spiral(26, 178, 7) + '" fill="none" stroke="#e6dfcc" stroke-width="5" stroke-linecap="round"/></g><circle r="24" fill="#e3b552" stroke="#7a5a14" stroke-width="2"/>');
-    // 8 case (infrastructure), with the crown
-    lay(8, 316, 40, "#0a100f", ring(316, 266, "#1c2725", "#0b1211") + '<circle r="290" fill="none" stroke="#2f403d" stroke-width="2"/>' + screws(8, 291, 9, "#8fa19c"),
-      '<g class="crown" transform="translate(' + 316 + " " + 20 + ')"><rect x="0" y="-8" width="24" height="16" fill="#8fa19c"/><rect x="24" y="-26" width="32" height="52" rx="6" fill="#dfe6e2" stroke="#7d8986" stroke-width="1.6"/><path d="M32 -22V22M40 -22V22M48 -22V22" stroke="#9aa8a4" stroke-width="2"/></g>');
-    // 9 case back (security)
-    lay(9, 312, 26, "#6c7875", '<circle r="312" fill="#b4bfbb" stroke="#6c7875" stroke-width="2"/><circle r="288" fill="none" stroke="#8d9a96" stroke-width="2"/><circle r="200" fill="none" stroke="#8d9a96" stroke-width="1.5"/><path id="cbp" d="M-246 0a246 246 0 1 1 492 0a246 246 0 1 1 -492 0" fill="none"/><text font-size="24" letter-spacing="5" fill="#4b5754"><textPath href="#cbp">ABY SAJI PAPPACHAN · TECHNICAL LEAD · BACKEND &amp; AI · SEALED ·</textPath></text>' + screws(6, 274, 13, "#98a5a1") + '<text y="26" text-anchor="middle" font-size="74" font-style="italic" font-weight="700" fill="#4b5754">ASP</text>');
-    $("#watch").innerHTML = '<ellipse class="shd" cx="450" cy="1236" rx="230" ry="24" fill="rgba(0,0,0,.45)"/>' + layers.join("");
-    $("#legend").innerHTML = '<li class="intro mono" id="legend-intro">Scroll to take it apart.</li>' + ANAT.map(function (a, i) { return '<li data-i="' + i + '"><b>' + a[0] + "</b><span>" + a[1] + "</span></li>"; }).join("");
+
+    // 0 Display: a code editor
+    var code = [[0, [[90, "#2ed3a7"], [46, "rgba(234,243,245,.7)"]]], [0, [[54, "#ffb648"], [118, "#6ec3ff"]]], [1, [[70, "#ff5b3a"], [64, "rgba(234,243,245,.55)"]]], [2, [[40, "#2ed3a7"], [104, "rgba(234,243,245,.55)"], [30, "#ffb648"]]], [2, [[126, "#6ec3ff"]]], [1, [[30, "#ffb648"], [86, "rgba(234,243,245,.5)"]]], [0, [[62, "#2ed3a7"]]], [0, []], [0, [[104, "#ff5b3a"], [52, "#6ec3ff"]]], [1, [[84, "rgba(234,243,245,.55)"], [44, "#2ed3a7"]]]];
+    var codeSvg = "";
+    code.forEach(function (row, r) { var x = -114 + row[0] * 22, y = -96 + r * 21; row[1].forEach(function (sg) { codeSvg += rect(x, y, sg[0], 9, sg[1], { rx: 3 }); x += sg[0] + 7; }); });
+    var files = ""; for (var fi = 0; fi < 8; fi++) files += rect(-216, -98 + fi * 18, 40 + ((fi * 23) % 34), 7, "rgba(234,243,245,.32)", { rx: 3 });
+    lay(0, { t: 10, top: "#22384a", edge: "#7d98aa", sideR: "#0e1b26", sideL: "#152838", plane: rect(-226, -138, 452, 276, "#0b141d", { rx: 8, stroke: "#2f4a5e" }) + rect(-226, -138, 452, 24, "#152636", { rx: 8 }) + circ(-208, -126, 5, "#ff5b3a") + circ(-192, -126, 5, "#ffb648") + circ(-176, -126, 5, "#2ed3a7") + rect(-226, -114, 96, 252, "#101d2a") + files + codeSvg + rect(-2, 96, 9, 15, "#2ed3a7", { cls: "cur" }) + txt(120, -125, "api.controller.ts", 11, "rgba(234,243,245,.55)") });
+
+    // 1 Keyboard: the keycaps lift off the deck
+    var wells = "", caps = "", KR = [[-118, 13, 26, 14], [-96, 13, 28, 24], [-64, 13, 28, 24], [-32, 12, 30, 24], [0, 11, 31, 24]];
+    KR.forEach(function (r, ri) { var n = r[1], w = r[2], h = r[3], x0 = -(n * (w + 5) - 5) / 2; for (var k = 0; k < n; k++) { var kx = x0 + k * (w + 5), col = ri === 1 && k === 0 ? "#2ed3a7" : ri === 3 && k === n - 1 ? "#ff5b3a" : (ri * 7 + k) % 9 === 0 ? "#ffb648" : "#3a5368"; wells += rect(kx, r[0], w, h, "#0f1a24", { rx: 4 }); caps += rect(kx, r[0], w, h, col, { rx: 4, stroke: "#0e1822", sw: 1 }); } });
+    wells += rect(-158, 32, 316, 24, "#0f1a24", { rx: 4 }); caps += rect(-92, 32, 184, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 }) + rect(-158, 32, 58, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 }) + rect(100, 32, 58, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 });
+    lay(1, { t: 14, top: "#1d2f3f", edge: "#5d7a90", sideR: "#0c1720", sideL: "#132534", plane: wells + rect(-84, 74, 168, 62, "#25394a", { rx: 10, stroke: "#5d7a90" }), lifts: [[caps, 46]] });
+
+    // 2 Logic board: five chips, one per service
+    var traces = poly([[-220, 40], [-160, 40], [-130, 70], [-30, 70]], "#2ea58d", 2) + poly([[220, -20], [170, -20], [150, -60]], "#2ea58d", 2) + poly([[-30, 140], [-30, 110]], "#2ea58d", 2) + poly([[-200, -110], [-90, -110], [-60, -80]], "#2ea58d", 2) + poly([[200, 100], [160, 100], [140, 120]], "#2ea58d", 2);
+    var caps2 = ""; for (var ci = 0; ci < 9; ci++) caps2 += circ(-200 + ci * 26, -122, 5, "#0b1a17", { stroke: "#2ea58d", sw: 1.2 });
+    lay(2, { t: 8, top: "#0f3d35", edge: "#2ea58d", sideR: "#06211d", sideL: "#0a2e28", plane: traces + caps2, lifts: [[chip(-150, -76, 120, 120, "SVC", 26) + chip(70, -104, 90, 64, "AUTH", 17) + chip(100, 24, 100, 64, "ORDERS", 15) + chip(-200, 76, 90, 56, "NOTIFY", 14) + chip(0, 82, 80, 50, "API", 17), 36]] });
+
+    // 3 AI chip
+    var nn = line(-190, -20, -84, 0, "#ff8a6a", 2) + line(-190, 70, -84, 20, "#ff8a6a", 2) + line(190, -20, 84, 0, "#ff8a6a", 2) + line(190, 70, 84, 20, "#ff8a6a", 2) + line(0, -130, 0, -86, "#ff8a6a", 2) + line(0, 130, 0, 86, "#ff8a6a", 2);
+    var grid = ""; for (var gi = -2; gi <= 2; gi++) grid += line(gi * 30, -70, gi * 30, 70, "rgba(42,16,8,.55)", 1.2) + line(-70, gi * 30, 70, gi * 30, "rgba(42,16,8,.55)", 1.2);
+    lay(3, { t: 8, top: "#1c2445", edge: "#7f8fe0", sideR: "#0b1027", sideL: "#141b38", plane: nn + '<g class="spin airing"><circle r="112" fill="none" stroke="#ffb648" stroke-width="2" stroke-dasharray="6 9"/></g>', lifts: [[pins(-80, -80, 160, 160, "#d8dcf5") + rect(-80, -80, 160, 160, "#ff5b3a", { rx: 12, stroke: "#ffd0c4", sw: 2 }) + grid + txt(0, 24, "AI", 74, "#2a1008", { cls: "disp" }), 40], [chip(-214, -30, 70, 44, "MCP", 15) + chip(146, -30, 70, 44, "RAG", 15) + chip(-35, 96, 70, 44, "LLM", 15), 22]] });
+
+    // 4 Memory and storage
+    var stick = function (y, tag) { var c = ""; for (var k = 0; k < 8; k++) c += rect(-118 + k * 38, y + 8, 28, 22, "#0d1318", { rx: 3 }); var g = ""; for (var q = 0; q < 26; q++) g += rect(-146 + q * 11.4, y + 38, 8, 8, "#d9aa47"); return rect(-150, y, 300, 48, "#16564a", { rx: 4, stroke: "#2ea58d" }) + c + g + txt(140, y - 6, tag, 11, "#9be3cf").replace('text-anchor="middle"', 'text-anchor="end"'); };
+    var ssd = rect(-140, 74, 220, 66, "#2a3550", { rx: 8, stroke: "#6ec3ff" }) + rect(-130, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(-76, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(-22, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(32, 84, 40, 30, "#0d1318", { rx: 3 }) + txt(-30, 132, "POSTGRES · MONGO · OPENSEARCH", 10, "#9fc3e6");
+    lay(4, { t: 8, top: "#12293a", edge: "#4d90b5", sideR: "#08161f", sideL: "#0d2130", plane: rect(-210, -120, 420, 250, "rgba(255,255,255,.03)", { rx: 8, stroke: "rgba(109,190,255,.25)", sw: 1 }), lifts: [[stick(-112, "REDIS"), 26], [stick(-46, "AIRFLOW · DUCKDB"), 40], [ssd, 54]] });
+
+    // 5 Ports and radios
+    var ports = ""; for (var pi = 0; pi < 3; pi++) ports += rect(-150 + pi * 62, 112, 44, 14, "#0a1218", { rx: 7, stroke: "#9fb4c2" });
+    ports += rect(30, 110, 56, 16, "#0a1218", { rx: 3, stroke: "#9fb4c2" }) + circ(122, 118, 8, "#0a1218", { stroke: "#9fb4c2" });
+    var pk = ""; for (var kk = 0; kk < 4; kk++) pk += rect(-200 + kk * 96, 46, 42, 16, kk % 2 ? "#ffb648" : "#2ed3a7", { rx: 4 });
+    var wifi = '<g transform="translate(0 30)"><path d="M-84 -52A118 118 0 0 1 84 -52" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/><path d="M-56 -26A78 78 0 0 1 56 -26" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/><path d="M-28 -2A40 40 0 0 1 28 -2" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/>' + circ(0, 16, 7, "#6ec3ff") + "</g>";
+    lay(5, { t: 8, top: "#1a2b35", edge: "#5b8ea8", sideR: "#0a161d", sideL: "#10212b", plane: ports + line(-220, 54, 220, 54, "rgba(159,180,194,.35)", 2) + '<g class="pkg">' + pk + "</g>" + txt(0, -118, "REST · GRAPHQL · SQS · SNS", 14, "#9fc3e6", { ls: 2 }), lifts: [[wifi.replace(/translate/g, "translate"), 40]] });
+
+    // 6 Battery and cooling
+    var cells = ""; for (var bi = 0; bi < 4; bi++) cells += rect(-206 + bi * 58, -88, 50, 176, bi === 3 ? "#12a07d" : "#2ed3a7", { rx: 6 });
+    var blades = ""; for (var bl = 0; bl < 7; bl++) blades += '<path d="M0 0C10 -20 26 -46 22 -70C4 -60 -6 -30 0 0Z" fill="#6ec3ff" fill-opacity=".85" stroke="#0e1a22" stroke-width="1" transform="rotate(' + bl * (360 / 7) + ')"/>';
+    lay(6, { t: 18, top: "#17242f", edge: "#5b7a8a", sideR: "#091219", sideL: "#0f1c26", plane: rect(-222, -104, 240, 208, "#23303b", { rx: 12, stroke: "#5b7a8a" }) + cells + txt(-100, 118, "+   ·   −", 16, "#9fb4c2", { ls: 6 }) + poly([[18, -40], [70, -40], [90, -70]], "#b8c4cc", 8), lifts: [['<g transform="translate(140 -6)">' + circ(0, 0, 88, "#0e1a22", { stroke: "#5b7a8a", sw: 2 }) + '<g class="spin fan"><circle r="80" fill="none" stroke="none"/>' + blades + "</g>" + circ(0, 0, 14, "#dfe6e2", { stroke: "#0e1a22" }) + "</g>", 38]] });
+
+    // 7 Case
+    var vents = ""; for (var vi = 0; vi < 9; vi++) vents += line(70 + vi * 16, -110, 70 + vi * 16, -40, "rgba(8,14,18,.55)", 5);
+    var screws = ""; [[-214, -128], [214, -128], [-214, 128], [214, 128]].forEach(function (s, si) { screws += circ(s[0], s[1], 10, "#8fa1ac", { stroke: "#0b1211" }) + line(s[0] - 6, s[1], s[0] + 6, s[1], "#0b1211", 2, ' transform="rotate(' + si * 41 + " " + s[0] + " " + s[1] + ')"'); });
+    var feet = rect(-170, -104, 62, 26, "#0c1218", { rx: 8 }) + rect(108, -104, 62, 26, "#0c1218", { rx: 8 }) + rect(-170, 78, 62, 26, "#0c1218", { rx: 8 }) + rect(108, 78, 62, 26, "#0c1218", { rx: 8 });
+    var shield = '<path d="M0 -70L62 -46V8C62 46 30 68 0 80C-30 68 -62 46 -62 8V-46Z" fill="rgba(46,211,167,.12)" stroke="#2ed3a7" stroke-width="4" stroke-linejoin="round"/><path d="M-26 6L-6 26L30 -18" fill="none" stroke="#2ed3a7" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>';
+    lay(7, { t: 14, top: "#2b3b47", edge: "#7d98aa", sideR: "#0f1a22", sideL: "#182833", plane: rect(-232, -142, 464, 284, "none", { rx: 8, stroke: "rgba(255,255,255,.14)", sw: 1.5 }) + screws + feet + vents + txt(-100, 118, "ASP", 40, "rgba(255,255,255,.22)", { cls: "disp", style: "italic" }) + txt(110, 116, "ZERO TRUST · SEALED", 11, "rgba(255,255,255,.4)", { ls: 3 }), lifts: [[shield.replace(/^/, '<g transform="translate(-100 -20)">') + "</g>", 34]] });
+
+    var axis = '<line class="axis" x1="450" x2="450" y1="' + f(MID - 3.5 * SPREAD - 120) + '" y2="' + f(MID + 3.5 * SPREAD + 130) + '" stroke="rgba(234,243,245,.5)" stroke-width="2" stroke-dasharray="4 9" opacity="0"/>';
+    $("#machine").innerHTML = '<ellipse class="shd" cx="450" cy="1168" rx="250" ry="22" fill="rgba(0,0,0,.45)"/>' + axis + layers.join("");
+    $("#legend").innerHTML = '<li class="intro mono" id="legend-intro">Scroll to take it apart.</li>' + ANAT.map(function (a, i) { return '<li data-i="' + i + '"><b>' + a[0] + "</b><span><em>" + a[1] + "</em>" + a[2] + "</span></li>"; }).join("");
   })();
 
   /* ---------- Small helpers ---------- */
@@ -1401,18 +1413,16 @@
   tlStats.to({}, { duration: 0.6 });
 
 
-  /* ===== The watch: takes itself apart as you scroll, then puts itself back together ===== */
+  /* ===== The laptop: takes itself apart as you scroll, then puts itself back together ===== */
   (function () {
-    var svg = $("#watch"), L = $$(".lyr", svg), gp = $$(".gp", svg), legend = $$("#legend li[data-i]"), intro = $("#legend-intro"), crown = $(".crown", svg);
-    var SPREAD = 98, GAP = 18, base = L.map(function (l) { return +l.dataset.base; });
-    var expY = L.map(function (l, i) { return base[i] + (i - 4.5) * (SPREAD - GAP); });
+    var svg = $("#machine"), L = $$(".lyr", svg), lifts = $$(".lift", svg), legend = $$("#legend li[data-i]"), intro = $("#legend-intro"), axis = $(".axis", svg);
+    var SPREAD = 118, GAP = 22, MIDI = (L.length - 1) / 2, base = L.map(function (l) { return +l.dataset.base; });
+    var apart = function (i) { return base[i] + (i - MIDI) * (SPREAD - GAP); };
     gsap.set(L, { y: function (i) { return base[i]; } });
-    var gx = gp.map(function (g) { return gsap.getProperty(g, "x"); }), gy = gp.map(function (g) { return gsap.getProperty(g, "y"); });
-    var cx0 = gsap.getProperty(crown, "x"), active = -2;
-    // Turn every spinning part about its own centre, not the corner of its box.
     gsap.set($$(".spin", svg), { transformOrigin: "50% 50%" });
+    var active = -2, HOLD0 = 2.3, HOLD1 = 6.1;
     function setActive(t) {
-      var a = t < 2.3 || t > 6.1 ? -1 : Math.min(ANAT.length - 1, Math.floor((t - 2.3) / 0.38));
+      var a = t < HOLD0 || t > HOLD1 ? -1 : Math.min(ANAT.length - 1, Math.floor((t - HOLD0) / ((HOLD1 - HOLD0) / ANAT.length)));
       if (a === active) return;
       active = a;
       if (a < 0) svg.removeAttribute("data-a"); else svg.setAttribute("data-a", "1");
@@ -1420,27 +1430,23 @@
       legend.forEach(function (li, i) { li.classList.toggle("on", i === a); });
       intro.classList.toggle("on", a < 0);
       intro.style.display = a < 0 ? "" : "none";
-      if (a < 0) intro.textContent = t > 6.1 ? "And back together again." : "Scroll to take it apart.";
+      if (a < 0) intro.textContent = t > HOLD1 ? "And back together again." : "Scroll to take it apart.";
     }
     var tl = gsap.timeline({ scrollTrigger: { trigger: "#anatomy", start: "top top", end: "+=430%", pin: true, scrub: 0.7, anticipatePin: 1, onUpdate: function (st) { setActive(st.progress * 8); } } });
-    // Apart
-    tl.fromTo(L, { y: function (i) { return base[i]; } }, { y: function (i) { return base[i] + (i - 4.5) * (SPREAD - GAP); }, duration: 1.6, ease: "power3.inOut", stagger: { each: 0.06, from: "center" } }, 0.6)
-      .fromTo(crown, { x: cx0 }, { x: cx0 + 74, duration: 1.4, ease: "power3.inOut" }, 0.8)
-      .fromTo(gp, { x: function (i) { return gx[i]; }, y: function (i) { return gy[i]; } }, { x: function (i) { return gx[i] * 1.5; }, y: function (i) { return gy[i] * 1.5; }, duration: 1.4, ease: "power3.inOut" }, 0.9)
+    // Apart: the layers slide away from the middle, and the small parts lift off their boards
+    tl.fromTo(L, { y: function (i) { return base[i]; } }, { y: apart, duration: 1.6, ease: "power3.inOut", stagger: { each: 0.06, from: "center" } }, 0.6)
+      .fromTo(lifts, { y: 0 }, { y: function (i, el) { return -el.dataset.lift; }, duration: 1.3, ease: "power3.inOut", stagger: 0.05 }, 1.3)
+      .fromTo(axis, { opacity: 0 }, { opacity: 1, duration: 0.8 }, 1.7)
       // Back together
-      .fromTo(L, { y: function (i) { return base[i] + (i - 4.5) * (SPREAD - GAP); } }, { y: function (i) { return base[i]; }, duration: 1.5, ease: "power3.inOut", stagger: { each: 0.06, from: "edges" }, immediateRender: false }, 6.2)
-      .fromTo(crown, { x: cx0 + 74 }, { x: cx0, duration: 1.3, ease: "power3.inOut", immediateRender: false }, 6.3)
-      .fromTo(gp, { x: function (i) { return gx[i] * 1.5; }, y: function (i) { return gy[i] * 1.5; } }, { x: function (i) { return gx[i]; }, y: function (i) { return gy[i]; }, duration: 1.3, ease: "power3.inOut", immediateRender: false }, 6.2);
-    // Everything that turns, turns with the scroll
-    tl.to($(".hh", svg), { rotation: "+=120", duration: 8, ease: "none" }, 0)
-      .to($(".hm", svg), { rotation: "+=1440", duration: 8, ease: "none" }, 0)
-      .to($(".hs", svg), { rotation: "+=4320", duration: 8, ease: "none" }, 0)
-      .to($(".rot", svg), { rotation: "+=720", duration: 8, ease: "none" }, 0)
-      .to($(".spr", svg), { rotation: "-=540", duration: 8, ease: "none" }, 0)
-      .fromTo($(".bal", svg), { rotation: -55 }, { rotation: 55, duration: 0.4, ease: "sine.inOut", repeat: 19, yoyo: true }, 0);
-    $$(".gr", svg).forEach(function (g) { tl.to(g, { rotation: "+=" + (+g.dataset.d * 360 * (30 / +g.dataset.t) * 1.5), duration: 8, ease: "none" }, 0); });
-    tl.to(".shd", { opacity: 0.35, scaleX: 1.25, transformOrigin: "50% 50%", duration: 1.6, ease: "power3.inOut" }, 0.6)
-      .to(".shd", { opacity: 1, scaleX: 1, duration: 1.4, ease: "power3.inOut" }, 6.2);
+      .fromTo(axis, { opacity: 1 }, { opacity: 0, duration: 0.6, immediateRender: false }, 6.2)
+      .fromTo(lifts, { y: function (i, el) { return -el.dataset.lift; } }, { y: 0, duration: 1.2, ease: "power3.inOut", stagger: { each: 0.05, from: "end" }, immediateRender: false }, 6.3)
+      .fromTo(L, { y: apart }, { y: function (i) { return base[i]; }, duration: 1.5, ease: "power3.inOut", stagger: { each: 0.06, from: "edges" }, immediateRender: false }, 6.4);
+    // Everything that moves, moves with the scroll
+    tl.to($(".fan", svg), { rotation: "+=2160", duration: 8, ease: "none" }, 0)
+      .to($(".airing", svg), { rotation: "+=360", duration: 8, ease: "none" }, 0)
+      .to($(".pkg", svg), { x: 80, duration: 8, ease: "none" }, 0)
+      .to(".shd", { opacity: 0.35, scaleX: 1.25, transformOrigin: "50% 50%", duration: 1.6, ease: "power3.inOut" }, 0.6)
+      .to(".shd", { opacity: 1, scaleX: 1, duration: 1.4, ease: "power3.inOut" }, 6.4);
     setActive(0);
   })();
 
