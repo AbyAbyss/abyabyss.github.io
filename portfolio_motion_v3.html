@@ -1380,8 +1380,9 @@
   gsap.set(".hero-top, .cue", { opacity: 0 });
   gsap.set(".nav", { yPercent: -100 });
 
+  var heroTl;
   mm.add("(min-width: 1px)", function () {
-    var tl = gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=190%", pin: true, scrub: 0.7, anticipatePin: 1 } });
+    var tl = heroTl = gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=190%", pin: true, scrub: 0.7, anticipatePin: 1 } });
     // The name swells as you scroll, then tears apart in opposite directions.
     tl.to(nameChars, { fontWeight: 900, duration: 0.8, ease: "none", stagger: { each: 0.03, from: "center" } }, 0)
       .fromTo(".hero-top, .cue", { opacity: 1 }, { opacity: 0, duration: 0.2, immediateRender: false }, 0)
@@ -1664,14 +1665,16 @@
   });
   function open() {
     clearTimeout(failsafe);
-    var t = gsap.timeline({ defaults: { ease: "expo.out" } });
+    // The hero's scroll timeline may have read its start values while the name was still hidden.
+    // Once the intro has landed, make it read them again so scrolling back to the top restores the visible state.
+    var t = gsap.timeline({ defaults: { ease: "expo.out" }, onComplete: function () { if (heroTl && heroTl.scrollTrigger && heroTl.scrollTrigger.progress < 0.001) heroTl.invalidate(); lenis.start(); } });
     t.to(".pre-name, .pre-row .mono", { opacity: 0, y: -20, duration: 0.5 })
      .to(".pre", { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: "expo.inOut" }, 0.35)
      .to(nameChars, { yPercent: 0, rotation: 0, opacity: 1, duration: 1.3, stagger: { each: 0.045, from: "start" } }, 0.9)
      .to(".hero-top, .cue", { opacity: 1, duration: 0.8 }, 1.5)
      .to(".cut-in", { scale: 1, opacity: 1, duration: 0.9, ease: "back.out(1.8)", stagger: 0.12 }, 1.55)
      .to(".nav", { yPercent: 0, duration: 0.9 }, 1.7)
-     .add(function () { $("#pre").style.display = "none"; lenis.start(); ScrollTrigger.refresh(); }, 1.5);
+     .add(function () { $("#pre").style.display = "none"; ScrollTrigger.refresh(); }, 1.5);
   }
   loaded.then(function () { ScrollTrigger.refresh(); });
   if (document.fonts) document.fonts.ready.then(function () { measure(); ScrollTrigger.refresh(); });
