@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>redis_gui, a Redis GUI in one binary</title>
+<meta name="description" content="redis_gui is a Redis GUI that ships as one static Go binary. Run it as a local web app or a native desktop app. Beta, MIT licensed, for macOS, Linux and Windows.">
+<meta name="theme-color" content="#0f1013">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e8474f'/%3E%3Ctext x='16' y='23' font-size='20' font-weight='700' text-anchor='middle' fill='white' font-family='monospace'%3ER%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1013; --bg2:#15161b; --bg3:#1c1d24; --line:#2a2b33; --line2:#363843;
+  --text:#ececf1; --mute:#a0a0ad; --dim:#7a7a88;
+  --red:#f0625f; --red2:#d63d52; --cool:#6bb6d8; --violet:#b06fd8; --green:#5fcf80; --amber:#e8b13a;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+  --head:'Space Grotesk','Helvetica Neue',Arial,system-ui,sans-serif;
+  --body:system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --gut:clamp(16px,4vw,48px);
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.65 var(--body);overflow-x:hidden;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:64px 64px;background-position:-1px -1px;background-attachment:local}
+body::before{content:"";position:fixed;inset:0;background:radial-gradient(ellipse at 50% 0,rgba(15,16,19,.55),var(--bg) 75%);pointer-events:none;z-index:-1}
+body{background-color:var(--bg)}
+a{color:var(--cool);text-underline-offset:3px}
+a:hover{color:#fff}
+:focus-visible{outline:2px solid var(--cool);outline-offset:3px;border-radius:4px}
+img{max-width:100%;height:auto;display:block}
+code,pre,kbd{font-family:var(--mono)}
+.wrap{max-width:1200px;margin:0 auto;padding:0 var(--gut)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--text);color:var(--bg);padding:10px 14px;border-radius:6px;z-index:200}
+.skip:focus{left:8px}
+
+/* header */
+header.top{position:sticky;top:0;z-index:50;background:rgba(15,16,19,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--text);text-decoration:none;font:700 17px var(--mono);min-height:44px}
+.brand i{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f5736f,var(--red2));font-style:normal;font-size:15px;color:#fff}
+nav.links{display:flex;align-items:center;gap:6px}
+nav.links a{color:var(--mute);text-decoration:none;font-size:14px;padding:0 12px;min-height:44px;display:inline-flex;align-items:center}
+nav.links a:hover{color:#fff}
+@media(max-width:720px){nav.links a.hide-s{display:none}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 22px;border-radius:8px;border:1px solid var(--line2);background:var(--bg3);color:var(--text);font:600 15px var(--head);text-decoration:none;cursor:pointer;transition:transform .15s,border-color .15s,background .15s}
+.btn:hover{border-color:var(--mute);color:#fff;transform:translateY(-1px)}
+.btn.primary{background:var(--red);border-color:var(--red);color:#1a0b0c}
+.btn.primary:hover{background:#ff7673;border-color:#ff7673;color:#1a0b0c}
+.btn svg{width:18px;height:18px;flex:none}
+
+/* hero */
+.hero{padding:clamp(36px,7vw,88px) 0 clamp(28px,5vw,56px)}
+.hero .wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:clamp(28px,4vw,64px);align-items:center}
+.badge{display:inline-flex;align-items:center;gap:8px;font:500 12.5px var(--mono);padding:6px 12px;border:1px solid var(--line2);border-radius:99px;color:var(--mute);background:rgba(21,22,27,.8)}
+.badge b{color:var(--amber);font-weight:700}
+.badge span.d{width:7px;height:7px;border-radius:50%;background:var(--amber)}
+h1{font:700 clamp(38px,5.2vw,70px)/1.04 var(--head);letter-spacing:-.025em;margin:22px 0 20px}
+h1 em{font-style:normal;color:var(--red)}
+h1 .u{display:block;font:700 clamp(18px,2vw,24px)/1 var(--mono);letter-spacing:0;color:var(--cool);margin-bottom:14px}
+.lead{font-size:clamp(17px,1.6vw,20px);color:var(--mute);max-width:34em;margin:0 0 28px}
+.lead strong{color:var(--text);font-weight:500}
+.cta{display:flex;flex-wrap:wrap;gap:12px}
+.facts{display:flex;flex-wrap:wrap;gap:8px 20px;margin:28px 0 0;padding:0;list-style:none;font:400 13px var(--mono);color:var(--dim)}
+.facts li::before{content:"";display:inline-block;width:6px;height:6px;margin-right:8px;background:var(--cool);border-radius:1px}
+
+/* terminal */
+.term{border:1px solid var(--line2);border-radius:12px;background:#0b0c0f;box-shadow:0 30px 80px -30px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.02);overflow:hidden;min-width:0}
+.term .bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg2);font:400 12px var(--mono);color:var(--dim)}
+.term .bar i{width:10px;height:10px;border-radius:50%;background:var(--line2)}
+.term .bar i:first-child{background:var(--red)}
+.term .bar span{margin-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.term .bar em{margin-left:auto;font-style:normal;color:var(--amber);white-space:nowrap}
+.term pre{margin:0;padding:16px;height:300px;overflow:hidden;font-size:13px;line-height:1.55;white-space:pre-wrap;word-break:break-all;color:#d6d6de}
+.term .p{color:var(--red)} .term .cmd{color:#fff} .term .k{color:var(--cool)} .term .s{color:#9ad9a8} .term .n{color:var(--violet)} .term .o{color:var(--dim)}
+.caret{display:inline-block;width:8px;height:15px;background:var(--cool);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.spark{border-top:1px solid var(--line);padding:12px 16px 14px;display:grid;grid-template-columns:auto 1fr;gap:4px 16px;align-items:center;background:var(--bg2)}
+.spark .lab{font:500 11px var(--mono);letter-spacing:.08em;color:var(--dim)}
+.spark .val{font:700 22px var(--mono);color:var(--text)}
+.spark .val small{font:400 12px var(--mono);color:var(--dim);margin-left:6px}
+.spark svg{grid-row:1/3;grid-column:2;width:100%;height:52px}
+.spark .stat{display:flex;gap:16px;font:400 12px var(--mono);color:var(--dim)}
+
+/* sections */
+section{padding:clamp(40px,6vw,80px) 0}
+.eyebrow{font:500 12.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin:0 0 14px}
+h2{font:700 clamp(30px,4.4vw,52px)/1.05 var(--head);letter-spacing:-.03em;margin:0 0 16px;max-width:18em}
+.sub{color:var(--mute);max-width:40em;margin:0 0 40px;font-size:17px}
+h3{font:600 20px/1.25 var(--head);margin:0 0 8px;letter-spacing:-.01em}
+
+.shot-hero{padding-top:0}
+.frame{border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--bg2);box-shadow:0 40px 90px -40px #000}
+.frame img{width:100%;aspect-ratio:2500/1532}
+.cap{font:400 13px var(--mono);color:var(--dim);margin:12px 0 0}
+
+/* features */
+.fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.feat{background:var(--bg2);padding:28px 26px}
+.feat svg{width:28px;height:28px;stroke:var(--cool);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;margin-bottom:18px}
+.feat:nth-child(3n+1) svg{stroke:var(--red)}
+.feat p{margin:0 0 14px;color:var(--mute);font-size:15px}
+.feat ul{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.feat li{font:400 12px var(--mono);color:#c4c4cf;border:1px solid var(--line2);border-radius:6px;padding:3px 8px;background:var(--bg)}
+
+/* gallery */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:0 0 14px;scrollbar-width:thin}
+.tabs button{flex:none;min-height:44px;padding:0 18px;border:1px solid var(--line2);background:var(--bg2);color:var(--mute);border-radius:8px;font:500 13.5px var(--mono);cursor:pointer}
+.tabs button:hover{color:#fff;border-color:var(--mute)}
+.tabs button[aria-selected=true]{background:var(--text);color:var(--bg);border-color:var(--text)}
+.panel[hidden]{display:none}
+.panel .frame{position:relative;padding:0;border:1px solid var(--line2);width:100%;display:block;cursor:zoom-in;color:inherit;font:inherit;text-align:left}
+.panel .zoom{position:absolute;right:12px;bottom:12px;background:rgba(15,16,19,.85);border:1px solid var(--line2);border-radius:6px;padding:4px 10px;font:400 12px var(--mono);color:var(--mute)}
+.panel p{color:var(--mute);margin:16px 0 0;max-width:46em}
+dialog{border:1px solid var(--line2);background:var(--bg);color:var(--text);padding:0;border-radius:12px;width:min(96vw,1500px);max-height:94vh;overflow:auto}
+dialog::backdrop{background:rgba(5,5,7,.85)}
+dialog img{width:100%;aspect-ratio:2500/1532}
+dialog .x{position:sticky;top:0;float:right;margin:10px;z-index:2}
+
+/* how */
+.how{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:start}
+.diagram{border:1px solid var(--line2);border-radius:12px;background:var(--bg2);padding:24px;font:400 13px/1.5 var(--mono)}
+.diagram .row{display:flex;align-items:stretch;gap:0;flex-direction:column}
+.node{border:1px solid var(--line2);background:var(--bg);border-radius:8px;padding:12px 14px}
+.node b{display:block;color:var(--text);font-weight:500}
+.node span{color:var(--dim);font-size:12px}
+.node.hot{border-color:var(--red)}
+.link{height:22px;border-left:1px dashed var(--cool);margin-left:28px;position:relative}
+.link::after{content:attr(data-l);position:absolute;left:12px;top:2px;color:var(--cool);font-size:11px}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{counter-increment:s;padding:0 0 22px 52px;position:relative;color:var(--mute)}
+.steps li::before{content:counter(s,decimal-leading-zero);position:absolute;left:0;top:0;font:700 14px var(--mono);color:var(--red);border:1px solid var(--line2);border-radius:6px;width:36px;height:30px;display:grid;place-items:center;background:var(--bg2)}
+.steps b{color:var(--text);font-weight:600}
+.stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.stack code{font-size:12.5px;border:1px solid var(--line2);border-radius:6px;padding:3px 9px;background:var(--bg2);color:#c4c4cf}
+
+/* download */
+.dl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.card{border:1px solid var(--line2);border-radius:12px;background:var(--bg2);padding:24px}
+.card h3 .os{font:500 12px var(--mono);color:var(--dim);display:block;margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase}
+.card code.f{display:block;font-size:12.5px;color:var(--cool);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:8px 0;overflow-wrap:anywhere}
+.card p{margin:0 0 4px;color:var(--mute);font-size:14.5px}
+.alt{border:1px dashed var(--line2);border-radius:12px;padding:20px 24px;color:var(--mute);font-size:15px;margin-bottom:40px}
+.alt code{font-size:13px;color:var(--text)}
+
+.first{border:1px solid var(--line2);border-radius:14px;background:linear-gradient(180deg,var(--bg2),var(--bg));padding:clamp(22px,3.5vw,40px);position:relative;overflow:hidden}
+.first::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--red),var(--violet),var(--cool))}
+.first .big{font:600 clamp(20px,2.6vw,28px)/1.25 var(--head);letter-spacing:-.02em;margin:0 0 6px}
+.first .why{color:var(--mute);margin:0 0 28px}
+.os3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.os3>div{border:1px solid var(--line);border-radius:10px;padding:20px;background:rgba(11,12,15,.6);min-width:0}
+.os3 h4{margin:0 0 10px;font:600 17px var(--head);display:flex;align-items:center;gap:8px}
+.os3 h4 i{font:500 11px var(--mono);color:var(--dim);border:1px solid var(--line2);border-radius:5px;padding:2px 6px}
+.os3 p{margin:0 0 12px;color:var(--mute);font-size:14.5px}
+.os3 kbd{font-size:12.5px;color:var(--text);background:var(--bg3);border:1px solid var(--line2);border-radius:5px;padding:1px 6px}
+
+/* code blocks */
+.code{position:relative;margin:0 0 12px;border:1px solid var(--line2);border-radius:8px;background:#0b0c0f;min-width:0}
+.code pre{margin:0;padding:14px 96px 14px 14px;overflow-x:auto;font-size:13px;line-height:1.6;color:#d6d6de;white-space:pre}
+.code pre .c{color:var(--dim)}
+.copy{position:absolute;top:4px;right:4px;min-height:44px;min-width:78px;padding:0 12px;border:1px solid var(--line2);background:var(--bg3);color:var(--mute);border-radius:6px;font:500 12.5px var(--mono);cursor:pointer}
+.copy:hover{color:#fff;border-color:var(--mute)}
+.copy.ok{color:var(--green);border-color:var(--green)}
+.code.multi .copy{top:4px}
+
+.os3 .code pre{padding-right:14px}
+.os3 .code .copy{position:static;display:block;width:100%;min-height:44px;border:0;border-top:1px solid var(--line2);border-radius:0 0 7px 7px}
+.build{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 40px}
+.build h3{margin-top:8px;font-size:17px}
+.build p,.build td{color:var(--mute);font-size:14.5px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td,th{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 12px var(--mono);color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+td code{color:var(--text);font-size:13px;overflow-wrap:anywhere}
+
+footer{border-top:1px solid var(--line);padding:40px 0 56px;background:var(--bg)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;justify-content:space-between}
+footer ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:0 8px}
+footer ul a{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;color:var(--mute);text-decoration:none;font-size:14.5px}
+footer ul a:hover{color:#fff}
+footer small{color:var(--dim);font-size:13px}
+footer small a{color:var(--mute)}
+
+/* reveal */
+.js .rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.js .rv.in{opacity:1;transform:none}
+
+@media(max-width:960px){
+  .hero .wrap,.how{grid-template-columns:minmax(0,1fr)}
+  .fgrid,.dl,.os3{grid-template-columns:minmax(0,1fr)}
+  .build{grid-template-columns:minmax(0,1fr)}
+}
+@media(min-width:640px) and (max-width:960px){.fgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.code pre{padding-right:14px}.code .copy{position:static;display:block;width:100%;border:0;border-top:1px solid var(--line2);border-radius:0 0 7px 7px}}
+@media(max-width:480px){
+  .term pre{font-size:12px;height:290px;padding:12px}
+  .btn{width:100%}
+  .spark{grid-template-columns:1fr}.spark svg{grid-row:auto;grid-column:auto}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .js .rv{opacity:1;transform:none;transition:none}
+  .caret{animation:none}
+  .btn{transition:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="redis_gui, top of page"><i>R</i>redis_gui</a>
+    <nav class="links" aria-label="Primary">
+      <a class="hide-s" href="#features">Features</a>
+      <a class="hide-s" href="#inside">Inside</a>
+      <a class="hide-s" href="#first-launch">First launch</a>
+      <a class="hide-s" href="#build">Build</a>
+      <a href="https://github.com/AbyAbyss/redis_gui">GitHub</a>
+      <a class="btn primary" style="min-height:44px;padding:0 16px;font-size:14px;color:#1a0b0c" href="#download">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<div id="top"></div>
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap">
+    <div>
+      <p class="badge"><span class="d"></span>Status: <b>beta</b> · MIT · macOS, Linux, Windows</p>
+      <h1 id="h1"><span class="u">redis_gui</span>Look inside <em>Redis</em>, from one file.</h1>
+      <p class="lead">Browse the keyspace, run commands, watch live metrics and manage Redis. <strong>One static binary</strong>, as a local web app or a native desktop app.</p>
+      <div class="cta">
+        <a class="btn primary" href="https://github.com/AbyAbyss/redis_gui/releases/latest">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>Download</a>
+        <a class="btn" href="https://github.com/AbyAbyss/redis_gui">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>View on GitHub</a>
+      </div>
+      <ul class="facts">
+        <li>Go + React</li><li>SQLite state</li><li>SCAN, never KEYS</li>
+      </ul>
+    </div>
+
+    <div class="rv">
+      <div class="term" role="img" aria-label="A simulated redis-cli session. It runs SET, GET, TTL, HSET, SCAN and XADD with typical replies, next to an ops per second sparkline.">
+        <div class="bar"><i></i><i></i><i></i><span>redis-cli · 127.0.0.1:6379</span><em>simulated</em></div>
+        <pre id="tty" aria-hidden="true"><span class="p">127.0.0.1:6379&gt;</span> <span class="cmd">SET <span class="k">session:abc</span> <span class="s">"u1"</span> EX 300</span>
+OK
+<span class="p">127.0.0.1:6379&gt;</span> <span class="cmd">GET <span class="k">session:abc</span></span>
+<span class="s">"u1"</span>
+<span class="p">127.0.0.1:6379&gt;</span> <span class="cmd">TTL <span class="k">session:abc</span></span>
+<span class="n">(integer)</span> 299
+<span class="p">127.0.0.1:6379&gt;</span> <span class="cmd">HSET <span class="k">user:1</span> name Asha age 29</span>
+<span class="n">(integer)</span> 2
+<span class="p">127.0.0.1:6379&gt;</span> <span class="cmd">SCAN 0 MATCH <span class="k">user:*</span> COUNT 100</span>
+1) <span class="s">"0"</span>
+2) 1) <span class="s">"user:1"</span>
+<span class="p">127.0.0.1:6379&gt;</span> <span class="cmd">XADD <span class="k">events:log</span> * type login uid 1</span>
+<span class="s">"1727780412345-0"</span>
+<span class="p">127.0.0.1:6379&gt;</span> </pre>
+        <div class="spark" aria-hidden="true">
+          <div><div class="lab">OPS/S</div><div class="val"><span id="ops">0</span><small>1 Hz</small></div></div>
+          <svg id="sp" viewBox="0 0 300 52" preserveAspectRatio="none"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6bb6d8" stop-opacity=".35"/><stop offset="1" stop-color="#6bb6d8" stop-opacity="0"/></linearGradient></defs><path id="spa" fill="url(#sg)" d=""/><path id="spl" fill="none" stroke="#6bb6d8" stroke-width="1.6" vector-effect="non-scaling-stroke" d=""/></svg>
+        </div>
+      </div>
+      <p class="cap">A scripted demo of the kind of session the built-in CLI runs. The numbers are illustrative.</p>
+    </div>
+  </div>
+</section>
+
+<section class="shot-hero" aria-label="Keyspace browser screenshot">
+  <div class="wrap rv">
+    <div class="frame"><img src="assets/redis_gui/keyspace.webp" width="1600" height="980" alt="redis_gui keyspace browser: a list of keys by type on the left, and a hash key session:abc with its fields, TTL and length on the right."></div>
+    <p class="cap">Keyspace browser: glob and type filters, per-database switcher, a viewer for each key type.</p>
+  </div>
+</section>
+
+<section id="features" aria-labelledby="fh">
+  <div class="wrap">
+    <p class="eyebrow">What it does</p>
+    <h2 id="fh">Six areas, one window.</h2>
+    <p class="sub">Everything below ships in the same binary. Nothing to install on the Redis side.</p>
+    <div class="fgrid rv">
+      <article class="feat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M14 9l2 2"/></svg>
+        <h3>Keyspace</h3>
+        <p>A SCAN browser with glob and type filters and a switcher for each database. Viewers for every type.</p>
+        <ul><li>string</li><li>hash</li><li>list</li><li>set</li><li>zset</li><li>stream</li><li>json</li><li>hex</li><li>bitmap</li><li>HyperLogLog</li><li>geo map</li></ul>
+      </article>
+      <article class="feat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10l3 2-3 2M12 15h5"/></svg>
+        <h3>CLI and Workbench</h3>
+        <p>An interactive CLI as a full tab and a drawer, with meta-commands that drive the GUI. A multi-line runner and saved Lua scripts.</p>
+        <ul><li>:help</li><li>pipelines</li><li>Lua scripts</li><li>write warnings</li></ul>
+      </article>
+      <article class="feat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20V4M3 20h18M7 15l4-5 3 3 5-7"/></svg>
+        <h3>Observability</h3>
+        <p>Metric sparklines at 1 Hz, a coalesced MONITOR stream, Pub/Sub, the slow log, a client inventory and a memory analyzer.</p>
+        <ul><li>MONITOR</li><li>Pub/Sub</li><li>slow log</li><li>clients</li><li>memory</li></ul>
+      </article>
+      <article class="feat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+        <h3>Operations</h3>
+        <p>A CONFIG editor with guards on destructive directives, cluster topology and slot map, backup triggers and connection management.</p>
+        <ul><li>CONFIG</li><li>cluster</li><li>backup</li><li>connections</li></ul>
+      </article>
+      <article class="feat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M18 14a6 6 0 013.5 6"/></svg>
+        <h3>Team-ready</h3>
+        <p>Auth modes none, password or token, with viewer, operator and admin roles, an audit log and an AI Copilot (Anthropic or OpenAI).</p>
+        <ul><li>RBAC</li><li>audit log</li><li>Copilot</li></ul>
+      </article>
+      <article class="feat">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+        <h3>Persistent</h3>
+        <p>Tabs, preferences and subscriptions come back from SQLite. Connection passwords are AES-256-GCM encrypted. Light and dark themes. Runs headless or in Docker.</p>
+        <ul><li>SQLite</li><li>AES-256-GCM</li><li>light and dark</li><li>Docker</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="inside" aria-labelledby="ih">
+  <div class="wrap">
+    <p class="eyebrow">A look inside</p>
+    <h2 id="ih">Real captures, no mockups.</h2>
+    <p class="sub">Six tabs from the running app. Select a tab, then click the image to enlarge it.</p>
+    <div class="rv" id="gallery">
+      <div class="tabs" role="tablist" aria-label="Screenshots">
+        <button role="tab" aria-selected="true" aria-controls="p0" id="t0">Keyspace</button>
+        <button role="tab" aria-selected="false" aria-controls="p1" id="t1" tabindex="-1">CLI</button>
+        <button role="tab" aria-selected="false" aria-controls="p2" id="t2" tabindex="-1">Metrics</button>
+        <button role="tab" aria-selected="false" aria-controls="p3" id="t3" tabindex="-1">Memory</button>
+        <button role="tab" aria-selected="false" aria-controls="p4" id="t4" tabindex="-1">MONITOR</button>
+        <button role="tab" aria-selected="false" aria-controls="p5" id="t5" tabindex="-1">Workbench</button>
+      </div>
+      <div class="panel" role="tabpanel" id="p0" aria-labelledby="t0">
+        <button class="frame" type="button" data-zoom><img src="assets/redis_gui/keyspace.webp" loading="lazy" width="1600" height="980" alt="Keyspace tab showing eleven keys of different types and the hash session:abc opened on the right."><span class="zoom">enlarge</span></button>
+        <p>Filter with a glob like <code>user:*</code> or by type, and open any key to see it in a viewer made for its type. The footer shows how many keys the SCAN returned and the cursor.</p>
+      </div>
+      <div class="panel" id="p1" role="tabpanel" aria-labelledby="t1" hidden>
+        <button class="frame" type="button" data-zoom><img src="assets/redis_gui/cli.webp" loading="lazy" width="1600" height="981" alt="CLI tab with a PING and PONG exchange, and the same CLI open in the bottom drawer."><span class="zoom">enlarge</span></button>
+        <p>The CLI lives in a tab and in a drawer you can toggle from anywhere. Type <code>:help</code> for meta-commands that drive the GUI.</p>
+      </div>
+      <div class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+        <button class="frame" type="button" data-zoom><img src="assets/redis_gui/metrics.webp" loading="lazy" width="1600" height="973" alt="Live metrics tab with tiles for ops per second, memory, clients, hit rate, network in and network out, each with a sparkline."><span class="zoom">enlarge</span></button>
+        <p>Streaming at 1 Hz: ops/s, memory, clients, hit rate and network throughput, plus the server host and version.</p>
+      </div>
+      <div class="panel" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+        <button class="frame" type="button" data-zoom><img src="assets/redis_gui/memory.webp" loading="lazy" width="1600" height="981" alt="Memory analyzer with usage by type, usage by namespace and a table of the largest keys."><span class="zoom">enlarge</span></button>
+        <p>Run a sample over a key pattern and see usage by type and by key namespace, then the biggest keys with their TTL.</p>
+      </div>
+      <div class="panel" id="p4" role="tabpanel" aria-labelledby="t4" hidden>
+        <button class="frame" type="button" data-zoom><img src="assets/redis_gui/monitor.webp" loading="lazy" width="1600" height="980" alt="MONITOR tab streaming commands with timestamp, database, client address and arguments."><span class="zoom">enlarge</span></button>
+        <p>A live command stream with a substring filter, plus pause and clear.</p>
+      </div>
+      <div class="panel" id="p5" role="tabpanel" aria-labelledby="t5" hidden>
+        <button class="frame" type="button" data-zoom><img src="assets/redis_gui/workbench.webp" loading="lazy" width="1600" height="978" alt="Workbench running a multi-line pipeline of SET, GET and HSET commands, with per-line results and a warning that the pipeline includes write commands."><span class="zoom">enlarge</span></button>
+        <p>Write a multi-line pipeline, get a warning when it contains writes, and read each result per line, errors included.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<dialog id="lb" aria-label="Enlarged screenshot"><button class="btn x" type="button" id="lbx">Close</button><img id="lbi" src="" alt="" width="1600" height="980"></dialog>
+
+<section id="how" aria-labelledby="hh">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2 id="hh">One process. One state file.</h2>
+    <div class="how">
+      <div class="rv">
+        <ol class="steps">
+          <li><b>One binary serves everything.</b> It exposes the REST and WebSocket API and the embedded React app, so there is no separate web server.</li>
+          <li><b>Redis is dialed lazily.</b> A go-redis pool connects when you first use a connection. Passwords are never sent to the browser.</li>
+          <li><b>State lives in one SQLite file.</b> Tabs, preferences, saved queries and the audit log.</li>
+          <li><b>Web or desktop, same UI.</b> The web mode binds <code>127.0.0.1</code> only. The desktop build wraps the same app in a native webview.</li>
+        </ol>
+        <div class="stack"><code>Go</code><code>chi</code><code>go-redis/v9</code><code>coder/websocket</code><code>modernc SQLite</code><code>React 18</code><code>TypeScript</code><code>Vite</code><code>TanStack Query</code><code>Zustand</code></div>
+      </div>
+      <div class="diagram rv" role="img" aria-label="Architecture: browser or native window talks over REST and WebSocket to the redis_gui binary, which talks to Redis and to a SQLite file.">
+        <div class="row">
+          <div class="node"><b>Browser tab or native window</b><span>React 18 SPA, embedded in the binary</span></div>
+          <div class="link" data-l="REST + WebSocket /api/v1, /ws"></div>
+          <div class="node hot"><b>redis_gui</b><span>chi router, auth and RBAC, audit log</span></div>
+          <div class="link" data-l="go-redis pool"></div>
+          <div class="node"><b>Your Redis</b><span>standalone or cluster</span></div>
+          <div class="link" data-l="local state"></div>
+          <div class="node"><b>SQLite file</b><span>tabs, prefs, scripts, encrypted passwords</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="download" aria-labelledby="dh">
+  <div class="wrap">
+    <p class="eyebrow">Download</p>
+    <h2 id="dh">Latest release: v0.1.2.</h2>
+    <p class="sub">Desktop builds for the three platforms, plain server binaries if you prefer the browser, and a Docker image. All of them are on the Releases page.</p>
+    <div class="dl rv">
+      <div class="card"><h3><span class="os">macOS</span>Desktop app</h3><code class="f">redis_gui-desktop-macos.zip</code><p>Contains <code>redis_gui.app</code>.</p><p style="margin-top:16px"><a class="btn primary" style="width:100%" href="https://github.com/AbyAbyss/redis_gui/releases/latest">Get it on Releases</a></p></div>
+      <div class="card"><h3><span class="os">Windows</span>Desktop app</h3><code class="f">redis_gui-desktop-windows-amd64.zip</code><p>Uses the Microsoft WebView2 runtime for its window.</p><p style="margin-top:16px"><a class="btn primary" style="width:100%" href="https://github.com/AbyAbyss/redis_gui/releases/latest">Get it on Releases</a></p></div>
+      <div class="card"><h3><span class="os">Linux</span>Desktop app</h3><code class="f">redis_gui-desktop-linux-amd64.tar.gz</code><p>Or the <code>.deb</code> or <code>.rpm</code> package.</p><p style="margin-top:16px"><a class="btn primary" style="width:100%" href="https://github.com/AbyAbyss/redis_gui/releases/latest">Get it on Releases</a></p></div>
+    </div>
+    <div class="alt rv">Prefer the browser? Every release also has server binaries named <code>redis_gui-&lt;os&gt;-&lt;arch&gt;</code> for six platforms (tar.gz, zip on Windows). Or use the Docker image <code>ghcr.io/abyabyss/redis_gui</code>, see <a href="#build">Build from source</a> for the run command.</div>
+
+    <div class="first rv" id="first-launch" role="region" aria-labelledby="flh">
+      <p class="eyebrow">First launch</p>
+      <p class="big" id="flh">macOS will say it can't verify redis_gui (free side project, not notarized).</p>
+      <p class="why">The desktop builds are not code-signed yet, so each OS asks you to confirm once. Here is how to get past it.</p>
+      <div class="os3">
+        <div>
+          <h4>macOS <i>.zip</i></h4>
+          <p>Unzip, move <code>redis_gui.app</code> to Applications. Then open System Settings → Privacy &amp; Security and click <kbd>Open Anyway</kbd>, or run in Terminal:</p>
+          <div class="code"><pre>xattr -dr com.apple.quarantine /Applications/redis_gui.app</pre><button class="copy" type="button" data-copy="xattr -dr com.apple.quarantine /Applications/redis_gui.app" aria-label="Copy the macOS xattr command">Copy</button></div>
+        </div>
+        <div>
+          <h4>Windows <i>.zip</i></h4>
+          <p>Windows shows a SmartScreen prompt. Choose <kbd>More info</kbd> → <kbd>Run anyway</kbd>.</p>
+          <p style="color:var(--dim)">The desktop app draws its window with the Microsoft WebView2 runtime.</p>
+        </div>
+        <div>
+          <h4>Linux <i>.deb</i></h4>
+          <p>The desktop app needs the WebKitGTK runtime. The package pulls in <code>libwebkit2gtk-4.0-37</code> for you.</p>
+          <div class="code"><pre>sudo apt install ./redis_gui-desktop_*.deb</pre><button class="copy" type="button" data-copy="sudo apt install ./redis_gui-desktop_*.deb" aria-label="Copy the apt install command">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="build" aria-labelledby="bh">
+  <div class="wrap">
+    <p class="eyebrow">Build from source</p>
+    <h2 id="bh">Clone, then <span style="font-family:var(--mono);letter-spacing:-.05em;word-spacing:-.25em">make run</span>.</h2>
+    <p class="sub">Needs Go 1.25+ and Node 20+ at build time only. The runtime is one binary.</p>
+    <div class="build rv">
+      <div>
+        <h3>Get the code</h3>
+        <div class="code"><pre>git clone https://github.com/AbyAbyss/redis_gui.git
+cd redis_gui</pre><button class="copy" type="button" data-copy="git clone https://github.com/AbyAbyss/redis_gui.git&#10;cd redis_gui" aria-label="Copy the clone commands">Copy</button></div>
+        <h3>Run it</h3>
+        <table><thead><tr><th>Command</th><th>Result</th></tr></thead><tbody>
+          <tr><td><code>make run</code></td><td>Build, then open the web UI in your browser</td></tr>
+          <tr><td><code>make launch</code></td><td>Launch the existing web build, no rebuild</td></tr>
+          <tr><td><code>make run-desktop</code></td><td>Build and launch the desktop app</td></tr>
+          <tr><td><code>make launch-desktop</code></td><td>Launch the existing desktop build</td></tr>
+        </tbody></table>
+        <div class="code" style="margin-top:14px"><pre>make run</pre><button class="copy" type="button" data-copy="make run" aria-label="Copy make run">Copy</button></div>
+        <div class="code"><pre>make run-desktop</pre><button class="copy" type="button" data-copy="make run-desktop" aria-label="Copy make run-desktop">Copy</button></div>
+      </div>
+      <div>
+        <h3>Fixed port or headless server</h3>
+        <p><code>make run</code> binds a random <code>127.0.0.1</code> port. For a fixed port:</p>
+        <div class="code"><pre>./redis_gui serve --addr 127.0.0.1:7379</pre><button class="copy" type="button" data-copy="./redis_gui serve --addr 127.0.0.1:7379" aria-label="Copy the serve command">Copy</button></div>
+        <h3>Docker</h3>
+        <div class="code"><pre>docker run --rm -p 7379:7379 \
+  -v redis_gui_state:/state \
+  ghcr.io/abyabyss/redis_gui</pre><button class="copy" type="button" data-copy="docker run --rm -p 7379:7379 -v redis_gui_state:/state ghcr.io/abyabyss/redis_gui" aria-label="Copy the docker command">Copy</button></div>
+        <h3>Desktop builds also need CGO and the OS webview headers</h3>
+        <table><tbody>
+          <tr><td>macOS</td><td>Xcode command-line tools</td></tr>
+          <tr><td>Linux</td><td><code>libwebkit2gtk-4.0-dev</code></td></tr>
+          <tr><td>Windows</td><td>mingw-w64 and the WebView2 runtime</td></tr>
+        </tbody></table>
+        <div class="code" style="margin-top:14px"><pre>xcode-select --install   <span class="c"># macOS</span></pre><button class="copy" type="button" data-copy="xcode-select --install" aria-label="Copy xcode-select command">Copy</button></div>
+        <div class="code"><pre>sudo apt install libwebkit2gtk-4.0-dev   <span class="c"># Linux</span></pre><button class="copy" type="button" data-copy="sudo apt install libwebkit2gtk-4.0-dev" aria-label="Copy apt command for dev headers">Copy</button></div>
+        <p>An app you build locally opens normally, so the first-launch steps above are only for downloaded builds.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <ul aria-label="Project links">
+      <li><a href="https://github.com/AbyAbyss/redis_gui">Repository</a></li>
+      <li><a href="https://github.com/AbyAbyss/redis_gui/releases">Releases</a></li>
+      <li><a href="https://github.com/AbyAbyss/redis_gui/blob/main/LICENSE">License (MIT)</a></li>
+    </ul>
+    <small>Made by <a href="index.html">Aby Saji Pappachan</a></small>
+  </div>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* reveal */
+  var rv = document.querySelectorAll('.rv');
+  if (reduce || !('IntersectionObserver' in window)) { rv.forEach(function(e){e.classList.add('in')}); }
+  else {
+    var io = new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.08});
+    rv.forEach(function(e){io.observe(e)});
+  }
+
+  /* copy */
+  function fallbackCopy(t){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(a);return ok}
+  document.querySelectorAll('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var t=b.getAttribute('data-copy');
+      var done=function(ok){b.textContent=ok?'Copied':'Press Ctrl+C';b.classList.toggle('ok',ok);setTimeout(function(){b.textContent='Copy';b.classList.remove('ok')},1800)};
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){done(true)},function(){done(fallbackCopy(t))})}
+      else done(fallbackCopy(t));
+    });
+  });
+
+  /* tabs */
+  var tabs=[].slice.call(document.querySelectorAll('[role=tab]'));
+  function sel(i,focus){tabs.forEach(function(t,j){var on=i===j;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;document.getElementById(t.getAttribute('aria-controls')).hidden=!on});if(focus)tabs[i].focus()}
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(i)});
+    t.addEventListener('keydown',function(e){
+      var n=i;
+      if(e.key==='ArrowRight')n=(i+1)%tabs.length;else if(e.key==='ArrowLeft')n=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;else return;
+      e.preventDefault();sel(n,true);
+    });
+  });
+
+  /* lightbox */
+  var lb=document.getElementById('lb'),lbi=document.getElementById('lbi');
+  document.querySelectorAll('[data-zoom]').forEach(function(b){
+    b.addEventListener('click',function(){var im=b.querySelector('img');lbi.src=im.currentSrc||im.src;lbi.alt=im.alt;if(lb.showModal)lb.showModal();else lb.setAttribute('open','')});
+  });
+  document.getElementById('lbx').addEventListener('click',function(){lb.close?lb.close():lb.removeAttribute('open')});
+  lb.addEventListener('click',function(e){if(e.target===lb)lb.close()});
+
+  /* terminal demo */
+  var tty=document.getElementById('tty');
+  var ops=document.getElementById('ops'),spl=document.getElementById('spl'),spa=document.getElementById('spa');
+  var N=40,data=[];for(var i=0;i<N;i++)data.push(0);
+  function draw(){
+    var mx=Math.max(20,Math.max.apply(null,data)),pts=data.map(function(v,i){return [i*300/(N-1),48-(v/mx)*44]});
+    var d=pts.map(function(p,i){return (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)}).join(' ');
+    spl.setAttribute('d',d);spa.setAttribute('d',d+' L300 52 L0 52 Z');
+  }
+  /* static initial render (also what reduced-motion users see) */
+  data=[2,3,2,5,4,6,5,9,7,6,8,12,9,7,6,5,8,14,11,9,7,6,5,7,10,16,13,9,8,6,5,7,9,12,18,14,10,8,7,9];
+  ops.textContent=data[N-1];draw();
+  if(reduce)return;
+
+  var script=[
+    ['SET <k>session:abc</k> <s>"u1"</s> EX 300','OK'],
+    ['GET <k>session:abc</k>','<s>"u1"</s>'],
+    ['TTL <k>session:abc</k>','<n>(integer)</n> 299'],
+    ['HSET <k>user:1</k> name Asha age 29','<n>(integer)</n> 2'],
+    ['ZADD <k>leaderboard</k> 120 asha','<n>(integer)</n> 1'],
+    ['SCAN 0 MATCH <k>user:*</k> COUNT 100','1) <s>"0"</s>\n2) 1) <s>"user:1"</s>'],
+    ['XADD <k>events:log</k> * type login uid 1','<s>"1727780412345-0"</s>']
+  ];
+  function esc(h){return h.replace(/<k>/g,'<span class="k">').replace(/<s>/g,'<span class="s">').replace(/<n>/g,'<span class="n">').replace(/<\/[ksn]>/g,'</span>')}
+  var prompt='<span class="p">127.0.0.1:6379&gt;</span> ';
+  var running=false,visible=true,idx=0,spike=0;
+  function plain(h){return h.replace(/<\/?[ksn]>/g,'')}
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms)})}
+  async function play(){
+    if(running)return;running=true;
+    var out='';tty.innerHTML=prompt+'<span class="caret"></span>';
+    while(true){
+      for(var s=0;s<script.length;s++){
+        while(!visible)await sleep(400);
+        var cmd=script[s][0],raw=plain(cmd),shown='';
+        for(var c=0;c<raw.length;c++){
+          shown+=raw[c];
+          /* re-highlight by mapping typed chars onto marked-up string */
+          tty.innerHTML=out+prompt+'<span class="cmd">'+hl(cmd,shown.length)+'</span><span class="caret"></span>';
+          await sleep(28+Math.random()*40);
+        }
+        await sleep(260);
+        spike=14+Math.random()*10;
+        out+=prompt+'<span class="cmd">'+esc(cmd)+'</span>\n'+esc(script[s][1])+'\n';
+        tty.innerHTML=out+prompt+'<span class="caret"></span>';
+        trim();
+        await sleep(1100);
+      }
+      await sleep(1600);out='';tty.innerHTML=prompt+'<span class="caret"></span>';
+    }
+  }
+  function hl(markup,n){ /* render first n visible chars of marked-up cmd */
+    var res='',count=0,i=0,stack=[];
+    while(i<markup.length&&count<n){
+      if(markup[i]==='<'){var j=markup.indexOf('>',i),tag=markup.slice(i,j+1);
+        if(tag[1]==='/'){res+='</span>';stack.pop()}else{var m={k:'k',s:'s',n:'n'}[tag[1]];res+='<span class="'+m+'">';stack.push(1)}
+        i=j+1;continue}
+      var ch=markup[i];res+=ch==='<'?'&lt;':ch==='&'?'&amp;':ch;count++;i++;
+    }
+    return res+stack.map(function(){return '</span>'}).join('');
+  }
+  function trim(){ /* keep the newest lines in view */
+    tty.scrollTop=tty.scrollHeight;
+  }
+  tty.style.overflow='hidden';
+  setInterval(function(){
+    var last=data[N-1],base=6+Math.sin(Date.now()/2600)*3;
+    var v=Math.max(1,Math.round(base+Math.random()*4+spike));spike*=.45;
+    data.push(v);data.shift();ops.textContent=v;draw();
+  },900);
+  var term=tty.closest('.term');
+  if('IntersectionObserver' in window){new IntersectionObserver(function(es){visible=es[0].isIntersecting}).observe(term)}
+  var started=false;
+  new IntersectionObserver(function(es,o){if(es[0].isIntersecting&&!started){started=true;play()}}).observe(term);
+})();
+</script>
+</body>
+</html>
