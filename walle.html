@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALLE, a desktop companion</title>
+<meta name="description" content="WALLE is a desktop AI companion built with Tauri, Rust and React. A little robot (or a parrot) lives in the corner of your screen, runs things for you and answers with a face. An early experiment, no longer in active development.">
+<meta name="theme-color" content="#F3E7D0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%230E4D4F'/%3E%3Ccircle cx='23' cy='30' r='9' fill='%23FFC93C'/%3E%3Ccircle cx='41' cy='30' r='9' fill='%23FFC93C'/%3E%3Ccircle cx='25' cy='31' r='4' fill='%231D2B2A'/%3E%3Ccircle cx='43' cy='31' r='4' fill='%231D2B2A'/%3E%3Cpath d='M22 46q10 6 20 0' stroke='%23F3E7D0' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+:root{
+  --sand:#F3E7D0; --sand-2:#EADBBC; --paper:#FBF4E4; --teal:#0E4D4F; --teal-2:#14686A; --teal-3:#0A3638;
+  --yellow:#FFC93C; --yellow-2:#F5B400; --ink:#1D2B2A; --muted:#55645F; --line:rgba(29,43,42,.14);
+  --night:#11131D;
+  --display:"Baloo 2","Arial Rounded MT Bold","Hiragino Maru Gothic ProN","Trebuchet MS",ui-rounded,system-ui,sans-serif;
+  --body:"Nunito",ui-rounded,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:26px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:84px;-webkit-text-size-adjust:100%}
+body{font-family:var(--body);font-size:17px;line-height:1.6;color:var(--ink);background:var(--sand);
+  background-image:radial-gradient(rgba(14,77,79,.09) 1.2px,transparent 1.3px);background-size:22px 22px;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);line-height:1.04;letter-spacing:-.01em;font-weight:800}
+a{color:inherit}
+img,video{max-width:100%;display:block}
+code,pre,kbd{font-family:var(--mono)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+:focus-visible{outline:3px solid var(--teal);outline-offset:3px;border-radius:8px}
+.band-teal :focus-visible,.foot :focus-visible{outline-color:var(--yellow)}
+.skip{position:absolute;left:12px;top:-60px;background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:200}
+.skip:focus{top:12px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 26px;border-radius:999px;font-family:var(--display);font-weight:700;font-size:19px;text-decoration:none;border:3px solid var(--ink);cursor:pointer;transition:transform .15s,box-shadow .15s;line-height:1}
+.btn.pri{background:var(--yellow);color:var(--ink);box-shadow:0 5px 0 var(--ink)}
+.btn.pri:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--ink)}
+.btn.pri:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.btn.sec{background:var(--paper);color:var(--ink);box-shadow:0 5px 0 var(--ink)}
+.btn.sec:hover{transform:translateY(-2px);box-shadow:0 7px 0 var(--ink)}
+.btn svg{width:22px;height:22px;flex:none}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:60;background:rgba(243,231,208,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:2px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:26px;text-decoration:none;letter-spacing:.02em}
+.brand .face{width:38px;height:38px;border-radius:12px;background:var(--teal);display:grid;place-items:center;flex:none}
+.brand .face svg{width:30px;height:30px}
+.links{display:flex;align-items:center;gap:6px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 14px;border-radius:999px;text-decoration:none;font-weight:700;font-size:15px;color:var(--muted)}
+.links a:hover{color:var(--ink);background:rgba(14,77,79,.09)}
+.links a.cta{background:var(--teal);color:var(--sand);margin-left:6px}
+.links a.cta:hover{background:var(--teal-3);color:#fff}
+
+/* hero */
+.hero{position:relative;padding:44px 0 90px;overflow:hidden}
+.hero .blob{position:absolute;border-radius:50%;z-index:0;pointer-events:none}
+.hero .b1{width:520px;height:520px;background:var(--teal);right:-160px;top:-120px;opacity:.95}
+.hero .b2{width:200px;height:200px;background:var(--yellow);left:-70px;bottom:40px}
+.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.08fr;gap:56px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:10px;background:var(--paper);border:2.5px solid var(--ink);border-radius:999px;padding:7px 16px 7px 12px;font-weight:800;font-size:14px;box-shadow:0 3px 0 var(--ink)}
+.badge i{width:12px;height:12px;border-radius:50%;background:var(--yellow-2);border:2px solid var(--ink);flex:none}
+h1{font-size:clamp(40px,5.2vw,72px);margin:20px 0 16px}
+h1 .nm{display:block;color:var(--teal);font-size:1.5em;letter-spacing:.03em;line-height:.95}
+h1 .ln{display:block;font-size:.62em;line-height:1.1;margin-top:6px}
+h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--yellow) 62% 92%,transparent 92%);padding:0 .08em}
+.lede{font-size:20px;max-width:34em;color:#2c3b39}
+.honest{margin-top:14px;font-size:16px;color:var(--muted);max-width:34em}
+.cta-row{display:flex;flex-wrap:wrap;gap:16px;margin:30px 0 22px}
+.keys{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:15px;color:var(--muted);font-weight:700}
+kbd{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:34px;padding:0 10px;background:var(--paper);border:2px solid var(--ink);border-bottom-width:5px;border-radius:10px;font-size:13px;font-weight:600;color:var(--ink)}
+.plat{margin-top:14px;font-size:14px;color:var(--muted);font-weight:700}
+.shot{position:relative;transform:rotate(1.6deg)}
+.shot .frame{border:4px solid var(--ink);border-radius:30px;overflow:hidden;background:var(--night);box-shadow:12px 14px 0 var(--yellow),12px 14px 0 3px var(--ink)}
+.shot .crop{position:relative;aspect-ratio:5/4;overflow:hidden}
+.shot img{position:absolute;width:190%;max-width:none;height:auto;left:-90.1%;top:-42.5%}
+.shot figcaption{position:absolute;left:-12px;bottom:-26px;transform:rotate(-3deg);background:var(--paper);border:2.5px solid var(--ink);border-radius:14px;padding:8px 14px;font-weight:800;font-size:14px;box-shadow:0 3px 0 var(--ink);max-width:78%}
+
+/* sections */
+section{position:relative;padding:92px 0}
+.eyebrow{display:inline-block;font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-2);margin-bottom:10px}
+h2{font-size:clamp(34px,4.6vw,58px);margin-bottom:16px}
+.sub{font-size:19px;color:var(--muted);max-width:40em}
+.band-teal{background:var(--teal);color:var(--sand);background-image:radial-gradient(rgba(255,255,255,.07) 1.2px,transparent 1.3px);background-size:22px 22px}
+.band-teal .eyebrow{color:var(--yellow)}
+.band-teal .sub{color:rgba(243,231,208,.82)}
+.band-paper{background:var(--paper);border-block:3px solid var(--ink)}
+
+/* meet */
+.meet-top{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+.switch{display:inline-flex;background:var(--teal-3);border:3px solid var(--sand);border-radius:999px;padding:5px;margin:26px 0 0;gap:4px}
+.switch button{min-height:48px;padding:0 24px;border-radius:999px;border:0;background:transparent;color:var(--sand);font-family:var(--display);font-weight:700;font-size:19px;cursor:pointer}
+.switch button[aria-pressed=true]{background:var(--yellow);color:var(--ink)}
+.loop{border:4px solid var(--sand);border-radius:28px;overflow:hidden;background:var(--night);box-shadow:10px 12px 0 var(--teal-3)}
+.loop video{width:100%;height:auto;aspect-ratio:560/382}
+.faces-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px 24px;margin:56px 0 16px}
+.faces-head h3{font-size:30px}
+.faces-head p{color:rgba(243,231,208,.82);font-size:16px}
+.faces{display:grid;grid-template-columns:repeat(7,1fr);gap:14px;list-style:none}
+.face-btn{width:100%;background:transparent;border:0;color:var(--sand);cursor:pointer;font-family:var(--display);font-weight:700;font-size:18px;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0}
+.face-art{display:block;width:100%;aspect-ratio:160/215;border-radius:22px;background-color:var(--night);background-image:url(assets/walle/mascots.webp);background-repeat:no-repeat;background-size:1100% auto;background-position:var(--x) var(--y,6.9%);border:4px solid rgba(243,231,208,.28);transition:transform .2s cubic-bezier(.34,1.56,.64,1),border-color .15s}
+.faces[data-m=dudu]{--y:82%}
+.face-btn:hover .face-art{transform:translateY(-6px) rotate(-1.5deg);border-color:var(--sand)}
+.face-btn[aria-pressed=true] .face-art{border-color:var(--yellow);box-shadow:0 0 0 4px rgba(255,201,60,.35)}
+.face-btn[aria-pressed=true] .face-name{background:var(--yellow);color:var(--ink)}
+.face-name{padding:3px 14px;border-radius:999px;min-height:30px}
+.feel{margin-top:22px;min-height:3.2em;font-size:19px;font-weight:700;color:var(--sand);background:var(--teal-3);border-radius:20px;padding:14px 20px;border:2px dashed rgba(243,231,208,.4)}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.mini div{background:rgba(10,54,56,.7);border-radius:20px;padding:20px 22px;border:2px solid rgba(243,231,208,.18)}
+.mini h4{font-family:var(--display);font-size:21px;color:var(--yellow);margin-bottom:6px}
+.mini p{font-size:16px;color:rgba(243,231,208,.88)}
+
+/* features */
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0 0;list-style:none}
+.chips li{background:var(--paper);border:2.5px solid var(--ink);border-radius:999px;padding:6px 16px;font-weight:800;font-size:15px}
+.chips li.lbl{background:transparent;border-color:transparent;padding-left:0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px}
+.card{background:var(--paper);border:3px solid var(--ink);border-radius:var(--r);padding:26px 26px 24px;box-shadow:0 6px 0 var(--ink);transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;position:relative}
+.card:hover,.card:focus-within{transform:translateY(-5px) rotate(-.4deg);box-shadow:0 11px 0 var(--ink)}
+.ico{width:58px;height:58px;border-radius:18px;display:grid;place-items:center;border:3px solid var(--ink);margin-bottom:16px}
+.ico svg{width:30px;height:30px}
+.c-y .ico{background:var(--yellow)} .c-t .ico{background:var(--teal);color:var(--sand)} .c-p .ico{background:#F4A98B} .c-g .ico{background:#B7D9A8} .c-b .ico{background:#A9D3DA}
+.card h3{font-size:27px;margin-bottom:10px}
+.card ul{list-style:none}
+.card li{position:relative;padding-left:22px;margin:7px 0;font-size:16px;line-height:1.5}
+.card li::before{content:"";position:absolute;left:2px;top:.6em;width:9px;height:9px;border-radius:50%;background:var(--yellow-2);border:2px solid var(--ink)}
+.card .tag{font-size:12px;font-weight:800;background:var(--sand-2);border-radius:999px;padding:1px 9px;margin-left:4px;vertical-align:middle}
+.hot{margin-top:46px;background:var(--teal);color:var(--sand);border-radius:var(--r);padding:26px 30px;display:grid;grid-template-columns:auto 1fr;gap:20px 36px;align-items:center;border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink)}
+.hot h3{font-size:27px;color:var(--yellow)}
+.hot dl{display:grid;grid-template-columns:repeat(5,auto);gap:10px 26px;justify-content:start}
+.hot dt{display:flex;gap:4px;flex-wrap:wrap}
+.hot dd{font-size:14px;color:rgba(243,231,208,.85);margin-top:6px;font-weight:700}
+.hot kbd{background:var(--sand);border-color:var(--teal-3);height:30px;min-width:30px;font-size:12px}
+
+/* gallery */
+.tabs{display:flex;flex-wrap:wrap;gap:10px;margin:32px 0 22px}
+.tabs button{min-height:48px;padding:0 22px;border-radius:999px;border:3px solid var(--ink);background:var(--sand);font-family:var(--display);font-weight:700;font-size:18px;cursor:pointer;color:var(--ink)}
+.tabs button[aria-selected=true]{background:var(--yellow);box-shadow:0 4px 0 var(--ink)}
+.panel{display:none}.panel.on{display:block}
+.pframe{max-width:980px;position:relative;border:4px solid var(--ink);border-radius:28px;overflow:hidden;background:var(--night);box-shadow:10px 12px 0 var(--teal)}
+.pframe button.zoom{display:block;width:100%;background:none;border:0;padding:0;cursor:zoom-in}
+.pframe img,.pframe video{width:100%;height:auto}
+.pcap{margin-top:30px;font-size:16px;color:var(--muted);max-width:46em}
+.zoomhint{position:absolute;right:14px;top:14px;background:var(--paper);border:2.5px solid var(--ink);border-radius:999px;padding:4px 14px;font-weight:800;font-size:13px;pointer-events:none}
+dialog{border:4px solid var(--ink);border-radius:26px;background:var(--night);padding:0;max-width:min(96vw,1500px);width:auto;margin:auto;overflow:visible}
+dialog::backdrop{background:rgba(10,30,30,.82)}
+dialog img{max-height:86vh;width:auto;max-width:100%;border-radius:22px}
+dialog .x{position:absolute;right:-12px;top:-18px;width:48px;height:48px;border-radius:50%;border:3px solid var(--ink);background:var(--yellow);font-family:var(--display);font-size:22px;font-weight:800;cursor:pointer}
+
+/* how */
+.how{display:grid;grid-template-columns:1.1fr .9fr;gap:44px;margin-top:44px;align-items:start}
+.flow{list-style:none;counter-reset:s;display:grid;gap:14px}
+.flow li{counter-increment:s;position:relative;background:var(--sand);border:3px solid var(--ink);border-radius:22px;padding:14px 18px 14px 70px;font-size:16px;line-height:1.5}
+.flow li::before{content:counter(s);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;background:var(--teal);color:var(--sand);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:22px}
+.flow b{font-family:var(--display);font-size:19px}
+.stack{background:var(--teal);color:var(--sand);border-radius:var(--r);padding:26px 28px;border:3px solid var(--ink);box-shadow:0 6px 0 var(--ink)}
+.stack h3{font-size:26px;color:var(--yellow);margin-bottom:12px}
+.stack dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;font-size:15.5px}
+.stack dt{font-weight:800;color:var(--yellow)}
+.stack code{font-size:13.5px;background:var(--teal-3);padding:1px 7px;border-radius:7px}
+.stack p{margin-top:16px;font-size:15px;color:rgba(243,231,208,.88)}
+
+/* status + first launch */
+.status-grid{display:grid;gap:28px;margin-top:40px}
+.oses{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.oses .os:first-child{grid-column:1/-1}
+.oses .os{margin-top:8px}
+.nodl{background:var(--paper);border:3px dashed var(--ink);border-radius:var(--r);padding:26px 28px;display:grid;grid-template-columns:auto 1fr auto;gap:10px 28px;align-items:center}
+.nodl h3{font-size:30px}
+.nodl p{margin:0}
+.fl{background:var(--yellow);border:3px solid var(--ink);border-radius:var(--r);padding:28px;box-shadow:0 7px 0 var(--ink)}
+.fl h3{font-size:30px;margin-bottom:8px}
+.fl .lead{font-weight:800;font-size:18px;margin-bottom:6px}
+.fl .note{font-size:15.5px;margin-bottom:18px}
+.os{background:var(--paper);border:3px solid var(--ink);border-radius:20px;padding:18px 20px;margin-top:14px}
+.os h4{font-family:var(--display);font-size:23px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.os h4 span{font-size:12px;font-family:var(--body);font-weight:800;background:var(--sand-2);border-radius:999px;padding:2px 10px}
+.os p{font-size:16px;margin-bottom:10px}
+.arrow{font-weight:800}
+
+/* code */
+.code{background:var(--teal-3);color:#EFE6D2;border-radius:18px;border:3px solid var(--ink);margin:10px 0 0}
+.code{display:flex;align-items:flex-start;gap:10px;padding:8px 8px 8px 6px}
+.code pre{flex:1;padding:10px 10px 10px 12px;font-size:14.5px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.code .copy{flex:none;min-height:44px;min-width:92px;padding:0 14px;border-radius:12px;border:2.5px solid var(--ink);background:var(--yellow);color:var(--ink);font-family:var(--display);font-weight:700;font-size:16px;cursor:pointer}
+.code .copy[data-done=true]{background:#B7D9A8}
+.fl .code{background:var(--ink)}
+.build-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px 34px;margin-top:40px}
+.step h3{font-size:26px;margin-top:6px;display:flex;gap:12px;align-items:center}
+.step h3 b{width:38px;height:38px;border-radius:50%;background:var(--yellow);color:var(--ink);display:grid;place-items:center;font-size:20px;flex:none}
+.step p{font-size:16px;color:rgba(243,231,208,.86);margin-top:6px}
+.step.wide{grid-column:1/-1}
+.needs{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px;list-style:none}
+.needs li{border:2.5px solid rgba(243,231,208,.5);border-radius:999px;padding:5px 16px;font-weight:800;font-size:15px}
+.band-teal a{color:var(--yellow)}
+
+/* footer */
+.foot{background:var(--teal-3);color:var(--sand);padding:56px 0 150px;border-top:3px solid var(--ink)}
+.foot .wrap{display:grid;grid-template-columns:1.3fr 1fr;gap:30px}
+.foot h2{font-size:36px;margin-bottom:8px}
+.foot p{color:rgba(243,231,208,.8);font-size:16px;max-width:30em}
+.foot p.small{max-width:none}
+.foot ul{list-style:none;display:grid;gap:2px;align-content:start}
+.foot li a{display:inline-flex;align-items:center;min-height:44px;font-weight:800;text-decoration:none;border-bottom:2px solid transparent}
+.foot li a:hover{border-bottom-color:var(--yellow);color:var(--yellow)}
+.foot .small{grid-column:1/-1;font-size:14px;color:rgba(243,231,208,.7);border-top:2px solid rgba(243,231,208,.18);padding-top:20px}
+.foot .small a{color:var(--yellow);text-decoration:none;font-weight:800;display:inline-flex;min-height:44px;align-items:center}
+
+/* buddy (the page mascot) */
+.buddy{position:fixed;right:max(10px,calc((100vw - 1500px)/2 + 18px));bottom:10px;z-index:80;width:230px;height:260px;pointer-events:none;--k:1}
+.buddy[data-m=walle]{--sc:.6} .buddy[data-m=dudu]{--sc:.57}
+.bubble{position:absolute;right:6px;bottom:196px;width:max-content;max-width:min(200px,calc(100vw - 100px));background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:20px 20px 6px 20px;padding:9px 14px;font-weight:800;font-size:14.5px;line-height:1.35;box-shadow:0 4px 0 var(--ink);opacity:0;transform:translateY(8px) scale(.94);transform-origin:100% 100%;transition:opacity .25s,transform .35s cubic-bezier(.34,1.56,.64,1)}
+.bubble.show{opacity:1;transform:none}
+.stage{position:absolute;right:42px;bottom:0;width:128px;height:178px;pointer-events:auto;cursor:pointer}
+.holder{position:absolute;left:50%;bottom:14px;transform-origin:50% 100%;transform:translateX(-50%) scale(calc(var(--sc) * var(--k)))}
+.stage:focus-visible{outline-offset:6px}
+.swap{position:absolute;right:0;bottom:60px;width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);background:var(--yellow);color:var(--ink);cursor:pointer;pointer-events:auto;display:grid;place-items:center;box-shadow:0 3px 0 var(--ink)}
+.swap svg{width:22px;height:22px}
+.swap:hover{transform:rotate(180deg);transition:transform .4s}
+#walle,#dudu{pointer-events:none}
+.stage .mascot-svg-wrap{display:block}
+.disc{position:absolute;left:50%;bottom:4px;width:132px;height:132px;border-radius:50%;background:var(--paper);border:3px solid var(--ink);box-shadow:0 4px 0 var(--ink);transform:translateX(-50%)}
+.shadowbar{position:absolute;left:50%;bottom:2px;width:96px;height:12px;border-radius:50%;background:rgba(29,43,42,.22);transform:translateX(-50%)}
+
+/* reveal */
+.js .rv{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1)}
+.js .rv.in{opacity:1;transform:none}
+
+*{min-width:0}
+.code{max-width:100%}
+/* responsive */
+@media(max-width:980px){
+  .hero-grid,.meet-top,.how,.build-grid,.foot .wrap,.oses,.nodl{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr 1fr}
+  .hot{grid-template-columns:1fr}
+  .hot dl{grid-template-columns:repeat(3,auto)}
+  .hero .b1{width:380px;height:380px;right:-170px;top:-80px}
+  .links a:not(.cta){display:none}
+  .shot{margin:10px 8px 30px 0}
+  .faces{grid-template-columns:repeat(4,1fr)}
+  .mini{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  body{font-size:16px}
+  .wrap{padding:0 16px}
+  section{padding:64px 0}
+  .hero{padding:36px 0 64px}
+  .grid{grid-template-columns:1fr}
+  .hot dl{grid-template-columns:repeat(2,auto)}
+  h1{font-size:44px}
+  .lede{font-size:18px}
+  .btn{width:100%}
+  .cta-row{gap:12px}
+  .brand{font-size:22px}
+  .shot figcaption{left:-4px;bottom:-30px;font-size:13px}
+  .shot .frame{box-shadow:8px 9px 0 var(--yellow),8px 9px 0 3px var(--ink)}
+  .faces{gap:10px}
+  .face-btn{font-size:15px}
+  .face-name{padding:2px 8px}
+  .code{flex-direction:column-reverse;align-items:stretch}
+  .code pre{font-size:13px}
+  .code .copy{align-self:flex-end}
+  .stack dl{grid-template-columns:1fr;gap:2px}
+  .stack dd{margin-bottom:8px}
+  .buddy{--k:.7;width:170px;height:200px;right:4px;bottom:4px}
+  .stage{right:26px;width:96px;height:134px}
+  .disc{width:96px;height:96px}
+  .bubble{bottom:140px;font-size:13px;max-width:min(200px,calc(100vw - 90px));right:0}
+  .swap{bottom:44px;right:0}
+  .hero .b1{width:240px;height:240px;right:-110px;top:-130px}
+  .hero .b2{width:120px;height:120px;left:-50px;bottom:10px}
+  .pframe{box-shadow:6px 8px 0 var(--teal)}
+  .loop{box-shadow:6px 8px 0 var(--teal-3)}
+  .nodl,.fl{padding:22px 18px}
+  dialog .x{right:-6px}
+  .foot{padding-bottom:200px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv{opacity:1;transform:none}
+}
+/* the app's real mascot art and emotion animations, copied from the repo */
+@keyframes idleBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes eyeShimmer {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px #ffb347);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px #ffd98a);
+  }
+}
+
+@keyframes antGlow {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 7px #00d4ff);
+  }
+}
+
+@keyframes thinkBlink {
+  0%,
+  45%,
+  65%,
+  100% {
+    transform: scaleY(1);
+  }
+  55% {
+    transform: scaleY(0.06);
+  }
+}
+
+@keyframes happyJump {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  18% {
+    transform: translateY(-22px) rotate(-4deg) scaleX(0.95) scaleY(1.05);
+  }
+  36% {
+    transform: translateY(-15px) rotate(4deg);
+  }
+  54% {
+    transform: translateY(-20px) rotate(-2deg);
+  }
+  72% {
+    transform: translateY(-7px) rotate(2deg);
+  }
+  88% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}
+
+@keyframes happyEye {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 8px #ffd98a);
+  }
+  50% {
+    filter: drop-shadow(0 0 20px #ffcc44);
+  }
+}
+
+@keyframes sadDroop {
+  to {
+    transform: translateY(7px) rotate(-1deg);
+  }
+}
+
+@keyframes alertVibe {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  14% {
+    transform: translateX(-7px) rotate(-2.5deg);
+  }
+  28% {
+    transform: translateX(7px) rotate(2.5deg);
+  }
+  42% {
+    transform: translateX(-5px) rotate(-1.5deg);
+  }
+  57% {
+    transform: translateX(5px) rotate(1.5deg);
+  }
+  72% {
+    transform: translateX(-2px);
+  }
+  86% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes alertEye {
+  0%,
+  100% {
+    fill: url(#eGC);
+    filter: drop-shadow(0 0 10px #00d4ff);
+  }
+  50% {
+    fill: #fff;
+    filter: drop-shadow(0 0 22px #00d4ff);
+  }
+}
+
+@keyframes focusMicro {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.5px);
+  }
+}
+
+@keyframes sleepRock {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(1.5deg);
+  }
+}
+
+@keyframes zDrift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(18px, -40px) scale(1.4);
+  }
+}
+
+@keyframes zDrift2 {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(28px, -58px) scale(1.7);
+  }
+}
+
+#walle.idle .whole {
+  animation: idleBob 3.2s ease-in-out infinite;
+}
+
+#walle.idle .eye-l,
+#walle.idle .eye-r {
+  animation: eyeShimmer 3.2s ease-in-out infinite;
+}
+
+#walle.idle .ant-dot {
+  animation: antGlow 3.2s ease-in-out infinite;
+}
+
+#walle.thinking .whole {
+  animation: idleBob 1.7s ease-in-out infinite;
+}
+
+#walle.thinking .eye-l,
+#walle.thinking .eye-r {
+  animation: thinkBlink 2.2s ease-in-out infinite;
+  opacity: 0.85;
+}
+
+#walle.thinking .ant-dot {
+  animation: antGlow 0.65s ease-in-out infinite;
+}
+
+#walle.happy .whole {
+  animation: happyJump 0.75s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+#walle.happy .eye-l,
+#walle.happy .eye-r {
+  animation: happyEye 0.42s ease-in-out infinite;
+}
+
+#walle.sad .whole {
+  animation: sadDroop 0.6s ease forwards;
+}
+
+#walle.alert .whole {
+  animation: alertVibe 0.52s ease-in-out infinite;
+}
+
+#walle.alert .eye-l,
+#walle.alert .eye-r {
+  animation: alertEye 0.36s ease-in-out infinite;
+}
+
+#walle.focused .whole {
+  animation: focusMicro 4s ease-in-out infinite;
+}
+
+#walle.sleeping .whole {
+  animation: sleepRock 4s ease-in-out infinite;
+}
+
+#zzz-a {
+  animation: zDrift 2.5s ease-out 0s infinite;
+}
+
+#zzz-b {
+  animation: zDrift2 2.5s ease-out 0.85s infinite;
+}
+
+.head-grp {
+  transition: transform 0.1s ease-out;
+}
+
+/* ─── DuDu bird — base emotions (mascot_test/walle_mascot_bird.html) ─── */
+@keyframes duduIdleBob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+  50% {
+    transform: translateY(-7px) rotate(1deg);
+  }
+}
+
+@keyframes duduWingIdle {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+@keyframes duduTailSway {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-4deg);
+  }
+}
+
+@keyframes duduThinkTilt {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  50% {
+    transform: rotate(-10deg);
+  }
+}
+
+@keyframes duduHappyJump {
+  0% {
+    transform: translateY(0) rotate(0);
+  }
+  18% {
+    transform: translateY(-26px) rotate(-5deg) scaleX(0.93) scaleY(1.07);
+  }
+  36% {
+    transform: translateY(-17px) rotate(5deg);
+  }
+  54% {
+    transform: translateY(-23px) rotate(-3deg);
+  }
+  72% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+  88% {
+    transform: translateY(-2px);
+  }
+  100% {
+    transform: translateY(0) rotate(0);
+  }
+}
+
+@keyframes duduWingFlap {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-30deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes duduWingFlapR {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(30deg);
+  }
+  75% {
+    transform: rotate(-14deg);
+  }
+}
+
+@keyframes duduSadDroop {
+  to {
+    transform: translateY(8px) rotate(-3deg);
+  }
+}
+
+@keyframes duduSadTail {
+  to {
+    transform: rotate(-14deg);
+  }
+}
+
+@keyframes duduAlertShake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  15% {
+    transform: translateX(-7px) rotate(-4deg);
+  }
+  30% {
+    transform: translateX(7px) rotate(4deg);
+  }
+  45% {
+    transform: translateX(-5px) rotate(-2deg);
+  }
+  60% {
+    transform: translateX(5px) rotate(2deg);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  85% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes duduFocusMicro {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes duduSleepRock {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(2deg);
+  }
+}
+
+@keyframes duduZFloat {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(20px, -46px) scale(1.5);
+  }
+}
+
+@keyframes duduZFloat2 {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(32px, -64px) scale(1.8);
+  }
+}
+
+#dudu.idle .whole {
+  animation: duduIdleBob 3s ease-in-out infinite;
+}
+
+#dudu.idle .wing-l {
+  animation: duduWingIdle 3s ease-in-out infinite;
+  transform-origin: 110px 148px;
+}
+
+#dudu.idle .wing-r {
+  animation: duduWingIdle 3s ease-in-out infinite reverse;
+  transform-origin: 110px 148px;
+}
+
+#dudu.idle .tail {
+  animation: duduTailSway 3s ease-in-out infinite;
+  transform-origin: 110px 220px;
+}
+
+#dudu.thinking .whole {
+  animation: duduThinkTilt 1.8s ease-in-out infinite;
+  transform-origin: 110px 140px;
+}
+
+#dudu.happy .whole {
+  animation: duduHappyJump 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+#dudu.happy .wing-l {
+  animation: duduWingFlap 0.38s ease-in-out infinite;
+  transform-origin: 82px 148px;
+}
+
+#dudu.happy .wing-r {
+  animation: duduWingFlapR 0.38s ease-in-out infinite;
+  transform-origin: 138px 148px;
+}
+
+#dudu.sad .whole {
+  animation: duduSadDroop 0.6s ease forwards;
+}
+
+#dudu.sad .tail {
+  animation: duduSadTail 0.6s ease forwards;
+  transform-origin: 110px 220px;
+}
+
+#dudu.alert .whole {
+  animation: duduAlertShake 0.5s ease-in-out infinite;
+}
+
+#dudu.focused .whole {
+  animation: duduFocusMicro 4s ease-in-out infinite;
+}
+
+#dudu.sleeping .whole {
+  animation: duduSleepRock 4s ease-in-out infinite;
+}
+
+#dudu #zzz-a {
+  animation: duduZFloat 2.4s ease-out 0s infinite;
+}
+
+#dudu #zzz-b {
+  animation: duduZFloat2 2.4s ease-out 0.9s infinite;
+}
+
+#dudu #beak-lower {
+  transform-origin: 110px 126px;
+  transition: transform 0.06s ease-out;
+}
+
+#dudu #beak-upper {
+  transform-origin: 110px 122px;
+  transition: transform 0.06s ease-out;
+}
+
+#dudu #crest-l {
+  transform-origin: 104px 62px;
+  transition: transform 0.18s ease-out;
+}
+
+#dudu #crest-c {
+  transform-origin: 110px 58px;
+  transition: transform 0.18s ease-out;
+}
+
+#dudu #crest-r {
+  transform-origin: 116px 62px;
+  transition: transform 0.18s ease-out;
+}
+
+#dudu #body-puff {
+  transform-origin: 110px 185px;
+  transition: transform 0.25s ease-out;
+}
+
+#dudu #tongue {
+  transform-origin: 110px 130px;
+  transition: transform 0.06s ease-out;
+}
+
+/* Overlay animation classes — cute mascot (mascot_test/walle_mascot_cute.html) */
+
+@keyframes danceFull {
+  0% {
+    transform: translateY(0) rotate(0) scaleX(1);
+  }
+  10% {
+    transform: translateY(-24px) rotate(-11deg) scaleX(0.93);
+  }
+  25% {
+    transform: translateY(-16px) rotate(11deg) scaleX(1.07);
+  }
+  40% {
+    transform: translateY(-26px) rotate(-9deg) scaleX(0.94);
+  }
+  55% {
+    transform: translateY(-14px) rotate(9deg) scaleX(1.06);
+  }
+  70% {
+    transform: translateY(-8px) rotate(-3deg);
+  }
+  85% {
+    transform: translateY(-3px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scaleX(1);
+  }
+}
+
+@keyframes armDL {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-85deg);
+  }
+  75% {
+    transform: rotate(58deg);
+  }
+}
+
+@keyframes armDR {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(85deg);
+  }
+  75% {
+    transform: rotate(-58deg);
+  }
+}
+
+@keyframes waveR {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  20% {
+    transform: rotate(-92deg) translateY(-12px);
+  }
+  40% {
+    transform: rotate(-68deg) translateY(-7px);
+  }
+  60% {
+    transform: rotate(-86deg) translateY(-11px);
+  }
+  80% {
+    transform: rotate(-62deg) translateY(-5px);
+  }
+}
+
+@keyframes thumbU {
+  0% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-98deg) translateY(-13px);
+  }
+  70% {
+    transform: rotate(-98deg) translateY(-13px);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes confHead {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-17deg);
+  }
+  55% {
+    transform: rotate(12deg);
+  }
+  80% {
+    transform: rotate(-13deg);
+  }
+}
+
+@keyframes stretchW {
+  0% {
+    transform: scaleY(1) translateY(0);
+  }
+  30% {
+    transform: scaleY(1.13) translateY(-12px);
+  }
+  60% {
+    transform: scaleY(0.93) translateY(5px);
+  }
+  100% {
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+@keyframes stretchAL {
+  0% {
+    transform: rotate(0);
+  }
+  40% {
+    transform: rotate(-138deg) translateY(-7px);
+  }
+  70% {
+    transform: rotate(-118deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes stretchAR {
+  0% {
+    transform: rotate(0);
+  }
+  40% {
+    transform: rotate(138deg) translateY(-7px);
+  }
+  70% {
+    transform: rotate(118deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes petSq {
+  0% {
+    transform: scale(1);
+  }
+  18% {
+    transform: scale(1.13, 0.9);
+  }
+  36% {
+    transform: scale(0.92, 1.1);
+  }
+  55% {
+    transform: scale(1.08, 0.94);
+  }
+  72% {
+    transform: scale(0.96, 1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes runLean {
+  0%,
+  100% {
+    transform: rotate(0) translateX(0);
+  }
+  50% {
+    transform: rotate(9deg) translateX(6px);
+  }
+}
+
+#walle.dance .whole {
+  animation: danceFull 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+#walle.dance .arm-l {
+  animation: armDL 1.4s ease-in-out forwards !important;
+  transform-origin: 26px 148px;
+}
+
+#walle.dance .arm-r {
+  animation: armDR 1.4s ease-in-out forwards !important;
+  transform-origin: 164px 148px;
+}
+
+#walle.wave .arm-r {
+  animation: waveR 1.1s ease-in-out forwards !important;
+  transform-origin: 164px 148px;
+}
+
+#walle.thumbs_up .arm-r {
+  animation: thumbU 1.1s ease-in-out forwards !important;
+  transform-origin: 164px 148px;
+}
+
+#walle.confused .head-grp {
+  animation: confHead 1.1s ease-in-out forwards !important;
+  transform-origin: 95px 78px;
+}
+
+#walle.stretch .whole {
+  animation: stretchW 1.3s ease-in-out forwards !important;
+  transform-origin: 95px 168px;
+}
+
+#walle.stretch .arm-l {
+  animation: stretchAL 1.3s ease-in-out forwards !important;
+  transform-origin: 26px 148px;
+}
+
+#walle.stretch .arm-r {
+  animation: stretchAR 1.3s ease-in-out forwards !important;
+  transform-origin: 164px 148px;
+}
+
+#walle.pet .whole {
+  animation: petSq 0.88s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  transform-origin: 95px 168px;
+}
+
+#walle.excited_run .whole {
+  animation: runLean 0.25s ease-in-out infinite !important;
+  transform-origin: 95px 168px;
+}
+
+/* DuDu one-shot overlays */
+@keyframes duduDanceFull {
+  0% {
+    transform: translateY(0) rotate(0) scaleX(1);
+  }
+  10% {
+    transform: translateY(-26px) rotate(-12deg) scaleX(0.91);
+  }
+  25% {
+    transform: translateY(-17px) rotate(12deg) scaleX(1.09);
+  }
+  40% {
+    transform: translateY(-28px) rotate(-9deg) scaleX(0.92);
+  }
+  55% {
+    transform: translateY(-14px) rotate(9deg) scaleX(1.08);
+  }
+  70% {
+    transform: translateY(-9px) rotate(-3deg);
+  }
+  85% {
+    transform: translateY(-3px) rotate(2deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0) scaleX(1);
+  }
+}
+
+@keyframes duduDanceFlapL {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(-48deg);
+  }
+  60% {
+    transform: rotate(22deg);
+  }
+}
+
+@keyframes duduDanceFlapR {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(48deg);
+  }
+  60% {
+    transform: rotate(-22deg);
+  }
+}
+
+@keyframes duduWaveWingR {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  20% {
+    transform: rotate(-58deg) translateY(-15px);
+  }
+  40% {
+    transform: rotate(-40deg) translateY(-9px);
+  }
+  60% {
+    transform: rotate(-54deg) translateY(-13px);
+  }
+  80% {
+    transform: rotate(-36deg) translateY(-7px);
+  }
+}
+
+@keyframes duduThumbWingR {
+  0% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-68deg) translateY(-17px);
+  }
+  70% {
+    transform: rotate(-68deg) translateY(-17px);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes duduConfHead {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  25% {
+    transform: rotate(-18deg);
+  }
+  55% {
+    transform: rotate(13deg);
+  }
+  80% {
+    transform: rotate(-14deg);
+  }
+}
+
+@keyframes duduStretchUp {
+  0% {
+    transform: scaleY(1) translateY(0);
+  }
+  30% {
+    transform: scaleY(1.12) translateY(-13px);
+  }
+  60% {
+    transform: scaleY(0.93) translateY(5px);
+  }
+  100% {
+    transform: scaleY(1) translateY(0);
+  }
+}
+
+@keyframes duduStretchWL {
+  0% {
+    transform: rotate(0);
+  }
+  40% {
+    transform: rotate(-125deg);
+  }
+  70% {
+    transform: rotate(-105deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes duduStretchWR {
+  0% {
+    transform: rotate(0);
+  }
+  40% {
+    transform: rotate(125deg);
+  }
+  70% {
+    transform: rotate(105deg);
+  }
+  100% {
+    transform: rotate(0);
+  }
+}
+
+@keyframes duduPetSquish {
+  0% {
+    transform: scale(1);
+  }
+  18% {
+    transform: scale(1.14, 0.88);
+  }
+  36% {
+    transform: scale(0.91, 1.12);
+  }
+  55% {
+    transform: scale(1.09, 0.93);
+  }
+  72% {
+    transform: scale(0.96, 1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes duduRunHop {
+  0%,
+  100% {
+    transform: rotate(0) translateY(0);
+  }
+  50% {
+    transform: rotate(9deg) translateY(-12px);
+  }
+}
+
+#dudu.dance .whole {
+  animation: duduDanceFull 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+}
+
+#dudu.dance .wing-l {
+  animation: duduDanceFlapL 1.4s ease-in-out infinite !important;
+  transform-origin: 82px 148px;
+}
+
+#dudu.dance .wing-r {
+  animation: duduDanceFlapR 1.4s ease-in-out infinite !important;
+  transform-origin: 138px 148px;
+}
+
+#dudu.wave .wing-r {
+  animation: duduWaveWingR 1.1s ease-in-out forwards !important;
+  transform-origin: 138px 148px;
+}
+
+#dudu.thumbs_up .wing-r {
+  animation: duduThumbWingR 1.1s ease-in-out forwards !important;
+  transform-origin: 138px 148px;
+}
+
+#dudu.confused .head-grp {
+  animation: duduConfHead 1.1s ease-in-out forwards !important;
+  transform-origin: 110px 82px;
+}
+
+#dudu.stretch .whole {
+  animation: duduStretchUp 1.3s ease-in-out forwards !important;
+  transform-origin: 110px 180px;
+}
+
+#dudu.stretch .wing-l {
+  animation: duduStretchWL 1.3s ease-in-out forwards !important;
+  transform-origin: 82px 148px;
+}
+
+#dudu.stretch .wing-r {
+  animation: duduStretchWR 1.3s ease-in-out forwards !important;
+  transform-origin: 138px 148px;
+}
+
+#dudu.pet .whole {
+  animation: duduPetSquish 0.88s cubic-bezier(0.34, 1.56, 0.64, 1) forwards !important;
+  transform-origin: 110px 180px;
+}
+
+#dudu.excited_run .whole {
+  animation: duduRunHop 0.3s ease-in-out infinite !important;
+  transform-origin: 110px 180px;
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="WALLE, back to top">
+      <span class="face" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="21" cy="28" r="10" fill="#FFC93C"/><circle cx="43" cy="28" r="10" fill="#FFC93C"/><circle cx="23" cy="30" r="4.5" fill="#1D2B2A"/><circle cx="45" cy="30" r="4.5" fill="#1D2B2A"/><path d="M22 48q10 7 20 0" stroke="#F3E7D0" stroke-width="3.5" fill="none" stroke-linecap="round"/></svg></span>
+      WALLE
+    </a>
+    <nav class="links" aria-label="Main">
+      <a href="#meet">Mascots</a><a href="#features">Features</a><a href="#look">A look inside</a><a href="#first-launch">First launch</a>
+      <a class="cta" href="#build">Build it</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<section class="hero" id="top" data-emo="happy" data-say="Hi, I'm {name}. I live in the corner of your screen." style="padding-top:56px">
+  <div class="blob b1" aria-hidden="true"></div><div class="blob b2" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div class="rv">
+      <p class="badge"><i aria-hidden="true"></i>Early experiment, March 2026. No longer in active development.</p>
+      <h1><span class="nm">WALLE</span><span class="ln">lives in the <em>corner</em> of your screen.</span></h1>
+      <p class="lede">A desktop AI companion. Press Ctrl+Shift+Space, ask it to open an app or check your git status, and it answers in a speech bubble with a face to match.</p>
+      <p class="honest">It is a finished little experiment, not a product. The code works and the ideas are all here, so poke around, build it, borrow what you like.</p>
+      <div class="cta-row">
+        <a class="btn pri" href="#build">Build it</a>
+        <a class="btn sec" href="https://github.com/AbyAbyss/my_walle"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg>View on GitHub</a>
+      </div>
+      <p class="keys" aria-label="Open the chat with Control Shift Space"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd><span>opens the chat</span></p>
+      <p class="plat">Windows 10/11 and macOS 11+ (Linux partly). Built with Tauri v2, Rust and React.</p>
+    </div>
+    <figure class="shot rv">
+      <div class="frame"><div class="crop"><img src="assets/walle/desktop.webp" width="1400" height="875" alt="The WALLE robot in the bottom-right corner of a desktop with a speech bubble saying Morning, what are we building today, next to the chat window showing its first-run tour"></div></div>
+      <figcaption>The real app, cropped.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section id="meet" class="band-teal" data-emo="idle" data-say="Seven emotions. The AI picks one for every reply.">
+  <div class="wrap">
+    <div class="meet-top">
+      <div class="rv">
+        <span class="eyebrow">Meet the mascots</span>
+        <h2>Two characters, one corner.</h2>
+        <p class="sub"><b>WALLE</b> is a small robot on tracks with glowing eyes and an antenna. <b>DuDu</b> is a green parrot on a perch. You switch between them in Settings without restarting. Try it on the little one living in the bottom-right of this page.</p>
+        <div class="switch" role="group" aria-label="Choose the mascot on this page">
+          <button type="button" data-pick="walle" aria-pressed="true">WALLE</button>
+          <button type="button" data-pick="dudu" aria-pressed="false">DuDu</button>
+        </div>
+      </div>
+      <figure class="loop rv">
+        <video id="loopvid" width="560" height="382" muted loop playsinline preload="metadata" poster="assets/walle/mascots-poster.webp" aria-label="Looping clip of the WALLE robot and DuDu the parrot waving, dancing, thinking, giving a thumbs up and falling asleep">
+          <source src="assets/walle/mascots.webm" type="video/webm">
+          <source src="assets/walle/mascots.mp4" type="video/mp4">
+        </video>
+      </figure>
+    </div>
+
+    <div class="faces-head rv">
+      <h3>Seven emotions. Click a face.</h3>
+      <p>The artwork is from the app. Your pick shows up on the mascot in the corner.</p>
+    </div>
+    <ul class="faces rv" id="faces" data-m="walle" role="list" style="--y:6.9%">
+      <li><button class="face-btn" type="button" data-emo="idle" aria-pressed="true"><span class="face-art" style="--x:2.19%" aria-hidden="true"></span><span class="face-name">idle</span></button></li>
+      <li><button class="face-btn" type="button" data-emo="thinking" aria-pressed="false"><span class="face-art" style="--x:12.81%" aria-hidden="true"></span><span class="face-name">thinking</span></button></li>
+      <li><button class="face-btn" type="button" data-emo="happy" aria-pressed="false"><span class="face-art" style="--x:23.44%" aria-hidden="true"></span><span class="face-name">happy</span></button></li>
+      <li><button class="face-btn" type="button" data-emo="sad" aria-pressed="false"><span class="face-art" style="--x:34.06%" aria-hidden="true"></span><span class="face-name">sad</span></button></li>
+      <li><button class="face-btn" type="button" data-emo="alert" aria-pressed="false"><span class="face-art" style="--x:44.69%" aria-hidden="true"></span><span class="face-name">alert</span></button></li>
+      <li><button class="face-btn" type="button" data-emo="focused" aria-pressed="false"><span class="face-art" style="--x:55.31%" aria-hidden="true"></span><span class="face-name">focused</span></button></li>
+      <li><button class="face-btn" type="button" data-emo="sleeping" aria-pressed="false"><span class="face-art" style="--x:65.94%" aria-hidden="true"></span><span class="face-name">sleeping</span></button></li>
+    </ul>
+    <p class="feel" id="feel" role="status" aria-live="polite">WALLE is idle. It drifts a few pixels now and then, so it never looks frozen.</p>
+
+    <div class="mini rv">
+      <div><h4>Animations</h4><p>Wave, dance, thumbs up, confused, excited run, stretch, and a reaction when you click to pet it. Try clicking the one in the corner.</p></div>
+      <div><h4>Sounds</h4><p>Each animation has its own little sound, synthesized live with the Web Audio API. No audio files. DuDu chirps in syllables when it talks. You can turn sounds off.</p></div>
+      <div><h4>Speech bubbles</h4><p>Replies and greetings pop up above the mascot, with lines for the time of day, finished and failed tasks, and idle moments. Drag it anywhere and it remembers.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features" data-emo="focused" data-say="It can open apps, run commands and read git status.">
+  <div class="wrap">
+    <div class="rv">
+      <span class="eyebrow">What it can do</span>
+      <h2>Small friend, real hands.</h2>
+      <p class="sub">Hover a card and watch the corner. Everything here is in the code today.</p>
+      <ul class="chips" aria-label="Supported AI providers"><li class="lbl">AI providers:</li><li>Anthropic</li><li>OpenAI</li><li>OpenRouter</li><li>Ollama (local)</li></ul>
+    </div>
+    <div class="grid">
+      <article class="card c-y rv" data-emo="happy" data-say="Talk to me like a person. Ctrl+Shift+Space.">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.5A8 8 0 1 1 21 12z"/></svg></div>
+        <h3>Talk to it</h3>
+        <ul><li>A floating chat panel, opened with Ctrl+Shift+Space</li><li>Push-to-talk voice input</li><li>Conversation history saved in SQLite</li><li>Optionally adds the active window title and a clipboard preview to the prompt</li></ul>
+      </article>
+      <article class="card c-t rv" data-emo="focused" data-say="Shell commands, apps, notifications, workflows.">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
+        <h3>It does things</h3>
+        <ul><li>Runs shell commands, launches apps, shows notifications</li><li>Runs saved multi-step workflows</li><li>Cron schedules that fire actions in the background</li><li>Developer mode: finds the git repo from the window title and reads status, log and diff</li></ul>
+      </article>
+      <article class="card c-p rv" data-emo="alert" data-say="Every action is rated safe, moderate or dangerous first.">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>It asks first</h3>
+        <ul><li>Each action is rated safe, moderate or dangerous before it runs</li><li>Manual review mode asks you first</li><li>A trust score per action learns from what you approve</li><li>API keys live in the OS credential store, never in the config file</li></ul>
+      </article>
+      <article class="card c-g rv" data-emo="thinking" data-say="Lasting preferences, stored locally on your machine.">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg></div>
+        <h3>It remembers</h3>
+        <ul><li>Remembers lasting preferences about you, stored locally</li><li>Spots actions you repeat and suggests automating them</li><li>Background nudges with limits built in so they don't nag</li><li>An insights dashboard of usage, trust scores and saved memories</li></ul>
+      </article>
+      <article class="card c-b rv" data-emo="idle" data-say="Every step narrated, so nothing happens behind your back.">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Show your work</h3>
+        <ul><li>A panel narrates each step as it happens (Ctrl+Shift+W)</li><li>The AI picks an emotion for every reply</li><li>A dance or thumbs up when a task works, a confused shrug when it doesn't</li></ul>
+      </article>
+      <article class="card c-y rv" data-emo="sleeping" data-say="Plugins are on and off switches. The recorder is early.">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v4M10 20H6a2 2 0 0 1-2-2v-4M4 10V6a2 2 0 0 1 2-2h4M20 14v4a2 2 0 0 1-2 2h-4"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg></div>
+        <h3>Plugins <span class="tag">and an early recorder</span></h3>
+        <ul><li>Built-in plugins you can switch on and off</li><li>External plugin manifests in <code>~/.walle/plugins</code></li><li>A marketplace search</li><li>A recorder that captures a session's steps into a list (early)</li></ul>
+      </article>
+    </div>
+    <div class="hot rv">
+      <h3>Hotkeys</h3>
+      <dl>
+        <div><dt><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Space</kbd></dt><dd>Open or close the chat</dd></div>
+        <div><dt><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>V</kbd></dt><dd>Push to talk</dd></div>
+        <div><dt><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>W</kbd></dt><dd>Show your work</dd></div>
+        <div><dt><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>I</kbd></dt><dd>Insights dashboard</dd></div>
+        <div><dt><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>E</kbd></dt><dd>Cycle emotions (testing)</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="look" class="band-paper" data-emo="happy" data-say="These are the real images from the repo.">
+  <div class="wrap">
+    <div class="rv">
+      <span class="eyebrow">A look inside</span>
+      <h2>Straight from the repo.</h2>
+      <p class="sub">No mockups here. These are the images the project ships with. Click one to enlarge it.</p>
+    </div>
+    <div class="tabs rv" role="tablist" aria-label="Screenshots">
+      <button role="tab" id="t1" aria-selected="true" aria-controls="p1" type="button">On the desktop</button>
+      <button role="tab" id="t2" aria-selected="false" aria-controls="p2" type="button" tabindex="-1">Every emotion</button>
+      <button role="tab" id="t3" aria-selected="false" aria-controls="p3" type="button" tabindex="-1">In motion</button>
+    </div>
+    <div class="panel on rv" id="p1" role="tabpanel" aria-labelledby="t1">
+      <div class="pframe"><button class="zoom" type="button" data-full="assets/walle/desktop.webp" data-alt="The WALLE robot in the corner of the desktop with a speech bubble, next to the chat window's first-run tour"><img loading="lazy" src="assets/walle/desktop.webp" width="1400" height="875" alt="The WALLE robot in the corner of the desktop with a speech bubble, next to the chat window's first-run tour"><span class="zoomhint">Enlarge</span></button></div>
+      <p class="pcap">The mascot sits in the bottom-right corner, always on top. The chat window opens beside it with a short first-run tour (step 1 of 5), and the REVIEW badge shows manual review mode is on.</p>
+    </div>
+    <div class="panel" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+      <div class="pframe"><button class="zoom" type="button" data-full="assets/walle/mascots.webp" data-alt="Both mascots across seven emotions and three animations"><img loading="lazy" src="assets/walle/mascots.webp" width="1600" height="564" alt="Both mascots across seven emotions and three animations: idle, thinking, happy, sad, alert, focused, sleeping, wave, dance and thumbs up"><span class="zoomhint">Enlarge</span></button></div>
+      <p class="pcap">WALLE on top, DuDu below. Seven emotions and three of the one-shot animations.</p>
+    </div>
+    <div class="panel" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+      <div class="pframe"><video id="vid2" controls muted loop playsinline preload="none" width="560" height="382" poster="assets/walle/mascots-poster.webp" aria-label="Looping clip of both mascots waving, dancing, thinking, giving a thumbs up and falling asleep"><source src="assets/walle/mascots.webm" type="video/webm"><source src="assets/walle/mascots.mp4" type="video/mp4"></video></div>
+      <p class="pcap">A nine second loop: wave, dance, think, thumbs up, sleep. Press play, it has no sound.</p>
+    </div>
+  </div>
+</section>
+<dialog id="lb" aria-label="Enlarged screenshot"><button class="x" type="button" id="lbx" aria-label="Close">X</button><img id="lbi" alt="" src=""></dialog>
+
+<section id="how" data-emo="thinking" data-say="Tauri v2, Rust and React. One small window per job.">
+  <div class="wrap">
+    <div class="rv">
+      <span class="eyebrow">How it works</span>
+      <h2>A webview on top, Rust underneath.</h2>
+      <p class="sub">The mascot is a transparent always-on-top window drawn in SVG and CSS. The brain is a Rust backend.</p>
+    </div>
+    <div class="how">
+      <ol class="flow rv">
+        <li><b>You ask.</b> Ctrl+Shift+Space opens the chat window and you type, or push to talk.</li>
+        <li><b>The agent calls a model.</b> Anthropic, OpenAI, OpenRouter or a local Ollama, with optional routing between a default and a complex model.</li>
+        <li><b>Actions get a risk rating.</b> Safe, moderate or dangerous. Manual review mode asks you before anything runs.</li>
+        <li><b>The action runs.</b> A shell command, an app launch, a git read, a notification or a workflow step.</li>
+        <li><b>The mascot answers.</b> A speech bubble, one of seven faces, a bounce and a sound.</li>
+      </ol>
+      <div class="stack rv">
+        <h3>Under the hood</h3>
+        <dl>
+          <dt>Shell</dt><dd>Tauri v2, with a window per job: mascot, chat, setup, settings, insights</dd>
+          <dt>Frontend</dt><dd>React 19 and TypeScript, built with Vite</dd>
+          <dt>Backend</dt><dd>Rust: <code>agent/</code> (LLM calls, routing, trust, learning, watchers) and <code>commands/</code> (shell, apps, git, schedules, plugins)</dd>
+          <dt>Memory</dt><dd>SQLite through <code>sqlx</code>, in the app data folder</dd>
+          <dt>Secrets</dt><dd>OS credential store through the <code>keyring</code> crate</dd>
+          <dt>Sound</dt><dd>Web Audio API, no audio files</dd>
+        </dl>
+        <p>Windows runs shell commands in PowerShell. macOS uses <code>zsh -c</code>, AppleScript for the active window, and <code>open -a</code> for apps. On Linux, chat, shell commands and workflows work, but launching apps isn't wired up.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="download" class="band-paper" data-emo="alert" data-say="No installers yet. You build me yourself.">
+  <div class="wrap">
+    <div class="rv">
+      <span class="eyebrow">Download</span>
+      <h2>No installers yet. Build it, it's quick.</h2>
+      <p class="sub">There are no releases for WALLE and no prebuilt downloads. Since it is no longer in active development, that is unlikely to change. The Build from source section below has everything you need.</p>
+    </div>
+    <div class="status-grid">
+      <div class="nodl rv">
+        <h3>Status, plainly</h3>
+        <p>An early experiment from March 2026. The code works. Nobody is shipping fixes, and there is no license chosen yet, so treat it as something to read and learn from.</p>
+        <a class="btn sec" href="#build">Build it</a>
+      </div>
+      <div class="fl rv" id="first-launch">
+        <h3>First launch</h3>
+        <p class="lead">macOS will say it can't verify walle (free side project, not notarized).</p>
+        <p class="note">An app you build on your own machine opens normally. This applies to a build you copy to another computer, because it is not code-signed.</p>
+        <div class="oses">
+        <div class="os">
+          <h4>macOS</h4>
+          <p>Open System Settings <span class="arrow">→</span> Privacy &amp; Security and click <b>Open Anyway</b>, or run this in Terminal:</p>
+          <div class="code"><pre><code>xattr -dr com.apple.quarantine "/Applications/walle.app"</code></pre><button class="copy" type="button">Copy</button></div>
+        </div>
+        <div class="os">
+          <h4>Windows</h4>
+          <p>SmartScreen shows a prompt. Choose <b>More info <span class="arrow">→</span> Run anyway</b>.</p>
+        </div>
+        <div class="os">
+          <h4>Linux <span>partly supported</span></h4>
+          <p>Chat, shell commands and workflows work, but launching apps isn't wired up. There is no packaged build, so build it yourself.</p>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="build" class="band-teal" data-emo="focused" data-say="You need Rust stable and Node.js 20+.">
+  <div class="wrap">
+    <div class="rv">
+      <span class="eyebrow">Build from source</span>
+      <h2>A few commands, then say hi.</h2>
+      <p class="sub">First run opens a setup window that asks for your AI provider's API key. To change it later, open the chat and click the gear.</p>
+      <ul class="needs" aria-label="Requirements"><li>Windows 10/11 or macOS 11+</li><li>Rust stable</li><li>Node.js 20+</li></ul>
+    </div>
+    <div class="build-grid">
+      <div class="step rv">
+        <h3><b>1</b>Get the code</h3>
+        <div class="code"><pre><code>git clone https://github.com/AbyAbyss/my_walle.git
+cd my_walle
+npm install</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="step rv">
+        <h3><b>2</b>Run it in development</h3>
+        <p>Vite and Tauri together.</p>
+        <div class="code"><pre><code>npm run tauri dev</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="step rv">
+        <h3><b>3</b>Build a desktop bundle</h3>
+        <p>An .msi on Windows, a .dmg on macOS.</p>
+        <div class="code"><pre><code>npm run tauri build</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="step rv">
+        <h3><b>4</b>Or target a Mac chip</h3>
+        <p>Add the targets first with <code>rustup target add aarch64-apple-darwin x86_64-apple-darwin</code>.</p>
+        <div class="code"><pre><code>npm run tauri build -- --target aarch64-apple-darwin   # Apple Silicon
+npm run tauri build -- --target x86_64-apple-darwin    # Intel</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+      <div class="step wide rv">
+        <h3><b>5</b>If the build complains about a CI flag</h3>
+        <p>If <code>tauri build</code> fails with a <code>--ci</code> flag error, unset <code>CI</code> (in Git Bash):</p>
+        <div class="code"><pre><code>CI= npm run tauri build</code></pre><button class="copy" type="button">Copy</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot" id="footer" data-emo="sleeping" data-say="No longer in active development, so I nap. The code still works.">
+  <div class="wrap">
+    <div>
+      <h2>WALLE</h2>
+      <p>A little desktop companion, built in March 2026 as an early experiment. Not in active development, still fun to read.</p>
+    </div>
+    <ul>
+      <li><a href="https://github.com/AbyAbyss/my_walle">Repository on GitHub</a></li>
+      <li><a href="https://github.com/AbyAbyss/my_walle/releases">Releases (none yet)</a></li>
+      <li><a href="https://github.com/AbyAbyss/my_walle#license">License (none chosen yet)</a></li>
+    </ul>
+    <p class="small">Made by <a href="index.html">Aby Saji Pappachan</a></p>
+  </div>
+</footer>
+
+<!-- the page mascot -->
+<div class="buddy" id="buddy" data-m="walle">
+  <div class="bubble" id="bubble" aria-hidden="true"></div>
+  <div class="stage" id="stage" role="button" tabindex="0" aria-label="Pet the mascot">
+    <div class="disc" aria-hidden="true"></div>
+    <div class="holder" id="holder"><div id="walle" class="idle" style="position:relative;width:190px;height:262px"><svg class="walle-svg" viewBox="0 0 190 262" xmlns="http://www.w3.org/2000/svg" width="190" height="262" aria-hidden="true" style="display:block;overflow:visible" > <defs> <linearGradient id="bG" x1="0%" y1="0%" x2="55%" y2="100%"> <stop offset="0%" stop-color="#1c2038" /> <stop offset="100%" stop-color="#0b0d18" /> </linearGradient> <linearGradient id="fG" x1="0%" y1="0%" x2="30%" y2="100%"> <stop offset="0%" stop-color="#22253e" /> <stop offset="100%" stop-color="#10121e" /> </linearGradient> <linearGradient id="tG" x1="0%" y1="0%" x2="0%" y2="100%"> <stop offset="0%" stop-color="#181b2c" /> <stop offset="100%" stop-color="#08090f" /> </linearGradient> <radialGradient id="eG" cx="38%" cy="32%"> <stop offset="0%" stop-color="#ffe9aa" /> <stop offset="40%" stop-color="#ffb347" /> <stop offset="100%" stop-color="#b85c00" /> </radialGradient> <radialGradient id="eGC" cx="38%" cy="32%"> <stop offset="0%" stop-color="#b0f5ff" /> <stop offset="55%" stop-color="#00d4ff" /> <stop offset="100%" stop-color="#005f7a" /> </radialGradient> <radialGradient id="blG"> <stop offset="0%" stop-color="#ff6eb4" stop-opacity=".5" /> <stop offset="100%" stop-color="#ff6eb4" stop-opacity="0" /> </radialGradient> <filter id="eF"> <feGaussianBlur stdDeviation="3" result="b" /> <feMerge> <feMergeNode in="b" /> <feMergeNode in="SourceGraphic" /> </feMerge> </filter> <filter id="cF"> <feGaussianBlur stdDeviation="4" result="b" /> <feMerge> <feMergeNode in="b" /> <feMergeNode in="SourceGraphic" /> </feMerge> </filter> </defs> <ellipse cx="95" cy="256" rx="56" ry="6" fill="#00d4ff" opacity=".07" /> <g class="whole"> <rect x="18" y="210" width="154" height="38" rx="19" fill="url(#tG)" stroke="#22253e" stroke-width="1.5" /> <rect x="30" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="50" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="70" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="90" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="110" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="130" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="150" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="20" y="226" width="150" height="3" rx="1.5" fill="#00d4ff" opacity=".18" /> <circle cx="28" cy="229" r="10" fill="#0d0f1a" stroke="#1e2235" stroke-width="1.2" /> <circle cx="162" cy="229" r="10" fill="#0d0f1a" stroke="#1e2235" stroke-width="1.2" /> <circle cx="28" cy="229" r="4.5" fill="#181b28" /> <circle cx="162" cy="229" r="4.5" fill="#181b28" /> <rect x="26" y="138" width="138" height="78" rx="26" fill="url(#bG)" stroke="#22253e" stroke-width="1.5" /> <rect x="40" y="151" width="110" height="55" rx="16" fill="#09091a" stroke="#181b2c" stroke-width="1" /> <circle cx="58" cy="165" r="3" fill="#00d4ff" opacity=".55" /> <circle cx="72" cy="165" r="3" fill="#00d4ff" opacity=".38" /> <circle cx="86" cy="165" r="3" fill="#00d4ff" opacity=".55" /> <circle cx="100" cy="165" r="3" fill="#00d4ff" opacity=".38" /> <circle cx="114" cy="165" r="3" fill="#00d4ff" opacity=".55" /> <circle cx="128" cy="165" r="3" fill="#00d4ff" opacity=".38" /> <circle cx="58" cy="179" r="2.5" fill="#00d4ff" opacity=".3" /> <circle cx="72" cy="179" r="3" fill="#ffb347" opacity=".48" /> <circle cx="86" cy="179" r="2.5" fill="#00d4ff" opacity=".3" /> <circle cx="100" cy="179" r="3" fill="#00ff88" opacity=".42" /> <circle cx="114" cy="179" r="2.5" fill="#00d4ff" opacity=".3" /> <circle cx="128" cy="179" r="2.5" fill="#ffe066" opacity=".4" /> <rect x="52" y="191" width="34" height="8" rx="4" fill="none" stroke="#00d4ff" stroke-width="1.2" opacity=".65" /> <rect x="104" y="191" width="34" height="8" rx="4" fill="none" stroke="#00d4ff" stroke-width="1.2" opacity=".65" /> <circle cx="32" cy="144" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <circle cx="158" cy="144" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <circle cx="32" cy="208" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <circle cx="158" cy="208" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <g class="arm-l"> <rect x="2" y="130" width="28" height="50" rx="14" fill="#13162a" stroke="#22253e" stroke-width="1.5" /> <rect x="5" y="134" width="10" height="20" rx="5" fill="#1c2038" opacity=".7" /> <rect x="4" y="171" width="24" height="9" rx="4.5" fill="#08090f" stroke="#00d4ff" stroke-width="1" opacity=".65" /> </g> <g class="arm-r"> <rect x="160" y="130" width="28" height="50" rx="14" fill="#13162a" stroke="#22253e" stroke-width="1.5" /> <rect x="175" y="134" width="10" height="20" rx="5" fill="#1c2038" opacity=".7" /> <rect x="162" y="171" width="24" height="9" rx="4.5" fill="#08090f" stroke="#00d4ff" stroke-width="1" opacity=".65" /> </g> <rect x="70" y="130" width="50" height="14" rx="7" fill="#13162a" stroke="#22253e" stroke-width="1" /> <rect x="78" y="133" width="34" height="4" rx="2" fill="#00d4ff" opacity=".16" /> <g class="head-grp"> <g class="ant-grp"> <rect x="91.5" y="5" width="7" height="24" rx="3.5" fill="#1a1e30" stroke="#22253e" stroke-width="1" /> <circle class="ant-dot" cx="95" cy="4.5" r="7" fill="#00d4ff" opacity=".92" filter="url(#cF)" /> <circle cx="95" cy="4.5" r="10" fill="none" stroke="#00d4ff" stroke-width=".7" opacity=".28" /> <line x1="95" y1="-4" x2="95" y2="-9" stroke="#00d4ff" stroke-width="1.2" opacity=".4" /> <line x1="102" y1="0" x2="107" y2="-3" stroke="#00d4ff" stroke-width="1.2" opacity=".3" /> <line x1="88" y1="0" x2="83" y2="-3" stroke="#00d4ff" stroke-width="1.2" opacity=".3" /> <line x1="103" y1="7" x2="108" y2="8" stroke="#00d4ff" stroke-width=".8" opacity=".2" /> <line x1="87" y1="7" x2="82" y2="8" stroke="#00d4ff" stroke-width=".8" opacity=".2" /> </g> <rect x="10" y="26" width="170" height="108" rx="40" fill="url(#fG)" stroke="#22253e" stroke-width="1.5" /> <ellipse cx="95" cy="35" rx="56" ry="12" fill="white" opacity=".022" /> <rect x="14" y="30" width="162" height="100" rx="36" fill="none" stroke="#181b2c" stroke-width="1" /> <rect x="18" y="38" width="68" height="66" rx="26" fill="#07070f" stroke="#1e2235" stroke-width="1.5" /> <rect x="104" y="38" width="68" height="66" rx="26" fill="#07070f" stroke="#1e2235" stroke-width="1.5" /> <rect x="20" y="40" width="64" height="62" rx="24" fill="none" stroke="#ffb347" stroke-width=".6" opacity=".14" /> <rect x="106" y="40" width="64" height="62" rx="24" fill="none" stroke="#ffb347" stroke-width=".6" opacity=".14" /> <circle cx="52" cy="71" r="24" fill="#ffb347" opacity=".07" /> <circle cx="138" cy="71" r="24" fill="#ffb347" opacity=".07" /> <circle class="eye-l" cx="52" cy="71" r="22" fill="url(#eG)" filter="url(#eF)" /> <circle id="pL" cx="52" cy="71" r="10" fill="#180800" opacity=".88" /> <circle cx="60" cy="63" r="7" fill="white" opacity=".62" /> <circle cx="57" cy="62" r="2.5" fill="white" opacity=".96" /> <circle cx="66" cy="76" r="2" fill="white" opacity=".25" /> <circle class="eye-r" cx="138" cy="71" r="22" fill="url(#eG)" filter="url(#eF)" /> <circle id="pR" cx="138" cy="71" r="10" fill="#180800" opacity=".88" /> <circle cx="146" cy="63" r="7" fill="white" opacity=".62" /> <circle cx="143" cy="62" r="2.5" fill="white" opacity=".96" /> <circle cx="152" cy="76" r="2" fill="white" opacity=".25" /> <ellipse id="bl-l" cx="22" cy="92" rx="16" ry="11" fill="url(#blG)" opacity=".75" /> <ellipse id="bl-r" cx="168" cy="92" rx="16" ry="11" fill="url(#blG)" opacity=".75" /> <rect id="lid-l" x="19" y="38" width="68" height="0" rx="24" fill="#07070f" opacity="0" /> <rect id="lid-r" x="105" y="38" width="68" height="0" rx="24" fill="#07070f" opacity="0" /> <rect id="sq-l" x="19" y="71" width="68" height="0" fill="#07070f" opacity="0" /> <rect id="sq-r" x="105" y="71" width="68" height="0" fill="#07070f" opacity="0" /> <ellipse id="tear-l" cx="42" cy="90" rx="3.5" ry="5" fill="#7adeff" opacity="0" /> <ellipse id="tear-r" cx="128" cy="90" rx="3.5" ry="5" fill="#7adeff" opacity="0" /> <g id="tdots" opacity="0"> <circle cx="76" cy="118" r="4.5" fill="#00d4ff"> <animate attributeName="opacity" values=".12;1;.12" dur="1.1s" begin="0s" repeatCount="indefinite" /> </circle> <circle cx="95" cy="118" r="4.5" fill="#00d4ff"> <animate attributeName="opacity" values=".12;1;.12" dur="1.1s" begin=".37s" repeatCount="indefinite" /> </circle> <circle cx="114" cy="118" r="4.5" fill="#00d4ff"> <animate attributeName="opacity" values=".12;1;.12" dur="1.1s" begin=".74s" repeatCount="indefinite" /> </circle> </g> <g id="zzz" opacity="0"> <text id="zzz-a" x="162" y="38" font-size="14" fill="#00d4ff" font-family="Nunito,sans-serif" font-weight="900" opacity="0" >z</text> <text id="zzz-b" x="173" y="20" font-size="20" fill="#00d4ff" font-family="Nunito,sans-serif" font-weight="900" opacity="0" >Z</text> </g> <g id="qmark" opacity="0"> <rect x="158" y="10" width="30" height="30" rx="10" fill="#10121e" stroke="#00d4ff" stroke-width="1.3" /> <text x="173" y="31" text-anchor="middle" font-size="17" fill="#00d4ff" font-family="Nunito,sans-serif" font-weight="900">?</text> </g> <rect id="ar-l" x="14" y="34" width="76" height="74" rx="28" fill="none" stroke="#00d4ff" stroke-width="0" opacity="0" /> <rect id="ar-r" x="100" y="34" width="76" height="74" rx="28" fill="none" stroke="#00d4ff" stroke-width="0" opacity="0" /> <path id="m-smile" d="M62 112 Q95 128 128 112" fill="none" stroke="#00d4ff" stroke-width="2.8" stroke-linecap="round" opacity=".88" /> <path id="m-open" d="M65 110 Q95 130 125 110" fill="#040408" stroke="#00d4ff" stroke-width="2.8" stroke-linecap="round" opacity="0" /> <path id="m-frown" d="M65 120 Q95 106 125 120" fill="none" stroke="#00d4ff" stroke-width="2.8" stroke-linecap="round" opacity="0" /> <line id="m-flat" x1="76" y1="115" x2="114" y2="115" stroke="#00d4ff" stroke-width="2.2" stroke-linecap="round" opacity="0" /> </g> </g> </svg></div></div>
+  </div>
+  <button class="swap" id="swap" type="button" aria-label="Swap mascot, currently WALLE" title="Swap WALLE and DuDu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg></button>
+</div>
+<template id="tpl-dudu"><div id="dudu" class="idle" style="position:relative;width:230px;height:310px"><svg class="dudu-svg" viewBox="0 0 220 300" xmlns="http://www.w3.org/2000/svg" width="220" height="300" aria-hidden="true" style="display:block;overflow:visible" > <defs> <radialGradient id="dudu-bodyG" cx="38%" cy="30%"> <stop offset="0%" stop-color="#5dd96a" /> <stop offset="55%" stop-color="#3db84a" /> <stop offset="100%" stop-color="#1e7028" /> </radialGradient> <radialGradient id="dudu-headG" cx="40%" cy="30%"> <stop offset="0%" stop-color="#62e070" /> <stop offset="55%" stop-color="#3db84a" /> <stop offset="100%" stop-color="#22802e" /> </radialGradient> <linearGradient id="dudu-wingLG" x1="0%" y1="0%" x2="100%" y2="100%"> <stop offset="0%" stop-color="#6dd97a" /> <stop offset="100%" stop-color="#2a8a36" /> </linearGradient> <radialGradient id="dudu-bellyG" cx="50%" cy="35%"> <stop offset="0%" stop-color="#e8503e" /> <stop offset="60%" stop-color="#c0392b" /> <stop offset="100%" stop-color="#8b1a1a" /> </radialGradient> <linearGradient id="dudu-tailG" x1="0%" y1="0%" x2="0%" y2="100%"> <stop offset="0%" stop-color="#a03a3a" /> <stop offset="100%" stop-color="#5a1a1a" /> </linearGradient> <radialGradient id="dudu-eyeG" cx="35%" cy="30%"> <stop offset="0%" stop-color="#3a2800" /> <stop offset="100%" stop-color="#1a1000" /> </radialGradient> <radialGradient id="dudu-blG"> <stop offset="0%" stop-color="#ff6eb4" stop-opacity="0.52" /> <stop offset="100%" stop-color="#ff6eb4" stop-opacity="0" /> </radialGradient> <linearGradient id="dudu-footG" x1="0%" y1="0%" x2="0%" y2="100%"> <stop offset="0%" stop-color="#c8a060" /> <stop offset="100%" stop-color="#a07840" /> </linearGradient> <linearGradient id="dudu-beakUpG" x1="0%" y1="0%" x2="0%" y2="100%"> <stop offset="0%" stop-color="#ddd8b0" /> <stop offset="100%" stop-color="#a8a480" /> </linearGradient> <linearGradient id="dudu-beakLoG" x1="0%" y1="0%" x2="0%" y2="100%"> <stop offset="0%" stop-color="#b8b490" /> <stop offset="100%" stop-color="#888870" /> </linearGradient> <filter id="dudu-ds"> <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#000" flood-opacity="0.32" /> </filter> <clipPath id="dudu-eyeLc"> <circle cx="83" cy="104" r="12" /> </clipPath> <clipPath id="dudu-eyeRc"> <circle cx="137" cy="104" r="12" /> </clipPath> </defs> <ellipse cx="110" cy="296" rx="52" ry="7" fill="#000" opacity="0.2" /> <g class="whole" filter="url(#dudu-ds)"> <g class="tail"> <ellipse cx="110" cy="248" rx="14" ry="42" fill="url(#dudu-tailG)" /> <ellipse cx="96" cy="245" rx="9" ry="38" fill="#8b2828" transform="rotate(-8 96 210)" opacity="0.9" /> <ellipse cx="124" cy="245" rx="9" ry="38" fill="#8b2828" transform="rotate(8 124 210)" opacity="0.9" /> <ellipse cx="84" cy="242" rx="6" ry="34" fill="#6a1c1c" transform="rotate(-16 84 210)" opacity="0.8" /> <ellipse cx="136" cy="242" rx="6" ry="34" fill="#6a1c1c" transform="rotate(16 136 210)" opacity="0.8" /> <ellipse cx="110" cy="282" rx="6" ry="9" fill="#4a6cb5" opacity="0.68" /> <ellipse cx="96" cy="278" rx="4" ry="7" fill="#4a6cb5" opacity="0.5" /> <ellipse cx="124" cy="278" rx="4" ry="7" fill="#4a6cb5" opacity="0.5" /> </g> <rect x="52" y="236" width="116" height="10" rx="5" fill="#6b4c28" stroke="#3e2a12" stroke-width="1" /> <line x1="70" y1="237" x2="70" y2="245" stroke="#3e2a12" stroke-width="0.7" opacity="0.5" /> <line x1="94" y1="237" x2="94" y2="245" stroke="#3e2a12" stroke-width="0.7" opacity="0.5" /> <line x1="118" y1="237" x2="118" y2="245" stroke="#3e2a12" stroke-width="0.7" opacity="0.5" /> <line x1="142" y1="237" x2="142" y2="245" stroke="#3e2a12" stroke-width="0.7" opacity="0.5" /> <line x1="92" y1="226" x2="88" y2="238" stroke="url(#dudu-footG)" stroke-width="4" stroke-linecap="round" /> <line x1="128" y1="226" x2="132" y2="238" stroke="url(#dudu-footG)" stroke-width="4" stroke-linecap="round" /> <g stroke="url(#dudu-footG)" stroke-width="2.5" stroke-linecap="round" fill="none"> <line x1="88" y1="238" x2="78" y2="243" /> <line x1="88" y1="238" x2="84" y2="246" /> <line x1="88" y1="238" x2="94" y2="244" /> <line x1="88" y1="238" x2="98" y2="240" /> </g> <g stroke="url(#dudu-footG)" stroke-width="2.5" stroke-linecap="round" fill="none"> <line x1="132" y1="238" x2="122" y2="243" /> <line x1="132" y1="238" x2="128" y2="246" /> <line x1="132" y1="238" x2="138" y2="244" /> <line x1="132" y1="238" x2="142" y2="240" /> </g> <g class="wing-l"> <ellipse cx="72" cy="168" rx="26" ry="56" fill="url(#dudu-wingLG)" transform="rotate(-12 72 168)" /> <ellipse cx="60" cy="205" rx="10" ry="18" fill="#1e7028" transform="rotate(-12 60 205)" /> <ellipse cx="68" cy="212" rx="8" ry="16" fill="#1e7028" transform="rotate(-8 68 212)" /> <ellipse cx="56" cy="196" rx="5" ry="14" fill="#8fd44a" transform="rotate(-18 56 196)" opacity="0.7" /> <ellipse cx="78" cy="155" rx="8" ry="22" fill="#7de88a" transform="rotate(-12 78 155)" opacity="0.38" /> </g> <g class="wing-r"> <ellipse cx="148" cy="168" rx="26" ry="56" fill="url(#dudu-wingLG)" transform="rotate(12 148 168)" /> <ellipse cx="160" cy="205" rx="10" ry="18" fill="#1e7028" transform="rotate(12 160 205)" /> <ellipse cx="152" cy="212" rx="8" ry="16" fill="#1e7028" transform="rotate(8 152 212)" /> <ellipse cx="164" cy="196" rx="5" ry="14" fill="#8fd44a" transform="rotate(18 164 196)" opacity="0.7" /> <ellipse cx="142" cy="155" rx="8" ry="22" fill="#7de88a" transform="rotate(12 142 155)" opacity="0.38" /> </g> <g id="body-puff"> <ellipse cx="110" cy="185" rx="52" ry="58" fill="url(#dudu-bodyG)" /> <ellipse cx="94" cy="158" rx="18" ry="24" fill="#7de88a" opacity="0.26" /> <ellipse cx="110" cy="196" rx="30" ry="34" fill="url(#dudu-bellyG)" /> <ellipse cx="104" cy="183" rx="10" ry="14" fill="#f06050" opacity="0.32" /> <path d="M88 175 Q110 170 132 175" fill="none" stroke="#2a8a36" stroke-width="1.2" opacity="0.38" /> <path d="M84 183 Q110 177 136 183" fill="none" stroke="#2a8a36" stroke-width="1.2" opacity="0.32" /> <path d="M86 165 Q110 160 134 165" fill="none" stroke="#2a8a36" stroke-width="1" opacity="0.28" /> </g> <g class="head-grp"> <circle cx="110" cy="108" r="56" fill="url(#dudu-headG)" /> <ellipse cx="96" cy="82" rx="22" ry="16" fill="#7de88a" opacity="0.28" /> <ellipse cx="110" cy="70" rx="38" ry="26" fill="#1a3020" opacity="0.62" /> <ellipse cx="110" cy="64" rx="30" ry="18" fill="#122018" opacity="0.58" /> <ellipse cx="110" cy="76" rx="22" ry="16" fill="#3a4a8a" opacity="0.2" /> <circle cx="83" cy="104" r="20" fill="white" opacity="0.92" /> <circle cx="137" cy="104" r="20" fill="white" opacity="0.92" /> <circle cx="83" cy="104" r="18" fill="#e8e4d8" opacity="0.55" /> <circle cx="137" cy="104" r="18" fill="#e8e4d8" opacity="0.55" /> <circle cx="83" cy="104" r="13" fill="#0a0800" opacity="0.14" /> <circle class="eye-l" cx="83" cy="104" r="12" fill="url(#dudu-eyeG)" /> <circle cx="83" cy="104" r="12" fill="none" stroke="#3a2000" stroke-width="1.5" opacity="0.45" /> <circle id="pL" cx="83" cy="104" r="6" fill="#050300" /> <circle cx="88" cy="99" r="4.5" fill="white" opacity="0.7" /> <circle cx="86" cy="98" r="1.8" fill="white" opacity="0.94" /> <circle cx="79" cy="109" r="1.5" fill="white" opacity="0.28" /> <circle cx="137" cy="104" r="13" fill="#0a0800" opacity="0.14" /> <circle class="eye-r" cx="137" cy="104" r="12" fill="url(#dudu-eyeG)" /> <circle cx="137" cy="104" r="12" fill="none" stroke="#3a2000" stroke-width="1.5" opacity="0.45" /> <circle id="pR" cx="137" cy="104" r="6" fill="#050300" /> <circle cx="142" cy="99" r="4.5" fill="white" opacity="0.7" /> <circle cx="140" cy="98" r="1.8" fill="white" opacity="0.94" /> <circle cx="133" cy="109" r="1.5" fill="white" opacity="0.28" /> <rect id="lid-l" x="71" y="92" width="24" height="0" fill="#1a3020" opacity="0" clip-path="url(#dudu-eyeLc)" /> <rect id="lid-r" x="125" y="92" width="24" height="0" fill="#1a3020" opacity="0" clip-path="url(#dudu-eyeRc)" /> <rect id="sq-l" x="71" y="104" width="24" height="0" fill="#0a0800" opacity="0" clip-path="url(#dudu-eyeLc)" /> <rect id="sq-r" x="125" y="104" width="24" height="0" fill="#0a0800" opacity="0" clip-path="url(#dudu-eyeRc)" /> <ellipse id="tear-l" cx="76" cy="116" rx="3" ry="4.5" fill="#7adeff" opacity="0" /> <ellipse id="tear-r" cx="130" cy="116" rx="3" ry="4.5" fill="#7adeff" opacity="0" /> <ellipse cx="64" cy="118" rx="14" ry="10" fill="#3db84a" opacity="0.85" transform="rotate(-5 64 118)" /> <ellipse cx="64" cy="118" rx="9" ry="6" fill="#5dd96a" opacity="0.48" transform="rotate(-5 64 118)" /> <ellipse cx="156" cy="118" rx="14" ry="10" fill="#3db84a" opacity="0.85" transform="rotate(5 156 118)" /> <ellipse cx="156" cy="118" rx="9" ry="6" fill="#5dd96a" opacity="0.48" transform="rotate(5 156 118)" /> <ellipse id="bl-l" cx="60" cy="112" rx="12" ry="8" fill="url(#dudu-blG)" opacity="0.7" /> <ellipse id="bl-r" cx="160" cy="112" rx="12" ry="8" fill="url(#dudu-blG)" opacity="0.7" /> <g id="beak-upper"> <path d="M99 120 Q110 113 121 120 Q119 130 110 136 Q101 130 99 120Z" fill="url(#dudu-beakUpG)" /> <path d="M104 119 Q110 115 116 119" fill="none" stroke="white" stroke-width="1.2" opacity="0.35" stroke-linecap="round" /> <path d="M108 134 Q110 138 112 134 Q111 140 110 141 Q109 140 108 134Z" fill="#989870" /> <ellipse cx="106.5" cy="119" rx="1.4" ry="1" fill="#9a9878" opacity="0.8" /> <ellipse cx="113.5" cy="119" rx="1.4" ry="1" fill="#9a9878" opacity="0.8" /> <path d="M104 118 Q110 115 116 118" fill="none" stroke="#b0ac88" stroke-width="0.7" opacity="0.5" /> </g> <g id="beak-lower"> <path d="M102 127 Q110 132 118 127 Q115 136 110 138 Q105 136 102 127Z" fill="url(#dudu-beakLoG)" /> <path d="M106 129 Q110 133 114 129" fill="none" stroke="white" stroke-width="0.8" opacity="0.2" stroke-linecap="round" /> <ellipse id="tongue" cx="110" cy="133" rx="4" ry="2.5" fill="#c05050" opacity="0" /> </g> <g id="tdots" opacity="0"> <circle cx="96" cy="150" r="4" fill="#3db84a"> <animate attributeName="opacity" values="0.1;1;0.1" dur="1.1s" begin="0s" repeatCount="indefinite" /> </circle> <circle cx="110" cy="150" r="4" fill="#3db84a"> <animate attributeName="opacity" values="0.1;1;0.1" dur="1.1s" begin="0.37s" repeatCount="indefinite" /> </circle> <circle cx="124" cy="150" r="4" fill="#3db84a"> <animate attributeName="opacity" values="0.1;1;0.1" dur="1.1s" begin="0.74s" repeatCount="indefinite" /> </circle> </g> <g id="zzz" opacity="0"> <text id="zzz-a" x="158" y="76" font-size="14" fill="#3db84a" font-family="Nunito,sans-serif" font-weight="900" opacity="0" >z</text> <text id="zzz-b" x="170" y="58" font-size="20" fill="#3db84a" font-family="Nunito,sans-serif" font-weight="900" opacity="0" >Z</text> </g> <g id="qmark" opacity="0"> <rect x="158" y="48" width="32" height="32" rx="10" fill="#0d1117" stroke="#3db84a" stroke-width="1.5" /> <text x="174" y="71" text-anchor="middle" font-size="18" fill="#3db84a" font-family="Nunito,sans-serif" font-weight="900" >?</text> </g> <circle id="alert-ring" cx="110" cy="104" r="0" fill="none" stroke="#ff4444" stroke-width="0" opacity="0" /> <g id="heart-float" opacity="0"> <path d="M168 78 C168 74 162 70 158 76 C154 70 148 74 148 78 C148 86 158 92 158 92 C158 92 168 86 168 78Z" fill="#ff6eb4" opacity="0.9" /> </g> <g id="music-notes" opacity="0"> <text x="162" y="92" font-size="16" fill="#f5d84a" font-family="Nunito,sans-serif"> ♪ </text> <text x="148" y="76" font-size="12" fill="#5dd96a" font-family="Nunito,sans-serif"> ♫ </text> </g> <g id="crest-l"> <ellipse cx="104" cy="56" rx="3.5" ry="11" fill="#1e7028" transform="rotate(-12 104 56)" opacity="0.82" /> <ellipse cx="103" cy="46" rx="2.5" ry="4" fill="#5dd96a" transform="rotate(-12 103 46)" opacity="0.8" /> </g> <g id="crest-c"> <ellipse cx="110" cy="52" rx="4" ry="13" fill="#2a8a36" opacity="0.9" /> <ellipse cx="110" cy="40" rx="2.5" ry="5" fill="#6de87a" opacity="0.9" /> </g> <g id="crest-r"> <ellipse cx="116" cy="56" rx="3.5" ry="11" fill="#1e7028" transform="rotate(12 116 56)" opacity="0.82" /> <ellipse cx="117" cy="46" rx="2.5" ry="4" fill="#5dd96a" transform="rotate(12 117 46)" opacity="0.8" /> </g> </g> </g> </svg></div></template>
+<template id="tpl-walle"><div id="walle" class="idle" style="position:relative;width:190px;height:262px"><svg class="walle-svg" viewBox="0 0 190 262" xmlns="http://www.w3.org/2000/svg" width="190" height="262" aria-hidden="true" style="display:block;overflow:visible" > <defs> <linearGradient id="bG" x1="0%" y1="0%" x2="55%" y2="100%"> <stop offset="0%" stop-color="#1c2038" /> <stop offset="100%" stop-color="#0b0d18" /> </linearGradient> <linearGradient id="fG" x1="0%" y1="0%" x2="30%" y2="100%"> <stop offset="0%" stop-color="#22253e" /> <stop offset="100%" stop-color="#10121e" /> </linearGradient> <linearGradient id="tG" x1="0%" y1="0%" x2="0%" y2="100%"> <stop offset="0%" stop-color="#181b2c" /> <stop offset="100%" stop-color="#08090f" /> </linearGradient> <radialGradient id="eG" cx="38%" cy="32%"> <stop offset="0%" stop-color="#ffe9aa" /> <stop offset="40%" stop-color="#ffb347" /> <stop offset="100%" stop-color="#b85c00" /> </radialGradient> <radialGradient id="eGC" cx="38%" cy="32%"> <stop offset="0%" stop-color="#b0f5ff" /> <stop offset="55%" stop-color="#00d4ff" /> <stop offset="100%" stop-color="#005f7a" /> </radialGradient> <radialGradient id="blG"> <stop offset="0%" stop-color="#ff6eb4" stop-opacity=".5" /> <stop offset="100%" stop-color="#ff6eb4" stop-opacity="0" /> </radialGradient> <filter id="eF"> <feGaussianBlur stdDeviation="3" result="b" /> <feMerge> <feMergeNode in="b" /> <feMergeNode in="SourceGraphic" /> </feMerge> </filter> <filter id="cF"> <feGaussianBlur stdDeviation="4" result="b" /> <feMerge> <feMergeNode in="b" /> <feMergeNode in="SourceGraphic" /> </feMerge> </filter> </defs> <ellipse cx="95" cy="256" rx="56" ry="6" fill="#00d4ff" opacity=".07" /> <g class="whole"> <rect x="18" y="210" width="154" height="38" rx="19" fill="url(#tG)" stroke="#22253e" stroke-width="1.5" /> <rect x="30" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="50" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="70" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="90" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="110" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="130" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="150" y="214" width="13" height="30" rx="6.5" fill="#06070d" opacity=".8" /> <rect x="20" y="226" width="150" height="3" rx="1.5" fill="#00d4ff" opacity=".18" /> <circle cx="28" cy="229" r="10" fill="#0d0f1a" stroke="#1e2235" stroke-width="1.2" /> <circle cx="162" cy="229" r="10" fill="#0d0f1a" stroke="#1e2235" stroke-width="1.2" /> <circle cx="28" cy="229" r="4.5" fill="#181b28" /> <circle cx="162" cy="229" r="4.5" fill="#181b28" /> <rect x="26" y="138" width="138" height="78" rx="26" fill="url(#bG)" stroke="#22253e" stroke-width="1.5" /> <rect x="40" y="151" width="110" height="55" rx="16" fill="#09091a" stroke="#181b2c" stroke-width="1" /> <circle cx="58" cy="165" r="3" fill="#00d4ff" opacity=".55" /> <circle cx="72" cy="165" r="3" fill="#00d4ff" opacity=".38" /> <circle cx="86" cy="165" r="3" fill="#00d4ff" opacity=".55" /> <circle cx="100" cy="165" r="3" fill="#00d4ff" opacity=".38" /> <circle cx="114" cy="165" r="3" fill="#00d4ff" opacity=".55" /> <circle cx="128" cy="165" r="3" fill="#00d4ff" opacity=".38" /> <circle cx="58" cy="179" r="2.5" fill="#00d4ff" opacity=".3" /> <circle cx="72" cy="179" r="3" fill="#ffb347" opacity=".48" /> <circle cx="86" cy="179" r="2.5" fill="#00d4ff" opacity=".3" /> <circle cx="100" cy="179" r="3" fill="#00ff88" opacity=".42" /> <circle cx="114" cy="179" r="2.5" fill="#00d4ff" opacity=".3" /> <circle cx="128" cy="179" r="2.5" fill="#ffe066" opacity=".4" /> <rect x="52" y="191" width="34" height="8" rx="4" fill="none" stroke="#00d4ff" stroke-width="1.2" opacity=".65" /> <rect x="104" y="191" width="34" height="8" rx="4" fill="none" stroke="#00d4ff" stroke-width="1.2" opacity=".65" /> <circle cx="32" cy="144" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <circle cx="158" cy="144" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <circle cx="32" cy="208" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <circle cx="158" cy="208" r="3.5" fill="#181b2c" stroke="#252840" stroke-width="1" /> <g class="arm-l"> <rect x="2" y="130" width="28" height="50" rx="14" fill="#13162a" stroke="#22253e" stroke-width="1.5" /> <rect x="5" y="134" width="10" height="20" rx="5" fill="#1c2038" opacity=".7" /> <rect x="4" y="171" width="24" height="9" rx="4.5" fill="#08090f" stroke="#00d4ff" stroke-width="1" opacity=".65" /> </g> <g class="arm-r"> <rect x="160" y="130" width="28" height="50" rx="14" fill="#13162a" stroke="#22253e" stroke-width="1.5" /> <rect x="175" y="134" width="10" height="20" rx="5" fill="#1c2038" opacity=".7" /> <rect x="162" y="171" width="24" height="9" rx="4.5" fill="#08090f" stroke="#00d4ff" stroke-width="1" opacity=".65" /> </g> <rect x="70" y="130" width="50" height="14" rx="7" fill="#13162a" stroke="#22253e" stroke-width="1" /> <rect x="78" y="133" width="34" height="4" rx="2" fill="#00d4ff" opacity=".16" /> <g class="head-grp"> <g class="ant-grp"> <rect x="91.5" y="5" width="7" height="24" rx="3.5" fill="#1a1e30" stroke="#22253e" stroke-width="1" /> <circle class="ant-dot" cx="95" cy="4.5" r="7" fill="#00d4ff" opacity=".92" filter="url(#cF)" /> <circle cx="95" cy="4.5" r="10" fill="none" stroke="#00d4ff" stroke-width=".7" opacity=".28" /> <line x1="95" y1="-4" x2="95" y2="-9" stroke="#00d4ff" stroke-width="1.2" opacity=".4" /> <line x1="102" y1="0" x2="107" y2="-3" stroke="#00d4ff" stroke-width="1.2" opacity=".3" /> <line x1="88" y1="0" x2="83" y2="-3" stroke="#00d4ff" stroke-width="1.2" opacity=".3" /> <line x1="103" y1="7" x2="108" y2="8" stroke="#00d4ff" stroke-width=".8" opacity=".2" /> <line x1="87" y1="7" x2="82" y2="8" stroke="#00d4ff" stroke-width=".8" opacity=".2" /> </g> <rect x="10" y="26" width="170" height="108" rx="40" fill="url(#fG)" stroke="#22253e" stroke-width="1.5" /> <ellipse cx="95" cy="35" rx="56" ry="12" fill="white" opacity=".022" /> <rect x="14" y="30" width="162" height="100" rx="36" fill="none" stroke="#181b2c" stroke-width="1" /> <rect x="18" y="38" width="68" height="66" rx="26" fill="#07070f" stroke="#1e2235" stroke-width="1.5" /> <rect x="104" y="38" width="68" height="66" rx="26" fill="#07070f" stroke="#1e2235" stroke-width="1.5" /> <rect x="20" y="40" width="64" height="62" rx="24" fill="none" stroke="#ffb347" stroke-width=".6" opacity=".14" /> <rect x="106" y="40" width="64" height="62" rx="24" fill="none" stroke="#ffb347" stroke-width=".6" opacity=".14" /> <circle cx="52" cy="71" r="24" fill="#ffb347" opacity=".07" /> <circle cx="138" cy="71" r="24" fill="#ffb347" opacity=".07" /> <circle class="eye-l" cx="52" cy="71" r="22" fill="url(#eG)" filter="url(#eF)" /> <circle id="pL" cx="52" cy="71" r="10" fill="#180800" opacity=".88" /> <circle cx="60" cy="63" r="7" fill="white" opacity=".62" /> <circle cx="57" cy="62" r="2.5" fill="white" opacity=".96" /> <circle cx="66" cy="76" r="2" fill="white" opacity=".25" /> <circle class="eye-r" cx="138" cy="71" r="22" fill="url(#eG)" filter="url(#eF)" /> <circle id="pR" cx="138" cy="71" r="10" fill="#180800" opacity=".88" /> <circle cx="146" cy="63" r="7" fill="white" opacity=".62" /> <circle cx="143" cy="62" r="2.5" fill="white" opacity=".96" /> <circle cx="152" cy="76" r="2" fill="white" opacity=".25" /> <ellipse id="bl-l" cx="22" cy="92" rx="16" ry="11" fill="url(#blG)" opacity=".75" /> <ellipse id="bl-r" cx="168" cy="92" rx="16" ry="11" fill="url(#blG)" opacity=".75" /> <rect id="lid-l" x="19" y="38" width="68" height="0" rx="24" fill="#07070f" opacity="0" /> <rect id="lid-r" x="105" y="38" width="68" height="0" rx="24" fill="#07070f" opacity="0" /> <rect id="sq-l" x="19" y="71" width="68" height="0" fill="#07070f" opacity="0" /> <rect id="sq-r" x="105" y="71" width="68" height="0" fill="#07070f" opacity="0" /> <ellipse id="tear-l" cx="42" cy="90" rx="3.5" ry="5" fill="#7adeff" opacity="0" /> <ellipse id="tear-r" cx="128" cy="90" rx="3.5" ry="5" fill="#7adeff" opacity="0" /> <g id="tdots" opacity="0"> <circle cx="76" cy="118" r="4.5" fill="#00d4ff"> <animate attributeName="opacity" values=".12;1;.12" dur="1.1s" begin="0s" repeatCount="indefinite" /> </circle> <circle cx="95" cy="118" r="4.5" fill="#00d4ff"> <animate attributeName="opacity" values=".12;1;.12" dur="1.1s" begin=".37s" repeatCount="indefinite" /> </circle> <circle cx="114" cy="118" r="4.5" fill="#00d4ff"> <animate attributeName="opacity" values=".12;1;.12" dur="1.1s" begin=".74s" repeatCount="indefinite" /> </circle> </g> <g id="zzz" opacity="0"> <text id="zzz-a" x="162" y="38" font-size="14" fill="#00d4ff" font-family="Nunito,sans-serif" font-weight="900" opacity="0" >z</text> <text id="zzz-b" x="173" y="20" font-size="20" fill="#00d4ff" font-family="Nunito,sans-serif" font-weight="900" opacity="0" >Z</text> </g> <g id="qmark" opacity="0"> <rect x="158" y="10" width="30" height="30" rx="10" fill="#10121e" stroke="#00d4ff" stroke-width="1.3" /> <text x="173" y="31" text-anchor="middle" font-size="17" fill="#00d4ff" font-family="Nunito,sans-serif" font-weight="900">?</text> </g> <rect id="ar-l" x="14" y="34" width="76" height="74" rx="28" fill="none" stroke="#00d4ff" stroke-width="0" opacity="0" /> <rect id="ar-r" x="100" y="34" width="76" height="74" rx="28" fill="none" stroke="#00d4ff" stroke-width="0" opacity="0" /> <path id="m-smile" d="M62 112 Q95 128 128 112" fill="none" stroke="#00d4ff" stroke-width="2.8" stroke-linecap="round" opacity=".88" /> <path id="m-open" d="M65 110 Q95 130 125 110" fill="#040408" stroke="#00d4ff" stroke-width="2.8" stroke-linecap="round" opacity="0" /> <path id="m-frown" d="M65 120 Q95 106 125 120" fill="none" stroke="#00d4ff" stroke-width="2.8" stroke-linecap="round" opacity="0" /> <line id="m-flat" x1="76" y1="115" x2="114" y2="115" stroke="#00d4ff" stroke-width="2.2" stroke-linecap="round" opacity="0" /> </g> </g> </svg></div></template>
+
+<script>
+(function(){
+"use strict";
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var $=function(s,r){return (r||document).querySelector(s)}, $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+
+/* ---------- reveal ---------- */
+var rvs=$$('.rv');
+if('IntersectionObserver' in window&&!reduce){
+  var ro=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -6% 0px'});
+  rvs.forEach(function(el,i){el.style.transitionDelay=(i%3)*60+'ms';ro.observe(el)});
+}else rvs.forEach(function(el){el.classList.add('in')});
+
+/* ---------- the mascot ---------- */
+var buddy=$('#buddy'),holder=$('#holder'),bubble=$('#bubble'),stage=$('#stage'),swapBtn=$('#swap');
+var cur='walle',emo='idle',bubbleT=0;
+var NAMES={walle:'WALLE',dudu:'DuDu'};
+var W={ // ported from mascotApplyEmotion.ts
+ idle:{ec:'url(#eG)',sm:.88,fm:0,flm:0,om:0,ps:10,lid:0,sq:0,tear:0,td:0,zzz:0,ar:0,bl:.75},
+ thinking:{ec:'url(#eG)',sm:0,fm:0,flm:.4,om:0,ps:7,lid:0,sq:0,tear:0,td:1,zzz:0,ar:0,bl:.35},
+ happy:{ec:'url(#eG)',sm:0,fm:0,flm:0,om:.9,ps:12,lid:0,sq:0,tear:0,td:0,zzz:0,ar:0,bl:1},
+ sad:{ec:'url(#eG)',sm:0,fm:.88,flm:0,om:0,ps:7,lid:0,sq:0,tear:.85,td:0,zzz:0,ar:0,bl:0},
+ alert:{ec:'url(#eGC)',sm:0,fm:0,flm:0,om:0,ps:5,lid:0,sq:0,tear:0,td:0,zzz:0,ar:.92,bl:0},
+ focused:{ec:'url(#eG)',sm:.3,fm:0,flm:0,om:0,ps:6,lid:0,sq:24,tear:0,td:0,zzz:0,ar:0,bl:.18},
+ sleeping:{ec:'url(#eG)',sm:0,fm:0,flm:.65,om:0,ps:0,lid:66,sq:0,tear:0,td:0,zzz:1,ar:0,bl:.28}
+};
+var D={ // ported from mascotApplyEmotionDuDu.ts
+ idle:{ps:6,lid:0,sq:0,tear:0,td:0,zzz:0,ar:0,bl:.7,heart:0,music:0,crest:0,puff:1,pin:0},
+ thinking:{ps:5,lid:0,sq:0,tear:0,td:1,zzz:0,ar:0,bl:.3,heart:0,music:0,crest:0,puff:1,pin:0},
+ happy:{ps:8,lid:0,sq:0,tear:0,td:0,zzz:0,ar:0,bl:1,heart:1,music:1,crest:4,puff:1.08,pin:0},
+ sad:{ps:4,lid:0,sq:0,tear:.9,td:0,zzz:0,ar:0,bl:0,heart:0,music:0,crest:3,puff:1,pin:0},
+ alert:{ps:3,lid:0,sq:0,tear:0,td:0,zzz:0,ar:.9,bl:0,heart:0,music:0,crest:2,puff:1.05,pin:1},
+ focused:{ps:5,lid:0,sq:14,tear:0,td:0,zzz:0,ar:0,bl:.2,heart:0,music:0,crest:1,puff:1,pin:0},
+ sleeping:{ps:0,lid:12,sq:0,tear:0,td:0,zzz:1,ar:0,bl:.25,heart:0,music:0,crest:3,puff:1.1,pin:0}
+};
+var CREST=[["rotate(0)","translateY(0) scaleY(1)","rotate(0)"],
+ ["rotate(-18deg) translateY(-8px)","translateY(-12px) scaleY(1.3)","rotate(18deg) translateY(-8px)"],
+ ["rotate(-28deg) translateY(-14px)","translateY(-18px) scaleY(1.5)","rotate(28deg) translateY(-14px)"],
+ ["rotate(8deg) translateY(5px)","translateY(4px) scaleY(.6)","rotate(-8deg) translateY(5px)"],
+ ["rotate(-22deg) translateY(-10px)","translateY(-16px) scaleY(1.4)","rotate(22deg) translateY(-10px)"]];
+
+function root(){return $('#'+cur,holder)}
+function q(r,id){return r.querySelector('#'+id)}
+function each(r,ids,fn){ids.forEach(function(id){var e=q(r,id);if(e)fn(e)})}
+var tearTimer=0;
+function apply(){
+  var r=root();if(!r)return;
+  r.classList.remove('idle','thinking','happy','sad','alert','focused','sleeping');
+  void r.offsetWidth;
+  r.classList.add(emo);
+  clearInterval(tearTimer);
+  if(cur==='walle'){
+    var s=W[emo];
+    $$('.eye-l,.eye-r',r).forEach(function(e){e.setAttribute('fill',s.ec)});
+    [['m-smile','sm'],['m-frown','fm'],['m-flat','flm'],['m-open','om']].forEach(function(p){var e=q(r,p[0]);if(e)e.style.opacity=s[p[1]]});
+    each(r,['pL','pR'],function(e){e.setAttribute('r',s.ps)});
+    each(r,['lid-l','lid-r'],function(e){e.setAttribute('height',s.lid);e.setAttribute('opacity',s.lid?1:0)});
+    each(r,['sq-l','sq-r'],function(e){e.setAttribute('height',s.sq);e.setAttribute('opacity',s.sq?1:0)});
+    each(r,['tear-l','tear-r'],function(e){e.setAttribute('opacity',s.tear)});
+    each(r,['tdots'],function(e){e.style.opacity=s.td});
+    each(r,['zzz'],function(e){e.style.opacity=s.zzz});
+    each(r,['ar-l','ar-r'],function(e){e.setAttribute('stroke-width',s.ar?2.8:0);e.setAttribute('opacity',s.ar)});
+    each(r,['bl-l','bl-r'],function(e){e.setAttribute('opacity',s.bl)});
+    if(emo==='sad'&&!reduce){
+      var drip=function(){['tear-l','tear-r'].forEach(function(id,i){var e=q(r,id);if(e&&e.animate)e.animate([{opacity:.9,transform:'translateY(0) scaleY(1)'},{opacity:0,transform:'translateY(32px) scaleY(1.5)'}],{duration:1200,delay:i*380})})};
+      drip();tearTimer=setInterval(drip,1400);
+    }
+  }else{
+    var d=D[emo];
+    each(r,['pL','pR'],function(e){e.setAttribute('r',d.pin?3:d.ps)});
+    $$('.eye-l,.eye-r',r).forEach(function(e){if(d.pin){e.style.filter='drop-shadow(0 0 8px #ff4444)';e.setAttribute('fill','#050300')}else{e.style.filter='';e.setAttribute('fill','url(#dudu-eyeG)')}});
+    each(r,['lid-l','lid-r'],function(e){e.setAttribute('height',d.lid);e.setAttribute('opacity',d.lid?1:0)});
+    each(r,['sq-l','sq-r'],function(e){e.setAttribute('height',d.sq);e.setAttribute('opacity',d.sq?1:0)});
+    each(r,['tear-l','tear-r'],function(e){e.setAttribute('opacity',d.tear)});
+    each(r,['tdots'],function(e){e.style.opacity=d.td});
+    each(r,['zzz'],function(e){e.style.opacity=d.zzz});
+    each(r,['bl-l','bl-r'],function(e){e.setAttribute('opacity',d.bl)});
+    each(r,['heart-float'],function(e){e.style.opacity=d.heart});
+    each(r,['music-notes'],function(e){e.style.opacity=d.music});
+    var ar=q(r,'alert-ring');if(ar){ar.setAttribute('r',d.ar?65:0);ar.setAttribute('stroke-width',d.ar?3:0);ar.setAttribute('opacity',d.ar);ar.setAttribute('stroke',d.ar?'#ff4444':'transparent')}
+    var c=CREST[d.crest];['crest-l','crest-c','crest-r'].forEach(function(id,i){var e=q(r,id);if(e)e.style.transform=c[i]});
+    var pf=q(r,'body-puff');if(pf)pf.style.transform=d.puff!==1?'scale('+d.puff+')':'';
+    var bu=q(r,'beak-lower'),bt=q(r,'beak-upper');
+    var open=emo==='alert'?.4:emo==='sad'?.1:0;
+    if(bu)bu.style.transform='rotate('+(open*22)+'deg)';
+    if(bt)bt.style.transform='rotate('+(-open*8)+'deg)';
+  }
+}
+var narrow=window.matchMedia&&matchMedia('(max-width:620px)');
+function say(text,ms){
+  if(!ms&&narrow&&narrow.matches)ms=5000;
+  bubble.textContent=text.replace('{name}',NAMES[cur]);
+  bubble.classList.remove('show');void bubble.offsetWidth;bubble.classList.add('show');
+  clearTimeout(bubbleT);
+  if(ms)bubbleT=setTimeout(function(){bubble.classList.remove('show')},ms);
+}
+function feel(e,text){
+  emo=e;apply();syncFaces();
+  if(text)say(text);
+}
+var FEEL={
+ idle:"idle. It drifts a few pixels now and then, so it never looks frozen.",
+ thinking:"thinking. Three pulsing dots while the model works on your question.",
+ happy:"happy. A bounce, a big smile, and a sound when a task goes well.",
+ sad:"sad. A frown and a tear when something fails.",
+ alert:"alert. Wide eyes and a bright ring when it wants your attention.",
+ focused:"focused. Narrowed eyes while it is busy running an action.",
+ sleeping:"sleeping. Eyes shut, little zzz, and it stretches when it wakes up."
+};
+var SAY={
+ idle:"Just hanging out in the corner.",thinking:"Hmm, let me think about that...",happy:"Yay, that worked!",
+ sad:"Oh no, that one failed.",alert:"Hey, look at this!",focused:"On it. Running the action now.",sleeping:"zzz... wake me with Ctrl+Shift+Space."
+};
+var facesEl=$('#faces'),feelEl=$('#feel');
+function syncFaces(){
+  $$('.face-btn',facesEl).forEach(function(b){b.setAttribute('aria-pressed',b.dataset.emo===emo?'true':'false')});
+}
+function setMascot(m,silent){
+  if(m===cur&&root())return;
+  cur=m;buddy.dataset.m=m;facesEl.dataset.m=m;
+  var t=$('#tpl-'+m).content.firstElementChild.cloneNode(true);
+  holder.innerHTML='';holder.appendChild(t);
+  apply();
+  $$('[data-pick]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.pick===m?'true':'false')});
+  swapBtn.setAttribute('aria-label','Swap mascot, currently '+NAMES[m]);
+  try{localStorage.setItem('walle-mascot',m)}catch(e){}
+  if(!silent)say(m==='walle'?"WALLE here. Tracks, antenna, glowing eyes.":"DuDu here. Same corner, more feathers.");
+  if(feelEl)feelEl.textContent=NAMES[m]+' is '+FEEL[emo];
+}
+$$('[data-pick]').forEach(function(b){b.addEventListener('click',function(){setMascot(b.dataset.pick)})});
+swapBtn.addEventListener('click',function(){setMascot(cur==='walle'?'dudu':'walle')});
+$$('.face-btn',facesEl).forEach(function(b){b.addEventListener('click',function(){
+  manual=Date.now();
+  feel(b.dataset.emo,SAY[b.dataset.emo]);
+  feelEl.textContent=NAMES[cur]+' is '+FEEL[b.dataset.emo];
+})});
+
+/* pet it */
+var petT=0;
+function pet(){
+  var r=root();if(!r)return;
+  clearTimeout(petT);r.classList.remove('pet');void r.offsetWidth;
+  if(!reduce)r.classList.add('pet');
+  petT=setTimeout(function(){r.classList.remove('pet')},950);
+  say(cur==='walle'?"Hehe, that tickles.":"Chirp!",3500);
+  var keep=emo;emo='happy';apply();syncFaces();
+  setTimeout(function(){if(emo==='happy'){emo=keep;apply();syncFaces()}},1600);
+}
+stage.addEventListener('click',pet);
+stage.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pet()}});
+
+/* eyes follow the cursor */
+if(!reduce){
+  var raf=0,px=0,py=0;
+  addEventListener('pointermove',function(e){px=e.clientX;py=e.clientY;if(!raf)raf=requestAnimationFrame(look);wake()},{passive:true});
+  function look(){
+    raf=0;var r=root();if(!r||emo==='sleeping')return;
+    var b=stage.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height*.42;
+    var dx=px-cx,dy=py-cy,m=Math.hypot(dx,dy)||1,k=Math.min(1,m/240)*(cur==='walle'?4.5:3);
+    each(r,['pL','pR'],function(e){e.style.transform='translate('+(dx/m*k).toFixed(2)+'px,'+(dy/m*k).toFixed(2)+'px)'});
+  }
+}
+
+/* sections drive the mood */
+var manual=0,sleepT=0,lastEmo='idle';
+function sectionMood(el){
+  if(Date.now()-manual<4000)return;
+  var e=el.dataset.emo,s=el.dataset.say;
+  if(e&&s)feel(e,s);
+  if(e==='idle'||!e)return;
+  if(feelEl&&el.id==='meet')feelEl.textContent=NAMES[cur]+' is '+FEEL.idle;
+}
+var secs=$$('section[data-emo],footer[data-emo]');
+if('IntersectionObserver' in window){
+  var so=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){wake();sectionMood(e.target)}})},{rootMargin:'-45% 0px -50% 0px'});
+  secs.forEach(function(s){so.observe(s)});
+}
+/* hover or focus a feature card */
+$$('.card[data-emo]').forEach(function(c){
+  var on=function(){manual=0;feel(c.dataset.emo,c.dataset.say)};
+  c.addEventListener('mouseenter',on);c.addEventListener('focusin',on);
+});
+/* nap after a while without activity */
+function wake(){
+  clearTimeout(sleepT);
+  sleepT=setTimeout(function(){feel('sleeping',"zzz... I nod off when nothing happens.")},45000);
+}
+addEventListener('scroll',wake,{passive:true});wake();
+
+/* init mascot */
+(function(){
+  var saved=null;try{saved=localStorage.getItem('walle-mascot')}catch(e){}
+  if(saved==='dudu')setMascot('dudu',true);
+  feel('happy',$('#top').dataset.say);
+})();
+
+/* ---------- loop video: only play when visible and motion allowed ---------- */
+var lv=$('#loopvid');
+if(lv){
+  if(reduce){lv.setAttribute('controls','')}
+  else if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){var p=e.isIntersecting?lv.play():lv.pause();if(p&&p.catch)p.catch(function(){})})},{threshold:.25}).observe(lv);
+  }
+}
+
+/* ---------- tabs ---------- */
+var tabs=$$('[role=tab]');
+function showTab(t,focus){
+  tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;
+    var p=$('#'+x.getAttribute('aria-controls'));p.hidden=!on;p.classList.toggle('on',on);
+    if(!on&&p.querySelector('video'))p.querySelector('video').pause()});
+  if(focus)t.focus();
+}
+tabs.forEach(function(t,i){
+  t.addEventListener('click',function(){showTab(t)});
+  t.addEventListener('keydown',function(e){
+    var n=null;
+    if(e.key==='ArrowRight')n=tabs[(i+1)%tabs.length];
+    else if(e.key==='ArrowLeft')n=tabs[(i+tabs.length-1)%tabs.length];
+    else if(e.key==='Home')n=tabs[0];else if(e.key==='End')n=tabs[tabs.length-1];
+    if(n){e.preventDefault();showTab(n,true)}
+  });
+});
+$$('.panel').forEach(function(p){p.hidden=!p.classList.contains('on')});
+
+/* ---------- lightbox ---------- */
+var lb=$('#lb'),lbi=$('#lbi');
+$$('button.zoom').forEach(function(b){b.addEventListener('click',function(){
+  lbi.src=b.dataset.full;lbi.alt=b.dataset.alt;
+  if(lb.showModal)lb.showModal();else lb.setAttribute('open','');
+})});
+$('#lbx').addEventListener('click',function(){lb.close?lb.close():lb.removeAttribute('open')});
+lb.addEventListener('click',function(e){if(e.target===lb&&lb.close)lb.close()});
+
+/* ---------- copy buttons ---------- */
+$$('.code').forEach(function(box){
+  var btn=$('.copy',box),pre=$('pre',box);
+  btn.setAttribute('aria-label','Copy command');
+  btn.addEventListener('click',function(){
+    var text=pre.innerText.replace(/\s+$/,'');
+    var done=function(){btn.textContent='Copied';btn.dataset.done='true';setTimeout(function(){btn.textContent='Copy';btn.dataset.done=''},1800)};
+    var fb=function(){var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(e){}ta.remove();done()};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fb);else fb();
+  });
+});
+})();
+</script>
+</body>
+</html>
