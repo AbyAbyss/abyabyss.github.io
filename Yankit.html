@@ -3,1042 +3,1125 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Yankit — Clipboard Manager for macOS</title>
+<title>Yankit, a clipboard manager for macOS</title>
+<meta name="description" content="Yankit is a free, open-source menu-bar clipboard manager for macOS. It remembers the text, images and files you copy and pastes any of them back with ⌘⇧V." />
+<meta name="theme-color" content="#12101a" />
+<script>document.documentElement.classList.add('js');</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg: #0c0c0e;
-    --surface: #141416;
-    --surface2: #1c1c1f;
-    --border: rgba(255,255,255,0.07);
-    --text: #e8e8ea;
-    --muted: #6e6e75;
-    --accent: #c084fc;
-    --accent2: #818cf8;
-    --green: #34d399;
-    --amber: #fbbf24;
-  }
+:root{
+  --ink:#12101a; --ink2:#1a1724; --ink3:#241f31;
+  --cream:#f1e8d4; --cream2:#e6dabd; --lilac:#d9bdfb; --acid:#e4f35a;
+  --violet:#c084fc; --indigo:#818cf8;
+  --text:#ece7f5; --muted:#a39cb5; --pt:#2a2230; --ptm:#5d5368;
+  --serif:'Instrument Serif','Fraunces',Georgia,'Times New Roman',serif;
+  --mono:'Geist Mono','JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --hand:'Caveat','Segoe Print','Bradley Hand','Comic Sans MS',cursive;
+  --sans:'Geist',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+  --torn1:polygon(0.0% 0.27%,2.5% 1.69%,5.0% 1.53%,7.5% 0.51%,10.0% 0.99%,12.5% 0.90%,15.0% 1.30%,17.5% 1.58%,20.0% 0.19%,22.5% 0.06%,25.0% 1.67%,27.5% 0.87%,30.0% 1.52%,32.5% 0.00%,35.0% 0.89%,37.5% 1.44%,40.0% 0.46%,42.5% 1.89%,45.0% 1.80%,47.5% 0.06%,50.0% 0.05%,52.5% 1.08%,55.0% 1.88%,57.5% 0.76%,60.0% 0.43%,62.5% 0.84%,65.0% 0.06%,67.5% 0.44%,70.0% 0.88%,72.5% 0.99%,75.0% 0.47%,77.5% 0.46%,80.0% 0.44%,82.5% 0.92%,85.0% 0.58%,87.5% 0.04%,90.0% 1.68%,92.5% 1.11%,95.0% 1.28%,97.5% 0.37%,100.0% 1.99%,100.0% 99.69%,97.5% 98.31%,95.0% 98.83%,92.5% 99.87%,90.0% 99.13%,87.5% 98.90%,85.0% 99.37%,82.5% 98.20%,80.0% 99.27%,77.5% 99.39%,75.0% 98.12%,72.5% 99.73%,70.0% 99.99%,67.5% 99.91%,65.0% 98.77%,62.5% 98.06%,60.0% 98.04%,57.5% 98.46%,55.0% 99.73%,52.5% 98.68%,50.0% 98.63%,47.5% 99.09%,45.0% 98.65%,42.5% 99.43%,40.0% 99.24%,37.5% 98.79%,35.0% 98.28%,32.5% 99.91%,30.0% 98.01%,27.5% 98.09%,25.0% 99.50%,22.5% 99.34%,20.0% 98.96%,17.5% 99.68%,15.0% 98.69%,12.5% 98.35%,10.0% 98.37%,7.5% 99.59%,5.0% 98.84%,2.5% 99.14%,0.0% 98.86%);
+  --torn2:polygon(0% 0%,100% 0%,100.0% 98.47%,97.2% 99.71%,94.4% 98.21%,91.7% 97.73%,88.9% 98.42%,86.1% 98.86%,83.3% 97.42%,80.6% 98.95%,77.8% 97.46%,75.0% 99.47%,72.2% 99.78%,69.4% 99.12%,66.7% 99.68%,63.9% 98.31%,61.1% 99.57%,58.3% 98.27%,55.6% 98.57%,52.8% 99.61%,50.0% 98.36%,47.2% 97.91%,44.4% 99.32%,41.7% 99.07%,38.9% 97.66%,36.1% 99.42%,33.3% 99.69%,30.6% 97.98%,27.8% 98.97%,25.0% 98.22%,22.2% 99.21%,19.4% 98.29%,16.7% 98.09%,13.9% 99.33%,11.1% 99.30%,8.3% 97.56%,5.6% 98.30%,2.8% 98.17%,0.0% 99.72%);
+  --torn3:polygon(0.0% 0.54%,2.8% 2.31%,5.6% 0.30%,8.3% 1.69%,11.1% 0.20%,13.9% 0.59%,16.7% 2.40%,19.4% 0.50%,22.2% 1.54%,25.0% 1.10%,27.8% 1.09%,30.6% 1.19%,33.3% 0.46%,36.1% 1.99%,38.9% 0.21%,41.7% 0.56%,44.4% 0.05%,47.2% 0.64%,50.0% 0.98%,52.8% 2.16%,55.6% 0.91%,58.3% 0.27%,61.1% 0.62%,63.9% 2.38%,66.7% 0.15%,69.4% 1.49%,72.2% 0.91%,75.0% 1.59%,77.8% 0.81%,80.6% 1.66%,83.3% 1.19%,86.1% 1.56%,88.9% 2.16%,91.7% 1.40%,94.4% 0.34%,97.2% 0.15%,100.0% 2.27%,100% 100%,0% 100%);
+  --torn4:polygon(0.0% 0.76%,3.3% 1.74%,6.7% 1.18%,10.0% 1.93%,13.3% 2.00%,16.7% 0.21%,20.0% 0.04%,23.3% 2.68%,26.7% 0.83%,30.0% 0.75%,33.3% 3.19%,36.7% 1.50%,40.0% 2.68%,43.3% 1.52%,46.7% 2.05%,50.0% 0.48%,53.3% 2.03%,56.7% 2.78%,60.0% 1.67%,63.3% 2.37%,66.7% 2.15%,70.0% 0.20%,73.3% 2.43%,76.7% 1.89%,80.0% 0.96%,83.3% 0.10%,86.7% 2.77%,90.0% 1.51%,93.3% 2.30%,96.7% 2.81%,100.0% 2.29%,100.0% 99.64%,96.7% 96.97%,93.3% 96.84%,90.0% 99.71%,86.7% 98.37%,83.3% 97.07%,80.0% 99.81%,76.7% 99.94%,73.3% 97.30%,70.0% 98.71%,66.7% 98.92%,63.3% 97.80%,60.0% 99.76%,56.7% 97.38%,53.3% 99.81%,50.0% 97.10%,46.7% 99.48%,43.3% 98.59%,40.0% 99.54%,36.7% 97.88%,33.3% 98.21%,30.0% 98.08%,26.7% 97.79%,23.3% 97.41%,20.0% 99.12%,16.7% 98.80%,13.3% 99.97%,10.0% 99.54%,6.7% 97.87%,3.3% 97.90%,0.0% 98.48%);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:clip;-webkit-text-size-adjust:100%}
+body{
+  background-color:var(--ink);
+  background-image:
+    linear-gradient(rgba(192,132,252,.05) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(192,132,252,.05) 1px,transparent 1px),
+    linear-gradient(rgba(192,132,252,.085) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(192,132,252,.085) 1px,transparent 1px);
+  background-size:24px 24px,24px 24px,120px 120px,120px 120px;
+  color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6;
+  overflow-x:clip;-webkit-font-smoothing:antialiased;
+}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:90;background:var(--grain);opacity:.18;mix-blend-mode:soft-light}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--acid);outline-offset:3px;border-radius:4px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+code,kbd,.mono{font-family:var(--mono)}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(18,16,26,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(192,132,252,.16)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--serif);font-size:26px;line-height:1;letter-spacing:-.01em}
+.brand svg{flex:none}
+.nav ul{display:flex;gap:26px;list-style:none;align-items:center}
+.nav ul a{font-family:var(--mono);font-size:12.5px;color:var(--muted);text-decoration:none;letter-spacing:.02em;padding:10px 0}
+.nav ul a:hover{color:var(--text)}
+.nav .gh{font-family:var(--mono);font-size:12.5px;background:var(--cream);color:var(--pt);padding:10px 16px;text-decoration:none;font-weight:500;clip-path:var(--torn1);min-height:44px;display:inline-flex;align-items:center}
+.nav .gh:hover{background:var(--lilac)}
 
-  html { scroll-behavior: smooth; }
+/* paper, tape, pins */
+.clip{position:relative;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3)) drop-shadow(0 12px 16px rgba(0,0,0,.45))}
+.sheet{position:relative;background:var(--cream) var(--grain);color:var(--pt);clip-path:var(--torn1)}
+.cream>.sheet{background-color:var(--cream)}
+.lilac>.sheet{background-color:var(--lilac)}
+.acid>.sheet{background-color:var(--acid)}
+.ink>.sheet{background-color:var(--ink3);color:var(--text)}
+.tape{position:absolute;z-index:3;width:96px;height:28px;left:50%;margin-left:-48px;top:-13px;background:rgba(228,214,170,.82);transform:rotate(var(--tr,-3deg));
+  clip-path:polygon(0 0,3% 12%,0 25%,3% 38%,0 50%,3% 62%,0 75%,3% 88%,0 100%,100% 100%,97% 88%,100% 75%,97% 62%,100% 50%,97% 38%,100% 25%,97% 12%,100% 0);pointer-events:none}
+.tape.v{background:rgba(192,132,252,.72)}
+.tape.l{left:14px;margin-left:0}
+.tape.r{left:auto;right:14px;margin-left:0}
+.pinhead{position:absolute;z-index:3;width:18px;height:18px;border-radius:50%;top:-8px;left:50%;margin-left:-9px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,var(--violet) 14% 60%,#7c3aed 100%);box-shadow:0 5px 5px rgba(0,0,0,.45)}
+.kick{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet);display:flex;gap:12px;align-items:center}
+.kick b{background:var(--acid);color:var(--ink);padding:2px 8px;font-weight:600;letter-spacing:.06em;transform:rotate(-2deg);display:inline-block}
+.h2{font-family:var(--serif);font-weight:400;font-size:clamp(42px,6.2vw,92px);line-height:.95;letter-spacing:-.03em;margin:18px 0 20px}
+.h2 em{color:var(--violet)}
+.lede{color:var(--muted);max-width:560px;font-size:17px}
+.hand{font-family:var(--hand);font-weight:700;color:var(--acid);font-size:24px;line-height:1.05;transform:rotate(-3deg);display:inline-block}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Geist', system-ui, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    overflow-x: hidden;
-    -webkit-font-smoothing: antialiased;
-  }
+/* reveal */
+.js .rv{opacity:0;translate:0 28px;transition:opacity .7s ease,translate .8s cubic-bezier(.2,.7,.2,1);transition-delay:var(--d,0s)}
+.js .rv.in{opacity:1;translate:0 0}
 
-  /* ─── noise grain overlay ─── */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 9999;
-    opacity: 0.5;
-  }
+/* draggable */
+.drag{position:absolute;z-index:5;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:pan-y;
+  transform:translate(var(--dx,0px),var(--dy,0px)) rotate(calc(var(--r,0deg) + var(--dr,0deg)));transition:transform .35s cubic-bezier(.2,.8,.2,1),scale .2s}
+.drag.dragging{cursor:grabbing;scale:1.05;transition:scale .2s;z-index:60}
+.drag.dragging .sheet{filter:brightness(1.04)}
 
-  /* ─── nav ─── */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 48px;
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    background: rgba(12,12,14,0.7);
-    border-bottom: 1px solid var(--border);
-  }
-  .nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'Geist Mono', monospace;
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    text-decoration: none;
-  }
-  .nav-logo svg { flex-shrink: 0; }
-  .nav-links {
-    display: flex;
-    align-items: center;
-    gap: 32px;
-  }
-  .nav-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 13.5px;
-    font-weight: 400;
-    letter-spacing: 0.01em;
-    transition: color 0.2s;
-  }
-  .nav-links a:hover { color: var(--text); }
-  .nav-cta {
-    background: var(--text) !important;
-    color: var(--bg) !important;
-    padding: 7px 16px !important;
-    border-radius: 7px !important;
-    font-weight: 500 !important;
-    font-size: 13px !important;
-    transition: opacity 0.2s !important;
-  }
-  .nav-cta:hover { opacity: 0.85 !important; }
+/* hero */
+.hero{position:relative;padding:112px 0 56px}
+.hero .wrap{position:relative}
+.status-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-family:var(--mono);font-size:12px}
+.chip{border:1px solid rgba(192,132,252,.4);color:var(--violet);padding:4px 11px;border-radius:99px;letter-spacing:.03em}
+.chip.solid{background:var(--violet);color:var(--ink);border-color:var(--violet);font-weight:600}
+.display{font-family:var(--serif);font-weight:400;font-size:clamp(58px,10.4vw,164px);line-height:.88;letter-spacing:-.04em;margin:26px 0 0}
+.display .ln{display:block}
+.display .a{color:var(--cream)}
+.display .b{padding-left:clamp(0px,5vw,92px);margin-top:.03em}
+.fin{font-style:italic;font-size:.5em;letter-spacing:-.02em;background:linear-gradient(transparent 14%,var(--acid) 14% 90%,transparent 90%);color:var(--ink);padding:0 .22em;display:inline-block;transform:rotate(-3deg) translateY(-.08em);margin-right:.18em;line-height:1.1;vertical-align:.18em}
+.rem{font-style:italic;color:var(--violet);position:relative;display:inline-block;letter-spacing:-.045em}
+.rem svg{position:absolute;left:0;bottom:-.1em;width:100%;height:.22em;overflow:visible}
+.rem path{stroke:var(--acid);stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
+.js .rem path{animation:draw 1.1s .5s cubic-bezier(.6,0,.2,1) both}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.hero-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:40px;margin-top:44px;align-items:start}
+.copy{position:relative}
+.sub{font-size:19px;color:var(--text);max-width:480px;line-height:1.55}
+.sub b{font-weight:500;color:var(--violet)}
+.cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:12px 24px;font-weight:600;font-size:15px;text-decoration:none;background:var(--violet);color:var(--ink);clip-path:var(--torn1);transition:background .2s,transform .2s}
+.btn:hover{background:#d3a5ff;transform:translateY(-2px) rotate(-.6deg)}
+.btn.ghost{background:transparent;color:var(--text);box-shadow:none;border:1.5px dashed rgba(236,231,245,.45);clip-path:none;border-radius:4px;font-weight:500}
+.btn.ghost:hover{background:rgba(192,132,252,.12);border-color:var(--violet)}
+.hint{margin-top:22px;font-family:var(--mono);font-size:12.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+kbd{display:inline-block;background:var(--ink3);border:1px solid rgba(255,255,255,.14);border-bottom-width:2px;border-radius:5px;padding:1px 7px;font-size:12px;color:var(--text)}
+.try{margin-top:34px;max-width:380px;display:flex;gap:8px;align-items:flex-start}
+.try .hand{font-size:26px;color:var(--lilac)}
+.try svg{flex:none;margin-top:6px}
 
-  /* ─── hero ─── */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 120px 24px 80px;
-    position: relative;
-    overflow: hidden;
-  }
+/* hero clippings */
+.hc-a{right:0;top:-18px;width:180px;--r:6deg}
+.hc-b{right:230px;top:6px;--r:-9deg}
+.hc-c{right:60px;top:196px;width:178px;--r:3deg}
+.hc-d{left:330px;top:214px;--r:-4deg}
+.hc-e{right:360px;top:230px;--r:5deg;display:none}
+.pol{padding:10px 10px 30px;background:var(--cream) var(--grain);clip-path:none}
+.pic{aspect-ratio:4/3;position:relative;overflow:hidden;background:linear-gradient(135deg,var(--a,#3c7cc8),var(--b,#6e5bd0))}
+.pic::before{content:"";position:absolute;width:22%;aspect-ratio:1;border-radius:50%;background:#ffe08a;right:16%;top:16%}
+.pic::after{content:"";position:absolute;left:-6%;right:-6%;bottom:0;height:52%;background:var(--m,#26335c);clip-path:polygon(0 100%,30% 22%,48% 58%,66% 8%,100% 100%)}
+.pol .cap{font-family:var(--hand);font-size:20px;text-align:center;margin-top:6px;line-height:1;color:var(--pt)}
+.keysticker{padding:16px 20px;display:flex;gap:6px;background:var(--lilac) var(--grain);clip-path:none;border-radius:16px;box-shadow:inset 0 0 0 5px #fff}
+.cap-k{min-width:54px;height:54px;display:grid;place-items:center;background:linear-gradient(#2a2433,#1b1624);color:var(--text);font-family:var(--sans);font-weight:500;font-size:26px;border-radius:10px;box-shadow:0 5px 0 #0b0911,inset 0 1px 0 rgba(255,255,255,.18)}
+.note{padding:18px 20px 22px;background:var(--acid) var(--grain)}
+.note .big{font-family:var(--serif);font-size:44px;line-height:.9;letter-spacing:-.03em;white-space:nowrap}
+.note p{font-family:var(--hand);font-weight:700;font-size:22px;line-height:1;margin-top:6px}
+.snip{padding:16px 18px 20px}
+.snip code{font-size:12.5px;line-height:1.5;display:block;white-space:pre-wrap;color:var(--pt)}
+.snip .m{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ptm);margin-bottom:6px;display:block;text-transform:uppercase}
+.filechip{display:flex;gap:10px;align-items:center;padding:12px 16px;background:var(--acid) var(--grain);color:var(--pt);font-family:var(--mono);font-size:12.5px;font-weight:500}
+.filechip svg{flex:none}
+.filechip{white-space:nowrap}
 
-  /* ambient glow */
-  .hero-glow {
-    position: absolute;
-    top: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 700px;
-    height: 400px;
-    background: radial-gradient(ellipse at center, rgba(192,132,252,0.12) 0%, transparent 70%);
-    pointer-events: none;
-    animation: glow-pulse 6s ease-in-out infinite;
-  }
-  @keyframes glow-pulse {
-    0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
-    50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
-  }
+/* desk: live panel + doc */
+.desk{position:relative;display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:0;align-items:start;min-height:520px}
+.slotwrap{position:relative;z-index:2}
+.slot{position:relative;min-height:470px}
+.slot::before{content:"Panel closed.\A Press ⌘⇧V or the button below.";white-space:pre;position:absolute;inset:0;border:1.5px dashed rgba(192,132,252,.45);border-radius:20px;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.8}
+.panel{position:absolute;inset:0 0 auto 0;background:#1c1f39;border-radius:20px;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 0 1px rgba(192,132,252,.0);transition:opacity .25s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .2s,border-color .2s;transform-origin:50% 0}
+.panel.closed{opacity:0;transform:translateY(-10px) scale(.97);pointer-events:none;visibility:hidden;transition:opacity .2s,transform .2s,visibility 0s .2s}
+.panel.blurred{border-color:rgba(255,255,255,.05)}
+.panel:not(.blurred):not(.closed){border-color:rgba(192,132,252,.55);box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 0 3px rgba(192,132,252,.18)}
+.sample-tag{position:absolute;z-index:4;top:-14px;left:22px;background:var(--acid);color:var(--ink);font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.1em;padding:4px 10px;transform:rotate(-2.5deg);clip-path:polygon(0 0,100% 0,98% 50%,100% 100%,0 100%,2% 50%)}
+.search{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.search svg{flex:none}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;color:#edeef6;font:inherit;font-size:15px;padding:4px 0;min-height:30px}
+.search input::placeholder{color:#6a7099}
+.list{list-style:none;max-height:316px;overflow-y:auto;padding:8px;scrollbar-width:thin;scrollbar-color:#3a3f6a transparent}
+.row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;cursor:default;position:relative}
+.row[aria-selected="true"]{background:rgba(91,127,240,.22)}
+.row.landed{animation:land .9s ease}
+@keyframes land{0%{background:rgba(228,243,90,.55);transform:translateY(-8px)}100%{transform:none}}
+.th{flex:none;width:44px;height:44px;border-radius:11px;display:grid;place-items:center;overflow:hidden;position:relative}
+.th.text{background:#5b6fe0}.th.code{background:#1f9e83}.th.file{background:#e0a23e}
+.th.image{background:linear-gradient(135deg,#3c7cc8,#6e5bd0)}
+.th.image::before{content:"";position:absolute;width:11px;height:11px;border-radius:50%;background:#ffe08a;right:8px;top:7px}
+.th.image::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:#26335c;clip-path:polygon(0 100%,35% 10%,55% 60%,72% 25%,100% 100%)}
+.th .tl{display:grid;gap:3px}
+.th .tl i{display:block;height:3px;border-radius:2px;background:rgba(255,255,255,.92)}
+.tx{min-width:0;flex:1}
+.tx .t{font-size:14px;font-weight:600;color:#edeef6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.tx .t.mono{font-family:var(--mono);font-weight:500;font-size:13px}
+.tx .m{font-size:12px;color:#8f96b8;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acts{display:flex;gap:2px;flex:none}
+.acts button{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#8f96b8;opacity:0}
+.row:hover .acts button,.row[aria-selected="true"] .acts button,.acts button:focus-visible,.acts .pin.on{opacity:1}
+.acts button:hover{background:rgba(255,255,255,.1);color:#fff}
+.acts .pin.on{color:#8ea0ff}
+.acts .pin.on svg{fill:currentColor}
+.empty{padding:34px 16px;text-align:center;color:#8f96b8;font-size:13px;font-family:var(--mono)}
+.pfoot{display:flex;gap:6px 14px;flex-wrap:wrap;padding:10px 16px 12px;border-top:1px solid rgba(255,255,255,.07);font-family:var(--mono);font-size:10.5px;color:#8f96b8}
+.pfoot kbd{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#cfd3ee;font-size:10.5px;padding:0 5px}
+.deskctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.tgl{min-height:44px;padding:10px 18px;font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--text);border:1.5px solid var(--violet);border-radius:99px;display:inline-flex;gap:8px;align-items:center}
+.tgl:hover{background:rgba(192,132,252,.16)}
+.status{font-family:var(--mono);font-size:12px;color:var(--muted);min-height:1.6em;flex:1;min-width:200px}
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: rgba(192,132,252,0.1);
-    border: 1px solid rgba(192,132,252,0.25);
-    border-radius: 99px;
-    padding: 5px 14px;
-    font-size: 12.5px;
-    font-family: 'Geist Mono', monospace;
-    color: var(--accent);
-    margin-bottom: 28px;
-    animation: fade-up 0.7s ease both;
-  }
-  .badge-dot {
-    width: 6px; height: 6px;
-    background: var(--accent);
-    border-radius: 50%;
-    animation: blink 2s step-end infinite;
-  }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.2; }
-  }
+.doc{position:relative;z-index:1;margin:30px 0 0 -26px;transform:rotate(1.8deg);min-height:430px}
+.doc .sheet{padding:38px 28px 40px 44px;background-image:var(--grain),repeating-linear-gradient(transparent 0 25px,rgba(93,83,104,.22) 25px 26px);background-position:0 0,0 14px;clip-path:var(--torn4);min-height:430px}
+.doc .sheet::before{content:"";position:absolute;left:30px;top:0;bottom:0;width:1px;background:rgba(220,70,90,.4)}
+.doc .fn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ptm);text-transform:uppercase;margin-bottom:14px;display:flex;justify-content:space-between;gap:8px}
+.docbody{font-family:var(--mono);font-size:13px;line-height:26px;color:var(--pt);max-height:318px;overflow:hidden;overflow-wrap:anywhere}
+.docbody p{min-height:26px}
+.docbody h4{font-family:var(--serif);font-size:30px;font-weight:400;line-height:34px;letter-spacing:-.02em}
+.docbody .pasted{background:linear-gradient(transparent 8%,rgba(192,132,252,.38) 8% 94%,transparent 94%);animation:flash 1.2s ease-out}
+@keyframes flash{from{background-color:rgba(228,243,90,.9)}to{background-color:transparent}}
+.docbody .pfile{display:inline-flex;align-items:center;gap:8px;background:var(--acid);padding:0 12px;border-radius:6px;font-weight:500}
+.docbody .pimg{display:block;width:120px;margin:6px 0;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.caret{display:inline-block;width:8px;height:16px;background:var(--pt);vertical-align:-3px;animation:blink 1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.flyer{position:fixed;z-index:200;pointer-events:none;background:var(--cream);color:var(--pt);font-family:var(--mono);font-size:12px;padding:6px 10px;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 10px 24px rgba(0,0,0,.5);border-left:4px solid var(--violet);will-change:transform}
 
-  h1 {
-    font-family: 'Instrument Serif', Georgia, serif;
-    font-size: clamp(52px, 8vw, 96px);
-    font-weight: 400;
-    line-height: 1.03;
-    letter-spacing: -0.03em;
-    margin-bottom: 24px;
-    animation: fade-up 0.7s 0.1s ease both;
-  }
-  h1 em {
-    font-style: italic;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+/* features */
+section{position:relative}
+.sec{padding:130px 0 60px}
+.pile{display:grid;grid-template-columns:repeat(12,1fr);gap:38px 30px;margin-top:64px;align-items:start}
+.f{--r:0deg;transform:rotate(var(--r))}
+.f .sheet{padding:30px 30px 34px}
+.f h3{font-family:var(--serif);font-weight:400;font-size:34px;line-height:1;letter-spacing:-.02em;margin-bottom:10px}
+.f p{font-size:15px;line-height:1.55;color:var(--ptm)}
+.f p b{color:var(--pt);font-weight:600}
+.f .mono{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ptm);display:block;margin-bottom:14px}
+.s7{grid-column:span 7}.s6{grid-column:span 6}.s5{grid-column:span 5}.s4{grid-column:span 4}.s3{grid-column:span 3}
+.kinds3{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.kinds3>span{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;background:var(--pt);color:var(--cream);padding:6px 12px 6px 8px;border-radius:6px}
+.kinds3 .th{width:22px;height:22px;border-radius:6px}
+.meter{margin-top:18px}
+.meter .bar{height:14px;background:rgba(42,34,48,.15);position:relative}
+.meter .bar i{position:absolute;inset:0 auto 0 0;width:7%;background:var(--pt);animation:none}
+.meter .l{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--ptm);margin-top:6px}
+.fbig{font-family:var(--serif);font-size:84px;line-height:.8;letter-spacing:-.04em;display:block;margin:6px 0 6px}
+.minisearch{margin-top:18px;background:#1c1f39;color:#edeef6;border-radius:10px;padding:10px 14px;font-family:var(--mono);font-size:12.5px;display:flex;justify-content:space-between;gap:8px}
+.minisearch .c{display:inline-block;width:7px;height:14px;background:var(--lilac);vertical-align:-2px;animation:blink 1s step-end infinite}
+.stamp{position:absolute;right:20px;top:22px;border:2.5px solid #b4405a;color:#b4405a;font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.14em;padding:5px 11px;transform:rotate(9deg);border-radius:4px;opacity:.82}
+.note-m{position:absolute;pointer-events:none}
+.pinsvg{margin-top:14px}
+.x3 .row2{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;font-family:var(--mono);font-size:12px}
+.x3 .row2 span{border:1.5px dashed rgba(42,34,48,.4);padding:4px 10px;border-radius:99px}
 
-  .hero-sub {
-    font-size: 18px;
-    color: var(--muted);
-    max-width: 520px;
-    margin: 0 auto 40px;
-    line-height: 1.65;
-    font-weight: 300;
-    animation: fade-up 0.7s 0.18s ease both;
-  }
+/* sort scene */
+.sortwrap{padding:90px 0 0}
+.stage{position:relative;padding:0 0 70px}
+.sort-live{height:340vh;padding:0}
+.sort-live .stage{position:sticky;top:0;height:100vh;height:100svh;padding:76px 0 24px;overflow:hidden;display:flex;flex-direction:column}
+.stage-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.stage-head .h2{margin:8px 0 0;font-size:clamp(40px,5.2vw,78px)}
+.stage-head .hand{margin-bottom:14px;transition:opacity .2s;display:none}
+.sort-live .stage-head .hand{display:inline-block}
+.lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:22px;flex:1;min-height:0}
+.lane{position:relative;border-left:2px dashed rgba(192,132,252,.35);padding:0 0 0 22px;display:flex;flex-direction:column;min-height:0}
+.lane:first-child{border-left:0;padding-left:0}
+.lane header{margin-bottom:14px}
+.tl-label{display:inline-block;font-family:var(--mono);font-weight:600;font-size:14px;letter-spacing:.16em;background:rgba(228,214,170,.9);color:var(--pt);padding:6px 16px;transform:rotate(-1.5deg);clip-path:polygon(0 0,2% 10%,0 22%,2% 35%,0 50%,2% 65%,0 78%,2% 90%,0 100%,100% 100%,98% 90%,100% 78%,98% 65%,100% 50%,98% 35%,100% 22%,98% 10%,100% 0)}
+.lane .cap-l{font-size:14px;color:var(--muted);margin-top:10px;max-width:340px;line-height:1.5}
+.stack{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.stack.pics{flex-direction:row;flex-wrap:wrap;gap:14px 18px}
+.item{will-change:transform;--r:0deg}
+.item .sheet{padding:12px 16px;font-size:13px;min-width:0}
+.item.txt{width:min(100%,300px)}
+.item.txt code{font-size:12.5px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item.imgc{width:150px}
+.item.imgc .pol{padding:7px 7px 22px}
+.item.imgc .cap{font-family:var(--mono);font-size:10.5px;margin-top:5px;color:var(--ptm);text-align:center}
+.item.fl .filechip{font-size:12.5px;width:min(100%,260px)}
+.item.fl.lil .filechip{background-color:var(--lilac)}
+.pics{display:flex;flex-wrap:wrap;gap:12px 16px}
+.disclaimer{font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:14px;max-width:600px}
+.sort-live .disclaimer{display:none}
 
-  .hero-actions {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    animation: fade-up 0.7s 0.26s ease both;
-  }
-  .btn-primary {
-    background: var(--text);
-    color: var(--bg);
-    border: none;
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 14.5px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: opacity 0.2s, transform 0.2s;
-    font-family: 'Geist', sans-serif;
-    letter-spacing: -0.01em;
-  }
-  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
-  .btn-secondary {
-    background: transparent;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-size: 14.5px;
-    font-weight: 400;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: color 0.2s, border-color 0.2s, transform 0.2s;
-    font-family: 'Geist', sans-serif;
-  }
-  .btn-secondary:hover { color: var(--text); border-color: rgba(255,255,255,0.18); transform: translateY(-1px); }
+/* architecture */
+.arch{margin-top:56px;position:relative}
+.arch svg{display:block;width:100%;height:auto;overflow:visible}
+.arch .mob{display:none}
+.nd rect{fill:var(--cream);filter:url(#deckle)}
+.nd.lil rect{fill:var(--lilac)}
+.nd.ac rect{fill:var(--acid)}
+.nd.dk rect{fill:var(--ink3);stroke:var(--violet);stroke-width:1.5;stroke-dasharray:5 4;filter:none}
+.nd text{font-family:var(--serif);font-size:25px;fill:var(--pt);letter-spacing:-.01em}
+.nd .s{font-family:var(--mono);font-size:11.5px;fill:var(--ptm);letter-spacing:0}
+.nd.dk text{fill:var(--text)}.nd.dk .s{fill:var(--muted)}
+.nd .tp{fill:rgba(228,214,170,.85);filter:none}
+.ln{fill:none;stroke:var(--violet);stroke-width:3;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
+.ln.rc{stroke:var(--indigo)}
+.hd{fill:none;stroke:var(--violet);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.hd.rc{stroke:var(--indigo)}
+.alab{font-family:var(--hand);font-weight:700;font-size:23px;fill:var(--acid)}
+.alab.i{fill:var(--lilac)}
+.js .arch .nd{opacity:0;transition:opacity .5s,transform .6s cubic-bezier(.2,.9,.3,1.3);transform:translateY(14px) rotate(-1.5deg)}
+.js .arch .nd.on{opacity:1;transform:none}
+.js .arch .hd,.js .arch .alab{opacity:0;transition:opacity .3s}
+.js .arch .hd.on,.js .arch .alab.on{opacity:1}
+.arch-notes{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:40px}
+.arch-notes p{font-size:14.5px;color:var(--muted);border-top:1.5px dashed rgba(192,132,252,.35);padding-top:14px}
+.arch-notes b{color:var(--text);font-weight:500}
 
-  .shortcut-hint {
-    margin-top: 16px;
-    font-family: 'Geist Mono', monospace;
-    font-size: 12px;
-    color: var(--muted);
-    animation: fade-up 0.7s 0.34s ease both;
-  }
-  kbd {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 2px 7px;
-    font-size: 11.5px;
-    font-family: 'Geist Mono', monospace;
-    color: var(--text);
-  }
+/* shortcuts */
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 34px;margin-top:70px}
+.ks{--r:0deg;transform:rotate(var(--r));background:#fff;border-radius:26px;padding:10px;filter:drop-shadow(0 12px 14px rgba(0,0,0,.45))}
+.ks .in{background:var(--cream) var(--grain);border-radius:18px;padding:34px 24px 22px;color:var(--pt);min-height:210px;display:flex;flex-direction:column;justify-content:space-between;gap:26px}
+.ks:nth-child(2) .in{background-color:var(--lilac)}
+.ks:nth-child(4) .in{background-color:var(--acid)}
+.ks:nth-child(6) .in{background-color:var(--lilac)}
+.kc{display:flex;gap:10px;flex-wrap:wrap;align-items:center;min-height:84px}
+.kk{min-width:68px;height:68px;padding:0 16px;display:grid;place-items:center;background:linear-gradient(#2e2838,#1a1523);color:#f3eefb;border-radius:14px;font-family:var(--sans);font-weight:500;font-size:34px;
+  box-shadow:0 9px 0 #07050b,0 12px 12px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.2);transform:translateY(-9px);transition:transform .16s ease-in,box-shadow .16s ease-in}
+.kk.w{font-size:20px;font-family:var(--mono);letter-spacing:.02em}
+.ks.pressed .kk{transform:translateY(0);box-shadow:0 0 0 #07050b,0 2px 3px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2)}
+.ks.pressed .kk:nth-child(2){transition-delay:.09s}.ks.pressed .kk:nth-child(3){transition-delay:.18s}
+.ks p{font-family:var(--mono);font-size:13px;line-height:1.4;font-weight:500}
+.ks .nm{display:block;font-family:var(--serif);font-size:26px;line-height:1;letter-spacing:-.02em;margin-bottom:6px;font-weight:400}
+.rebind{margin-top:44px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.rebind .hand{font-size:28px}
 
-  /* ─── panel demo animation ─── */
-  .panel-demo {
-    margin: 72px auto 0;
-    width: 100%;
-    max-width: 460px;
-    animation: fade-up 0.9s 0.4s ease both;
-    position: relative;
-    z-index: 1;
-  }
+/* download / launch / build */
+.dl{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px;margin-top:64px;align-items:start}
+.dl .sheet{padding:40px 36px 40px}
+.dl h3{font-family:var(--serif);font-weight:400;font-size:46px;line-height:.95;letter-spacing:-.03em;margin-bottom:14px}
+.dl p{color:var(--ptm);font-size:15.5px}
+.dl p.lead{font-size:27px;color:var(--pt)}
+.dl p+p{margin-top:12px}
+.dl .btn{margin-top:24px;background:var(--pt);color:var(--cream)}
+.dl .btn:hover{background:#3d2f4d}
+.meta{font-family:var(--mono);font-size:12px;color:var(--ptm);margin-top:18px;line-height:1.8}
+.meta code{color:var(--pt);background:rgba(42,34,48,.1);padding:1px 6px;border-radius:4px}
+.steps{list-style:none;counter-reset:s;margin-top:20px;display:grid;gap:22px}
+.steps li{counter-increment:s;position:relative;padding-left:52px;color:var(--pt);font-size:15.5px}
+.steps li::before{content:counter(s);position:absolute;left:0;top:-3px;width:36px;height:36px;border-radius:50%;background:var(--pt);color:var(--acid);font-family:var(--serif);font-size:24px;display:grid;place-items:center;line-height:1}
+.steps b{font-weight:600}
+.lead{font-family:var(--serif);font-size:27px;line-height:1.12;letter-spacing:-.015em;color:var(--pt)}
+.copyrow{display:flex;margin-top:10px;background:var(--ink);color:var(--text);border-radius:8px;overflow:hidden;align-items:stretch}
+.copyrow code{flex:1;min-width:0;padding:12px 14px;font-size:12.5px;line-height:1.5;overflow-x:auto;white-space:nowrap;scrollbar-width:thin}
+.cpy{flex:none;min-width:82px;min-height:44px;padding:0 14px;font-family:var(--mono);font-size:12px;font-weight:600;background:var(--violet);color:var(--ink);transition:background .2s}
+.cpy:hover{background:#d3a5ff}
+.cpy.done{background:var(--acid)}
+.acc{margin-top:6px;font-size:14px;color:var(--ptm);line-height:1.55;border-top:1.5px dashed rgba(42,34,48,.35);padding-top:16px}
+.build{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px;margin-top:64px;align-items:start}
+.term .sheet{padding:30px 28px 32px;clip-path:var(--torn4);border:0}
+.term .bar{display:flex;gap:7px;margin-bottom:16px;align-items:center;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.term .bar i{width:11px;height:11px;border-radius:50%;display:block}
+.term .cmt{font-family:var(--mono);font-size:12px;color:var(--muted);margin:18px 0 0}
+.term .cmt:first-of-type{margin-top:0}
+.term .copyrow{background:#0c0a12;margin-top:8px}
+.req{font-size:15px;color:var(--muted)}
+.req ul{list-style:none;margin:14px 0 0;display:grid;gap:8px;font-family:var(--mono);font-size:13px;color:var(--text)}
+.req li::before{content:"+ ";color:var(--acid)}
+.req p+p,.req ul+p{margin-top:18px}
 
-  /* ─── animated clipboard panel SVG ─── */
-  .panel-svg-wrap {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-  }
+/* roadmap */
+.road{display:grid;grid-template-columns:minmax(0,6fr) minmax(0,6fr);gap:60px;margin-top:60px;align-items:center}
+.check .sheet{padding:52px 40px 78px 66px;background-image:var(--grain),repeating-linear-gradient(transparent 0 25px,rgba(93,83,104,.28) 25px 26px);background-position:0 0,0 12px;clip-path:var(--torn1)}
+.check .sheet::before{content:"";position:absolute;left:44px;top:0;bottom:0;width:1px;background:rgba(220,70,90,.45)}
+.check h3{font-family:var(--hand);font-weight:700;font-size:40px;line-height:52px;margin-bottom:0;color:var(--pt)}
+.check ul{list-style:none}
+.check li{display:flex;gap:16px;align-items:flex-start;margin-bottom:26px;font-size:17px;line-height:26px;color:var(--pt)}
+.check li i{flex:none;width:22px;height:22px;border:2.5px solid var(--pt);border-radius:3px 6px 4px 5px;margin-top:2px;transform:rotate(-3deg)}
+.check li code{background:rgba(42,34,48,.1);padding:1px 6px;border-radius:4px;font-size:13px}
+.check li:nth-child(2) i{transform:rotate(2deg)}
+.contrib .sheet{padding:44px 38px 44px}
+.contrib h3{font-family:var(--serif);font-weight:400;font-size:52px;line-height:.95;letter-spacing:-.03em}
+.contrib h3 em{color:#7c3aed}
+.contrib p{color:var(--ptm);margin:14px 0 6px}
+.contrib .btn{background:var(--pt);color:var(--cream);margin-top:18px}
 
-  /* ─── fade-up keyframe ─── */
-  @keyframes fade-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+/* footer */
+footer{margin-top:140px;padding:64px 0 54px;background:var(--ink2);position:relative;clip-path:var(--torn3);border-top:0}
+footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-end}
+.fl .brand{font-size:38px}
+.fl p{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:10px}
+.fr{display:flex;gap:6px 26px;flex-wrap:wrap;font-family:var(--mono);font-size:13px}
+.fr a{color:var(--text);text-decoration:none;padding:10px 0;min-height:44px;display:inline-flex;align-items:center;border-bottom:1px dashed transparent}
+.fr a:hover{color:var(--violet);border-color:var(--violet)}
+.made{width:100%;font-family:var(--hand);font-size:24px;color:var(--lilac);text-decoration:none}
+.made a{color:var(--acid)}
 
-  /* ─── sections ─── */
-  section {
-    padding: 100px 24px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-  .section-label {
-    font-family: 'Geist Mono', monospace;
-    font-size: 11.5px;
-    color: var(--accent);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-  .section-title {
-    font-family: 'Instrument Serif', serif;
-    font-size: clamp(32px, 5vw, 52px);
-    font-weight: 400;
-    line-height: 1.1;
-    letter-spacing: -0.025em;
-    margin-bottom: 16px;
-  }
-  .section-sub {
-    font-size: 16px;
-    color: var(--muted);
-    max-width: 520px;
-    line-height: 1.7;
-  }
+/* margin decorations */
+.deco{pointer-events:auto}
+.dc1{right:3%;top:90px;width:150px;--r:-7deg}
+.dc2{left:2%;top:60px;--r:8deg}
+.dc3{right:5%;top:40px;--r:6deg;width:170px}
 
-  /* ─── features grid ─── */
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1px;
-    background: var(--border);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-    margin-top: 56px;
-  }
-  .feature-card {
-    background: var(--surface);
-    padding: 32px;
-    transition: background 0.2s;
-    position: relative;
-  }
-  .feature-card:hover { background: var(--surface2); }
-  .feature-icon {
-    width: 40px; height: 40px;
-    background: rgba(192,132,252,0.1);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 18px;
-    color: var(--accent);
-  }
-  .feature-card h3 {
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    margin-bottom: 8px;
-  }
-  .feature-card p {
-    font-size: 13.5px;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  /* ─── arch section ─── */
-  .arch-wrap {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 56px;
-    align-items: center;
-    margin-top: 56px;
-  }
-  @media (max-width: 720px) {
-    .arch-wrap { grid-template-columns: 1fr; }
-  }
-  .arch-text p {
-    font-size: 15px;
-    color: var(--muted);
-    line-height: 1.8;
-    margin-bottom: 20px;
-  }
-  .arch-text p strong { color: var(--text); }
-  .arch-visual {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 32px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-  }
-
-  /* ─── shortcuts ─── */
-  .shortcuts-wrap {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
-    margin-top: 48px;
-  }
-  .shortcut-row {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    transition: border-color 0.2s;
-  }
-  .shortcut-row:hover { border-color: rgba(192,132,252,0.25); }
-  .shortcut-action {
-    font-size: 13.5px;
-    color: var(--muted);
-  }
-  .shortcut-keys {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  /* ─── install section ─── */
-  .install-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    overflow: hidden;
-    margin-top: 40px;
-    max-width: 600px;
-  }
-  .install-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .traffic-dot {
-    width: 11px; height: 11px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .install-code {
-    padding: 20px;
-    font-family: 'Geist Mono', monospace;
-    font-size: 13px;
-    color: var(--text);
-    line-height: 2;
-  }
-  .install-code .comment { color: var(--muted); }
-  .install-code .cmd { color: var(--green); }
-  .install-code .arg { color: var(--accent); }
-
-  /* ─── roadmap ─── */
-  .roadmap-list {
-    list-style: none;
-    margin-top: 40px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    max-width: 560px;
-  }
-  .roadmap-list li {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 20px;
-    font-size: 14px;
-    color: var(--muted);
-  }
-  .roadmap-list li .ri { color: var(--amber); font-size: 16px; }
-
-  /* ─── footer ─── */
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 40px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  footer p {
-    font-size: 13px;
-    color: var(--muted);
-    font-family: 'Geist Mono', monospace;
-  }
-  footer a {
-    color: var(--muted);
-    text-decoration: none;
-    transition: color 0.2s;
-  }
-  footer a:hover { color: var(--text); }
-  .footer-links { display: flex; gap: 24px; }
-
-  /* ─── scroll reveal ─── */
-  .reveal {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.65s ease, transform 0.65s ease;
-  }
-  .reveal.visible {
-    opacity: 1;
-    transform: none;
-  }
-  .reveal-delay-1 { transition-delay: 0.08s; }
-  .reveal-delay-2 { transition-delay: 0.16s; }
-  .reveal-delay-3 { transition-delay: 0.24s; }
-
-  /* ─── divider ─── */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  @media (max-width: 600px) {
-    nav { padding: 16px 20px; }
-    nav .nav-links { display: none; }
-    footer { padding: 32px 20px; flex-direction: column; align-items: flex-start; }
-  }
-
-  /* download + first launch */
-  .dl-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:26px; }
-  .fl-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-top:34px; }
-  .fl-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px; }
-  .fl-card .step { font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
-  .fl-card h3 { font-size:17px; font-weight:600; margin-bottom:8px; }
-  .fl-card p { font-size:14px; color:var(--muted); line-height:1.7; }
-  .fl-card p strong { color:var(--text); font-weight:600; }
-  .copy-row { display:flex; align-items:center; gap:10px; margin-top:14px; background:#0a0a0c; border:1px solid var(--border); border-radius:10px; padding:8px 8px 8px 14px; }
-  .copy-row code { flex:1; min-width:0; white-space:normal; word-break:break-all; line-height:1.5; font-family:'Geist Mono',monospace; font-size:12.5px; color:var(--green); }
-  .copy-btn { flex:none; min-height:44px; min-width:68px; padding:0 14px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font:500 12px 'Geist Mono',monospace; cursor:pointer; }
-  .copy-btn:hover { border-color:rgba(255,255,255,.2); }
-  .copy-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+/* responsive */
+@media (max-width:1100px){
+  .hc-b{right:170px}.hc-c{display:none}
+  .desk{grid-template-columns:minmax(0,420px) minmax(0,1fr)}
+  .nav ul{gap:16px}
+  .arch-notes{grid-template-columns:1fr}
+  .keys{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:900px){
+  .hero-grid,.dl,.build,.road{grid-template-columns:minmax(0,1fr);gap:44px}
+  .desk{grid-template-columns:minmax(0,1fr);min-height:0}
+  .doc{margin:36px 0 0;transform:rotate(1deg)}
+  .hc-a,.hc-b,.hc-d{display:none}
+  .pile{grid-template-columns:minmax(0,1fr);gap:34px}
+  .pile>*{grid-column:auto!important}
+  .nav ul{display:none}
+  .lanes{grid-template-columns:1fr;gap:12px;margin-top:12px}
+  .lane{border-left:0;padding-left:0}
+  .lane header{margin-bottom:6px}
+  .lane .cap-l{font-size:12.5px;margin-top:6px;max-width:none}
+  .stack,.stack.pics{flex-direction:row;flex-wrap:wrap;gap:8px;align-items:flex-start}
+  .item.txt{width:calc(50% - 4px)}
+  .item .sheet{padding:8px 10px}
+  .item.txt code{font-size:11px}
+  .item.imgc{width:calc(25% - 6px);min-width:72px}
+  .item.imgc .cap{display:none}
+  .item.imgc .pol{padding:4px 4px 8px}
+  .item.fl{width:calc(50% - 4px)}
+  .item.fl .filechip{font-size:11px;padding:8px;gap:6px;width:100%}
+  .sort-live .stage{padding-top:70px}
+  .sort-live .stage-head .hand{display:none}
+  .stage-head .h2{font-size:40px}
+  .arch .desk-svg{display:none}.arch .mob{display:block;max-width:420px;margin:0 auto}
+  .dc1,.dc2,.dc3{display:none}
+}
+@media (max-width:640px){
+  .wrap{padding:0 16px}
+  .hero{padding-top:92px}
+  .sec{padding-top:90px}
+  .keys{grid-template-columns:1fr;gap:38px}
+  .f h3{font-size:30px}
+  .dl .sheet,.contrib .sheet{padding:32px 22px}
+  .check .sheet{padding:40px 22px 56px 52px}
+  .check .sheet::before{left:32px}
+  .check h3{font-size:34px}
+  .term .sheet{padding:24px 16px}
+  .display{margin-top:22px}
+  .try{display:none}
+  .copyrow code{font-size:11.5px}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv{opacity:1;translate:none}
+  .js .arch .nd,.js .arch .hd,.js .arch .alab{opacity:1;transform:none}
+  .ks .kk{transform:translateY(0);box-shadow:0 2px 0 #07050b}
+}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="deckle" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".05" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+    </filter>
+  </defs>
+</svg>
 
-<!-- NAV -->
-<nav>
-  <a class="nav-logo" href="#">
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-      <rect width="22" height="22" rx="6" fill="rgba(192,132,252,0.15)"/>
-      <rect x="6" y="5" width="10" height="12" rx="2" stroke="#c084fc" stroke-width="1.3" fill="none"/>
-      <line x1="8.5" y1="9" x2="13.5" y2="9" stroke="#c084fc" stroke-width="1.1" stroke-linecap="round"/>
-      <line x1="8.5" y1="11.5" x2="13.5" y2="11.5" stroke="#c084fc" stroke-width="1.1" stroke-linecap="round"/>
-      <line x1="8.5" y1="14" x2="11.5" y2="14" stroke="#c084fc" stroke-width="1.1" stroke-linecap="round"/>
-    </svg>
-    Yankit
-  </a>
-  <div class="nav-links">
-    <a href="#features">Features</a>
-    <a href="#how-it-works">How it works</a>
-    <a href="#shortcuts">Shortcuts</a>
-    <a href="#download">Download</a>
-    <a href="#build">Build</a>
-    <a href="https://github.com/AbyAbyss/Yankit" target="_blank" class="nav-cta">GitHub →</a>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Yankit, back to top">
+      <svg width="24" height="28" viewBox="0 0 24 28" fill="none" aria-hidden="true"><rect x="2" y="4" width="20" height="22" rx="3" fill="#c084fc"/><rect x="7" y="1" width="10" height="6" rx="2" fill="#f1e8d4"/><path d="M6 13h12M6 17h12M6 21h7" stroke="#12101a" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Yankit
+    </a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#kinds">Kinds</a></li>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#shortcuts">Shortcuts</a></li>
+        <li><a href="#download">Download</a></li>
+        <li><a href="#build">Build</a></li>
+      </ul>
+    </nav>
+    <a class="gh" href="https://github.com/AbyAbyss/Yankit">GitHub →</a>
   </div>
-</nav>
+</header>
 
+<main id="top">
 <!-- HERO -->
-<div class="hero">
-  <div class="hero-glow"></div>
-
-  <div class="badge">
-    <span class="badge-dot"></span>
-    v1.1.0 — Feature Complete
-  </div>
-
-  <h1>Your clipboard,<br /><em>finally remembered.</em></h1>
-
-  <p class="hero-sub">
-    A fast, free, open-source clipboard manager for macOS.
-    Text, images, files — captured automatically, searchable instantly,
-    pasted back with a single shortcut.
-  </p>
-
-  <div class="hero-actions">
-    <a href="https://github.com/AbyAbyss/Yankit/releases/latest" target="_blank" class="btn-primary">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Download DMG
-    </a>
-    <a href="https://github.com/AbyAbyss/Yankit" target="_blank" class="btn-secondary">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-      </svg>
-      View on GitHub
-    </a>
-  </div>
-
-  <p class="shortcut-hint">Press <kbd>⌘</kbd><kbd>⇧</kbd><kbd>V</kbd> anywhere to open</p>
-
-  <!-- Animated panel demo -->
-  <div class="panel-demo">
-    <div class="panel-svg-wrap">
-      <svg viewBox="0 0 460 360" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-        <defs>
-          <style>
-            .panel-item { animation: slide-in 0.4s ease both; }
-            .panel-item:nth-child(1) { animation-delay: 0.8s; }
-            .panel-item:nth-child(2) { animation-delay: 1.0s; }
-            .panel-item:nth-child(3) { animation-delay: 1.2s; }
-            .panel-item:nth-child(4) { animation-delay: 1.4s; }
-            .panel-item:nth-child(5) { animation-delay: 1.6s; }
-            @keyframes slide-in {
-              from { opacity:0; transform: translateY(10px); }
-              to   { opacity:1; transform: translateY(0); }
-            }
-            .cursor-blink { animation: blink-cursor 1s step-end infinite; }
-            @keyframes blink-cursor {
-              0%,100% { opacity:1; } 50% { opacity:0; }
-            }
-            .selected-glow { animation: sel-pulse 3s ease-in-out infinite; }
-            @keyframes sel-pulse {
-              0%,100% { opacity:0.15; } 50% { opacity:0.28; }
-            }
-          </style>
-          <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stop-color="#c084fc"/>
-            <stop offset="100%" stop-color="#818cf8"/>
-          </linearGradient>
-          <clipPath id="panelClip">
-            <rect width="460" height="360" rx="0"/>
-          </clipPath>
-        </defs>
-
-        <!-- bg -->
-        <rect width="460" height="360" fill="#141416"/>
-
-        <!-- title bar -->
-        <rect width="460" height="44" fill="#1c1c1f"/>
-        <rect y="44" width="460" height="1" fill="rgba(255,255,255,0.07)"/>
-        <!-- traffic lights -->
-        <circle cx="20" cy="22" r="5" fill="#ff5f57"/>
-        <circle cx="36" cy="22" r="5" fill="#febc2e"/>
-        <circle cx="52" cy="22" r="5" fill="#28c840"/>
-        <!-- title -->
-        <text x="230" y="27" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="12" text-anchor="middle">Clipboard History</text>
-
-        <!-- search bar -->
-        <rect x="16" y="56" width="428" height="36" rx="8" fill="#0c0c0e" stroke="rgba(192,132,252,0.4)" stroke-width="1"/>
-        <!-- search icon -->
-        <circle cx="36" cy="74" r="7" fill="none" stroke="#6e6e75" stroke-width="1.3"/>
-        <line x1="41" y1="79" x2="45" y2="83" stroke="#6e6e75" stroke-width="1.3" stroke-linecap="round"/>
-        <!-- search text -->
-        <text x="52" y="79" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="12.5">Search history...</text>
-        <!-- cursor -->
-        <rect x="52" y="67" width="1.5" height="14" fill="#c084fc" class="cursor-blink"/>
-
-        <!-- items -->
-        <g class="panel-item" style="animation-delay:0.8s">
-          <!-- selected item -->
-          <rect x="8" y="100" width="444" height="52" rx="9" fill="rgba(192,132,252,0.15)" class="selected-glow"/>
-          <rect x="8" y="100" width="444" height="52" rx="9" fill="none" stroke="rgba(192,132,252,0.35)" stroke-width="1"/>
-          <!-- type badge -->
-          <rect x="20" y="112" width="28" height="16" rx="4" fill="rgba(192,132,252,0.2)"/>
-          <text x="34" y="124" fill="#c084fc" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">TXT</text>
-          <!-- content -->
-          <text x="56" y="121" fill="#e8e8ea" font-family="'Geist', sans-serif" font-size="12.5" font-weight="500">const greeting = "Hello, World!"</text>
-          <text x="56" y="138" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="10.5">just now · 47 chars</text>
-          <!-- pin icon -->
-          <circle cx="430" cy="126" r="10" fill="rgba(192,132,252,0.12)"/>
-          <line x1="430" y1="120" x2="430" y2="130" stroke="#c084fc" stroke-width="1.3" stroke-linecap="round"/>
-          <circle cx="430" cy="118" r="3" fill="none" stroke="#c084fc" stroke-width="1.3"/>
-        </g>
-
-        <g class="panel-item" style="animation-delay:1.0s">
-          <rect x="8" y="158" width="444" height="52" rx="9" fill="#0c0c0e"/>
-          <rect x="20" y="170" width="28" height="16" rx="4" fill="rgba(129,140,248,0.15)"/>
-          <text x="34" y="182" fill="#818cf8" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">IMG</text>
-          <!-- image preview placeholder -->
-          <rect x="56" y="170" width="24" height="18" rx="3" fill="rgba(129,140,248,0.15)"/>
-          <rect x="57" y="171" width="6" height="6" rx="1" fill="rgba(129,140,248,0.4)"/>
-          <text x="86" y="181" fill="#e8e8ea" font-family="'Geist', sans-serif" font-size="12.5">Screenshot 2025-04-01 14:32.png</text>
-          <text x="56" y="198" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="10.5">2 min ago · 1.4 MB</text>
-        </g>
-
-        <g class="panel-item" style="animation-delay:1.2s">
-          <rect x="8" y="216" width="444" height="52" rx="9" fill="#0c0c0e"/>
-          <rect x="20" y="228" width="28" height="16" rx="4" fill="rgba(52,211,153,0.12)"/>
-          <text x="34" y="240" fill="#34d399" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">TXT</text>
-          <text x="56" y="239" fill="#e8e8ea" font-family="'Geist', sans-serif" font-size="12.5">npm install --save-dev typescript</text>
-          <text x="56" y="256" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="10.5">5 min ago · 34 chars</text>
-        </g>
-
-        <g class="panel-item" style="animation-delay:1.4s">
-          <rect x="8" y="274" width="444" height="52" rx="9" fill="#0c0c0e"/>
-          <rect x="20" y="286" width="28" height="16" rx="4" fill="rgba(251,191,36,0.12)"/>
-          <text x="34" y="298" fill="#fbbf24" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">FILE</text>
-          <!-- file icon -->
-          <rect x="56" y="286" width="15" height="18" rx="2" fill="none" stroke="#fbbf24" stroke-width="1.1"/>
-          <line x1="56" y1="290" x2="71" y2="290" stroke="#fbbf24" stroke-width="0.8"/>
-          <text x="76" y="297" fill="#e8e8ea" font-family="'Geist', sans-serif" font-size="12.5">project-brief-final-v3.pdf</text>
-          <text x="56" y="314" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="10.5">12 min ago · 2.1 MB</text>
-        </g>
-
-        <!-- bottom bar -->
-        <rect y="336" width="460" height="24" fill="#1c1c1f"/>
-        <rect y="336" width="460" height="1" fill="rgba(255,255,255,0.07)"/>
-        <text x="16" y="352" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="10">30 items</text>
-        <text x="444" y="352" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="10" text-anchor="end">⌘⌫ delete</text>
-
-        <!-- floating Return hint -->
-        <g style="opacity:0;animation:fade-up-hint 0.5s 2s ease forwards">
-          <rect x="168" y="318" width="124" height="22" rx="5" fill="rgba(192,132,252,0.12)" stroke="rgba(192,132,252,0.25)" stroke-width="0.8"/>
-          <text x="230" y="333" fill="#c084fc" font-family="'Geist Mono', monospace" font-size="10" text-anchor="middle">Return to paste</text>
-        </g>
-        <style>
-          @keyframes fade-up-hint {
-            from { opacity:0; transform:translateY(4px); }
-            to   { opacity:1; transform:none; }
-          }
-        </style>
-      </svg>
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap">
+    <div class="status-row">
+      <span class="chip solid">Feature complete</span>
+      <span class="chip">v1.1.0</span>
+      <span class="chip">macOS 14+</span>
+      <span class="chip">Free · MIT</span>
     </div>
 
-    <!-- platform badges -->
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;">
-      <span style="background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:12px;font-family:'Geist Mono',monospace;color:var(--muted);">macOS 14+ Sonoma</span>
-      <span style="background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:12px;font-family:'Geist Mono',monospace;color:var(--muted);">Swift 5.9</span>
-      <span style="background:var(--surface2);border:1px solid var(--border);border-radius:99px;padding:5px 14px;font-size:12px;font-family:'Geist Mono',monospace;color:var(--muted);">SwiftUI + AppKit</span>
-      <span style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:99px;padding:5px 14px;font-size:12px;font-family:'Geist Mono',monospace;color:#34d399;">MIT License</span>
-    </div>
-  </div>
-</div>
+    <h1 class="display" id="h1">
+      <span class="ln a">Your clipboard,</span>
+      <span class="ln b"><i class="fin">finally</i><em class="rem">remembered.<svg viewBox="0 0 460 20" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 12 C70 4 140 17 220 9 S380 15 457 5"/></svg></em></span>
+    </h1>
 
-<div class="divider"></div>
+    <!-- draggable clippings -->
+    <div class="clip drag hc-a" data-drag aria-hidden="true">
+      <span class="tape" style="--tr:4deg"></span>
+      <div class="sheet pol"><div class="pic" style="--a:#e07a5f;--b:#6e5bd0;--m:#2a2350"></div><div class="cap">Figma, 4 min ago</div></div>
+    </div>
+    <div class="clip drag hc-b" data-drag aria-hidden="true">
+      <div class="keysticker"><span class="cap-k">⌘</span><span class="cap-k">⇧</span><span class="cap-k">V</span></div>
+    </div>
+    <div class="clip drag hc-c note-wrap" data-drag aria-hidden="true">
+      <span class="pinhead"></span>
+      <div class="sheet note"><div class="big">~40 MB</div><p>idle. it keeps the pile on disk, not in RAM.</p></div>
+    </div>
+
+    <div class="hero-grid">
+      <div class="copy">
+        <p class="sub">Yankit is a menu-bar clipboard manager for macOS. It remembers the <b>text</b>, <b>images</b> and <b>files</b> you copy, and pastes any of them back into the app you were in.</p>
+        <div class="cta">
+          <a class="btn" href="https://github.com/AbyAbyss/Yankit/releases/latest">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8M5 7l3 3 3-3M3 13h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download for macOS
+          </a>
+          <a class="btn ghost" href="https://github.com/AbyAbyss/Yankit">View on GitHub</a>
+        </div>
+        <p class="hint"><span>Open the panel anywhere:</span><span><kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd></span></p>
+        <div class="clip drag hc-d" data-drag aria-hidden="true">
+          <div class="filechip"><svg width="22" height="26" viewBox="0 0 22 26" fill="none"><path d="M2 1h12l6 6v18H2z" fill="#12101a"/><path d="M14 1v6h6" fill="#fff"/></svg>Q3-roadmap.pdf</div>
+        </div>
+        <div class="try" aria-hidden="true">
+          <span class="hand">try it: select any words on this page and press ⌘C (Ctrl+C), then watch the panel.</span>
+          <svg width="64" height="54" viewBox="0 0 64 54" fill="none"><path d="M4 8 C26 0 52 14 56 44" stroke="#d9bdfb" stroke-width="3" stroke-linecap="round"/><path d="M44 38 L56 46 L58 32" stroke="#d9bdfb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+
+      <div>
+        <div class="desk" id="desk">
+          <div class="slotwrap">
+            <div class="slot">
+              <div class="panel" id="panel" role="dialog" aria-label="Yankit history panel, live demo with sample clippings">
+                <span class="sample-tag">SAMPLE DATA · LIVE DEMO</span>
+                <div class="search">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" stroke="#5e66a0" stroke-width="2.2"/><path d="M13 13l5 5" stroke="#5e66a0" stroke-width="2.2" stroke-linecap="round"/></svg>
+                  <input id="q" type="text" placeholder="Search clipboard history" autocomplete="off" spellcheck="false" aria-label="Search clipboard history" role="combobox" aria-expanded="true" aria-controls="list" />
+                </div>
+                <ul class="list" id="list" role="listbox" aria-label="Clipboard history"></ul>
+                <div class="pfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Return</kbd> paste</span><span><kbd>⌘⌫</kbd> delete</span><span><kbd>Esc</kbd> close</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="clip doc" aria-label="Sample document">
+            <span class="tape" style="--tr:-5deg"></span>
+            <div class="sheet">
+              <div class="fn"><span>friday-notes.md</span><span>sample doc</span></div>
+              <div class="docbody" id="docbody" aria-live="polite">
+                <h4>Friday standup</h4>
+                <p>- ship the build</p>
+                <p>- reply to Sam:</p>
+                <p id="caretline"><span class="caret"></span></p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="deskctl">
+          <button class="tgl" id="tgl" type="button" aria-expanded="true" aria-controls="panel"><span id="tgltxt">Close panel</span> <kbd>⌘⇧V</kbd></button>
+          <p class="status" id="status" role="status" aria-live="polite">The panel opens on its own sample clippings. Return pastes into the sample doc.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
 
 <!-- FEATURES -->
-<section id="features">
-  <div class="reveal">
-    <div class="section-label">Capabilities</div>
-    <h2 class="section-title">Everything you copy.<br />Nothing you'll lose.</h2>
-    <p class="section-sub">Yankit quietly watches your clipboard and keeps a searchable history of every text snippet, image, and file you copy.</p>
-  </div>
+<section class="sec" id="features" aria-labelledby="fh">
+  <div class="wrap">
+    <div class="rv"><p class="kick"><b>01</b> What it keeps</p>
+    <h2 class="h2" id="fh">Everything you copy,<br /><em>nothing</em> you'll lose.</h2>
+    <p class="lede">Ten small behaviours, each one real. Pinned to the board in no particular order.</p></div>
 
-  <div class="features-grid">
-    <div class="feature-card reveal reveal-delay-1">
-      <div class="feature-icon">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="2" width="14" height="16" rx="3" stroke="currentColor" stroke-width="1.4"/><line x1="6.5" y1="7" x2="13.5" y2="7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="6.5" y1="10" x2="13.5" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><line x1="6.5" y1="13" x2="10" y2="13" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      </div>
-      <h3>Captures everything</h3>
-      <p>Plain text, rich text, images, and files — all recorded automatically the moment you copy them.</p>
-    </div>
+    <div class="pile">
+      <article class="clip f s7 rv" style="--r:-1deg">
+        <span class="tape"></span>
+        <div class="sheet" style="clip-path:var(--torn1)"><span class="mono">Captures</span><h3>Captures everything you copy</h3><p>Plain text, images and files, picked up automatically the moment you copy them. Nothing to press, no extra step.</p>
+          <div class="kinds3"><span><i class="th text"><span class="tl"><i></i><i style="width:60%"></i></span></i>text</span><span><i class="th image"></i>images</span><span><i class="th file"></i>files</span></div></div>
+      </article>
+      <article class="clip f s5 rv" style="--r:1.6deg;--d:.1s">
+        <span class="pinhead"></span>
+        <div class="sheet" style="background-color:var(--lilac);clip-path:var(--torn4)"><span class="mono">Memory</span><h3>Light on memory</h3><p>History lives in SQLite with image blobs on disk, not in RAM.</p><span class="fbig">~40 MB</span><p>resident while idle</p></div>
+      </article>
 
-    <div class="feature-card reveal reveal-delay-2">
-      <div class="feature-icon">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.4"/><line x1="13.5" y1="13.5" x2="17" y2="17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="6" y1="9" x2="12" y2="9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      </div>
-      <h3>Instant search</h3>
-      <p>Press ⌘⇧V, start typing. The history filters live as you type — find anything in milliseconds.</p>
-    </div>
+      <article class="clip f s5 rv" style="--r:1.2deg">
+        <span class="tape v"></span>
+        <div class="sheet" style="background-color:var(--cream);clip-path:var(--torn4)"><span class="mono">Search</span><h3>Searchable history</h3><p>Press ⌘⇧V, start typing, and the list filters instantly. It matches text, file names and the app a copy came from.</p><div class="minisearch"><span>invoice<i class="c"></i></span><span>1 match</span></div></div>
+      </article>
+      <article class="clip f s4 rv" style="--r:-1.8deg;--d:.1s">
+        <span class="tape l" style="--tr:-6deg"></span>
+        <div class="sheet" style="background-color:var(--acid);clip-path:var(--torn1)"><span class="mono">Paste</span><h3>Paste straight back</h3><p>Pick an item and Yankit pastes it into the app you were just in.</p></div>
+      </article>
+      <article class="clip f s3 rv" style="--r:2.2deg;--d:.2s">
+        <span class="pinhead"></span>
+        <div class="sheet" style="clip-path:var(--torn4)"><span class="mono">Pin</span><h3>Pin what matters</h3><p>Pinned items are exempt from the rolling limit and never auto-deleted.</p></div>
+      </article>
 
-    <div class="feature-card reveal reveal-delay-3">
-      <div class="feature-icon">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3L10 13M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><line x1="3" y1="17" x2="17" y2="17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      </div>
-      <h3>Paste straight back</h3>
-      <p>Select any item and Yankit pastes it directly into the app you were working in. One keypress.</p>
-    </div>
+      <article class="clip f s3 rv" style="--r:-1.5deg">
+        <span class="tape r" style="--tr:5deg"></span>
+        <div class="sheet" style="background-color:var(--lilac);clip-path:var(--torn1)"><span class="mono">Prune</span><h3>Prune on the fly</h3><p>Delete any single item with the row's × button or ⌘⌫.</p></div>
+      </article>
+      <article class="clip f s4 rv" style="--r:1deg;--d:.1s">
+        <span class="tape"></span>
+        <div class="sheet" style="clip-path:var(--torn4)"><span class="mono">Tune</span><h3>Yours to tune</h3><p>A configurable cap (default 30) trims the oldest items, with optional auto-expiry by age.</p></div>
+      </article>
+      <article class="clip f s5 rv" style="--r:-1.1deg;--d:.2s">
+        <span class="tape v" style="--tr:3deg"></span>
+        <div class="sheet" style="background-color:var(--cream);clip-path:var(--torn1)"><span class="stamp">PRIVATE</span><span class="mono">Privacy</span><h3>Privacy-first</h3><p>Skips password-manager content, dims while paused, and keeps its data out of Spotlight and Time Machine. <b>Nothing leaves your Mac:</b> no account, no sync, no telemetry.</p></div>
+      </article>
 
-    <div class="feature-card reveal">
-      <div class="feature-icon" style="background:rgba(251,191,36,0.1);color:var(--amber);">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l1.4 4.2H16l-3.6 2.6 1.4 4.2L10 10.4l-3.8 2.6 1.4-4.2L4 6.2h4.6L10 2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-      </div>
-      <h3>Pin what matters</h3>
-      <p>Pinned items are exempt from the rolling limit and never auto-deleted. Keep your essentials forever.</p>
-    </div>
-
-    <div class="feature-card reveal reveal-delay-1">
-      <div class="feature-icon" style="background:rgba(52,211,153,0.1);color:var(--green);">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8z" stroke="currentColor" stroke-width="1.3"/><path d="M10 6v4l3 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      </div>
-      <h3>Light on memory</h3>
-      <p>History lives in SQLite with image blobs on disk, not in RAM. Idles at ~40 MB — barely a whisper.</p>
-    </div>
-
-    <div class="feature-card reveal reveal-delay-2">
-      <div class="feature-icon" style="background:rgba(129,140,248,0.1);color:var(--accent2);">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="10" width="14" height="8" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M7 10V7a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="10" cy="14" r="1.2" fill="currentColor"/></svg>
-      </div>
-      <h3>Privacy-first</h3>
-      <p>Skips password-manager fields, dims while paused, and keeps data out of Spotlight and Time Machine.</p>
-    </div>
-
-    <div class="feature-card reveal reveal-delay-3">
-      <div class="feature-icon">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><line x1="10" y1="7" x2="10" y2="10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="10" cy="13" r="0.8" fill="currentColor"/></svg>
-      </div>
-      <h3>Pause anytime</h3>
-      <p>One click silences capture for an hour, until tomorrow, or until you resume. Full control.</p>
-    </div>
-
-    <div class="feature-card reveal">
-      <div class="feature-icon" style="background:rgba(251,191,36,0.1);color:var(--amber);">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M6 8h8M6 12h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      </div>
-      <h3>Per-app exclusions</h3>
-      <p>Tell Yankit to ignore copies made in specific apps. Granular privacy where you need it.</p>
+      <article class="clip f s7 rv x3" style="--r:.8deg">
+        <span class="pinhead"></span>
+        <div class="sheet" style="background-color:var(--acid);clip-path:var(--torn4)"><span class="mono">Pause</span><h3>Pause when you need to</h3><p>One click silences capture for an hour, until tomorrow, or until you resume.</p><div class="row2"><span>for an hour</span><span>until tomorrow</span><span>until I resume</span></div></div>
+      </article>
+      <article class="clip f s5 rv" style="--r:-1.6deg;--d:.1s">
+        <span class="tape l"></span>
+        <div class="sheet" style="clip-path:var(--torn1)"><span class="mono">Exclude</span><h3>Per-app exclusion</h3><p>Tell Yankit to ignore copies made in specific apps.</p></div>
+      </article>
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
-
-<!-- HOW IT WORKS -->
-<section id="how-it-works">
-  <div class="reveal">
-    <div class="section-label">Architecture</div>
-    <h2 class="section-title">Two paths.<br />One shared clipboard.</h2>
-    <p class="section-sub">Yankit lives in the menu bar — no Dock icon, no window in your way. Lightweight, honest, fast.</p>
-  </div>
-
-  <div class="arch-wrap">
-    <div class="arch-text reveal reveal-delay-1">
-      <p>A <strong>lightweight monitor</strong> watches the system pasteboard and records each new copy into a local SQLite database, with image and file payloads stored as files on disk so the database stays small and fast.</p>
-      <p>The <strong>capture path</strong> records what you copy. The <strong>recall path</strong> puts it back. When you pick an item, it goes back on the pasteboard and Yankit pastes it into wherever you were.</p>
-      <p><strong>Nothing leaves your Mac</strong> — no account, no sync, no telemetry. Your clipboard history is yours alone.</p>
+<!-- SORT SCENE -->
+<section class="sortwrap" id="kinds" aria-labelledby="kh">
+  <div class="stage">
+    <div class="wrap" style="width:100%;display:flex;flex-direction:column;flex:1;min-height:0">
+      <div class="stage-head">
+        <div>
+          <p class="kick"><b>02</b> Three kinds of thing</p>
+          <h2 class="h2" id="kh">One pile in.<br />Kept <em>three</em> ways.</h2>
+        </div>
+        <span class="hand" id="scrollnote">scroll: the pile sorts itself ↓</span>
+      </div>
+      <div class="lanes" id="lanes">
+        <div class="lane">
+          <header><span class="tl-label">TEXT</span><p class="cap-l">The full string goes into SQLite, with a short preview so the list stays light.</p></header>
+          <div class="stack">
+            <div class="clip item txt" data-sx=".42" data-sy=".52" data-sr="-14" data-r="-1.5"><div class="sheet"><code>Thanks, this looks great!</code></div></div>
+            <div class="clip item txt" data-sx=".55" data-sy=".62" data-sr="12" data-r="1.2"><div class="sheet" style="background-color:var(--lilac)"><code>https://github.com/AbyAbyss/Yankit</code></div></div>
+            <div class="clip item txt" data-sx=".36" data-sy=".7" data-sr="-6" data-r="-.8"><div class="sheet"><code>git push origin main</code></div></div>
+            <div class="clip item txt" data-sx=".6" data-sy=".48" data-sr="20" data-r="1.6"><div class="sheet" style="background-color:var(--acid)"><code>meeting at 4, bring notes</code></div></div>
+            <div class="clip item txt" data-sx=".5" data-sy=".74" data-sr="-22" data-r="-1.2"><div class="sheet"><code>SELECT * FROM items;</code></div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <header><span class="tl-label">IMAGES</span><p class="cap-l">The original bytes are written untouched to blobs/ on disk, plus a 128 px thumbnail.</p></header>
+          <div class="stack pics">
+            <div class="clip item imgc" data-sx=".47" data-sy=".58" data-sr="9" data-r="-2"><div class="sheet pol"><div class="pic"></div><div class="cap">2048 × 1280</div></div></div>
+            <div class="clip item imgc" data-sx=".4" data-sy=".66" data-sr="-18" data-r="2"><div class="sheet pol"><div class="pic" style="--a:#e07a5f;--b:#c084fc;--m:#3b2358"></div><div class="cap">1170 × 2532</div></div></div>
+            <div class="clip item imgc" data-sx=".58" data-sy=".72" data-sr="24" data-r="-1.4"><div class="sheet pol"><div class="pic" style="--a:#34d399;--b:#3c7cc8;--m:#14334a"></div><div class="cap">800 × 600</div></div></div>
+            <div class="clip item imgc" data-sx=".52" data-sy=".5" data-sr="-9" data-r="1.2"><div class="sheet pol"><div class="pic" style="--a:#fbbf24;--b:#e07a5f;--m:#4a2a2a"></div><div class="cap">3024 × 1964</div></div></div>
+          </div>
+        </div>
+        <div class="lane">
+          <header><span class="tl-label">FILES</span><p class="cap-l">Only the file's URL and name are stored, never its bytes. Move the file and the item goes stale.</p></header>
+          <div class="stack">
+            <div class="clip item fl" data-sx=".55" data-sy=".56" data-sr="16" data-r="1"><div class="filechip"><svg width="20" height="24" viewBox="0 0 22 26" fill="none"><path d="M2 1h12l6 6v18H2z" fill="#12101a"/><path d="M14 1v6h6" fill="#fff"/></svg>Q3-roadmap.pdf</div></div>
+            <div class="clip item fl lil" data-sx=".45" data-sy=".66" data-sr="-12" data-r="-1.4"><div class="filechip"><svg width="20" height="24" viewBox="0 0 22 26" fill="none"><path d="M2 1h12l6 6v18H2z" fill="#12101a"/><path d="M14 1v6h6" fill="#fff"/></svg>invoice-0412.pdf</div></div>
+            <div class="clip item fl" data-sx=".6" data-sy=".7" data-sr="-26" data-r="1.8"><div class="filechip"><svg width="20" height="24" viewBox="0 0 22 26" fill="none"><path d="M2 1h12l6 6v18H2z" fill="#12101a"/><path d="M14 1v6h6" fill="#fff"/></svg>intro-cut.mov</div></div>
+            <div class="clip item fl lil" data-sx=".38" data-sy=".5" data-sr="10" data-r="-.8"><div class="filechip"><svg width="20" height="24" viewBox="0 0 22 26" fill="none"><path d="M2 1h12l6 6v18H2z" fill="#12101a"/><path d="M14 1v6h6" fill="#fff"/></svg>design-v7.fig</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="disclaimer">Sample clippings. Yankit does not regroup your history: the panel stays in copy order. This shows how each kind is stored.</p>
     </div>
+  </div>
+</section>
 
-    <div class="arch-visual reveal reveal-delay-2">
-      <!-- Architecture flow SVG -->
-      <svg viewBox="0 0 360 280" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;">
-        <defs>
-          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L8,3 z" fill="#6e6e75"/>
-          </marker>
-          <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-            <path d="M0,0 L0,6 L8,3 z" fill="#c084fc"/>
-          </marker>
-          <style>
-            .flow-pulse { animation: flow 2s linear infinite; stroke-dasharray: 6 4; }
-            @keyframes flow { to { stroke-dashoffset: -20; } }
-            .flow-pulse-rev { animation: flow-rev 2s linear infinite; stroke-dasharray: 6 4; }
-            @keyframes flow-rev { to { stroke-dashoffset: 20; } }
-          </style>
-        </defs>
+<!-- HOW -->
+<section class="sec" id="how" aria-labelledby="hh" style="padding-top:100px">
+  <div class="wrap">
+    <div class="rv"><p class="kick"><b>03</b> How it works</p>
+    <h2 class="h2" id="hh">Two paths,<br />one shared <em>clipboard.</em></h2>
+    <p class="lede">Yankit lives in the menu bar: no Dock icon, no window in your way. A lightweight monitor watches the system pasteboard and records each new copy. When you pick an item, it goes back on the pasteboard and Yankit pastes it where you were.</p></div>
 
-        <!-- System Pasteboard -->
-        <rect x="110" y="20" width="140" height="44" rx="8" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
-        <text x="180" y="38" fill="#e8e8ea" font-family="'Geist Mono', monospace" font-size="11" text-anchor="middle" font-weight="500">System Pasteboard</text>
-        <text x="180" y="54" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">macOS</text>
+    <div class="arch" id="arch">
+      <svg class="desk-svg" viewBox="0 0 1100 500" role="img" aria-label="Diagram. Capture path: a copy in any app is noticed by the ClipboardMonitor, goes through the Repository, and is stored in SQLite (text and metadata) and on disk in blobs (images and thumbnails). Recall path: the history panel loads the full payload on demand, the pasteboard receives it, and a Command V is sent to the app you were in.">
+        <g class="edge" data-s="0" data-e=".12"><path class="ln" pathLength="1" d="M200 120 C225 108 248 132 275 120"/><path class="hd" d="M262 108 L277 120 L260 130"/></g>
+        <g class="edge" data-s=".12" data-e=".26"><path class="ln" pathLength="1" d="M485 120 C512 110 535 130 560 120"/><path class="hd" d="M547 108 L562 120 L545 130"/></g>
+        <g class="edge" data-s=".26" data-e=".4"><path class="ln" pathLength="1" d="M730 105 C765 95 780 75 808 68"/><path class="hd" d="M792 62 L810 67 L799 83"/></g>
+        <g class="edge" data-s=".26" data-e=".4"><path class="ln" pathLength="1" d="M730 138 C765 150 780 190 808 200"/><path class="hd" d="M793 186 L810 201 L790 208"/></g>
+        <g class="edge" data-s=".5" data-e=".66"><path class="ln rc" pathLength="1" d="M950 252 C938 290 962 320 950 346"/><path class="hd rc" d="M936 332 L950 349 L964 331"/></g>
+        <g class="edge" data-s=".66" data-e=".8"><path class="ln rc" pathLength="1" d="M810 405 C785 395 765 415 742 405"/><path class="hd rc" d="M757 394 L740 405 L756 417"/></g>
+        <g class="edge" data-s=".8" data-e="1"><path class="ln rc" pathLength="1" d="M480 405 C400 395 320 418 244 405"/><path class="hd rc" d="M259 394 L242 405 L258 417"/></g>
 
-        <!-- Capture arrow down-left -->
-        <line x1="155" y1="64" x2="112" y2="108" stroke="#6e6e75" stroke-width="1.2" marker-end="url(#arrow)" class="flow-pulse"/>
-        <text x="110" y="93" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="9.5" transform="rotate(-42,110,93)">capture</text>
+        <g class="nd" data-at="0"><rect x="10" y="62" width="190" height="116"/><rect class="tp" x="70" y="50" width="70" height="20" transform="rotate(-3 105 60)"/><text x="30" y="108">Copy</text><text class="s" x="30" y="132">in any app: text,</text><text class="s" x="30" y="150">an image, or files</text></g>
+        <g class="nd lil" data-at=".12"><rect x="275" y="62" width="210" height="116"/><text x="295" y="108">ClipboardMonitor</text><text class="s" x="295" y="132">polls the pasteboard</text><text class="s" x="295" y="150">about every 0.4 s</text></g>
+        <g class="nd" data-at=".26"><rect x="560" y="62" width="170" height="116"/><text x="580" y="108">Repository</text><text class="s" x="580" y="132">dedups by hash,</text><text class="s" x="580" y="150">trims past the cap</text></g>
+        <g class="nd ac" data-at=".4"><rect x="810" y="20" width="280" height="100"/><text x="830" y="66">SQLite</text><text class="s" x="830" y="90">history.sqlite: text + metadata</text></g>
+        <g class="nd ac" data-at=".4"><rect x="810" y="150" width="280" height="100"/><text x="830" y="196">blobs/ on disk</text><text class="s" x="830" y="220">images + 128 px thumbnails</text></g>
+        <g class="nd" data-at=".66"><rect x="810" y="350" width="280" height="110"/><rect class="tp" x="900" y="338" width="70" height="20" transform="rotate(3 935 348)"/><text x="830" y="396">History panel</text><text class="s" x="830" y="420">⌘⇧V · search · pin · delete</text></g>
+        <g class="nd lil" data-at=".8"><rect x="480" y="350" width="262" height="110"/><text x="500" y="396">Pasteboard + ⌘V</text><text class="s" x="500" y="420">PasteService sends ⌘V</text><text class="s" x="500" y="438">with a CGEvent</text></g>
+        <g class="nd" data-at="1"><rect x="10" y="350" width="234" height="110"/><text x="30" y="396">The app you were in</text><text class="s" x="30" y="420">your pick lands here</text></g>
 
-        <!-- Yankit Monitor -->
-        <rect x="16" y="108" width="130" height="44" rx="8" fill="rgba(192,132,252,0.08)" stroke="rgba(192,132,252,0.25)" stroke-width="1"/>
-        <text x="81" y="126" fill="#c084fc" font-family="'Geist Mono', monospace" font-size="11" text-anchor="middle" font-weight="500">Yankit Monitor</text>
-        <text x="81" y="142" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">Menu Bar App</text>
+        <text class="alab" x="20" y="28" data-at=".0" transform="rotate(-3 20 28)">capture path</text>
+        <text class="alab i" x="20" y="320" data-at=".5" transform="rotate(-2 20 320)">recall path</text>
+        <text class="alab" x="290" y="212" data-at=".2" transform="rotate(-2 290 212)">skips password managers,</text>
+        <text class="alab" x="290" y="238" data-at=".2" transform="rotate(-2 290 238)">paused time, excluded apps</text>
+        <text class="alab i" x="975" y="300" data-at=".6" transform="rotate(4 975 300)">full payload,</text>
+        <text class="alab i" x="975" y="326" data-at=".6" transform="rotate(4 975 326)">only on demand</text>
+      </svg>
 
-        <!-- Arrow to SQLite -->
-        <line x1="81" y1="152" x2="81" y2="192" stroke="#6e6e75" stroke-width="1.2" marker-end="url(#arrow)" class="flow-pulse"/>
+      <svg class="mob" viewBox="0 0 360 830" role="img" aria-label="Diagram. Capture path: copy in any app, ClipboardMonitor, Repository, then SQLite and blobs on disk. Recall path: history panel, pasteboard plus Command V, the app you were in.">
+        <g class="edge" data-s="0" data-e=".1"><path class="ln" pathLength="1" d="M180 78 C176 92 184 106 180 118"/><path class="hd" d="M168 106 L180 120 L192 106"/></g>
+        <g class="edge" data-s=".1" data-e=".2"><path class="ln" pathLength="1" d="M180 188 C176 202 184 216 180 228"/><path class="hd" d="M168 216 L180 230 L192 216"/></g>
+        <g class="edge" data-s=".2" data-e=".32"><path class="ln" pathLength="1" d="M120 298 C120 320 92 326 92 344"/><path class="hd" d="M80 332 L92 346 L104 332"/></g>
+        <g class="edge" data-s=".2" data-e=".32"><path class="ln" pathLength="1" d="M240 298 C240 320 268 326 268 344"/><path class="hd" d="M256 332 L268 346 L280 332"/></g>
+        <g class="edge" data-s=".45" data-e=".6"><path class="ln rc" pathLength="1" d="M268 440 C262 456 274 470 268 492"/><path class="hd rc" d="M256 480 L268 494 L280 480"/></g>
+        <g class="edge" data-s=".6" data-e=".8"><path class="ln rc" pathLength="1" d="M180 578 C176 592 184 606 180 618"/><path class="hd rc" d="M168 606 L180 620 L192 606"/></g>
+        <g class="edge" data-s=".8" data-e="1"><path class="ln rc" pathLength="1" d="M180 698 C176 712 184 726 180 738"/><path class="hd rc" d="M168 726 L180 740 L192 726"/></g>
 
-        <!-- SQLite DB -->
-        <rect x="16" y="192" width="130" height="44" rx="8" fill="rgba(129,140,248,0.08)" stroke="rgba(129,140,248,0.2)" stroke-width="1"/>
-        <text x="81" y="210" fill="#818cf8" font-family="'Geist Mono', monospace" font-size="11" text-anchor="middle" font-weight="500">SQLite DB</text>
-        <text x="81" y="226" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">text + metadata</text>
-
-        <!-- File storage -->
-        <rect x="16" y="252" width="130" height="28" rx="6" fill="rgba(52,211,153,0.06)" stroke="rgba(52,211,153,0.15)" stroke-width="1"/>
-        <text x="81" y="270" fill="#34d399" font-family="'Geist Mono', monospace" font-size="10" text-anchor="middle">~/Yankit/ disk blobs</text>
-        <line x1="81" y1="236" x2="81" y2="252" stroke="#6e6e75" stroke-width="1" stroke-dasharray="3 3"/>
-
-        <!-- History Panel -->
-        <rect x="214" y="108" width="130" height="44" rx="8" fill="rgba(192,132,252,0.08)" stroke="rgba(192,132,252,0.25)" stroke-width="1"/>
-        <text x="279" y="126" fill="#c084fc" font-family="'Geist Mono', monospace" font-size="11" text-anchor="middle" font-weight="500">History Panel</text>
-        <text x="279" y="142" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">⌘⇧V overlay</text>
-
-        <!-- Panel to pasteboard recall arrow -->
-        <line x1="279" y1="108" x2="230" y2="68" stroke="#c084fc" stroke-width="1.2" marker-end="url(#arrow-purple)" class="flow-pulse-rev"/>
-        <text x="278" y="89" fill="#c084fc" font-family="'Geist Mono', monospace" font-size="9.5" transform="rotate(-42,278,89)">paste</text>
-
-        <!-- DB to Panel query arrow -->
-        <line x1="146" y1="214" x2="214" y2="214" stroke="#6e6e75" stroke-width="1" stroke-dasharray="4 3"/>
-        <text x="180" y="209" fill="#6e6e75" font-family="'Geist Mono', monospace" font-size="9" text-anchor="middle">query</text>
-        <polygon points="211,210 218,214 211,218" fill="#6e6e75"/>
-
-        <!-- Monitor to Panel line -->
-        <line x1="146" y1="130" x2="214" y2="130" stroke="#6e6e75" stroke-width="1" stroke-dasharray="4 3"/>
+        <g class="nd" data-at="0"><rect x="30" y="12" width="300" height="66"/><text x="48" y="42">Copy in any app</text><text class="s" x="48" y="64">text, an image, or files</text></g>
+        <g class="nd lil" data-at=".1"><rect x="30" y="120" width="300" height="68"/><text x="48" y="150">ClipboardMonitor</text><text class="s" x="48" y="172">polls the pasteboard about every 0.4 s</text></g>
+        <g class="nd" data-at=".2"><rect x="30" y="230" width="300" height="68"/><text x="48" y="260">Repository</text><text class="s" x="48" y="282">dedups by hash, trims past the cap</text></g>
+        <g class="nd ac" data-at=".32"><rect x="8" y="346" width="168" height="94"/><text x="22" y="380">SQLite</text><text class="s" x="22" y="402">text + metadata</text><text class="s" x="22" y="418">history.sqlite</text></g>
+        <g class="nd ac" data-at=".32"><rect x="184" y="346" width="168" height="94"/><text x="198" y="380">blobs/ on disk</text><text class="s" x="198" y="402">images + 128 px</text><text class="s" x="198" y="418">thumbnails</text></g>
+        <g class="nd" data-at=".6"><rect x="30" y="494" width="300" height="84"/><text x="48" y="526">History panel</text><text class="s" x="48" y="550">⌘⇧V · search · pin · delete</text></g>
+        <g class="nd lil" data-at=".8"><rect x="30" y="620" width="300" height="78"/><text x="48" y="652">Pasteboard + ⌘V</text><text class="s" x="48" y="676">PasteService sends ⌘V with a CGEvent</text></g>
+        <g class="nd" data-at="1"><rect x="30" y="740" width="300" height="68"/><text x="48" y="770">The app you were in</text><text class="s" x="48" y="792">your pick lands here</text></g>
       </svg>
     </div>
+
+    <div class="arch-notes">
+      <p class="rv"><b>Capture.</b> The monitor skips password-manager content, respects pause and excluded apps, and ignores Yankit's own pastes.</p>
+      <p class="rv" style="--d:.1s"><b>Store.</b> One SQLite table for metadata and text. Image and file payloads stay out of the database so it stays small and fast.</p>
+      <p class="rv" style="--d:.2s"><b>Recall.</b> Only the row you pick is loaded in full. Without Accessibility access, Yankit still puts your pick on the clipboard for a manual ⌘V.</p>
+    </div>
   </div>
 </section>
-
-<div class="divider"></div>
 
 <!-- SHORTCUTS -->
-<section id="shortcuts">
-  <div class="reveal">
-    <div class="section-label">Keyboard</div>
-    <h2 class="section-title">Shortcuts that<br />stay out of your way.</h2>
-    <p class="section-sub">Every interaction is keyboard-first. The ⌘⇧V shortcut is rebindable in Settings → General.</p>
-  </div>
+<section class="sec" id="shortcuts" aria-labelledby="sh">
+  <div class="wrap" style="position:relative">
+    <div class="clip drag dc1 deco" data-drag aria-hidden="true"><span class="pinhead"></span><div class="sheet note"><div class="big" style="font-size:36px">keys only</div><p>no mouse needed</p></div></div>
+    <div class="rv"><p class="kick"><b>04</b> Keyboard</p>
+    <h2 class="h2" id="sh">Shortcuts that<br />stay out of <em>the way.</em></h2>
+    <p class="lede">The panel is built for the keyboard. Each key below presses itself when it scrolls in.</p></div>
 
-  <div class="shortcuts-wrap">
-    <div class="shortcut-row reveal">
-      <span class="shortcut-action">Open / close history panel</span>
-      <div class="shortcut-keys"><kbd>⌘</kbd><kbd>⇧</kbd><kbd>V</kbd></div>
+    <div class="keys" id="keys">
+      <div class="ks" style="--r:-1.6deg"><div class="in"><div class="kc"><span class="kk">⌘</span><span class="kk">⇧</span><span class="kk">V</span></div><p><span class="nm">Open or close</span>the history panel from anywhere</p></div></div>
+      <div class="ks" style="--r:1.4deg"><div class="in"><div class="kc"><span class="kk w">type</span></div><p><span class="nm">Search</span>filters the history live as you type</p></div></div>
+      <div class="ks" style="--r:-1deg"><div class="in"><div class="kc"><span class="kk">↑</span><span class="kk">↓</span></div><p><span class="nm">Move</span>the selection through the list</p></div></div>
+      <div class="ks" style="--r:1.8deg"><div class="in"><div class="kc"><span class="kk w">Return</span></div><p><span class="nm">Paste</span>the selected item into the app you were in</p></div></div>
+      <div class="ks" style="--r:-1.8deg"><div class="in"><div class="kc"><span class="kk">⌘</span><span class="kk">⌫</span></div><p><span class="nm">Delete</span>the selected item from history</p></div></div>
+      <div class="ks" style="--r:1.1deg"><div class="in"><div class="kc"><span class="kk w">Esc</span></div><p><span class="nm">Dismiss</span>the panel and carry on</p></div></div>
     </div>
-    <div class="shortcut-row reveal reveal-delay-1">
-      <span class="shortcut-action">Filter history live</span>
-      <div class="shortcut-keys"><kbd>Type</kbd></div>
-    </div>
-    <div class="shortcut-row reveal reveal-delay-2">
-      <span class="shortcut-action">Move selection</span>
-      <div class="shortcut-keys"><kbd>↑</kbd><kbd>↓</kbd></div>
-    </div>
-    <div class="shortcut-row reveal">
-      <span class="shortcut-action">Paste selected item</span>
-      <div class="shortcut-keys"><kbd>Return</kbd></div>
-    </div>
-    <div class="shortcut-row reveal reveal-delay-1">
-      <span class="shortcut-action">Delete item from history</span>
-      <div class="shortcut-keys"><kbd>⌘</kbd><kbd>⌫</kbd></div>
-    </div>
-    <div class="shortcut-row reveal reveal-delay-2">
-      <span class="shortcut-action">Dismiss the panel</span>
-      <div class="shortcut-keys"><kbd>Esc</kbd></div>
-    </div>
+    <div class="rebind rv"><span class="hand">⌘⇧V is rebindable in Settings → General</span></div>
   </div>
 </section>
-
-<div class="divider"></div>
 
 <!-- DOWNLOAD -->
-<section id="download">
-  <div class="reveal">
-    <div class="section-label">Download</div>
-    <h2 class="section-title">Grab the DMG.<br />Drag it to Applications.</h2>
-    <p class="section-sub">Yankit needs macOS 14 (Sonoma) or later. The latest build is on the Releases page as <code style="font-family:'Geist Mono',monospace;font-size:14px;color:var(--accent);">Yankit-&lt;version&gt;.dmg</code>.</p>
-    <div class="dl-row">
-      <a href="https://github.com/AbyAbyss/Yankit/releases/latest" target="_blank" class="btn-primary">Download latest DMG</a>
-      <a href="#build" class="btn-secondary">Build from source</a>
-    </div>
-  </div>
+<section class="sec" id="download" aria-labelledby="dh">
+  <div class="wrap" style="position:relative">
+    <div class="clip drag dc2 deco" data-drag aria-hidden="true" style="right:4%;top:60px;left:auto"><div class="keysticker" style="padding:12px 16px"><span class="cap-k" style="min-width:44px;height:44px;font-size:20px">⌘</span><span class="cap-k" style="min-width:44px;height:44px;font-size:20px">V</span></div></div>
+    <div class="rv"><p class="kick"><b>05</b> Download</p>
+    <h2 class="h2" id="dh">Grab the DMG.<br />Drag it to <em>Applications.</em></h2></div>
 
-  <div class="fl-grid">
-    <div class="fl-card reveal">
-      <div class="step">First launch · 1</div>
-      <h3>macOS can't verify Yankit</h3>
-      <p>Yankit is a free side project and is not notarized, so macOS asks before it opens the first time. Open <strong>System Settings → Privacy &amp; Security</strong> and click <strong>Open Anyway</strong>.</p>
-    </div>
-    <div class="fl-card reveal reveal-delay-1">
-      <div class="step">First launch · 2</div>
-      <h3>Or do it in Terminal</h3>
-      <p>One command clears the quarantine flag on the downloaded app.</p>
-      <div class="copy-row"><code>xattr -dr com.apple.quarantine /Applications/Yankit.app</code><button class="copy-btn" type="button" data-copy="xattr -dr com.apple.quarantine /Applications/Yankit.app">Copy</button></div>
-    </div>
-    <div class="fl-card reveal reveal-delay-2">
-      <div class="step">First launch · 3</div>
-      <h3>Allow one-touch paste</h3>
-      <p>Grant <strong>Accessibility</strong> access when prompted (System Settings → Privacy &amp; Security → Accessibility). Without it, Yankit still copies your pick to the clipboard for a manual ⌘V.</p>
+    <div class="dl">
+      <div class="clip rv" style="--r:-1deg;transform:rotate(-1deg)">
+        <span class="tape"></span>
+        <div class="sheet" style="clip-path:var(--torn4)">
+          <h3>Yankit for macOS</h3>
+          <p>The latest build is on the Releases page as <code class="mono" style="background:rgba(42,34,48,.1);padding:1px 6px;border-radius:4px;font-size:13px">Yankit-&lt;version&gt;.dmg</code>. Open it and drag Yankit into Applications.</p>
+          <a class="btn" href="https://github.com/AbyAbyss/Yankit/releases/latest">Download latest DMG</a>
+          <p class="meta">Needs macOS 14 (Sonoma) or later.<br />Latest release: v1.1.0 · MIT license<br /><a href="#build" style="color:var(--pt)">or build it from source ↓</a></p>
+        </div>
+      </div>
+
+      <div class="clip rv" id="first" style="--d:.1s;transform:rotate(1deg)">
+        <span class="tape v" style="--tr:4deg"></span>
+        <div class="sheet" style="background-color:var(--acid);clip-path:var(--torn1)">
+          <p class="kick" style="color:var(--pt);margin-bottom:12px"><b style="background:var(--pt);color:var(--acid)">!</b> First launch</p>
+          <p class="lead">macOS will say it can't verify Yankit (free side project, not notarized).</p>
+          <ol class="steps">
+            <li><b>Open System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>.</li>
+            <li><b>Or run this in Terminal:</b>
+              <div class="copyrow"><code>xattr -dr com.apple.quarantine /Applications/Yankit.app</code><button class="cpy" type="button" data-copy="xattr -dr com.apple.quarantine /Applications/Yankit.app" aria-label="Copy the xattr command">Copy</button></div>
+            </li>
+            <li><b>For one-touch paste,</b> grant Yankit <b>Accessibility</b> access when prompted (System Settings → Privacy &amp; Security → Accessibility).</li>
+          </ol>
+          <p class="acc">Without Accessibility, Yankit still places your pick on the clipboard so you can paste it yourself with ⌘V.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
-
-<div class="divider"></div>
 
 <!-- BUILD -->
-<section id="build">
-  <div class="reveal">
-    <div class="section-label">Installation</div>
-    <h2 class="section-title">Build from source<br />in a few commands.</h2>
-    <p class="section-sub">The Xcode project is generated from <code style="font-family:'Geist Mono',monospace;font-size:14px;color:var(--accent);">project.yml</code> via XcodeGen, so it's not committed to the repo.</p>
-  </div>
+<section class="sec" id="build" aria-labelledby="bh" style="padding-top:90px">
+  <div class="wrap">
+    <div class="rv"><p class="kick"><b>06</b> Build from source</p>
+    <h2 class="h2" id="bh">Three commands,<br />then <em>⌘R.</em></h2></div>
 
-  <div class="install-block reveal reveal-delay-1">
-    <div class="install-header">
-      <div class="traffic-dot" style="background:#ff5f57;"></div>
-      <div class="traffic-dot" style="background:#febc2e;"></div>
-      <div class="traffic-dot" style="background:#28c840;"></div>
-      <span style="font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);margin-left:6px;">Terminal</span>
+    <div class="build">
+      <div class="req rv">
+        <p>The Xcode project is generated from <code>project.yml</code> with XcodeGen, so it is not committed to the repo.</p>
+        <p>Requirements</p>
+        <ul><li>macOS 14 (Sonoma) or later</li><li>Xcode 15 or later</li><li>XcodeGen (<code>brew install xcodegen</code>)</li></ul>
+        <p>Press <kbd>⌘R</kbd> to run and <kbd>⌘U</kbd> to run the tests. A clipboard icon appears in the menu bar. Grant <b style="color:var(--text);font-weight:500">Accessibility</b> access when prompted for one-touch paste.</p>
+      </div>
+      <div class="clip term rv" style="--d:.1s;transform:rotate(-.8deg)">
+        <span class="tape" style="--tr:2deg"></span>
+        <div class="sheet" style="background-color:#1b1726">
+          <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span style="margin-left:8px">Terminal</span></div>
+          <p class="cmt"># 1. install XcodeGen</p>
+          <div class="copyrow"><code>brew install xcodegen</code><button class="cpy" type="button" data-copy="brew install xcodegen" aria-label="Copy command 1">Copy</button></div>
+          <p class="cmt"># 2. clone the repo</p>
+          <div class="copyrow"><code>git clone https://github.com/AbyAbyss/Yankit.git</code><button class="cpy" type="button" data-copy="git clone https://github.com/AbyAbyss/Yankit.git" aria-label="Copy command 2">Copy</button></div>
+          <p class="cmt"># 3. generate the project and open it</p>
+          <div class="copyrow"><code>cd Yankit &amp;&amp; xcodegen generate &amp;&amp; open Yankit.xcodeproj</code><button class="cpy" type="button" data-copy="cd Yankit && xcodegen generate && open Yankit.xcodeproj" aria-label="Copy command 3">Copy</button></div>
+        </div>
+      </div>
     </div>
-    <div class="install-code">
-      <div><span class="comment"># Prerequisites</span></div>
-      <div><span class="cmd">brew</span> <span class="arg">install</span> xcodegen</div>
-      <div><span class="cmd">git</span> <span class="arg">clone</span> https://github.com/AbyAbyss/Yankit.git</div>
-      <div><span class="cmd">cd</span> <span class="arg">Yankit</span></div>
-      <div>&nbsp;</div>
-      <div><span class="comment"># Generate and open the project</span></div>
-      <div><span class="cmd">xcodegen</span> <span class="arg">generate</span></div>
-      <div><span class="cmd">open</span> <span class="arg">Yankit.xcodeproj</span></div>
-      <div>&nbsp;</div>
-      <div><span class="comment"># Press ⌘R to run, ⌘U to test</span></div>
-    </div>
-  </div>
-
-  <div style="margin-top:24px;padding:18px 22px;background:rgba(251,191,36,0.06);border:1px solid rgba(251,191,36,0.18);border-radius:12px;max-width:600px;" class="reveal reveal-delay-2">
-    <p style="font-size:13.5px;color:#fbbf24;font-weight:500;margin-bottom:6px;">Accessibility Permission Required</p>
-    <p style="font-size:13px;color:var(--muted);line-height:1.7;">Grant Yankit <strong style="color:var(--text);">Accessibility</strong> access when prompted (System Settings → Privacy & Security → Accessibility) for one-touch paste. Without it, Yankit still places your selection on the clipboard for a manual ⌘V.</p>
   </div>
 </section>
-
-<div class="divider"></div>
 
 <!-- ROADMAP -->
-<section id="roadmap">
-  <div class="reveal">
-    <div class="section-label">What's next</div>
-    <h2 class="section-title">Roadmap</h2>
-    <p class="section-sub">Yankit is feature-complete today. These are the next steps on the horizon.</p>
-  </div>
+<section class="sec" id="roadmap" aria-labelledby="rh" style="padding-top:90px">
+  <div class="wrap" style="position:relative">
+    <div class="clip drag dc3 deco" data-drag aria-hidden="true" style="right:2%;top:30px"><span class="tape"></span><div class="sheet note"><div class="big" style="font-size:34px">MIT</div><p>fork it, bend it</p></div></div>
+    <div class="rv"><p class="kick"><b>07</b> What's next</p>
+    <h2 class="h2" id="rh">The torn-off <em>to-do.</em></h2>
+    <p class="lede">Yankit is feature complete today. These are the next steps.</p></div>
 
-  <ul class="roadmap-list">
-    <li class="reveal">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0;color:var(--amber)"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="9" cy="12" r="0.8" fill="currentColor"/></svg>
-      Code signing and notarization for a friction-free install
-    </li>
-    <li class="reveal reveal-delay-1">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0;color:var(--amber)"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="9" cy="12" r="0.8" fill="currentColor"/></svg>
-      A Homebrew cask — <code style="font-family:'Geist Mono',monospace;font-size:12px;color:var(--accent);">brew install --cask yankit</code>
-    </li>
-    <li class="reveal reveal-delay-2">
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style="flex-shrink:0;color:var(--amber)"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.3"/><line x1="9" y1="5" x2="9" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="9" cy="12" r="0.8" fill="currentColor"/></svg>
-      Drag items out of the history panel
-    </li>
-  </ul>
-
-  <div style="margin-top:48px;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;max-width:520px;" class="reveal reveal-delay-3">
-    <p style="font-family:'Instrument Serif',serif;font-size:28px;font-style:italic;line-height:1.2;margin-bottom:12px;">Contributions welcome.</p>
-    <p style="font-size:14px;color:var(--muted);margin-bottom:24px;">MIT licensed. Build it, fork it, improve it.</p>
-    <a href="https://github.com/AbyAbyss/Yankit" target="_blank" class="btn-primary" style="display:inline-flex;">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      Open on GitHub
-    </a>
+    <div class="road">
+      <div class="clip check rv" style="transform:rotate(-1.2deg)">
+        <span class="pinhead"></span>
+        <div class="sheet">
+          <h3>next up</h3>
+          <ul>
+            <li><i></i>Code signing and notarization for a friction-free install</li>
+            <li><i></i>A Homebrew cask: <code>brew install --cask yankit</code></li>
+            <li><i></i>Drag items out of the history panel</li>
+          </ul>
+        </div>
+      </div>
+      <div class="clip contrib rv" style="--d:.1s;transform:rotate(1deg)">
+        <span class="tape v"></span>
+        <div class="sheet" style="background-color:var(--lilac);clip-path:var(--torn4)">
+          <h3>Contributions <em>welcome.</em></h3>
+          <p>MIT licensed. Build it, fork it, improve it. The design contract lives in ARCHITECTURE.md.</p>
+          <a class="btn" href="https://github.com/AbyAbyss/Yankit">Open the repo →</a>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
+</main>
 
-<!-- FOOTER -->
 <footer>
-  <div>
-    <p style="color:var(--text);margin-bottom:4px;font-family:'Geist Mono',monospace;font-size:13px;font-weight:500;">Yankit</p>
-    <p>MIT License · Built with Swift + SwiftUI · macOS 14+</p>
-  </div>
-  <div class="footer-links">
-    <a href="https://github.com/AbyAbyss/Yankit" target="_blank">GitHub</a>
-    <a href="https://github.com/AbyAbyss/Yankit/blob/main/ARCHITECTURE.md" target="_blank">Architecture</a>
-    <a href="https://github.com/AbyAbyss/Yankit/releases" target="_blank">Releases</a>
-    <a href="https://github.com/AbyAbyss/Yankit/blob/main/LICENSE" target="_blank">License</a>
+  <div class="wrap">
+    <div class="fl">
+      <a class="brand" href="#top">Yankit</a>
+      <p>MIT License · Swift + SwiftUI + AppKit · macOS 14+</p>
+    </div>
+    <nav class="fr" aria-label="Footer">
+      <a href="https://github.com/AbyAbyss/Yankit">GitHub</a>
+      <a href="https://github.com/AbyAbyss/Yankit/blob/main/ARCHITECTURE.md">Architecture</a>
+      <a href="https://github.com/AbyAbyss/Yankit/releases">Releases</a>
+      <a href="https://github.com/AbyAbyss/Yankit/blob/main/LICENSE">License</a>
+    </nav>
+    <p class="made">Made by <a href="index.html">Aby Saji Pappachan</a></p>
   </div>
 </footer>
 
 <script>
-  // Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-        io.unobserve(e.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  reveals.forEach(el => io.observe(el));
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const coarse = matchMedia('(pointer: coarse)').matches;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+let suppressCopy = false;
 
-  // Copy buttons
-  document.querySelectorAll('[data-copy]').forEach(function (b) {
-    b.addEventListener('click', function () {
-      var text = b.getAttribute('data-copy'), done = function () { var t = b.textContent; b.textContent = 'Copied'; setTimeout(function () { b.textContent = t; }, 1600); };
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done); else done();
-    });
+/* ---------- reveal ---------- */
+const rvObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rvObs.unobserve(e.target); } }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+$$('.rv').forEach(el => rvObs.observe(el));
+
+/* ---------- drag the clippings ---------- */
+let zTop = 20;
+$$('[data-drag]').forEach(el => {
+  let sx = 0, sy = 0, ox = 0, oy = 0, lx = 0, rot = 0, x = 0, y = 0;
+  const comp = getComputedStyle(el);
+  el.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    el.setPointerCapture(e.pointerId);
+    sx = e.clientX; sy = e.clientY; ox = x; oy = y; lx = e.clientX;
+    el.style.zIndex = ++zTop; el.classList.add('dragging');
+    if (e.pointerType === 'mouse') e.preventDefault();
   });
+  el.addEventListener('pointermove', e => {
+    if (!el.classList.contains('dragging')) return;
+    x = ox + e.clientX - sx; y = oy + e.clientY - sy;
+    rot += (clamp((e.clientX - lx) * .9, -7, 7) - rot) * .4; lx = e.clientX;
+    el.style.setProperty('--dx', x + 'px'); el.style.setProperty('--dy', y + 'px');
+    el.style.setProperty('--dr', rot.toFixed(2) + 'deg');
+  });
+  const end = () => { el.classList.remove('dragging'); rot = 0; el.style.setProperty('--dr', '0deg'); };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+});
+
+/* ---------- the live panel ---------- */
+const panel = $('#panel'), listEl = $('#list'), q = $('#q'), tgl = $('#tgl'), tgltxt = $('#tgltxt');
+const statusEl = $('#status'), docbody = $('#docbody'), caretline = $('#caretline');
+const MAX = 30;
+let uid = 0, selId = null, isOpen = true, query = '';
+const items = [
+  { kind: 'text', text: 'https://github.com/AbyAbyss/Yankit', src: 'Safari', meta: 'just now' },
+  { kind: 'code', text: 'SELECT * FROM clipboard_item WHERE pinned = 1;', src: 'Terminal', meta: '3 minutes ago' },
+  { kind: 'image', text: 'Image · 2048 × 1280', src: 'Figma', meta: '4 minutes ago' },
+  { kind: 'code', text: 'git push origin main', src: 'Terminal', meta: '12 minutes ago' },
+  { kind: 'file', text: 'Q3-roadmap.pdf', src: 'Finder', meta: '1 hour ago', pinned: true },
+  { kind: 'text', text: 'Thanks, this looks great!', src: 'Mail', meta: '2 hours ago' }
+].map(i => ({ id: ++uid, sample: true, ...i }));
+
+const rel = ts => { const s = (Date.now() - ts) / 1000; if (s < 45) return 'just now'; const m = Math.round(s / 60); return m + (m === 1 ? ' minute ago' : ' minutes ago'); };
+const mk = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
+const svg = (d, w = 16) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 16 16'); s.setAttribute('width', w); s.setAttribute('height', w); s.setAttribute('fill', 'none'); s.setAttribute('aria-hidden', 'true'); const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', d); p.setAttribute('stroke', 'currentColor'); p.setAttribute('stroke-width', '1.6'); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round'); s.appendChild(p); return s; };
+
+function thumb(kind) {
+  const t = mk('span', 'th ' + kind);
+  if (kind === 'text') { const l = mk('span', 'tl'); l.append(mk('i'), mk('i'), mk('i')); l.children[0].style.width = '20px'; l.children[1].style.width = '13px'; l.children[2].style.width = '17px'; t.appendChild(l); }
+  else if (kind === 'code') { t.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M8 4l-6 7 6 7M14 4l6 7-6 7" stroke="#fff" stroke-opacity=".92" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
+  else if (kind === 'file') { t.innerHTML = '<svg width="22" height="24" viewBox="0 0 22 24" fill="none" aria-hidden="true"><path d="M2 1h12l6 6v16H2z" fill="#fff" fill-opacity=".94"/><path d="M14 1v6h6z" fill="#e0a23e"/></svg>'; }
+  return t;
+}
+function visible() {
+  const f = query.trim().toLowerCase();
+  const arr = items.filter(i => !f || (i.text + ' ' + i.src).toLowerCase().includes(f));
+  return [...arr.filter(i => i.pinned), ...arr.filter(i => !i.pinned)];
+}
+function render(landedId) {
+  const v = visible();
+  if (!v.some(i => i.id === selId)) selId = v[0] ? v[0].id : null;
+  listEl.replaceChildren();
+  if (!v.length) listEl.appendChild(mk('li', 'empty', 'Nothing matches that.'));
+  v.forEach(i => {
+    const li = mk('li', 'row' + (i.id === landedId ? ' landed' : ''));
+    li.id = 'r' + i.id; li.dataset.id = i.id; li.setAttribute('role', 'option'); li.setAttribute('aria-selected', i.id === selId);
+    const tx = mk('div', 'tx');
+    const title = i.text.split('\n').find(s => s.trim()) || i.text;
+    tx.append(mk('div', 't' + (i.kind === 'code' ? ' mono' : ''), title.trim().slice(0, 80)), mk('div', 'm', i.src + ' · ' + (i.ts ? rel(i.ts) : i.meta) + (i.sample ? ' · sample' : '')));
+    const acts = mk('div', 'acts');
+    const pin = mk('button', 'pin' + (i.pinned ? ' on' : '')); pin.type = 'button'; pin.dataset.act = 'pin'; pin.setAttribute('aria-label', (i.pinned ? 'Unpin ' : 'Pin ') + title.slice(0, 30)); pin.setAttribute('aria-pressed', !!i.pinned); pin.appendChild(svg('M10.5 1.5l4 4-2 1-2.5 2.5.5 3.5-1 1-3-3-4.5 4.5M7 4.5l4.5 4.5'));
+    const del = mk('button', 'del'); del.type = 'button'; del.dataset.act = 'del'; del.setAttribute('aria-label', 'Delete ' + title.slice(0, 30)); del.appendChild(svg('M3.5 3.5l9 9M12.5 3.5l-9 9'));
+    acts.append(pin, del);
+    li.append(thumb(i.kind), tx, acts);
+    listEl.appendChild(li);
+  });
+  q.setAttribute('aria-activedescendant', selId ? 'r' + selId : '');
+  const s = $('[aria-selected="true"]', listEl);
+  if (s) { const t = s.offsetTop - listEl.offsetTop, b = t + s.offsetHeight; if (t < listEl.scrollTop) listEl.scrollTop = t - 8; else if (b > listEl.scrollTop + listEl.clientHeight) listEl.scrollTop = b - listEl.clientHeight + 8; }
+}
+const say = t => { statusEl.textContent = t; };
+function move(d) { const v = visible(); if (!v.length) return; let k = v.findIndex(i => i.id === selId); k = clamp(k + d, 0, v.length - 1); selId = v[k].id; render(); }
+function del(id) { const v = visible(); const k = v.findIndex(i => i.id === id); const i = items.findIndex(i => i.id === id); if (i < 0) return; items.splice(i, 1); const nv = visible(); selId = nv.length ? nv[Math.min(k, nv.length - 1)].id : null; render(); say('Deleted from history.'); }
+function pin(id) { const it = items.find(i => i.id === id); if (!it) return; it.pinned = !it.pinned; render(); say(it.pinned ? 'Pinned. It stays above the rest and is never trimmed.' : 'Unpinned.'); }
+
+function paste() {
+  const it = items.find(i => i.id === selId); if (!it) return;
+  const p = mk('p');
+  const span = mk('span', 'pasted');
+  if (it.kind === 'image') { const d = mk('span', 'pic pimg'); span.appendChild(d); }
+  else if (it.kind === 'file') { span.className = 'pasted pfile'; span.textContent = it.text; }
+  else span.textContent = it.text.length > 220 ? it.text.slice(0, 220) + '…' : it.text;
+  p.appendChild(span);
+  caretline.before(p);
+  const pasted = $$('p', docbody).filter(n => n !== caretline);
+  while (docbody.scrollHeight > docbody.clientHeight + 4 && pasted.length > 3) { pasted.shift().remove(); }
+  setOpen(false);
+  say('Pasted into the sample doc. Yankit closes after a paste, just like the real one.');
+}
+
+function setOpen(v, focus) {
+  isOpen = v;
+  panel.classList.toggle('closed', !v);
+  panel.inert = !v;
+  tgl.setAttribute('aria-expanded', v);
+  tgltxt.textContent = v ? 'Close panel' : 'Open panel';
+  if (v) {
+    panel.classList.remove('blurred');
+    if (!coarse && focus !== false) q.focus({ preventScroll: true });
+    const r = panel.getBoundingClientRect();
+    if (r.top < 70 || r.bottom > innerHeight) panel.scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+    render();
+  } else if (panel.contains(document.activeElement)) { document.activeElement.blur(); }
+}
+tgl.addEventListener('click', () => setOpen(!isOpen));
+let lastEdit = 0;
+q.addEventListener('input', () => { lastEdit = Date.now(); query = q.value; render(); });
+panel.addEventListener('focusin', () => panel.classList.remove('blurred'));
+panel.addEventListener('focusout', e => { if (!panel.contains(e.relatedTarget)) panel.classList.add('blurred'); });
+panel.addEventListener('pointerdown', e => { if (!e.target.closest('button,input')) { e.preventDefault(); if (!coarse) q.focus({ preventScroll: true }); } });
+listEl.addEventListener('click', e => {
+  const row = e.target.closest('.row'); if (!row) return;
+  const id = +row.dataset.id; const b = e.target.closest('button');
+  if (b) { b.dataset.act === 'pin' ? pin(id) : del(id); if (!coarse) q.focus({ preventScroll: true }); return; }
+  selId = id; render(); if (!coarse) q.focus({ preventScroll: true });
+});
+listEl.addEventListener('dblclick', e => { if (e.target.closest('.row') && !e.target.closest('button')) paste(); });
+
+document.addEventListener('keydown', e => {
+  const mod = e.metaKey || e.ctrlKey;
+  if (mod && e.shiftKey && e.code === 'KeyV') { e.preventDefault(); setOpen(!isOpen); return; }
+  if (!isOpen || !panel.contains(document.activeElement)) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
+  else if (e.key === 'Enter') { if (document.activeElement.tagName === 'BUTTON') return; e.preventDefault(); paste(); }
+  else if (e.key === 'Escape') { e.preventDefault(); setOpen(false); }
+  else if ((e.key === 'Backspace' || e.key === 'Delete') && (mod || (q.value === '' && Date.now() - lastEdit > 700))) { e.preventDefault(); if (selId != null) del(selId); }
+});
+
+/* copy events from the page: only the selection that the copy event reports, never the real clipboard */
+const kindOf = t => {
+  const s = t.trim();
+  if (/^https?:\/\/\S+$/.test(s)) return 'text';
+  if (/^\s*(\$|git |npm |brew |cd |xattr |SELECT )/.test(s) || (s.match(/[{}();=<>]/g) || []).length >= 3) return 'code';
+  return 'text';
+};
+document.addEventListener('copy', () => {
+  if (suppressCopy) return;
+  if (panel.contains(document.activeElement)) return;
+  const sel = getSelection();
+  if (sel && sel.anchorNode && panel.contains(sel.anchorNode)) return;
+  let text = sel ? sel.toString() : '';
+  let rect = null;
+  if (text.trim() && sel.rangeCount) rect = sel.getRangeAt(0).getBoundingClientRect();
+  if (!text.trim()) { const a = document.activeElement; if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && a !== q && typeof a.selectionStart === 'number') { text = a.value.slice(a.selectionStart, a.selectionEnd); rect = a.getBoundingClientRect(); } }
+  if (!text.trim()) return;
+  text = text.slice(0, 4000);
+  const land = () => {
+    const dup = items.findIndex(i => i.text === text);
+    let pinned = false; if (dup >= 0) { pinned = items[dup].pinned; items.splice(dup, 1); }
+    while (items.length >= MAX) { const k = items.map(i => !i.pinned).lastIndexOf(true); if (k < 0) break; items.splice(k, 1); }
+    const it = { id: ++uid, kind: kindOf(text), text, src: 'This page', ts: Date.now(), pinned };
+    items.unshift(it); selId = it.id; query = ''; q.value = '';
+    render(it.id);
+    say('Copied ' + text.length + ' characters from this page. It is now the newest clipping.');
+  };
+  if (reduce || !rect || (!rect.width && !rect.height)) { land(); return; }
+  const g = mk('div', 'flyer', text.replace(/\s+/g, ' ').trim().slice(0, 60));
+  const w = Math.min(Math.max(rect.width, 110), 280);
+  g.style.left = clamp(rect.left, 8, innerWidth - w - 8) + 'px'; g.style.top = clamp(rect.top, 66, innerHeight - 40) + 'px'; g.style.width = w + 'px';
+  document.body.appendChild(g);
+  const tgtEl = isOpen ? listEl : tgl, tr = tgtEl.getBoundingClientRect();
+  const gr = g.getBoundingClientRect();
+  const tx = tr.left + Math.min(tr.width, 300) / 2 - (gr.left + gr.width / 2), ty = tr.top + (isOpen ? 36 : tr.height / 2) - (gr.top + gr.height / 2);
+  const a = g.animate([
+    { transform: 'translate(0,0) rotate(0deg) scale(1)', opacity: 1 },
+    { transform: `translate(${tx * .4}px,${ty * .4 - 70}px) rotate(-7deg) scale(1.05)`, opacity: 1, offset: .45 },
+    { transform: `translate(${tx}px,${ty}px) rotate(1.5deg) scale(.82)`, opacity: .85 }
+  ], { duration: 720, easing: 'cubic-bezier(.45,0,.2,1)' });
+  a.onfinish = () => { g.remove(); land(); };
+  a.oncancel = () => { g.remove(); land(); };
+});
+render();
+setInterval(() => { if (isOpen && !query && items.some(i => i.ts)) { const s = listEl.scrollTop; render(); listEl.scrollTop = s; } }, 30000);
+panel.classList.add('blurred');
+
+/* ---------- copy buttons ---------- */
+$$('.cpy').forEach(b => b.addEventListener('click', async () => {
+  const t = b.dataset.copy; let ok = false;
+  try { await navigator.clipboard.writeText(t); ok = true; }
+  catch (_) {
+    suppressCopy = true;
+    const ta = document.createElement('textarea'); ta.value = t; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (_) {}
+    ta.remove(); suppressCopy = false;
+  }
+  b.textContent = ok ? 'Copied' : 'Select + ⌘C'; b.classList.toggle('done', ok);
+  setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('done'); }, 1700);
+}));
+
+/* ---------- keycap stickers ---------- */
+const kObs = new IntersectionObserver(es => es.forEach(e => {
+  const el = e.target;
+  if (e.isIntersecting) { const i = [...el.parentNode.children].indexOf(el); el._t = setTimeout(() => el.classList.add('pressed'), (i % 3) * 170 + 150); }
+  else { clearTimeout(el._t); el.classList.remove('pressed'); }
+}), { threshold: .6 });
+$$('.ks').forEach(el => { if (reduce) el.classList.add('pressed'); else kObs.observe(el); });
+
+/* ---------- scroll-linked: sort scene + architecture ---------- */
+const sw = $('#kinds'), stage = $('.stage', sw), sitems = $$('.item', sw), snote = $('#scrollnote'), caps = $$('.cap-l', sw);
+let sortLive = !reduce, fin = [];
+function measure() {
+  if (!sortLive) return;
+  const sr = stage.getBoundingClientRect();
+  sitems.forEach(el => { el.style.transform = 'none'; });
+  fin = sitems.map(el => { const r = el.getBoundingClientRect(); return { x: r.left - sr.left + r.width / 2, y: r.top - sr.top + r.height / 2 }; });
+  sw._w = sr.width; sw._h = sr.height;
+}
+function tickSort() {
+  if (!sortLive || !fin.length) return;
+  const r = sw.getBoundingClientRect();
+  const p = clamp(-r.top / (r.height - innerHeight));
+  const pm = clamp(p / .78), N = sitems.length;
+  sitems.forEach((el, i) => {
+    const t = ease(clamp((pm - (i / (N - 1)) * .46) / .54));
+    const sx = parseFloat(el.dataset.sx) * sw._w, sy = parseFloat(el.dataset.sy) * sw._h;
+    const x = lerp(sx - fin[i].x, 0, t), y = lerp(sy - fin[i].y, 0, t);
+    const rot = lerp(parseFloat(el.dataset.sr), parseFloat(el.dataset.r), t);
+    el.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${rot.toFixed(2)}deg)`;
+    el.style.zIndex = Math.round(t * 10) === 10 ? 1 : 3;
+  });
+  const ca = clamp((pm - .62) / .3);
+  caps.forEach(c => c.style.opacity = ca);
+  if (snote) snote.style.opacity = 1 - clamp(pm / .25);
+}
+if (sortLive) { sw.classList.add('sort-live'); caps.forEach(c => c.style.opacity = 0); }
+
+const archSvgs = $$('.arch svg');
+function prepArch() {
+  archSvgs.forEach(s => { $$('.edge', s).forEach(g => { $('.ln', g).style.strokeDashoffset = reduce ? 0 : 1; }); });
+}
+function tickArch() {
+  archSvgs.forEach(s => {
+    if (getComputedStyle(s).display === 'none') return;
+    const r = s.getBoundingClientRect();
+    const p = clamp((innerHeight * .88 - r.top) / (Math.min(r.height, innerHeight) * .95));
+    $$('.edge', s).forEach(g => {
+      const a = +g.dataset.s, b = +g.dataset.e, t = clamp((p - a) / (b - a));
+      const ln = $('.ln', g); ln.style.strokeDashoffset = 1 - t; ln.style.opacity = t > 0 ? 1 : 0;
+      $('.hd', g).classList.toggle('on', t >= .98);
+    });
+    $$('.nd', s).forEach(n => n.classList.toggle('on', p >= (+n.dataset.at) - .02));
+    $$('.alab', s).forEach(n => n.classList.toggle('on', p >= (+n.dataset.at)));
+  });
+}
+if (!reduce) prepArch(); else archSvgs.forEach(s => { $$('.hd,.nd,.alab', s).forEach(n => n.classList.add('on')); });
+
+let ticking = false;
+const onScroll = () => { if (ticking) return; ticking = true; requestAnimationFrame(() => { ticking = false; tickSort(); if (!reduce) tickArch(); }); };
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('resize', () => { measure(); onScroll(); });
+const boot = () => { measure(); tickSort(); if (!reduce) tickArch(); };
+boot();
+addEventListener('load', boot);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot);
+})();
 </script>
 </body>
 </html>
