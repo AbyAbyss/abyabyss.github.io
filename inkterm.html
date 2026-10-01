@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="manga">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InkTerm, a desktop terminal with five themes, AI and MCP panels</title>
+<meta name="description" content="InkTerm is a cross-platform desktop terminal built with Tauri 2, Rust and React. Multi-tab sessions, a file browser overlay, live system stats, five themes. In development, build it from source.">
+<meta name="theme-color" content="#f8f6ef">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23e8825c'/%3E%3Cpath d='M7 15l3-3-3-3M12 16h5' fill='none' stroke='%23241a0f' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=JetBrains+Mono:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Theme tokens. Values are the app's own palettes from src/themes.ts.
+   Glass and Dark Pro use oklch() in the app; hex values here are close sRGB equivalents. */
+:root,[data-theme="manga"]{
+  --bg:#f8f6ef; --bg2:#f0ece0; --surface:#fffef9; --border:#1a1008; --bw:2px;
+  --accent:#1a1008; --accent-text:#f8f6ef; --accent2:#c8171e; --hl:#c8171e;
+  --text:#1a1008; --muted:#5a4a38; --dim:#9a8a78;
+  --term-bg:#1a1008; --term-text:#f8f6ef; --cursor:#c8171e;
+  --t-user:#6fcf5a; --t-path:#7fa6ff; --t-dim:#a8998a; --t-warn:#e8b04a;
+  --bar1:#2d6a1e; --bar2:#d4960a; --good:#2d6a1e;
+  --radius:255px 15px 225px 15px / 15px 255px 15px 255px;
+  --radius-sm:18px 220px 20px 240px / 230px 20px 250px 18px;
+  --shadow:3px 3px 0 #1a1008; --shadow-lg:5px 5px 0 #1a1008;
+  --page-bg:#f8f6ef; --blur:none;
+  --font:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;
+}
+[data-theme="cartoon"]{
+  --bg:#f5ede0; --bg2:#ede0cc; --surface:#fff9f2; --border:#2a1a0e; --bw:2.5px;
+  --accent:#e8622a; --accent-text:#ffffff; --accent2:#f5a623; --hl:#c94e1a;
+  --text:#2a1a0e; --muted:#7a5c3e; --dim:#b8956a;
+  --term-bg:#2a1a0e; --term-text:#f5ede0; --cursor:#e8622a;
+  --t-user:#7ed36f; --t-path:#6bb8ff; --t-dim:#c4a57e; --t-warn:#fbc02d;
+  --bar1:#4caf50; --bar2:#fbc02d; --good:#2e7d32;
+  --radius:12px; --radius-sm:8px;
+  --shadow:3px 3px 0 #2a1a0e; --shadow-lg:5px 5px 0 #2a1a0e;
+  --page-bg:#f5ede0;
+}
+[data-theme="glass"]{
+  --bg:#eef2ff; --bg2:rgba(255,255,255,.25); --surface:rgba(255,255,255,.45); --border:rgba(120,120,160,.38); --bw:1px;
+  --accent:#2f66d0; --accent-text:#ffffff; --accent2:#a24cc4; --hl:#2a5bbd;
+  --text:#1a1a2e; --muted:#4a4a6a; --dim:#8a8aaa;
+  --term-bg:#12122b; --term-text:#e8f4ff; --cursor:#3fd0e8;
+  --t-user:#5fdc8f; --t-path:#7cc4ff; --t-dim:#9a9ac0; --t-warn:#f0c040;
+  --bar1:#2a8a3a; --bar2:#d9a400; --good:#23763a;
+  --radius:16px; --radius-sm:10px;
+  --shadow:0 8px 32px rgba(31,38,135,.15); --shadow-lg:0 16px 64px rgba(31,38,135,.2);
+  --page-bg:linear-gradient(135deg,#e8f4fd 0%,#f0e8ff 50%,#fde8f4 100%); --blur:blur(20px);
+}
+[data-theme="darkpro"]{
+  --bg:#0d1117; --bg2:#161b22; --surface:#161b22; --border:#30363d; --bw:1px;
+  --accent:#34b857; --accent-text:#0d1117; --accent2:#4a8df0; --hl:#3fc761;
+  --text:#e6edf3; --muted:#8b949e; --dim:#484f58;
+  --term-bg:#0d1117; --term-text:#e6edf3; --cursor:#34b857;
+  --t-user:#34b857; --t-path:#4a8df0; --t-dim:#8b949e; --t-warn:#e0a526;
+  --bar1:#34b857; --bar2:#e0a526; --good:#3fc761;
+  --radius:6px; --radius-sm:4px;
+  --shadow:0 4px 12px rgba(0,0,0,.5); --shadow-lg:0 8px 24px rgba(0,0,0,.6);
+  --page-bg:#0d1117;
+}
+[data-theme="retro"]{
+  --bg:#0a0a0a; --bg2:#0f0f0f; --surface:#0f0f0f; --border:#00ff41; --bw:1px;
+  --accent:#00ff41; --accent-text:#0a0a0a; --accent2:#00ffff; --hl:#00ff41;
+  --text:#00ff41; --muted:#00aa2a; --dim:#006618;
+  --term-bg:#0a0a0a; --term-text:#00ff41; --cursor:#00ff41;
+  --t-user:#00ff41; --t-path:#00ffff; --t-dim:#00aa2a; --t-warn:#ffff00;
+  --bar1:#00ff41; --bar2:#ffff00; --good:#00ff41;
+  --radius:2px; --radius-sm:1px;
+  --shadow:0 0 8px rgba(0,255,65,.7); --shadow-lg:0 0 20px #00ff41,0 0 40px rgba(0,255,65,.3);
+  --page-bg:#0a0a0a;
+  --font:"IBM Plex Mono","Courier New",ui-monospace,Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:92px}
+body{
+  font-family:var(--font); font-size:15px; line-height:1.65; color:var(--text);
+  background:var(--page-bg); background-color:var(--bg); background-attachment:fixed;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  transition:background-color .35s,color .35s;
+}
+h1,h2,h3,.display{font-family:Unbounded,"Arial Black","Helvetica Neue",Arial,system-ui,sans-serif;font-weight:700;letter-spacing:-.02em;line-height:1.08}
+a{color:var(--hl);text-underline-offset:3px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
+[data-theme="manga"] :focus-visible,[data-theme="cartoon"] :focus-visible{outline-color:var(--accent)}
+[data-theme="manga"] :focus-visible{outline-color:#c8171e}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+code,pre,kbd{font-family:var(--font)}
+kbd{border:var(--bw) solid var(--border);border-radius:var(--radius-sm);padding:1px 7px;font-size:.85em;background:var(--surface);box-shadow:1px 1px 0 var(--border);white-space:nowrap}
+
+/* top bar */
+.top{padding:18px 0 6px}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);font-family:Unbounded,"Arial Black",system-ui,sans-serif;font-weight:700;font-size:20px;min-height:44px}
+.mark{width:36px;height:36px;border-radius:10px;background:#e8825c;display:grid;place-items:center;flex:none;border:var(--bw) solid var(--border)}
+.mark svg{width:22px;height:22px}
+.nav{display:flex;gap:6px;align-items:center;font-size:14px}
+.nav a{color:var(--muted);text-decoration:none;padding:0 12px;min-height:44px;display:inline-flex;align-items:center}
+.nav a:hover{color:var(--text);text-decoration:underline}
+@media(max-width:760px){.nav a:not(.gh){display:none}}
+
+/* theme bar */
+.themebar{position:sticky;top:0;z-index:40;background:var(--bg);border-block:var(--bw) solid var(--border);}
+[data-theme="glass"] .themebar{background:rgba(255,255,255,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.themebar .wrap{display:flex;align-items:center;gap:14px;padding-top:6px;padding-bottom:6px}
+.tb-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;flex:none}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:4px 2px;flex:1;min-width:0}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:44px;display:inline-flex;align-items:center;gap:9px;padding:0 14px;font:inherit;font-size:13px;font-weight:500;cursor:pointer;
+  color:var(--text);background:var(--surface);border:var(--bw) solid var(--border);border-radius:var(--radius-sm);transition:transform .15s,box-shadow .15s}
+.chip:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-text);box-shadow:var(--shadow)}
+.chip .sw{display:flex;gap:2px}
+.chip .sw i{width:9px;height:16px;border:1px solid rgba(128,128,128,.55);display:block}
+.chip .k{font-size:11px;opacity:.7}
+.tb-hint{font-size:12px;color:var(--muted);flex:none;white-space:nowrap}
+@media(max-width:900px){.tb-hint{display:none}.tb-label{display:none}}
+
+/* hero */
+.hero{padding:44px 0 56px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);gap:44px;align-items:center}
+@media(max-width:980px){.hero-grid{grid-template-columns:minmax(0,1fr);gap:36px}}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:6px 14px;font-size:13px;font-weight:700;border:var(--bw) solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);margin-bottom:22px}
+.badge i{width:9px;height:9px;border-radius:50%;background:var(--bar2);display:block}
+h1{font-size:clamp(46px,7.4vw,92px);font-weight:800;letter-spacing:-.04em;word-break:break-word}
+h1 .caret{display:inline-block;width:.1em;height:.8em;background:var(--cursor);margin-left:.08em;vertical-align:-.04em}
+.lead{font-size:17px;color:var(--muted);margin:22px 0 28px;max-width:520px}
+.lead b{color:var(--text);font-weight:500}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 22px;font:inherit;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer;
+  background:var(--accent);color:var(--accent-text);border:var(--bw) solid var(--border);border-radius:var(--radius-sm);box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:var(--shadow-lg);text-decoration:none}
+.btn.alt{background:var(--surface);color:var(--text)}
+.btn svg{width:18px;height:18px;flex:none}
+.fine{font-size:13px;color:var(--muted);margin-top:18px}
+[data-theme="glass"] .btn,[data-theme="glass"] .card,[data-theme="glass"] .win,[data-theme="glass"] .panel,[data-theme="glass"] .code,[data-theme="glass"] .shot-frame,[data-theme="glass"] .badge{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+
+/* faux terminal window */
+.win{background:var(--surface);border:var(--bw) solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);overflow:hidden;min-width:0}
+[data-theme="manga"] .win,[data-theme="manga"] .card,[data-theme="manga"] .panel{border-radius:var(--radius)}
+.w-title{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:var(--bw) solid var(--border);background:var(--bg2);font-size:12px;color:var(--muted)}
+.dots{display:flex;gap:6px}.dots i{width:11px;height:11px;border-radius:50%;display:block}
+.dots i:nth-child(1){background:#ff5f57}.dots i:nth-child(2){background:#febc2e}.dots i:nth-child(3){background:#28c840}
+.w-title strong{color:var(--text);font-family:Unbounded,"Arial Black",system-ui,sans-serif;font-size:12px;margin-left:6px}
+.w-title .th{margin-left:2px}
+.w-title .alt{margin-left:auto;border:1px solid var(--border);border-radius:4px;padding:0 6px;font-size:11px}
+.w-tabs{display:flex;gap:4px;padding:8px 10px 0;background:var(--bg2);border-bottom:var(--bw) solid var(--border);overflow-x:auto;scrollbar-width:none}
+.w-tabs::-webkit-scrollbar{display:none}
+.w-tab{font:inherit;font-size:12px;color:var(--muted);background:transparent;border:1px solid transparent;border-bottom:0;border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:0 14px;min-height:44px;cursor:pointer;flex:none;margin-bottom:-2px}
+.w-tab[aria-selected="true"]{color:var(--text);background:var(--surface);border-color:var(--border);border-bottom:var(--bw) solid var(--surface);font-weight:700}
+.w-body{display:grid;grid-template-columns:44px minmax(0,1fr) 188px}
+.rail{background:var(--bg2);border-right:var(--bw) solid var(--border);display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0;font-size:9px;color:var(--muted)}
+.rail span{width:32px;height:32px;display:grid;place-items:center;border:1px solid transparent;border-radius:var(--radius-sm)}
+.rail span.on{border-color:var(--border);background:var(--surface);color:var(--text);font-weight:700}
+.term{background:var(--term-bg);color:var(--term-text);font-size:13px;line-height:1.6;min-height:318px;display:flex;flex-direction:column;min-width:0}
+.t-path{padding:7px 14px;font-size:11.5px;color:var(--t-dim);border-bottom:1px solid rgba(128,128,128,.25);display:flex;justify-content:space-between;gap:10px}
+.t-path b{color:var(--t-user);font-weight:500}
+.pane{padding:12px 14px;white-space:pre-wrap;word-break:break-word;flex:1;overflow:hidden}
+.pane[hidden]{display:none}
+.u{color:var(--t-user)}.p{color:var(--t-path)}.d{color:var(--t-dim)}.w{color:var(--t-warn)}
+.cur{display:inline-block;width:.6em;height:1.05em;background:var(--cursor);vertical-align:-.18em}
+.stats{background:var(--bg2);border-left:var(--bw) solid var(--border);padding:12px;display:flex;flex-direction:column;gap:10px;font-size:11.5px;color:var(--text)}
+.sbox{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px}
+.sbox h4{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:700}
+.meter{margin-bottom:6px}
+.meter .row{display:flex;justify-content:space-between}
+.bar{height:6px;background:var(--bg2);border:1px solid var(--border);border-radius:3px;margin-top:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:30%;background:var(--bar1);transition:width .9s ease}
+.bar.b2 i{background:var(--bar2)}
+.spark{width:100%;height:34px;display:block;margin:2px 0 4px}
+.spark polyline{fill:none;stroke:var(--hl);stroke-width:1.6;vector-effect:non-scaling-stroke}
+.net{display:flex;justify-content:space-between;color:var(--muted)}
+.net b{color:var(--text);font-weight:500}
+.w-status{display:flex;flex-wrap:wrap;gap:4px 16px;padding:7px 14px;border-top:var(--bw) solid var(--border);background:var(--bg2);font-size:11px;color:var(--muted)}
+.w-status .ok{color:var(--good);font-weight:700}
+.w-status .r{margin-left:auto}
+.cap{font-size:12px;color:var(--muted);margin-top:12px}
+@media(max-width:700px){
+  .w-body{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .stats{border-left:0;border-top:var(--bw) solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stats .sbox:last-child{grid-column:1 / -1}
+  .term{min-height:290px;font-size:12.5px}
+}
+
+/* sections */
+section{padding:72px 0}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--hl);font-weight:700;margin-bottom:12px}
+h2{font-size:clamp(28px,4.2vw,46px);margin-bottom:16px}
+.sec-lead{color:var(--muted);max-width:640px;margin-bottom:36px}
+.card,.panel{background:var(--surface);border:var(--bw) solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px}
+.band{background:var(--bg2);border-block:var(--bw) solid var(--border)}
+[data-theme="glass"] .band{background:rgba(255,255,255,.28)}
+
+.fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+@media(max-width:980px){.fgrid{grid-template-columns:minmax(0,1fr)}}
+.card h3{font-size:19px;margin:14px 0 6px}
+.card .ico{width:44px;height:44px;border:var(--bw) solid var(--border);border-radius:var(--radius-sm);display:grid;place-items:center;background:var(--accent);color:var(--accent-text)}
+.card .ico svg{width:24px;height:24px}
+.status{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 10px;border:1px solid var(--border);border-radius:99px;margin-bottom:6px}
+.status.live{background:var(--accent);color:var(--accent-text)}
+.status.shell{background:transparent;color:var(--text);border-style:dashed}
+.card p.intro{color:var(--muted);font-size:14px;margin-bottom:12px}
+.card ul{list-style:none;display:grid;gap:9px;font-size:14px}
+.card li{padding-left:20px;position:relative}
+.card li::before{content:">";position:absolute;left:0;color:var(--hl);font-weight:700}
+.card li small{display:block;color:var(--muted);font-size:12.5px}
+
+/* look inside */
+.look{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:26px;align-items:start}
+@media(max-width:900px){.look{grid-template-columns:minmax(0,1fr)}}
+.shot-frame{background:var(--surface);border:var(--bw) solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);padding:10px;overflow:hidden}
+.shot-btn{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in;border-radius:var(--radius-sm);overflow:hidden}
+.shot-btn img{display:block;width:100%;height:auto;border-radius:calc(var(--radius-sm) * .6)}
+.shot-cap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 4px 2px;font-size:13px;color:var(--muted)}
+.shot-cap b{color:var(--text)}
+.shot-note{padding:0 4px 2px;font-size:12.5px;color:var(--hl)}
+.tablist{display:grid;gap:8px}
+@media(max-width:900px){.tablist{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stab{text-align:left;font:inherit;font-size:13px;cursor:pointer;min-height:48px;padding:6px 14px;color:var(--text);background:var(--surface);border:var(--bw) solid var(--border);border-radius:var(--radius-sm);display:flex;flex-direction:column;justify-content:center;transition:transform .15s}
+.stab small{color:var(--muted);font-size:11.5px}
+.stab:hover{transform:translateX(2px)}
+.stab[aria-selected="true"]{background:var(--accent);color:var(--accent-text);box-shadow:var(--shadow)}
+.stab[aria-selected="true"] small{color:inherit;opacity:.85}
+dialog{border:var(--bw) solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text);padding:12px;max-width:min(1100px,94vw);width:94vw;margin:auto}
+dialog::backdrop{background:rgba(0,0,0,.72)}
+dialog img{display:block;width:100%;height:auto}
+dialog .row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px;font-size:13px}
+
+/* tech */
+.flow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);gap:12px;align-items:stretch}
+.flow .arrow{display:grid;place-items:center;color:var(--hl);font-weight:700;font-size:22px}
+.flow .card{padding:18px}
+.flow h3{margin:0 0 8px;font-size:15px}
+.flow p{font-size:13px;color:var(--muted)}
+@media(max-width:900px){.flow{grid-template-columns:minmax(0,1fr)}.flow .arrow{transform:rotate(90deg);min-height:30px}}
+.tech2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;margin-top:26px}
+@media(max-width:900px){.tech2{grid-template-columns:minmax(0,1fr)}}
+.tech2 h3{font-size:17px;margin-bottom:12px}
+.cmds{list-style:none;display:grid;gap:6px;font-size:13px}
+.cmds code{color:var(--hl);font-weight:700}
+.todo{list-style:none;display:grid;gap:8px;font-size:14px}
+.todo li{display:flex;gap:12px;align-items:flex-start}
+.todo li::before{content:"";flex:none;width:14px;height:14px;margin-top:5px;border:var(--bw) solid var(--border);border-radius:3px}
+
+/* download + first launch */
+.dl{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);gap:26px;align-items:start}
+@media(max-width:980px){.dl{grid-template-columns:minmax(0,1fr)}}
+.empty{font-size:15px}
+.empty h3{font-size:22px;margin-bottom:10px}
+.empty p+p{margin-top:10px}
+.fl h3{font-size:21px;margin-bottom:6px}
+.fl .lead-line{font-weight:700;margin-bottom:16px;color:var(--text)}
+.os{border-top:1px dashed var(--border);padding:16px 0 4px}
+.os h4{display:flex;gap:10px;align-items:center;font-size:14px;margin-bottom:6px}
+.os h4 .tag{font-size:11px;padding:1px 9px;border:1px solid var(--border);border-radius:99px;font-weight:500;color:var(--muted)}
+.os p{font-size:14px;color:var(--muted);margin-bottom:10px}
+.os p b,.os p strong{color:var(--text);font-weight:700}
+
+/* code blocks */
+.code{display:flex;align-items:center;gap:6px;padding-right:6px;background:var(--term-bg);color:var(--term-text);border:var(--bw) solid var(--border);border-radius:var(--radius-sm);margin:8px 0 12px}
+.code pre{flex:1;min-width:0;padding:12px 6px 12px 14px;overflow-x:auto;font-size:13px;line-height:1.6;white-space:pre}
+.code pre .pr{color:var(--t-user);user-select:none}
+@media(max-width:600px){.code pre{white-space:pre-wrap;word-break:break-all}}
+.copy{flex:none;min-height:44px;min-width:78px;padding:0 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;
+  background:transparent;color:var(--term-text);border:1px solid var(--t-dim);border-radius:var(--radius-sm)}
+.copy:hover{border-color:var(--term-text)}
+.copy.done{background:var(--t-user);color:var(--term-bg);border-color:var(--t-user)}
+.steps{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+@media(max-width:900px){.steps{grid-template-columns:minmax(0,1fr)}}
+.step .n{font-family:Unbounded,"Arial Black",system-ui,sans-serif;font-weight:800;font-size:13px;color:var(--hl)}
+.step h3{font-size:17px;margin:4px 0 6px}
+.step p{font-size:13.5px;color:var(--muted)}
+.prereq{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 28px;list-style:none}
+.prereq li{padding:6px 14px;border:var(--bw) solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:13px}
+.prereq a{color:inherit}
+.out{margin-top:22px;font-size:14px;color:var(--muted)}
+.out code{color:var(--text)}
+
+/* footer */
+footer{padding:44px 0 56px;border-top:var(--bw) solid var(--border);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;justify-content:space-between}
+footer nav{display:flex;flex-wrap:wrap;gap:0 8px}
+footer nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 8px}
+footer .by{color:var(--muted);font-size:13px}
+footer .by a{color:var(--muted);display:inline-flex;align-items:center;min-height:44px}
+
+/* reveal */
+.js .rv{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+.js .rv.in{opacity:1;transform:none}
+
+/* retro CRT: scanlines + glow, motion-gated */
+@media (prefers-reduced-motion:no-preference){
+  [data-theme="retro"] body::after{content:"";position:fixed;inset:0;z-index:100;pointer-events:none;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,.2) 0,rgba(0,0,0,.2) 1px,transparent 1px,transparent 3px);
+    animation:crt 6s steps(60) infinite}
+  [data-theme="retro"] body::before{content:"";position:fixed;left:0;right:0;top:0;height:120px;z-index:99;pointer-events:none;
+    background:linear-gradient(to bottom,transparent,rgba(0,255,65,.045),transparent);animation:roll 7s linear infinite}
+  [data-theme="retro"] body{text-shadow:0 0 5px rgba(0,255,65,.35)}
+  [data-theme="retro"] .btn,[data-theme="retro"] .chip[aria-pressed="true"]{text-shadow:none}
+  .cur,h1 .caret{animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  @keyframes crt{0%{opacity:.92}50%{opacity:1}100%{opacity:.92}}
+  @keyframes roll{from{transform:translateY(-140px)}to{transform:translateY(110vh)}}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<a class="sr" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="InkTerm home">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#241a0f" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="16" rx="3"/><path d="M6.5 14.5l3-3-3-3"/><path d="M12 15h5.5"/></svg></span>
+      InkTerm
+    </a>
+    <nav class="nav" aria-label="Page">
+      <a href="#features">Features</a>
+      <a href="#look">Look inside</a>
+      <a href="#tech">How it works</a>
+      <a href="#download">Install</a>
+      <a class="gh" href="https://github.com/AbyAbyss/InkTerm">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="themebar" role="group" aria-label="Page theme">
+  <div class="wrap">
+    <span class="tb-label" id="tl">Theme</span>
+    <div class="chips" id="chips" aria-labelledby="tl">
+      <button class="chip" type="button" data-theme-id="cartoon" aria-pressed="false"><span class="sw" aria-hidden="true"><i style="background:#f5ede0"></i><i style="background:#e8622a"></i><i style="background:#2a1a0e"></i></span>Cartoon <span class="k">1</span></button>
+      <button class="chip" type="button" data-theme-id="manga" aria-pressed="true"><span class="sw" aria-hidden="true"><i style="background:#f8f6ef"></i><i style="background:#c8171e"></i><i style="background:#1a1008"></i></span>Manga <span class="k">2</span></button>
+      <button class="chip" type="button" data-theme-id="glass" aria-pressed="false"><span class="sw" aria-hidden="true"><i style="background:#e8f4fd"></i><i style="background:#2f66d0"></i><i style="background:#a24cc4"></i></span>Glass <span class="k">3</span></button>
+      <button class="chip" type="button" data-theme-id="darkpro" aria-pressed="false"><span class="sw" aria-hidden="true"><i style="background:#0d1117"></i><i style="background:#34b857"></i><i style="background:#4a8df0"></i></span>Dark Pro <span class="k">4</span></button>
+      <button class="chip" type="button" data-theme-id="retro" aria-pressed="false"><span class="sw" aria-hidden="true"><i style="background:#0a0a0a"></i><i style="background:#00ff41"></i><i style="background:#00ffff"></i></span>Retro <span class="k">5</span></button>
+    </div>
+    <span class="tb-hint">press <kbd>1</kbd> to <kbd>5</kbd> or <kbd>T</kbd></span>
+  </div>
+</div>
+<p class="sr" id="live" role="status" aria-live="polite"></p>
+
+<main id="main">
+<div id="top"></div>
+
+<!-- HERO -->
+<section class="hero" style="padding-top:44px">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="badge"><i aria-hidden="true"></i>In development, not stable yet</p>
+      <h1>InkTerm<span class="caret" aria-hidden="true"></span></h1>
+      <p class="lead"><b>A desktop terminal with a drawn-on look.</b> Tabs, a file browser overlay, live CPU, memory and network stats, plus panels for an AI agent and MCP servers. Five themes, one of them a phosphor CRT. macOS, Linux and Windows.</p>
+      <div class="cta">
+        <a class="btn" href="#build"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8l-4 4 4 4M17 8l4 4-4 4M14 5l-4 14"/></svg>Build it</a>
+        <a class="btn alt" href="https://github.com/AbyAbyss/InkTerm"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.69 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>View on GitHub</a>
+      </div>
+      <p class="fine">No prebuilt installers yet. Free, open source, a side project.</p>
+    </div>
+
+    <div>
+      <div class="win" id="win">
+        <div class="w-title"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><strong>InkTerm</strong><span class="th" id="winTheme">Manga</span><span class="alt" aria-hidden="true">Alt+1-4</span></div>
+        <div class="w-tabs" role="tablist" aria-label="Terminal sessions" id="wtabs">
+          <button class="w-tab" role="tab" type="button" aria-selected="true" aria-controls="pane-main" id="tab-main">main</button>
+          <button class="w-tab" role="tab" type="button" aria-selected="false" aria-controls="pane-build" id="tab-build" tabindex="-1">build</button>
+          <button class="w-tab" type="button" id="tab-add" aria-label="New tab">+</button>
+        </div>
+        <div class="w-body">
+          <div class="rail" aria-hidden="true"><span class="on">TER</span><span>AI</span><span>MCP</span><span>SET</span></div>
+          <div class="term">
+            <div class="t-path"><span><b>aby@inkterm</b> : ~/Desktop/personal/develop</span><span>LIVE_SYNC</span></div>
+            <div class="pane" id="pane-main" role="tabpanel" aria-labelledby="tab-main" tabindex="0"><span class="u">aby@inkterm</span>:<span class="p">personal</span>$ cd develop/
+<span class="u">aby@inkterm</span>:<span class="p">develop</span>$ ls
+<span class="p">inkterm</span>  <span class="p">notes</span>  <span class="p">sandbox</span>
+<span class="u">aby@inkterm</span>:<span class="p">develop</span>$ cd inkterm &amp;&amp; npm run tauri dev
+<span class="d">   Compiling ink_term v0.1.0</span>
+<span class="d">    Finished dev profile</span>
+<span class="u">aby@inkterm</span>:<span class="p">inkterm</span>$ <span class="cur"></span></div>
+            <div class="pane" id="pane-build" role="tabpanel" aria-labelledby="tab-build" tabindex="0" hidden><span class="u">aby@inkterm</span>:<span class="p">inkterm</span>$ npm run tauri build
+<span class="d">artifacts: src-tauri/target/release/bundle/</span>
+<span class="u">aby@inkterm</span>:<span class="p">inkterm</span>$ <span class="cur"></span></div>
+          </div>
+          <div class="stats" aria-label="Simulated system stats">
+            <div class="sbox">
+              <h4>System resources</h4>
+              <div class="meter"><div class="row"><span>CPU</span><span id="cpuV">12.3%</span></div><div class="bar"><i id="cpuB" style="width:12%"></i></div></div>
+              <div class="meter" style="margin-bottom:0"><div class="row"><span>MEM</span><span id="memV">60.5%</span></div><div class="bar b2"><i id="memB" style="width:60%"></i></div></div>
+            </div>
+            <div class="sbox">
+              <h4>Network <span class="d" style="font-weight:400">live</span></h4>
+              <svg class="spark" viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true"><polyline id="spark" points="0,20 10,18 20,22 30,15 40,17 50,12 60,16 70,10 80,14 90,9 100,13"/></svg>
+              <div class="net"><span>in</span><b id="netIn">98.8 KB/s</b></div>
+              <div class="net"><span>out</span><b id="netOut">1.01 MB/s</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="w-status"><span class="ok">&#9679; CONNECTED</span><span>&#9095; main</span><span>UTF-8</span><span class="r">stats on</span></div>
+      </div>
+      <p class="cap">A short replay of a session, simulated on this page. The stats rail is animated sample data. Real screenshots are further down.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="band">
+  <div class="wrap">
+    <p class="eyebrow">What is in it</p>
+    <h2 class="rv">What works, and what is still a shell</h2>
+    <p class="sec-lead rv">InkTerm is early. Some parts do real work today, others are finished-looking screens waiting for a backend. Each card says which.</p>
+    <div class="fgrid">
+      <article class="card rv">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M6 14l3-3-3-3M12 15h6"/></svg></span>
+        <h3>Terminal</h3>
+        <span class="status live">Works today</span>
+        <p class="intro">The main panel, and the part that actually runs things.</p>
+        <ul>
+          <li>Multi-tab sessions<small>Open, switch and close tabs.</small></li>
+          <li>File browser overlay<small>Folder thumbnails and a file preview, read from your disk.</small></li>
+          <li>Status bar<small>Connection, branch, encoding, split and stats toggles.</small></li>
+          <li>Optional right-side stats<small>CPU, memory, network, processes, threads, uptime.</small></li>
+          <li>Runs your commands<small>One at a time through the platform shell (sh -c, or cmd /C on Windows). A real PTY is not there yet.</small></li>
+        </ul>
+      </article>
+      <article class="card rv">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M5 9h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2zM8.5 13.5v1M15.5 13.5v1"/></svg></span>
+        <h3>AI agent and MCP</h3>
+        <span class="status shell">UI shell</span>
+        <p class="intro">The screens exist. The backends are the next job.</p>
+        <ul>
+          <li>AI agent panel<small>Model selector, chat, trace view and saved prompts. Replies are not wired to a provider yet.</small></li>
+          <li>MCP manager<small>Server list, per-server tool toggles and an environment variable editor. It does not start or stop real servers yet.</small></li>
+        </ul>
+      </article>
+      <article class="card rv">
+        <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18c1.7 0 2-1.4 1.2-2.4-.8-1 0-2.6 1.4-2.6H17a4 4 0 004-4 9 9 0 00-9-9z"/></svg></span>
+        <h3>Themes, settings, window</h3>
+        <span class="status live">Works today</span>
+        <p class="intro">The personality of the app.</p>
+        <ul>
+          <li>Five themes<small>Cartoon, Manga, Glass, Dark Pro and Retro. <kbd>Alt+T</kbd> cycles them.</small></li>
+          <li>Settings<small>Theme picker, font size, animations, status bar and stats panel toggles.</small></li>
+          <li>Keyboard jumps<small><kbd>Alt+1</kbd> to <kbd>Alt+4</kbd> for Terminal, AI, MCP, Settings.</small></li>
+          <li>Frameless, transparent window<small>Built on Tauri 2 for macOS, Linux and Windows.</small></li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- LOOK INSIDE -->
+<section id="look">
+  <div class="wrap">
+    <p class="eyebrow">A look inside</p>
+    <h2 class="rv">Real screenshots, themed like this page</h2>
+    <p class="sec-lead rv">Change the theme above, or pick a shot here. The screenshot follows the theme where the repo has one. Click an image to enlarge it.</p>
+    <div class="look rv">
+      <div class="shot-frame">
+        <button class="shot-btn" type="button" id="shotBtn" aria-label="Enlarge screenshot">
+          <img id="shotImg" src="assets/inkterm/terminal.webp" width="1024" height="638" alt="Manga theme terminal with tabs, a file browser overlay and live CPU, memory and network stats" loading="lazy">
+        </button>
+        <div class="shot-cap"><span id="shotCap"><b>Manga</b> · Terminal</span><span id="shotSub">Tabs, file browser, CPU / memory / network</span></div>
+        <p class="shot-note" id="shotNote" hidden></p>
+      </div>
+      <div class="tablist" role="tablist" aria-label="Screenshots" aria-orientation="vertical" id="stabs"></div>
+    </div>
+  </div>
+</section>
+
+<dialog id="lb" aria-label="Screenshot">
+  <div class="row"><span id="lbCap"></span><button class="btn alt" type="button" id="lbClose">Close</button></div>
+  <img id="lbImg" src="" alt="">
+</dialog>
+
+<!-- TECH -->
+<section id="tech" class="band">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2 class="rv">A web UI in a Rust shell</h2>
+    <p class="sec-lead rv">The interface is React 19 and TypeScript, bundled by Vite, with Zustand for state. Tauri 2 hosts it in a native window and gives it a handful of Rust commands.</p>
+    <div class="flow rv">
+      <div class="card"><h3>UI (src/)</h3><p>React 19, TypeScript 5, Zustand. Panels, themes and the store.</p></div>
+      <div class="arrow" aria-hidden="true">&rarr;</div>
+      <div class="card"><h3>Tauri 2 commands</h3><p>The UI calls <code>invoke()</code>. Rust answers (src-tauri/).</p></div>
+      <div class="arrow" aria-hidden="true">&rarr;</div>
+      <div class="card"><h3>Your machine</h3><p>The platform shell, the filesystem, and CPU, memory and network counters via the sysinfo crate.</p></div>
+    </div>
+    <div class="tech2">
+      <div class="card rv">
+        <h3>Rust commands exposed</h3>
+        <ul class="cmds">
+          <li><code>get_system_stats</code> CPU, memory, network</li>
+          <li><code>execute_command</code> run a command in a directory</li>
+          <li><code>list_directory</code>, <code>read_file</code> for the file browser</li>
+          <li><code>read_mcp_config</code>, <code>write_mcp_config</code> in the config dir</li>
+          <li><code>get_home_dir</code> start location</li>
+        </ul>
+        <p class="fine">Opened in a plain browser instead of the Tauri window, the stats fall back to random sample data.</p>
+      </div>
+      <div class="card rv">
+        <h3>Not done yet</h3>
+        <ul class="todo">
+          <li>Real shell integration (PTY) instead of mock session output</li>
+          <li>Wire the AI agent to configured providers</li>
+          <li>Start, stop and configure real MCP servers</li>
+          <li>CI, releases and signed installers</li>
+          <li>Documentation and a contribution guide</li>
+        </ul>
+        <p class="fine">This is the project's own roadmap. APIs, UI and packaging will change.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD + FIRST LAUNCH -->
+<section id="download">
+  <div class="wrap">
+    <p class="eyebrow">Download</p>
+    <h2 class="rv">No installers yet. You build it.</h2>
+    <div class="dl">
+      <div class="card empty rv">
+        <h3>Status: no releases</h3>
+        <p>There are no prebuilt installers to download. The <a href="https://github.com/AbyAbyss/InkTerm/releases">Releases page</a> is empty, and signed installers are on the roadmap.</p>
+        <p>To try InkTerm, <a href="#build">build it from source</a>. It takes a Node.js and Rust toolchain and a few minutes of compiling.</p>
+        <p class="fine">Version in the repo: 0.1.0.</p>
+      </div>
+      <div class="card fl rv" id="first-launch">
+        <h3>First launch</h3>
+        <p class="lead-line">macOS will say it can't verify InkTerm (free side project, not notarized).</p>
+        <p class="fine" style="margin:-8px 0 14px">An app you build on your own machine opens normally. This applies to builds you copy to another computer.</p>
+        <div class="os">
+          <h4>macOS <span class="tag">Gatekeeper</span></h4>
+          <p>Open <strong>System Settings → Privacy &amp; Security</strong> and click <strong>Open Anyway</strong>, or run this in Terminal:</p>
+          <div class="code"><pre><code>xattr -dr com.apple.quarantine /Applications/InkTerm.app</code></pre><button class="copy" type="button" data-copy="xattr -dr com.apple.quarantine /Applications/InkTerm.app">Copy</button></div>
+        </div>
+        <div class="os">
+          <h4>Windows <span class="tag">SmartScreen</span></h4>
+          <p>Windows shows a SmartScreen prompt. Choose <strong>More info → Run anyway</strong>.</p>
+        </div>
+        <div class="os">
+          <h4>Linux <span class="tag">AppImage or .deb</span></h4>
+          <p>Tauri writes an <code>.AppImage</code> and a <code>.deb</code> under the bundle folder. There is no prompt, but an AppImage needs the executable bit:</p>
+          <div class="code"><pre><code>chmod +x InkTerm_*.AppImage &amp;&amp; ./InkTerm_*.AppImage</code></pre><button class="copy" type="button" data-copy="chmod +x InkTerm_*.AppImage && ./InkTerm_*.AppImage">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD -->
+<section id="build" class="band">
+  <div class="wrap">
+    <p class="eyebrow">Build from source</p>
+    <h2 class="rv">Four commands</h2>
+    <ul class="prereq rv" aria-label="Prerequisites">
+      <li><a href="https://nodejs.org/">Node.js</a> 18+</li>
+      <li><a href="https://www.rust-lang.org/tools/install">Rust</a> stable</li>
+      <li><a href="https://v2.tauri.app/start/prerequisites/">Tauri platform dependencies</a></li>
+    </ul>
+    <div class="steps">
+      <div class="step rv"><span class="n">01</span><h3>Clone</h3><p>Get the source.</p>
+        <div class="code"><pre><code><span class="pr">$ </span>git clone https://github.com/AbyAbyss/InkTerm.git
+<span class="pr">$ </span>cd InkTerm</code></pre><button class="copy" type="button" data-copy="git clone https://github.com/AbyAbyss/InkTerm.git&#10;cd InkTerm">Copy</button></div></div>
+      <div class="step rv"><span class="n">02</span><h3>Install</h3><p>Pull the JavaScript dependencies.</p>
+        <div class="code"><pre><code><span class="pr">$ </span>npm install</code></pre><button class="copy" type="button" data-copy="npm install">Copy</button></div></div>
+      <div class="step rv"><span class="n">03</span><h3>Run</h3><p>Starts Vite and opens the desktop window. The first Rust compile is slow.</p>
+        <div class="code"><pre><code><span class="pr">$ </span>npm run tauri dev</code></pre><button class="copy" type="button" data-copy="npm run tauri dev">Copy</button></div></div>
+      <div class="step rv"><span class="n">04</span><h3>Build</h3><p>Makes the app bundle for the OS you are on.</p>
+        <div class="code"><pre><code><span class="pr">$ </span>npm run tauri build</code></pre><button class="copy" type="button" data-copy="npm run tauri build">Copy</button></div></div>
+    </div>
+    <p class="out rv">Artifacts land in <code>src-tauri/target/release/bundle/</code>. Tauri builds for the OS it runs on, so build on each system you want.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <nav aria-label="Project links">
+      <a href="https://github.com/AbyAbyss/InkTerm">Repository</a>
+      <a href="https://github.com/AbyAbyss/InkTerm/releases">Releases</a>
+      <a href="https://github.com/AbyAbyss/InkTerm">License (none in the repo yet)</a>
+    </nav>
+    <p class="by"><a href="index.html">Made by Aby Saji Pappachan</a></p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement; root.classList.add('js');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $=function(s,c){return (c||document).querySelector(s)}, $$=function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+
+  /* ---------- screenshots ---------- */
+  var SHOTS=[
+    {id:'terminal',theme:'manga',title:'Manga',sub:'Terminal',desc:'Tabs, file browser, CPU / memory / network',w:1024,h:638,alt:'Manga theme terminal with tabs, a file browser overlay and live CPU, memory and network stats'},
+    {id:'ai-agent',theme:'manga',title:'Manga',sub:'AI Agent',desc:'Model selector, chat, trace, prompts (UI shell)',w:1024,h:641,alt:'Manga theme AI agent panel with a model selector, a greeting message and a prompt box'},
+    {id:'mcp',theme:'manga',title:'Manga',sub:'MCP',desc:'Servers, tools, environment variables (UI shell)',w:1024,h:634,alt:'Manga theme MCP server manager with a server list, tool toggles and environment variables'},
+    {id:'settings',theme:'manga',title:'Manga',sub:'Settings',desc:'Theme picker, display, shortcuts',w:1024,h:633,alt:'Manga theme settings page with the five-theme picker, display toggles and keyboard shortcuts'},
+    {id:'dark-pro',theme:'darkpro',title:'Dark Pro',sub:'Terminal',desc:'Polished dark UI, live resource panels',w:1024,h:635,alt:'Dark Pro theme terminal with a green prompt and system stats on the right'},
+    {id:'retro-mcp',theme:'retro',title:'Retro',sub:'MCP',desc:'CRT-style green terminal look',w:1024,h:644,alt:'Retro phosphor-green MCP manager showing a Filesystem server, its tool toggles and environment variables'}
+  ];
+  var NAMES={cartoon:'Cartoon',manga:'Manga',glass:'Glass',darkpro:'Dark Pro',retro:'Retro'};
+  var ORDER=['cartoon','manga','glass','darkpro','retro'];
+  var shot=0, stabs=$('#stabs');
+  SHOTS.forEach(function(s,i){
+    var b=document.createElement('button'); b.type='button'; b.className='stab'; b.setAttribute('role','tab'); b.id='st-'+s.id;
+    b.innerHTML=s.title+' · '+s.sub+'<small>'+s.desc+'</small>'; b.dataset.i=i;
+    b.addEventListener('click',function(){setShot(i,true)});
+    b.addEventListener('keydown',function(e){
+      var n=SHOTS.length,k=e.key,j=null;
+      if(k==='ArrowDown'||k==='ArrowRight')j=(shot+1)%n; else if(k==='ArrowUp'||k==='ArrowLeft')j=(shot+n-1)%n; else if(k==='Home')j=0; else if(k==='End')j=n-1;
+      if(j!==null){e.preventDefault();setShot(j,true);$('#st-'+SHOTS[j].id).focus()}
+    });
+    stabs.appendChild(b);
+  });
+  function setShot(i,fromTab){
+    shot=i; var s=SHOTS[i];
+    var img=$('#shotImg'); img.src='assets/inkterm/'+s.id+'.webp'; img.width=s.w; img.height=s.h; img.alt=s.alt;
+    $('#shotCap').innerHTML='<b>'+s.title+'</b> · '+s.sub; $('#shotSub').textContent=s.desc;
+    $$('.stab').forEach(function(b,k){b.setAttribute('aria-selected',k===i);b.tabIndex=k===i?0:-1});
+    var note=$('#shotNote'); note.hidden=true;
+    if(fromTab && getTheme()!==s.theme) applyTheme(s.theme,true);
+  }
+  function shotForTheme(t){
+    if(SHOTS[shot].theme===t) return;
+    var idx=SHOTS.findIndex(function(s){return s.theme===t});
+    if(idx>-1){setShot(idx,false)}
+    else{ setShot(0,false); var n=$('#shotNote'); n.hidden=false; n.textContent='The repo has no '+NAMES[t]+' screenshot yet, so this is the Manga terminal. The page itself is drawn with the real '+NAMES[t]+' palette.'; }
+  }
+  var lb=$('#lb');
+  $('#shotBtn').addEventListener('click',function(){
+    var s=SHOTS[shot]; $('#lbImg').src='assets/inkterm/'+s.id+'.webp'; $('#lbImg').alt=s.alt; $('#lbCap').textContent=s.title+' · '+s.sub;
+    if(lb.showModal) lb.showModal(); else lb.setAttribute('open','');
+  });
+  $('#lbClose').addEventListener('click',function(){lb.close?lb.close():lb.removeAttribute('open')});
+  lb.addEventListener('click',function(e){if(e.target===lb)lb.close()});
+
+  /* ---------- theme ---------- */
+  function getTheme(){return root.getAttribute('data-theme')}
+  var META={manga:'#f8f6ef',cartoon:'#f5ede0',glass:'#eef2ff',darkpro:'#0d1117',retro:'#0a0a0a'};
+  function applyTheme(t,silent){
+    root.setAttribute('data-theme',t);
+    $$('.chip').forEach(function(c){var on=c.dataset.themeId===t;c.setAttribute('aria-pressed',on);if(on){var box=$('#chips');box.scrollLeft=c.offsetLeft-(box.clientWidth-c.offsetWidth)/2-box.offsetLeft}});
+    $('#winTheme').textContent=NAMES[t];
+    var m=$('meta[name=theme-color]'); if(m)m.setAttribute('content',META[t]);
+    try{localStorage.setItem('inkterm-theme',t)}catch(e){}
+    $('#live').textContent='Theme: '+NAMES[t];
+    shotForTheme(t);
+  }
+  $$('.chip').forEach(function(c){c.addEventListener('click',function(){applyTheme(c.dataset.themeId)})});
+  document.addEventListener('keydown',function(e){
+    var tg=e.target, tag=tg&&tg.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||(tg&&tg.isContentEditable))return;
+    if(e.ctrlKey||e.metaKey)return;
+    var k=e.key.toLowerCase();
+    if(!e.altKey&&k>='1'&&k<='5'){applyTheme(ORDER[+k-1]);return}
+    if(k==='t'){e.preventDefault();applyTheme(ORDER[(ORDER.indexOf(getTheme())+1)%ORDER.length])}
+  });
+  var saved=null; try{saved=localStorage.getItem('inkterm-theme')}catch(e){}
+  setShot(0,false);
+  if(saved&&NAMES[saved])applyTheme(saved); else applyTheme('manga');
+
+  /* ---------- faux terminal tabs ---------- */
+  var tabs=$('#wtabs'), nTab=2;
+  function selectTab(btn){
+    $$('[role=tab]',tabs).forEach(function(t){var on=t===btn;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;var p=$('#'+t.getAttribute('aria-controls'));if(p)p.hidden=!on});
+  }
+  tabs.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+    if(b.id==='tab-add'){
+      if(nTab>=4)return; nTab++;
+      var id='x'+nTab, t=document.createElement('button'); t.className='w-tab'; t.setAttribute('role','tab'); t.type='button'; t.id='tab-'+id; t.setAttribute('aria-controls','pane-'+id); t.textContent='tab-'+nTab;
+      var p=document.createElement('div'); p.className='pane'; p.id='pane-'+id; p.setAttribute('role','tabpanel'); p.setAttribute('aria-labelledby',t.id); p.tabIndex=0;
+      p.innerHTML='<span class="u">aby@inkterm</span>:<span class="p">~</span>$ <span class="cur"></span>';
+      tabs.insertBefore(t,b); $('#pane-main').parentNode.appendChild(p); selectTab(t); if(nTab>=4)b.disabled=true;
+    } else selectTab(b);
+  });
+  tabs.addEventListener('keydown',function(e){
+    if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;
+    var ts=$$('[role=tab]',tabs), i=ts.indexOf(document.activeElement); if(i<0)return;
+    var j=(i+(e.key==='ArrowRight'?1:ts.length-1))%ts.length; selectTab(ts[j]); ts[j].focus();
+  });
+
+  /* typed session (motion only) */
+  var main=$('#pane-main');
+  if(!reduce){
+    var full=main.innerHTML, typed=false;
+    var lines=[
+      ['<span class="u">aby@inkterm</span>:<span class="p">personal</span>$ ','cd develop/',''],
+      ['<span class="u">aby@inkterm</span>:<span class="p">develop</span>$ ','ls','<span class="p">inkterm</span>  <span class="p">notes</span>  <span class="p">sandbox</span>'],
+      ['<span class="u">aby@inkterm</span>:<span class="p">develop</span>$ ','cd inkterm && npm run tauri dev','<span class="d">   Compiling ink_term v0.1.0</span>\n<span class="d">    Finished dev profile</span>']
+    ];
+    var esc=function(s){return s.replace(/&/g,'&amp;')};
+    var timers=[];
+    var typeSession=function(){
+      timers.forEach(clearTimeout); timers=[];
+      var out='', li=0, ci=0;
+      var cursor='<span class="cur"></span>';
+      function tick(){
+        if(li>=lines.length){main.innerHTML=full;return}
+        var L=lines[li];
+        if(ci<=L[1].length){main.innerHTML=out+L[0]+esc(L[1].slice(0,ci))+cursor;ci++;timers.push(setTimeout(tick,35+Math.random()*55))}
+        else{out+=L[0]+esc(L[1])+'\n'+(L[2]?L[2]+'\n':'');li++;ci=0;main.innerHTML=out+cursor;timers.push(setTimeout(tick,li===lines.length?500:420))}
+      }
+      main.innerHTML=cursor; timers.push(setTimeout(tick,500));
+    };
+    var win=$('#win');
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(en,ob){if(en[0].isIntersecting&&!typed){typed=true;typeSession();ob.disconnect()}},{threshold:.35}).observe(win);
+    } else typeSession();
+  }
+
+  /* ---------- stats animation ---------- */
+  var cpu=12.3, mem=60.5, hist=[20,18,22,15,17,12,16,10,14,9,13], inK=98.8, outK=1010;
+  function fmt(k){return k>=1000?(k/1000).toFixed(2)+' MB/s':k.toFixed(1)+' KB/s'}
+  function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+  function step(){
+    cpu=clamp(cpu+(Math.random()-.5)*14,3,78); mem=clamp(mem+(Math.random()-.5)*1.6,55,66);
+    inK=clamp(inK+(Math.random()-.5)*120,8,900); outK=clamp(outK+(Math.random()-.5)*500,40,2400);
+    hist.push(30-clamp(inK/30,2,27)); hist.shift();
+    $('#cpuV').textContent=cpu.toFixed(1)+'%'; $('#cpuB').style.width=cpu+'%';
+    $('#memV').textContent=mem.toFixed(1)+'%'; $('#memB').style.width=mem+'%';
+    $('#netIn').textContent=fmt(inK); $('#netOut').textContent=fmt(outK);
+    $('#spark').setAttribute('points',hist.map(function(v,i){return (i*10)+','+v.toFixed(1)}).join(' '));
+  }
+  if(!reduce){var running=false,iv;
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(en){var v=en[0].isIntersecting;if(v&&!running){running=true;iv=setInterval(step,1100)}else if(!v&&running){running=false;clearInterval(iv)}}).observe($('#win'));
+    } else setInterval(step,1100);
+  }
+
+  /* ---------- copy buttons ---------- */
+  function fallbackCopy(txt){
+    var ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly',''); ta.style.cssText='position:fixed;left:-9999px;top:0';
+    document.body.appendChild(ta); ta.select(); var ok=false; try{ok=document.execCommand('copy')}catch(e){} document.body.removeChild(ta); return ok;
+  }
+  $$('.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var txt=b.getAttribute('data-copy');
+      function done(ok){
+        b.textContent=ok?'Copied':'Press Ctrl+C'; b.classList.toggle('done',ok); $('#live').textContent=ok?'Copied to clipboard':'Copy failed, select the text manually';
+        setTimeout(function(){b.textContent='Copy';b.classList.remove('done')},1800);
+      }
+      if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){done(true)},function(){done(fallbackCopy(txt))})}
+      else done(fallbackCopy(txt));
+    });
+  });
+
+  /* ---------- reveal ---------- */
+  var rv=$$('.rv');
+  if(reduce||!('IntersectionObserver' in window)){rv.forEach(function(e){e.classList.add('in')})}
+  else{
+    var io=new IntersectionObserver(function(en){en.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.12,rootMargin:'0px 0px -40px 0px'});
+    rv.forEach(function(e){io.observe(e)});
+  }
+})();
+</script>
+</body>
+</html>
