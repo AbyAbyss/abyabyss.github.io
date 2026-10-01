@@ -493,6 +493,20 @@
     nav .nav-links { display: none; }
     footer { padding: 32px 20px; flex-direction: column; align-items: flex-start; }
   }
+
+  /* download + first launch */
+  .dl-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:26px; }
+  .fl-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-top:34px; }
+  .fl-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px; }
+  .fl-card .step { font-family:'Geist Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:10px; }
+  .fl-card h3 { font-size:17px; font-weight:600; margin-bottom:8px; }
+  .fl-card p { font-size:14px; color:var(--muted); line-height:1.7; }
+  .fl-card p strong { color:var(--text); font-weight:600; }
+  .copy-row { display:flex; align-items:center; gap:10px; margin-top:14px; background:#0a0a0c; border:1px solid var(--border); border-radius:10px; padding:8px 8px 8px 14px; }
+  .copy-row code { flex:1; min-width:0; white-space:normal; word-break:break-all; line-height:1.5; font-family:'Geist Mono',monospace; font-size:12.5px; color:var(--green); }
+  .copy-btn { flex:none; min-height:44px; min-width:68px; padding:0 14px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font:500 12px 'Geist Mono',monospace; cursor:pointer; }
+  .copy-btn:hover { border-color:rgba(255,255,255,.2); }
+  .copy-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 </style>
 </head>
 <body>
@@ -513,6 +527,7 @@
     <a href="#features">Features</a>
     <a href="#how-it-works">How it works</a>
     <a href="#shortcuts">Shortcuts</a>
+    <a href="#download">Download</a>
     <a href="#build">Build</a>
     <a href="https://github.com/AbyAbyss/Yankit" target="_blank" class="nav-cta">GitHub →</a>
   </div>
@@ -886,11 +901,45 @@
 
 <div class="divider"></div>
 
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="reveal">
+    <div class="section-label">Download</div>
+    <h2 class="section-title">Grab the DMG.<br />Drag it to Applications.</h2>
+    <p class="section-sub">Yankit needs macOS 14 (Sonoma) or later. The latest build is on the Releases page as <code style="font-family:'Geist Mono',monospace;font-size:14px;color:var(--accent);">Yankit-&lt;version&gt;.dmg</code>.</p>
+    <div class="dl-row">
+      <a href="https://github.com/AbyAbyss/Yankit/releases/latest" target="_blank" class="btn-primary">Download latest DMG</a>
+      <a href="#build" class="btn-secondary">Build from source</a>
+    </div>
+  </div>
+
+  <div class="fl-grid">
+    <div class="fl-card reveal">
+      <div class="step">First launch · 1</div>
+      <h3>macOS can't verify Yankit</h3>
+      <p>Yankit is a free side project and is not notarized, so macOS asks before it opens the first time. Open <strong>System Settings → Privacy &amp; Security</strong> and click <strong>Open Anyway</strong>.</p>
+    </div>
+    <div class="fl-card reveal reveal-delay-1">
+      <div class="step">First launch · 2</div>
+      <h3>Or do it in Terminal</h3>
+      <p>One command clears the quarantine flag on the downloaded app.</p>
+      <div class="copy-row"><code>xattr -dr com.apple.quarantine /Applications/Yankit.app</code><button class="copy-btn" type="button" data-copy="xattr -dr com.apple.quarantine /Applications/Yankit.app">Copy</button></div>
+    </div>
+    <div class="fl-card reveal reveal-delay-2">
+      <div class="step">First launch · 3</div>
+      <h3>Allow one-touch paste</h3>
+      <p>Grant <strong>Accessibility</strong> access when prompted (System Settings → Privacy &amp; Security → Accessibility). Without it, Yankit still copies your pick to the clipboard for a manual ⌘V.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
 <!-- BUILD -->
 <section id="build">
   <div class="reveal">
     <div class="section-label">Installation</div>
-    <h2 class="section-title">Build and run<br />in two commands.</h2>
+    <h2 class="section-title">Build from source<br />in a few commands.</h2>
     <p class="section-sub">The Xcode project is generated from <code style="font-family:'Geist Mono',monospace;font-size:14px;color:var(--accent);">project.yml</code> via XcodeGen, so it's not committed to the repo.</p>
   </div>
 
@@ -904,6 +953,8 @@
     <div class="install-code">
       <div><span class="comment"># Prerequisites</span></div>
       <div><span class="cmd">brew</span> <span class="arg">install</span> xcodegen</div>
+      <div><span class="cmd">git</span> <span class="arg">clone</span> https://github.com/AbyAbyss/Yankit.git</div>
+      <div><span class="cmd">cd</span> <span class="arg">Yankit</span></div>
       <div>&nbsp;</div>
       <div><span class="comment"># Generate and open the project</span></div>
       <div><span class="cmd">xcodegen</span> <span class="arg">generate</span></div>
@@ -980,6 +1031,14 @@
     });
   }, { threshold: 0.12 });
   reveals.forEach(el => io.observe(el));
+
+  // Copy buttons
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = b.getAttribute('data-copy'), done = function () { var t = b.textContent; b.textContent = 'Copied'; setTimeout(function () { b.textContent = t; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done); else done();
+    });
+  });
 </script>
 </body>
 </html>

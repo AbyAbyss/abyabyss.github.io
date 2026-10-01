@@ -40,6 +40,7 @@
   .navlinks{display:flex;gap:28px;align-items:center;font-size:15px;font-weight:500}
   .navlinks a{text-decoration:none;color:var(--muted);transition:color .15s}
   .navlinks a:hover{color:var(--ink)}
+  .navlinks a.btn,.navlinks a.btn:hover{color:#fff}
   .btn{display:inline-flex;align-items:center;gap:8px;background:var(--coral);color:#fff;
     text-decoration:none;font-weight:600;padding:11px 20px;border-radius:12px;
     box-shadow:0 6px 18px rgba(229,89,52,.28);transition:transform .15s,box-shadow .15s}
@@ -137,6 +138,19 @@
   footer .muted{color:var(--tan);font-size:14px}
   .tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
   .tag{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-size:13px;font-weight:500;color:var(--muted)}
+
+  /* download + first launch */
+  .fl{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .flc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .flc .n{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:13px;color:var(--coral-dark);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .flc h3{font-size:20px;margin-bottom:8px}
+  .flc p{color:var(--muted);font-size:15.5px}
+  .flc p strong{color:var(--ink)}
+  .cprow{display:flex;align-items:center;gap:10px;margin-top:14px;background:var(--ink);border-radius:12px;padding:6px 6px 6px 14px}
+  .cprow code{flex:1;min-width:0;white-space:normal;word-break:break-all;line-height:1.5;font-family:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#FBE9C6}
+  .cpbtn{flex:none;min-height:44px;min-width:68px;padding:0 14px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font:600 13px Inter,system-ui,sans-serif;cursor:pointer}
+  .cpbtn:hover{background:rgba(255,255,255,.16)}
+  .cpbtn:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -151,7 +165,8 @@
       <a href="#features">Features</a>
       <a href="#how">How it works</a>
       <a href="#screens">Screens</a>
-      <a href="#build" class="btn">Get started</a>
+      <a href="#download">Download</a>
+      <a href="#build" class="btn">Build it</a>
     </div>
   </div>
 </nav>
@@ -164,8 +179,8 @@
       <h1>Find where your<br>disk space went.</h1>
       <p class="lead">A friendly disk-space scanner for macOS. It walks your whole drive, groups similar things wherever they hide, and lets you reclaim the dead weight — safely.</p>
       <div class="cta-row">
-        <a href="#build" class="btn">⌘ Build &amp; run</a>
-        <a href="#features" class="btn ghost">See features</a>
+        <a href="#download" class="btn">Download for Mac</a>
+        <a href="#build" class="btn ghost">Build from source</a>
       </div>
       <p class="req">Runs entirely on your Mac · No account · No telemetry</p>
     </div>
@@ -246,14 +261,34 @@
   </div>
 </section>
 
+<section id="download">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow">Download</div>
+      <h2>Grab the DMG, drag it to Applications.</h2>
+      <p>wimys_crumb needs macOS 14 (Sonoma) or later. The latest build is on the Releases page as <em>wimys_crumb-&lt;version&gt;.dmg</em>.</p>
+      <div class="cta-row" style="margin-top:22px">
+        <a href="https://github.com/AbyAbyss/wimys_crumb/releases/latest" class="btn">Download latest DMG</a>
+        <a href="#build" class="btn ghost">Build from source</a>
+      </div>
+    </div>
+    <div class="fl">
+      <div class="flc"><div class="n">First launch · 1</div><h3>macOS can't verify it</h3><p>wimys_crumb is a free side project and is not notarized, so macOS asks before it opens the first time. Open <strong>System Settings → Privacy &amp; Security</strong> and click <strong>Open Anyway</strong>.</p></div>
+      <div class="flc"><div class="n">First launch · 2</div><h3>Or use Terminal</h3><p>One command clears the quarantine flag on the downloaded app.</p>
+        <div class="cprow"><code>xattr -dr com.apple.quarantine /Applications/wimys_crumb.app</code><button class="cpbtn" type="button" data-copy="xattr -dr com.apple.quarantine /Applications/wimys_crumb.app">Copy</button></div></div>
+      <div class="flc"><div class="n">First launch · 3</div><h3>Let it see everything</h3><p>Grant <strong>Full Disk Access</strong> (System Settings → Privacy &amp; Security → Full Disk Access) so the scan can read protected folders. It still works without it, and tells you how many folders it couldn't read.</p></div>
+    </div>
+  </div>
+</section>
+
 <section id="build">
   <div class="wrap">
     <div class="band">
       <div class="bdots"></div>
       <div style="position:relative">
-        <h2>Build it in two commands.</h2>
+        <h2>Build it from source.</h2>
         <p>The Xcode project is generated from <em>project.yml</em>. Requires macOS 14+, Xcode 15+ and XcodeGen.</p>
-        <code class="cmd" style="text-align:left;max-width:380px;margin:0 auto 26px">xcodegen generate<br>open wimys_crumb.xcodeproj</code>
+        <code class="cmd" style="text-align:left;max-width:460px;margin:0 auto 26px">brew install xcodegen<br>git clone https://github.com/AbyAbyss/wimys_crumb.git<br>cd wimys_crumb &amp;&amp; xcodegen generate<br>open wimys_crumb.xcodeproj</code>
         <div class="cta-row" style="justify-content:center">
           <a href="https://github.com/yonaskolb/XcodeGen" class="btn">Get XcodeGen</a>
           <a href="#features" class="btn ghost">Back to top</a>
@@ -278,5 +313,14 @@
   </div>
 </footer>
 
+<script>
+  // Copy buttons
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = b.getAttribute('data-copy'), done = function () { var t = b.textContent; b.textContent = 'Copied'; setTimeout(function () { b.textContent = t; }, 1600); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, done); else done();
+    });
+  });
+</script>
 </body>
 </html>
