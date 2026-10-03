@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stem Splitter</title>
+<style>
+  :root{
+    --bg:#0b0d14;
+    --bg-alt:#12141f;
+    --panel:rgba(255,255,255,0.04);
+    --panel-border:rgba(255,255,255,0.08);
+    --accent:#E8630A;
+    --accent-glow:rgba(232,99,10,0.45);
+    --cyan:#2dd4e8;
+    --text:#eef0f7;
+    --text-dim:#9aa0b4;
+    --danger:#ff4d5e;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 15% 10%, rgba(232,99,10,0.14), transparent 40%),
+      radial-gradient(circle at 85% 85%, rgba(45,212,232,0.10), transparent 45%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:40px 20px 80px;
+  }
+  .wrap{width:100%;max-width:980px;}
+  header{margin-bottom:28px;}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:8px;}
+  h1{
+    margin:0 0 6px;font-size:clamp(28px,4vw,38px);font-weight:800;letter-spacing:-0.02em;
+    background:linear-gradient(90deg,#fff,#cbd0e0 60%,var(--accent));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  p.sub{color:var(--text-dim);font-size:15px;margin:0;max-width:700px;line-height:1.5;}
+
+  .card{
+    background:var(--panel);border:1px solid var(--panel-border);border-radius:18px;
+    backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+    padding:24px;margin-bottom:22px;box-shadow:0 8px 30px rgba(0,0,0,0.35);
+  }
+  .section-title{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);font-weight:700;margin:0 0 14px;}
+
+  button{
+    font-family:inherit;font-size:14px;font-weight:600;border-radius:10px;padding:11px 18px;
+    border:1px solid var(--panel-border);cursor:pointer;color:var(--text);background:rgba(255,255,255,0.04);
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease, background .12s ease;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  button:active{transform:scale(0.97);}
+  button:disabled{opacity:.35;cursor:not-allowed;}
+  button:hover:not(:disabled){background:rgba(255,255,255,0.09);}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),#ff8a3d);color:#fff;border:none;box-shadow:0 4px 18px var(--accent-glow);}
+  .btn-primary:hover:not(:disabled){background:linear-gradient(135deg,var(--accent),#ff8a3d);box-shadow:0 6px 24px var(--accent-glow);}
+  .btn-sm{padding:7px 12px;font-size:12.5px;border-radius:8px;}
+
+  /* drop zone */
+  .drop{
+    border:2px dashed rgba(255,255,255,0.16);border-radius:16px;padding:38px 20px;text-align:center;
+    cursor:pointer;transition:border-color .15s, background .15s;
+  }
+  .drop:hover,.drop.over{border-color:var(--accent);background:rgba(232,99,10,0.06);}
+  .drop .big{font-size:17px;font-weight:700;margin-bottom:6px;}
+  .drop .small{font-size:13px;color:var(--text-dim);}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:18px;}
+  .stat{background:rgba(255,255,255,0.03);border:1px solid var(--panel-border);border-radius:12px;padding:12px 14px;min-width:0;}
+  .stat .num{font-size:16px;font-weight:800;color:var(--accent);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .stat .lab{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+
+  /* settings */
+  .options{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-bottom:20px;}
+  .opt label{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
+  .opt label b{color:var(--text);letter-spacing:0;text-transform:none;font-variant-numeric:tabular-nums;}
+  input[type=range]{width:100%;accent-color:var(--accent);}
+  .help{font-size:12px;color:var(--text-dim);line-height:1.5;margin-top:4px;}
+
+  .progress{height:8px;border-radius:99px;background:rgba(255,255,255,0.08);overflow:hidden;margin-top:18px;}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--cyan));transition:width .2s;}
+  .progress-label{font-size:13px;color:var(--text-dim);margin-top:8px;min-height:18px;}
+
+  .notice{
+    font-size:13px;line-height:1.55;color:#ffd9b8;background:rgba(232,99,10,0.10);
+    border:1px solid rgba(232,99,10,0.3);border-radius:10px;padding:10px 14px;margin-top:14px;
+  }
+
+  /* transport */
+  .transport{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+  .transport input[type=range]{flex:1;min-width:160px;}
+  .time{font-variant-numeric:tabular-nums;font-size:14px;color:var(--text-dim);min-width:92px;text-align:right;}
+  .presets{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 6px;}
+  .presets span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);align-self:center;margin-right:4px;}
+
+  /* stems */
+  .stem{
+    display:grid;grid-template-columns:150px 1fr auto;gap:14px;align-items:center;
+    padding:12px 0;border-top:1px solid var(--panel-border);
+  }
+  .stem:first-of-type{border-top:none;}
+  .stem .name{display:flex;align-items:center;gap:10px;font-weight:700;font-size:14.5px;}
+  .stem .name small{display:block;font-weight:400;font-size:11.5px;color:var(--text-dim);margin-top:2px;}
+  .swatch{width:12px;height:12px;border-radius:50%;flex:none;}
+  .stem canvas{width:100%;height:48px;border-radius:8px;background:rgba(0,0,0,0.25);display:block;cursor:pointer;}
+  .stem .ctrl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  .stem .ctrl input[type=range]{width:90px;}
+  .tog{min-width:34px;justify-content:center;padding:7px 9px;font-size:12.5px;}
+  .tog.on-m{background:rgba(255,77,94,0.2);border-color:rgba(255,77,94,0.5);color:#ff9aa5;}
+  .tog.on-s{background:rgba(45,212,232,0.18);border-color:rgba(45,212,232,0.5);color:var(--cyan);}
+  .dl-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--panel-border);}
+  .dl-row .lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);margin-right:4px;}
+
+  .hint{font-size:12.5px;color:var(--text-dim);line-height:1.65;}
+  .hint b{color:var(--text);}
+  [hidden]{display:none !important;}
+
+  @media (max-width:720px){
+    .stem{grid-template-columns:1fr;gap:8px;}
+    .stem .ctrl{justify-content:flex-start;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Audio Lab</div>
+    <h1>Stem Splitter</h1>
+    <p class="sub">Drop in an MP3 (or WAV, M4A, OGG). It splits the track into vocals, bass, drums and the rest, right in your browser. Nothing is uploaded anywhere. Mute, solo or mix the parts, then download any of them.</p>
+  </header>
+
+  <div class="card">
+    <h2 class="section-title">1. Choose a file</h2>
+    <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose an audio file">
+      <div class="big" id="dropTitle">Drop an audio file here, or click to browse</div>
+      <div class="small">MP3, WAV, M4A, OGG, FLAC (whatever your browser can decode)</div>
+    </div>
+    <input type="file" id="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" hidden>
+    <div class="stat-grid" id="info" hidden>
+      <div class="stat"><div class="num" id="iName">-</div><div class="lab">File</div></div>
+      <div class="stat"><div class="num" id="iDur">-</div><div class="lab">Length</div></div>
+      <div class="stat"><div class="num" id="iCh">-</div><div class="lab">Channels</div></div>
+      <div class="stat"><div class="num" id="iSr">-</div><div class="lab">Sample rate</div></div>
+    </div>
+    <div class="notice" id="monoNotice" hidden></div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">2. Split</h2>
+    <div class="options">
+      <div class="opt">
+        <label for="strict">Vocal strictness <b id="strictV">3</b></label>
+        <input type="range" id="strict" min="1" max="8" step="0.5" value="3">
+        <div class="help">Higher keeps only sounds that sit dead center. Cleaner vocals, but they may thin out. Lower leaks more instruments into the vocal stem.</div>
+      </div>
+      <div class="opt">
+        <label for="vlo">Vocal low cut <b id="vloV">120 Hz</b></label>
+        <input type="range" id="vlo" min="40" max="400" step="10" value="120">
+        <div class="help">Centered bass and kick below this stay in the music.</div>
+      </div>
+      <div class="opt">
+        <label for="vhi">Vocal high cut <b id="vhiV">10000 Hz</b></label>
+        <input type="range" id="vhi" min="3000" max="16000" step="500" value="10000">
+        <div class="help">Lower it to keep cymbals and hi-hats out of the vocals.</div>
+      </div>
+    </div>
+    <button class="btn-primary" id="splitBtn" disabled>Split into stems</button>
+    <div class="progress" id="prog" hidden><i id="progBar"></i></div>
+    <div class="progress-label" id="progLabel"></div>
+  </div>
+
+  <div class="card" id="results" hidden>
+    <h2 class="section-title">3. Listen, mix, download</h2>
+    <div class="transport">
+      <button class="btn-primary" id="playBtn">Play</button>
+      <input type="range" id="seek" min="0" max="1000" value="0">
+      <div class="time" id="time">0:00 / 0:00</div>
+    </div>
+    <div class="presets" id="presets"></div>
+    <div id="stems"></div>
+    <div class="dl-row">
+      <span class="lab">Current mix</span>
+      <button id="dlMixWav">Download WAV</button>
+      <button id="dlMixMp3">Download MP3</button>
+      <span class="hint" id="dlStatus"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 class="section-title">How it works, and what to expect</h2>
+    <div class="hint">
+      This is classic signal processing, not an AI model, so it runs offline with no model download.
+      <b>Vocals</b> are found by comparing the left and right channels: anything panned dead center in the vocal frequency range is treated as voice.
+      <b>Drums</b> and <b>melodic</b> parts are separated by their shape on the spectrogram (sustained tones versus short hits).
+      <b>Bass</b> is the sustained low end. The vocals and the music always add back up to the original.<br><br>
+      It works best on stereo songs where the singer is centered, which is most pop and film music. Expect some leftover bleed: a centered snare or lead guitar can end up in the vocals, and reverb tails on the voice stay in the music. Mono files cannot be split into vocals this way. AI separators such as Demucs give cleaner results, but need a model of a few hundred MB.
+    </div>
+  </div>
+</div>
+
+<script type="javascript/worker" id="worker-src">
+/* ---------- DSP: runs inside a Web Worker ---------- */
+function makeFFT(N){
+  const levels = Math.round(Math.log2(N));
+  const rev = new Uint32Array(N);
+  for (let i = 0; i < N; i++){
+    let r = 0, x = i;
+    for (let b = 0; b < levels; b++){ r = (r << 1) | (x & 1); x >>= 1; }
+    rev[i] = r;
+  }
+  const cs = new Float64Array(N / 2), sn = new Float64Array(N / 2);
+  for (let i = 0; i < N / 2; i++){ cs[i] = Math.cos(2 * Math.PI * i / N); sn[i] = Math.sin(2 * Math.PI * i / N); }
+  return function(re, im, inverse){
+    for (let i = 0; i < N; i++){
+      const j = rev[i];
+      if (j > i){ let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+    }
+    for (let size = 2; size <= N; size <<= 1){
+      const half = size >> 1, step = N / size;
+      for (let i = 0; i < N; i += size){
+        for (let j = i, k = 0; j < i + half; j++, k += step){
+          const wr = cs[k], wi = inverse ? sn[k] : -sn[k];
+          const l = j + half;
+          const tr = re[l] * wr - im[l] * wi;
+          const ti = re[l] * wi + im[l] * wr;
+          re[l] = re[j] - tr; im[l] = im[j] - ti;
+          re[j] += tr; im[j] += ti;
+        }
+      }
+    }
+    if (inverse){ for (let i = 0; i < N; i++){ re[i] /= N; im[i] /= N; } }
+  };
+}
+
+/* Stereo STFT. Left goes in the real part and right in the imaginary part of one
+   complex FFT, then the two spectra are pulled apart using conjugate symmetry. */
+function makeSTFT(N, H){
+  const fft = makeFFT(N), K = N / 2 + 1;
+  const win = new Float64Array(N);
+  for (let i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+  const re = new Float64Array(N), im = new Float64Array(N);
+  const scale = 1 / (1.5 * (N / 4 / H)); // Hann^2 at 75% overlap sums to 1.5
+  const T = len => Math.ceil((len + N) / H);
+  const start = t => -N + H + t * H;
+  function analyze(L, R, t, o){
+    const s = start(t), len = L.length;
+    for (let i = 0; i < N; i++){
+      const p = s + i;
+      if (p >= 0 && p < len){ re[i] = L[p] * win[i]; im[i] = R[p] * win[i]; }
+      else { re[i] = 0; im[i] = 0; }
+    }
+    fft(re, im, false);
+    for (let k = 0; k < K; k++){
+      const nk = (N - k) & (N - 1);
+      o.Lr[k] = (re[k] + re[nk]) * 0.5;  o.Li[k] = (im[k] - im[nk]) * 0.5;
+      o.Rr[k] = (im[k] + im[nk]) * 0.5;  o.Ri[k] = -(re[k] - re[nk]) * 0.5;
+    }
+  }
+  function synth(S, t, outL, outR){
+    for (let k = 0; k < K; k++){
+      re[k] = S.Lr[k] - S.Ri[k];  im[k] = S.Li[k] + S.Rr[k];
+      if (k > 0 && k < N / 2){
+        re[N - k] = S.Lr[k] + S.Ri[k];  im[N - k] = -S.Li[k] + S.Rr[k];
+      }
+    }
+    fft(re, im, true);
+    const s = start(t), len = outL.length;
+    for (let i = 0; i < N; i++){
+      const p = s + i;
+      if (p >= 0 && p < len){ const w = win[i] * scale; outL[p] += re[i] * w; outR[p] += im[i] * w; }
+    }
+  }
+  const spec = () => ({ Lr: new Float64Array(K), Li: new Float64Array(K), Rr: new Float64Array(K), Ri: new Float64Array(K) });
+  return { N, H, K, T, analyze, synth, spec };
+}
+
+/* Running median over a strided sequence with edge replication. */
+function slidingMedian(src, off, stride, n, W, dst, dOff, dStride){
+  const h = W >> 1, win = new Float32Array(W);
+  const at = i => src[off + (i < 0 ? 0 : i >= n ? n - 1 : i) * stride];
+  for (let j = 0; j < W; j++) win[j] = at(j - h);
+  win.sort();
+  dst[dOff] = win[h];
+  for (let i = 1; i < n; i++){
+    const oldV = at(i - 1 - h), newV = at(i + h);
+    if (oldV !== newV){
+      let lo = 0, hi = W - 1;
+      while (lo < hi){ const m = (lo + hi) >> 1; if (win[m] < oldV) lo = m + 1; else hi = m; }
+      let j = lo;
+      if (newV > oldV){ while (j + 1 < W && win[j + 1] < newV){ win[j] = win[j + 1]; j++; } }
+      else { while (j > 0 && win[j - 1] > newV){ win[j] = win[j - 1]; j--; } }
+      win[j] = newV;
+    }
+    dst[dOff + i * dStride] = win[h];
+  }
+}
+
+const sstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+function separate(L, R, sr, opts, progress){
+  const len = L.length, N = 4096, H = 1024;
+  const st = makeSTFT(N, H), K = st.K, T = st.T(len);
+  const binHz = sr / N;
+  const mono = !!opts.mono;
+  const alloc = () => [new Float32Array(len), new Float32Array(len)];
+  const voc = alloc(), inst = alloc(), bass = alloc(), drums = alloc(), other = alloc();
+
+  // vocal band weighting
+  const bw = new Float32Array(K);
+  for (let k = 0; k < K; k++){
+    const f = k * binHz;
+    bw[k] = sstep(opts.vocalLo * 0.75, opts.vocalLo, f) * (1 - sstep(opts.vocalHi, opts.vocalHi * 1.25, f));
+  }
+
+  // Pass A: centre extraction -> vocals + instrumental, and mid magnitudes of the instrumental
+  const mags = new Float32Array(T * K);
+  const X = st.spec(), V = st.spec(), I = st.spec();
+  const pw = opts.strictness;
+  for (let t = 0; t < T; t++){
+    st.analyze(L, R, t, X);
+    for (let k = 0; k < K; k++){
+      let m = 0;
+      if (!mono){
+        const pl = X.Lr[k] * X.Lr[k] + X.Li[k] * X.Li[k];
+        const pr = X.Rr[k] * X.Rr[k] + X.Ri[k] * X.Ri[k];
+        const cross = X.Lr[k] * X.Rr[k] + X.Li[k] * X.Ri[k];
+        const psi = 2 * cross / (pl + pr + 1e-12);
+        if (psi > 0) m = Math.pow(psi > 1 ? 1 : psi, pw) * bw[k];
+      }
+      V.Lr[k] = m * X.Lr[k]; V.Li[k] = m * X.Li[k]; V.Rr[k] = m * X.Rr[k]; V.Ri[k] = m * X.Ri[k];
+      I.Lr[k] = X.Lr[k] - V.Lr[k]; I.Li[k] = X.Li[k] - V.Li[k];
+      I.Rr[k] = X.Rr[k] - V.Rr[k]; I.Ri[k] = X.Ri[k] - V.Ri[k];
+      const mr = (I.Lr[k] + I.Rr[k]) * 0.5, mi = (I.Li[k] + I.Ri[k]) * 0.5;
+      mags[t * K + k] = Math.sqrt(mr * mr + mi * mi);
+    }
+    if (!mono) st.synth(V, t, voc[0], voc[1]);
+    st.synth(I, t, inst[0], inst[1]);
+    if (t % 64 === 0) progress(0.05 + 0.40 * t / T, 'Finding the voice');
+  }
+
+  // Harmonic estimate: median across time, one frequency bin at a time
+  const Hm = new Float32Array(T * K);
+  const Wt = 17, Wf = 31;
+  for (let k = 0; k < K; k++){
+    slidingMedian(mags, k, K, T, Wt, Hm, k, K);
+    if (k % 128 === 0) progress(0.45 + 0.15 * k / K, 'Looking for sustained notes');
+  }
+
+  // Pass B: percussive median across frequency per frame, soft masks, split instrumental
+  const Pm = new Float32Array(K), row = new Float32Array(K);
+  const bassCut = opts.bassCut;
+  const kBass = Math.min(K, Math.ceil(bassCut / binHz));
+  const kFade = Math.min(K, Math.ceil(bassCut * 1.5 / binHz));
+  const B = st.spec(), D = st.spec(), O = st.spec();
+  for (let t = 0; t < T; t++){
+    st.analyze(inst[0], inst[1], t, X);
+    for (let k = 0; k < K; k++) row[k] = mags[t * K + k];
+    slidingMedian(row, 0, 1, K, Wf, Pm, 0, 1);
+    for (let k = 0; k < K; k++){
+      const h = Hm[t * K + k], p = Pm[k];
+      const mp = (p * p) / (h * h + p * p + 1e-12);   // percussive share
+      const mh = 1 - mp;                               // harmonic share
+      const lowShare = k < kBass ? 1 : (k < kFade ? 1 - (k - kBass) / Math.max(1, kFade - kBass) : 0);
+      const gb = mh * lowShare, go = mh * (1 - lowShare);
+      B.Lr[k] = X.Lr[k] * gb; B.Li[k] = X.Li[k] * gb; B.Rr[k] = X.Rr[k] * gb; B.Ri[k] = X.Ri[k] * gb;
+      D.Lr[k] = X.Lr[k] * mp; D.Li[k] = X.Li[k] * mp; D.Rr[k] = X.Rr[k] * mp; D.Ri[k] = X.Ri[k] * mp;
+      O.Lr[k] = X.Lr[k] * go; O.Li[k] = X.Li[k] * go; O.Rr[k] = X.Rr[k] * go; O.Ri[k] = X.Ri[k] * go;
+    }
+    st.synth(B, t, bass[0], bass[1]);
+    st.synth(D, t, drums[0], drums[1]);
+    st.synth(O, t, other[0], other[1]);
+    if (t % 64 === 0) progress(0.60 + 0.38 * t / T, 'Splitting drums, bass and the rest');
+  }
+  progress(1, 'Done');
+  return { vocals: voc, music: inst, bass, drums, other };
+}
+globalThis.separate = separate;
+
+if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope){
+  self.onmessage = e => {
+    const { L, R, sr, opts } = e.data;
+    try {
+      const out = separate(L, R, sr, opts, (p, label) => self.postMessage({ type: 'progress', p, label }));
+      const transfer = [];
+      for (const k in out) for (const ch of out[k]) transfer.push(ch.buffer);
+      self.postMessage({ type: 'done', out }, transfer);
+    } catch (err) {
+      self.postMessage({ type: 'error', message: String(err && err.message || err) });
+    }
+  };
+}
+</script>
+
+<script src="vendor/lame.min.js"></script>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+
+  const STEMS = [
+    { key: 'vocals', name: 'Vocals',  note: 'Voice and centered leads', color: '#ff6b9d' },
+    { key: 'drums',  name: 'Drums',   note: 'Hits, percussion, kick',   color: '#ffb02e' },
+    { key: 'bass',   name: 'Bass',    note: 'Sustained low end',        color: '#7c6bff' },
+    { key: 'other',  name: 'Melody',  note: 'Guitars, keys, strings',   color: '#2dd4e8' },
+    { key: 'music',  name: 'Music (no vocals)', note: 'Everything except the voice', color: '#6ee7a0', isMix: true }
+  ];
+  // music = bass + drums + melody, so it is excluded from the "All" mix to avoid doubling
+  const PRESETS = [
+    { label: 'Original',       on: ['vocals', 'drums', 'bass', 'other'] },
+    { label: 'Karaoke',        on: ['music'] },
+    { label: 'Vocals only',    on: ['vocals'] },
+    { label: 'Drums only',     on: ['drums'] },
+    { label: 'Bass only',      on: ['bass'] },
+    { label: 'No drums',       on: ['vocals', 'bass', 'other'] }
+  ];
+
+  const state = {
+    file: null, decoded: null, sr: 44100, mono: false,
+    stems: {},            // key -> {L, R, buffer, gain, mute, solo, el}
+    ctx: null, playing: false, startedAt: 0, offset: 0, sources: [], raf: 0, worker: null
+  };
+
+  /* ---------- file loading ---------- */
+  const drop = $('drop'), fileInput = $('file');
+  drop.addEventListener('click', () => fileInput.click());
+  drop.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); fileInput.click(); } });
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
+
+  const fmtTime = s => { s = Math.max(0, s); const m = Math.floor(s / 60); return m + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+
+  async function loadFile(file){
+    stopPlayback(); resetResults();
+    $('splitBtn').disabled = true;
+    $('progLabel').textContent = 'Decoding audio...';
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      const tmp = new AC();
+      const buf = await tmp.decodeAudioData(await file.arrayBuffer());
+      tmp.close && tmp.close();
+      state.file = file; state.decoded = buf; state.sr = buf.sampleRate;
+      const L = buf.getChannelData(0);
+      const R = buf.numberOfChannels > 1 ? buf.getChannelData(1) : L;
+      state.mono = buf.numberOfChannels < 2 || isEffectivelyMono(L, R);
+      $('dropTitle').textContent = file.name;
+      $('iName').textContent = file.name; $('iName').title = file.name;
+      $('iDur').textContent = fmtTime(buf.duration);
+      $('iCh').textContent = buf.numberOfChannels === 1 ? 'Mono' : state.mono ? 'Stereo (identical)' : 'Stereo';
+      $('iSr').textContent = (buf.sampleRate / 1000).toFixed(1) + ' kHz';
+      $('info').hidden = false;
+      const n = $('monoNotice');
+      if (state.mono){
+        n.hidden = false;
+        n.textContent = 'This file is mono (both channels carry the same signal), so the voice cannot be separated by position. You will still get drums, bass and melody, and the Vocals stem will be silent.';
+      } else n.hidden = true;
+      $('splitBtn').disabled = false;
+      $('progLabel').textContent = '';
+    } catch (err) {
+      $('progLabel').textContent = 'Could not decode that file. Try an MP3 or WAV.';
+    }
+  }
+
+  function isEffectivelyMono(L, R){
+    if (L === R) return true;
+    let diff = 0, sum = 0;
+    const step = Math.max(1, Math.floor(L.length / 200000));
+    for (let i = 0; i < L.length; i += step){ const d = L[i] - R[i]; diff += d * d; sum += L[i] * L[i] + R[i] * R[i]; }
+    return sum === 0 || diff / sum < 1e-6;
+  }
+
+  /* ---------- settings ---------- */
+  const bind = (id, out, fmt) => { const el = $(id); const upd = () => $(out).textContent = fmt(el.value); el.addEventListener('input', upd); upd(); };
+  bind('strict', 'strictV', v => v);
+  bind('vlo', 'vloV', v => v + ' Hz');
+  bind('vhi', 'vhiV', v => v + ' Hz');
+
+  /* ---------- run separation ---------- */
+  $('splitBtn').addEventListener('click', () => {
+    if (!state.decoded) return;
+    stopPlayback(); resetResults();
+    $('splitBtn').disabled = true;
+    $('prog').hidden = false; $('progBar').style.width = '0%';
+    const buf = state.decoded;
+    const L = new Float32Array(buf.getChannelData(0));
+    const R = new Float32Array(buf.numberOfChannels > 1 ? buf.getChannelData(1) : buf.getChannelData(0));
+    const opts = {
+      strictness: parseFloat($('strict').value),
+      vocalLo: parseFloat($('vlo').value),
+      vocalHi: parseFloat($('vhi').value),
+      bassCut: 150,
+      mono: state.mono
+    };
+    const src = $('worker-src').textContent;
+    const url = URL.createObjectURL(new Blob([src], { type: 'text/javascript' }));
+    const w = new Worker(url);
+    state.worker = w;
+    w.onmessage = e => {
+      const m = e.data;
+      if (m.type === 'progress'){
+        $('progBar').style.width = Math.round(m.p * 100) + '%';
+        $('progLabel').textContent = m.label + '... ' + Math.round(m.p * 100) + '%';
+      } else if (m.type === 'done'){
+        w.terminate(); URL.revokeObjectURL(url);
+        $('prog').hidden = true; $('progLabel').textContent = 'Finished.';
+        $('splitBtn').disabled = false;
+        showResults(m.out);
+      } else if (m.type === 'error'){
+        w.terminate(); URL.revokeObjectURL(url);
+        $('prog').hidden = true; $('progLabel').textContent = 'Something went wrong: ' + m.message;
+        $('splitBtn').disabled = false;
+      }
+    };
+    w.onerror = e => {
+      $('prog').hidden = true; $('progLabel').textContent = 'The worker crashed: ' + (e.message || 'unknown error') + '. Very long files can run out of memory.';
+      $('splitBtn').disabled = false;
+    };
+    w.postMessage({ L, R, sr: state.sr, opts }, [L.buffer, R.buffer]);
+  });
+
+  /* ---------- results UI ---------- */
+  function resetResults(){
+    $('results').hidden = true; $('stems').innerHTML = ''; $('presets').innerHTML = '';
+    state.stems = {}; state.offset = 0;
+  }
+
+  function showResults(out){
+    const ac = ensureCtx();
+    const list = STEMS.filter(s => !(s.key === 'vocals' && state.mono));
+    list.forEach(def => {
+      const [L, R] = out[def.key];
+      const buffer = ac.createBuffer(2, L.length, state.sr);
+      buffer.copyToChannel(L, 0); buffer.copyToChannel(R, 1);
+      state.stems[def.key] = { def, L, R, buffer, gain: 1, mute: false, solo: false };
+    });
+
+    const box = $('stems');
+    list.forEach(def => {
+      const s = state.stems[def.key];
+      const row = document.createElement('div'); row.className = 'stem';
+      row.innerHTML =
+        '<div class="name"><span class="swatch" style="background:' + def.color + '"></span><div>' + def.name + '<small>' + def.note + '</small></div></div>' +
+        '<canvas></canvas>' +
+        '<div class="ctrl">' +
+          '<button class="btn-sm tog" data-act="mute" title="Mute">M</button>' +
+          '<button class="btn-sm tog" data-act="solo" title="Solo">S</button>' +
+          '<input type="range" min="0" max="150" value="100" title="Volume">' +
+          '<button class="btn-sm" data-act="wav">WAV</button>' +
+          '<button class="btn-sm" data-act="mp3">MP3</button>' +
+        '</div>';
+      box.appendChild(row);
+      s.el = row;
+      s.canvas = row.querySelector('canvas');
+      drawWave(s);
+      s.canvas.addEventListener('click', e => {
+        const r = s.canvas.getBoundingClientRect();
+        seekTo(((e.clientX - r.left) / r.width) * state.decoded.duration);
+      });
+      row.querySelector('input').addEventListener('input', e => { s.gain = e.target.value / 100; applyGains(); });
+      row.addEventListener('click', e => {
+        const act = e.target.closest('button') && e.target.closest('button').dataset.act;
+        if (!act) return;
+        if (act === 'mute'){ s.mute = !s.mute; }
+        else if (act === 'solo'){ s.solo = !s.solo; }
+        else if (act === 'wav'){ exportStems([[s, 1]], def.name, 'wav'); return; }
+        else if (act === 'mp3'){ exportStems([[s, 1]], def.name, 'mp3'); return; }
+        refreshToggles(); applyGains();
+      });
+    });
+
+    PRESETS.forEach(p => {
+      const keys = p.on.filter(k => state.stems[k]);
+      if (!keys.length) return;
+      const b = document.createElement('button'); b.className = 'btn-sm'; b.textContent = p.label;
+      b.addEventListener('click', () => {
+        Object.values(state.stems).forEach(s => { s.solo = false; s.mute = !keys.includes(s.def.key); });
+        refreshToggles(); applyGains();
+      });
+      $('presets').appendChild(b);
+    });
+    const lab = document.createElement('span'); lab.textContent = 'Quick mix'; $('presets').prepend(lab);
+
+    // default: everything except the "Music (no vocals)" duplicate
+    Object.values(state.stems).forEach(s => { s.mute = s.def.isMix; });
+    refreshToggles();
+    $('results').hidden = false;
+    updateTime();
+    $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function refreshToggles(){
+    Object.values(state.stems).forEach(s => {
+      s.el.querySelector('[data-act=mute]').classList.toggle('on-m', s.mute);
+      s.el.querySelector('[data-act=solo]').classList.toggle('on-s', s.solo);
+    });
+  }
+
+  function effectiveGain(s){
+    const anySolo = Object.values(state.stems).some(x => x.solo);
+    if (anySolo ? !s.solo : s.mute) return 0;
+    return s.gain;
+  }
+
+  function drawWave(s){
+    const c = s.canvas, dpr = window.devicePixelRatio || 1;
+    const w = c.clientWidth || 600, h = c.clientHeight || 48;
+    c.width = w * dpr; c.height = h * dpr;
+    const g = c.getContext('2d'); g.scale(dpr, dpr);
+    g.clearRect(0, 0, w, h);
+    const L = s.L, R = s.R, per = L.length / w;
+    g.fillStyle = s.def.color;
+    for (let x = 0; x < w; x++){
+      const a = Math.floor(x * per), b = Math.min(L.length, Math.floor((x + 1) * per) + 1);
+      let peak = 0;
+      const stride = Math.max(1, Math.floor((b - a) / 24));
+      for (let i = a; i < b; i += stride){ const v = Math.abs(L[i]) + Math.abs(R[i]); if (v > peak) peak = v; }
+      const amp = Math.min(1, peak * 0.5) * (h / 2);
+      g.globalAlpha = 0.9;
+      g.fillRect(x, h / 2 - Math.max(0.5, amp), 1, Math.max(1, amp * 2));
+    }
+  }
+  window.addEventListener('resize', () => Object.values(state.stems).forEach(drawWave));
+
+  /* ---------- playback ---------- */
+  function ensureCtx(){
+    if (!state.ctx){ const AC = window.AudioContext || window.webkitAudioContext; state.ctx = new AC({ sampleRate: state.sr }); }
+    return state.ctx;
+  }
+
+  function startSources(offset){
+    const ac = ensureCtx();
+    state.sources = Object.values(state.stems).map(s => {
+      const src = ac.createBufferSource(); src.buffer = s.buffer;
+      const g = ac.createGain(); g.gain.value = effectiveGain(s);
+      src.connect(g).connect(ac.destination);
+      src.start(0, offset);
+      s.node = g;
+      return src;
+    });
+    state.sources[0].onended = () => { if (state.playing && currentTime() >= state.decoded.duration - 0.05){ stopPlayback(); state.offset = 0; updateTime(); } };
+    state.startedAt = ac.currentTime - offset;
+  }
+
+  function currentTime(){ return state.playing ? state.ctx.currentTime - state.startedAt : state.offset; }
+
+  function applyGains(){
+    if (!state.playing) return;
+    Object.values(state.stems).forEach(s => { if (s.node) s.node.gain.value = effectiveGain(s); });
+  }
+
+  function stopPlayback(){
+    if (state.playing){ state.offset = Math.min(currentTime(), state.decoded ? state.decoded.duration : 0); }
+    state.sources.forEach(s => { s.onended = null; try { s.stop(); } catch (_) {} });
+    state.sources = []; state.playing = false;
+    cancelAnimationFrame(state.raf);
+    $('playBtn').textContent = 'Play';
+  }
+
+  function play(){
+    if (!Object.keys(state.stems).length) return;
+    const ac = ensureCtx();
+    (ac.state === 'suspended' ? ac.resume() : Promise.resolve()).then(() => {
+      if (state.offset >= state.decoded.duration - 0.05) state.offset = 0;
+      startSources(state.offset);
+      state.playing = true;
+      $('playBtn').textContent = 'Pause';
+      tick();
+    });
+  }
+
+  function seekTo(sec){
+    sec = Math.max(0, Math.min(state.decoded.duration, sec));
+    const was = state.playing;
+    if (was){ state.sources.forEach(s => { s.onended = null; try { s.stop(); } catch (_) {} }); state.sources = []; state.playing = false; }
+    state.offset = sec;
+    if (was){ startSources(sec); state.playing = true; tick(); }
+    updateTime();
+  }
+
+  function tick(){
+    updateTime();
+    if (state.playing) state.raf = requestAnimationFrame(tick);
+  }
+
+  function updateTime(){
+    if (!state.decoded) return;
+    const t = Math.min(currentTime(), state.decoded.duration), d = state.decoded.duration;
+    $('time').textContent = fmtTime(t) + ' / ' + fmtTime(d);
+    if (!seeking) $('seek').value = Math.round(t / d * 1000);
+  }
+
+  let seeking = false;
+  $('playBtn').addEventListener('click', () => state.playing ? stopPlayback() : play());
+  $('seek').addEventListener('pointerdown', () => { seeking = true; });
+  $('seek').addEventListener('input', e => { $('time').textContent = fmtTime(e.target.value / 1000 * state.decoded.duration) + ' / ' + fmtTime(state.decoded.duration); });
+  $('seek').addEventListener('change', e => { seeking = false; seekTo(e.target.value / 1000 * state.decoded.duration); });
+
+  /* ---------- export ---------- */
+  function baseName(){ return (state.file ? state.file.name.replace(/\.[^.]+$/, '') : 'audio'); }
+
+  function mixdown(parts){
+    const n = state.decoded.length;
+    const L = new Float32Array(n), R = new Float32Array(n);
+    parts.forEach(([s, g]) => {
+      if (!g) return;
+      for (let i = 0; i < n; i++){ L[i] += s.L[i] * g; R[i] += s.R[i] * g; }
+    });
+    return [L, R];
+  }
+
+  function encodeWav(L, R, sr){
+    const n = L.length, bytes = 44 + n * 4, ab = new ArrayBuffer(bytes), v = new DataView(ab);
+    const wr = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    wr(0, 'RIFF'); v.setUint32(4, bytes - 8, true); wr(8, 'WAVE'); wr(12, 'fmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 2, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 4, true); v.setUint16(32, 4, true); v.setUint16(34, 16, true);
+    wr(36, 'data'); v.setUint32(40, n * 4, true);
+    let o = 44;
+    for (let i = 0; i < n; i++){
+      const l = Math.max(-1, Math.min(1, L[i])), r = Math.max(-1, Math.min(1, R[i]));
+      v.setInt16(o, l < 0 ? l * 0x8000 : l * 0x7fff, true); o += 2;
+      v.setInt16(o, r < 0 ? r * 0x8000 : r * 0x7fff, true); o += 2;
+    }
+    return new Blob([ab], { type: 'audio/wav' });
+  }
+
+  async function encodeMp3(L, R, sr, onProgress){
+    if (typeof lamejs === 'undefined') throw new Error('MP3 encoder not loaded');
+    const enc = new lamejs.Mp3Encoder(2, sr, 192);
+    const chunks = [], block = 1152 * 20;
+    const toI16 = (src, a, b) => { const o = new Int16Array(b - a); for (let i = a; i < b; i++){ const x = Math.max(-1, Math.min(1, src[i])); o[i - a] = x < 0 ? x * 0x8000 : x * 0x7fff; } return o; };
+    for (let i = 0; i < L.length; i += block){
+      const b = Math.min(L.length, i + block);
+      const buf = enc.encodeBuffer(toI16(L, i, b), toI16(R, i, b));
+      if (buf.length) chunks.push(new Uint8Array(buf));
+      if ((i / block) % 40 === 0){ onProgress(i / L.length); await new Promise(r => setTimeout(r, 0)); }
+    }
+    const end = enc.flush(); if (end.length) chunks.push(new Uint8Array(end));
+    return new Blob(chunks, { type: 'audio/mpeg' });
+  }
+
+  function save(blob, name){
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  }
+
+  async function exportStems(parts, label, fmt){
+    const status = $('dlStatus');
+    try {
+      status.textContent = 'Preparing ' + fmt.toUpperCase() + '...';
+      await new Promise(r => setTimeout(r, 20));
+      const [L, R] = mixdown(parts);
+      const safe = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+      const name = baseName() + ' - ' + safe + '.' + fmt;
+      if (fmt === 'wav') save(encodeWav(L, R, state.sr), name);
+      else save(await encodeMp3(L, R, state.sr, p => { status.textContent = 'Encoding MP3... ' + Math.round(p * 100) + '%'; }), name);
+      status.textContent = 'Saved ' + name;
+    } catch (err) {
+      status.textContent = 'Export failed: ' + err.message;
+    }
+  }
+
+  function currentMixParts(){
+    const parts = Object.values(state.stems).map(s => [s, effectiveGain(s)]).filter(p => p[1] > 0);
+    return parts;
+  }
+  const mixLabel = () => {
+    const names = currentMixParts().map(p => p[0].def.key);
+    return names.length ? names.join(' + ') : 'silence';
+  };
+  $('dlMixWav').addEventListener('click', () => exportStems(currentMixParts(), 'mix ' + mixLabel(), 'wav'));
+  $('dlMixMp3').addEventListener('click', () => exportStems(currentMixParts(), 'mix ' + mixLabel(), 'mp3'));
+
+  // exposed for automated testing
+  window.__stemTool = { state };
+})();
+</script>
+</body>
+</html>
