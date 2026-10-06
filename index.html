@@ -1138,7 +1138,7 @@
   var byName = function (n) { return OSS.filter(function (p) { return p.name === n; })[0]; };
 
   /* ---------- Content that comes from data ---------- */
-  var STACK = ["Yankit", "wimys_crumb", "AgentKit", "Helpy", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
+  var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
   var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0; });
 
   function linksOf(p) {
