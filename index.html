@@ -194,6 +194,8 @@
   .plinks a { font: 500 13px/1.2 var(--mono); text-decoration: none; border-bottom: 2px solid var(--acc); padding-bottom: 2px; }
   .plinks a:hover { background: rgba(255, 75, 43, 0.12); }
   .badge-priv { align-self: flex-start; padding: 4px 8px 3px; border: 2px solid var(--acc); color: var(--acc); font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-3deg); }
+  .badge-oss { align-self: flex-start; padding: 4px 8px 3px; border: 2px solid #12805c; color: #0e6a4c; font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-3deg); }
+  .badge-priv.soon { display: inline-block; }
   .pcount { position: absolute; right: 22px; top: 14px; font: 500 12px/1 var(--mono); color: #7a7f7a; letter-spacing: 0.1em; z-index: 2; }
 
   .idx-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 8vh 16px; border-bottom: 2px solid var(--fg); }
@@ -507,7 +509,7 @@
   <section class="work pad scene" id="work" data-bg="#dfe9e4" data-fg="#0f1714" data-acc="#e5432a" data-label="Work">
     <div class="work-head">
       <div><p class="mono kicker" style="margin-bottom:16px">Personal projects</p><h2 class="title" data-split>Things I've built</h2></div>
-      <p>Agent runtimes, developer tools, media pipelines and native apps. Projects stamped Private aren't public yet; where there's a live build, the card links to it instead.</p>
+      <p>Agent runtimes, developer tools, media pipelines and native apps. Projects marked Open source have public code you can read today. Projects stamped Private aren't public yet, and AgentKit is the next one being prepared for an open-source release.</p>
     </div>
     <div class="stack" id="stack"></div>
     <div class="idx-head"><h3>And the rest of the shelf</h3><span class="mono" style="color:var(--mute)" id="idx-count"></span></div>
@@ -577,6 +579,7 @@
                         name: "AgentKit",
                         meta: "Agent Runtime SDK \u00b7 TypeScript",
                         priv: true,
+                        soon: true,
                         site: {
                             href: "agentkit/",
                             label: "Visit the site",
@@ -590,7 +593,7 @@
                             label: "Watch the 40 second tour",
                         },
                         desc:
-                            "An MIT-licensed, config-first headless agent runtime for TypeScript. Multi-provider with " +
+                            "A config-first headless agent runtime for TypeScript, being prepared for an open-source release under the MIT licence. Multi-provider with " +
                             "mid-session model hot-swapping, full MCP support over stdio and HTTP, human-in-the-loop plan mode " +
                             "and approval gates, and a record-and-replay harness so agent behaviour is tested deterministically " +
                             "in CI with no API keys and no spend.",
@@ -1135,7 +1138,7 @@
   var byName = function (n) { return OSS.filter(function (p) { return p.name === n; })[0]; };
 
   /* ---------- Content that comes from data ---------- */
-  var STACK = ["AgentKit", "Helpy", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
+  var STACK = ["Yankit", "wimys_crumb", "AgentKit", "Helpy", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
   var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0; });
 
   function linksOf(p) {
@@ -1151,7 +1154,7 @@
     return '<article class="pcard" style="--i:' + i + '"><span class="tape" aria-hidden="true"></span><span class="shade"></span>' +
       '<span class="pcount">' + pad2(i + 1) + " / " + pad2(STACK.length) + "</span>" +
       '<div class="pframe' + (p.fit ? " fit" : "") + '"><img loading="lazy" src="' + p.shots[0] + '" alt="' + esc(p.name) + ' screenshot"></div>' +
-      '<div class="pbody"><p class="mono">' + p.meta + "</p>" + (p.priv ? '<span class="badge-priv">Private</span>' : "") +
+      '<div class="pbody"><p class="mono">' + p.meta + "</p>" + (p.soon ? '<span class="badge-priv soon">Private, open source soon</span>' : p.priv ? '<span class="badge-priv">Private</span>' : p.repo ? '<span class="badge-oss">Open source</span>' : "") +
       '<h3 class="pname">' + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
       '<div class="ptech">' + p.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" + linksOf(p) + "</div></article>";
   }).join("");
@@ -1160,7 +1163,7 @@
     var href = p.site ? p.site.href : p.repo || "";
     var tag = href ? "a" : "div";
     return "<" + tag + ' class="row" ' + (href ? 'href="' + href + '"' + (p.repo && !p.site ? ' target="_blank" rel="noopener"' : "") : "") + ' data-peek="' + i + '" data-cursor="View">' +
-      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + (p.priv ? " · Private" : "") + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
+      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + (p.priv ? " · Private" : p.repo ? " · Open source" : "") + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
   }).join("");
   $("#cards").innerHTML = WORK.map(function (w) {
     return '<article class="card"><p class="org mono">' + esc(w.org) + " · " + w.meta + "</p><h3>" + esc(w.name) + "</h3><p>" + esc(w.desc) + '</p><div class="ptech">' + w.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div></article>";
