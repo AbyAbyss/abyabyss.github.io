@@ -209,6 +209,42 @@
   .row::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform 450ms cubic-bezier(0.7, 0, 0.2, 1); }
   .row:hover, .row:focus-visible { padding-left: 22px; color: var(--acc); }
   .row:hover::after, .row:focus-visible::after { transform: scaleX(1); }
+
+  /* Projects that have their own site: a gallery of pasted-in cards, then the plain shelf */
+  .sites { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 40px 28px; padding-top: 38px; padding-bottom: 8px; }
+  .scard { position: relative; grid-column: span 2; display: flex; flex-direction: column; gap: 14px; padding: 14px 14px 20px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); transform: rotate(var(--r, 0deg)); transition: transform 380ms cubic-bezier(.3, 0, .2, 1), box-shadow 380ms; }
+  .scard:nth-child(3n+1) { --r: -1deg; } .scard:nth-child(3n+2) { --r: 0.8deg; } .scard:nth-child(3n) { --r: -0.5deg; }
+  .scard:nth-child(n+4) { grid-column: span 3; flex-direction: row; align-items: stretch; gap: 20px; }
+  .scard:hover, .scard:focus-within { transform: rotate(0deg) translateY(-8px); box-shadow: 0 1px 1px rgba(16, 23, 21, 0.1), 0 26px 40px -16px rgba(16, 23, 21, 0.5); }
+  .scard .tape { top: -13px; left: 34px; transform: rotate(-4deg); }
+  .scard:nth-child(even) .tape { left: auto; right: 34px; transform: rotate(5deg); }
+  .scard .sf { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: #0d1513; border: 1px solid rgba(16, 23, 21, 0.18); }
+  .scard .sf img.mascots { object-position: center; background: #f1ead6; }
+  .scard:nth-child(n+4) .sf { flex: 0 0 46%; aspect-ratio: auto; min-height: 190px; }
+  .scard .sf img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; transition: transform 700ms cubic-bezier(.3, 0, .2, 1); }
+  .scard:hover .sf img, .scard:focus-within .sf img { transform: scale(1.06); }
+  .scard .sb { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+  .scard .sb > * { margin: 0; }
+  .scard .sb .mono { color: var(--acc); font-size: 11.5px; }
+  .scard h4 { font: 800 clamp(26px, 2.4vw, 34px)/1 var(--display); letter-spacing: -0.02em; }
+  .scard .blurb { font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
+  .scard .stamps { display: flex; flex-wrap: wrap; gap: 8px; }
+  .scard .ptech { margin-top: auto; }
+  .scard .sl { display: flex; gap: 8px 20px; flex-wrap: wrap; align-items: baseline; }
+  .scard .go { font: 600 13px/1.2 var(--mono); text-decoration: none; border-bottom: 2px solid var(--acc); padding-bottom: 2px; }
+  .scard .go::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+  .scard .gh { position: relative; z-index: 2; font: 500 13px/1.2 var(--mono); text-decoration: none; border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
+  .scard .gh:hover { border-color: var(--acc); }
+  .tg { display: inline-block; padding: 4px 7px 3px; border: 1.5px solid currentColor; font: 600 10px/1 var(--mono); letter-spacing: 0.13em; text-transform: uppercase; transform: rotate(-2deg); white-space: nowrap; }
+  .tg.site { color: var(--acc); } .tg.oss { color: #0e6a4c; } .tg.wip { color: #8a5a00; } .tg.priv { color: var(--mute); border-style: dashed; }
+  .row .mt .tg { margin-left: 8px; vertical-align: 2px; }
+  .idx-group { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 30px 0 10px; border-bottom: 2px solid var(--fg); font: 600 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+  .idx-group b { color: var(--fg); font-weight: 600; }
+  .sites-head { padding-block: 10vh 0; }
+  @media (max-width: 1000px) { .sites { grid-template-columns: repeat(2, minmax(0, 1fr)); } .scard, .scard:nth-child(n+4) { grid-column: span 1; flex-direction: column; } .scard:nth-child(n+4) .sf { flex: none; aspect-ratio: 16 / 10; min-height: 0; } }
+  @media (max-width: 640px) { .sites { grid-template-columns: minmax(0, 1fr); gap: 34px; } .row .mt .tg { display: block; width: max-content; margin: 8px 0 0; } }
+  html:not(.motion) .scard { transform: none; }
+  html:not(.motion) .scard .sf img { transition: none; }
   .peek { position: fixed; left: 0; top: 0; z-index: 60; width: 320px; aspect-ratio: 16 / 10; pointer-events: none; opacity: 0; overflow: hidden; background: #0d1513; box-shadow: var(--shadow); border: 6px solid var(--paper); }
   .peek img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
   .peek.fit img { object-fit: contain; background: #f4f6f5; }
@@ -512,6 +548,8 @@
       <p>Agent runtimes, developer tools, media pipelines and native apps. Projects marked Open source have public code you can read today. Projects stamped Private aren't public yet, and AgentKit is the next one being prepared for an open-source release.</p>
     </div>
     <div class="stack" id="stack"></div>
+    <div class="idx-head sites-head"><h3>Projects with their own site</h3><span class="mono" style="color:var(--mute)" id="sites-count"></span></div>
+    <div class="sites" id="sites"></div>
     <div class="idx-head"><h3>And the rest of the shelf</h3><span class="mono" style="color:var(--mute)" id="idx-count"></span></div>
     <div class="idx" id="idx"></div>
   </section>
@@ -1000,6 +1038,21 @@
                         }),
                     },
                     {
+                        name: "WALLE",
+                        meta: "AI Desktop Companion \u00b7 Tauri + Rust",
+                        repo: "https://github.com/AbyAbyss/my_walle",
+                        site: {
+                            href: "walle.html",
+                            label: "Visit the site",
+                        },
+                        desc:
+                            "A desktop AI companion that lives in the corner of your screen. Press Ctrl+Shift+Space, ask it to open " +
+                            "an app or check git status, and it answers in a speech bubble with a face to match. Two mascots, a robot " +
+                            "and a parrot, with seven emotions each. An early experiment from March 2026, no longer in active development.",
+                        tech: ["Rust", "Tauri", "React", "TypeScript"],
+                        shots: [R + "my_walle/main/docs/images/desktop.jpg"],
+                    },
+                    {
                         name: "PrivateVault",
                         meta: "Encrypted Vault \u00b7 Flutter",
                         priv: true,
@@ -1138,7 +1191,16 @@
 
   /* ---------- Content that comes from data ---------- */
   var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
-  var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0; });
+  var SITES = [
+    ["redis_gui", "assets/redis_gui/keyspace.webp", "A Redis GUI in one static Go binary. Browse the keyspace, run commands, watch live metrics and the MONITOR stream."],
+    ["dockman", "assets/dockman/dashboard.webp", "Docker and Podman side by side in one native window, with a shell into any container and a build layer waterfall."],
+    ["InkTerm", "assets/inkterm/terminal.webp", "A desktop terminal with tabs, live system stats, five themes and an MCP panel. Still in development.", "In development"],
+    ["RestClient", "assets/restclient/main.webp", "A cartoon-UI REST client with Postman-style test scripts, environments and built-in load testing."],
+    ["WALLE", "assets/walle/mascots.webp", "A little desktop companion in the corner of your screen, a robot or a parrot. An early experiment.", "Early experiment"]
+  ].map(function (r) { var p = byName(r[0]); p.thumb = r[1]; p.blurb = r[2]; p.status = r[3] || ""; return p; });
+  var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0 && SITES.indexOf(p) < 0; });
+  var rank = function (p) { return p.priv ? 2 : 1; };
+  INDEX = INDEX.map(function (p, i) { return [p, i]; }).sort(function (a, b) { return rank(a[0]) - rank(b[0]) || a[1] - b[1]; }).map(function (x) { return x[0]; });
 
   function linksOf(p) {
     var o = [];
@@ -1157,12 +1219,28 @@
       '<h3 class="pname">' + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
       '<div class="ptech">' + p.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" + linksOf(p) + "</div></article>";
   }).join("");
+  $("#sites-count").textContent = SITES.length + " with a site";
+  $("#sites").innerHTML = SITES.map(function (p) {
+    return '<article class="scard"><span class="tape" aria-hidden="true"></span>' +
+      '<div class="sf"><img loading="lazy"' + (p.name === "WALLE" ? ' class="mascots"' : "") + ' src="' + p.thumb + '" alt="' + esc(p.name) + (p.name === "WALLE" ? ", the robot and the parrot" : " screenshot") + '"></div>' +
+      '<div class="sb"><p class="mono">' + p.meta + "</p><h4>" + esc(p.name) + "</h4>" +
+      '<div class="stamps"><span class="tg oss">Open source</span>' + (p.status ? '<span class="tg wip">' + esc(p.status) + "</span>" : "") + "</div>" +
+      '<p class="blurb">' + esc(p.blurb) + "</p>" +
+      '<div class="ptech">' + p.tech.slice(0, 4).map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" +
+      '<div class="sl"><a class="go" href="' + p.site.href + '" aria-label="Visit the ' + esc(p.name) + ' site" data-cursor="Open site">Visit the site ↗</a>' +
+      '<a class="gh" href="' + p.repo + '" target="_blank" rel="noopener" data-cursor="Open">GitHub ↗</a></div></div></article>';
+  }).join("");
   $("#idx-count").textContent = INDEX.length + " more";
+  var GROUPS = { 1: "Open source on GitHub", 2: "Private for now" };
+  var gcount = { 1: 0, 2: 0 }; INDEX.forEach(function (p) { gcount[rank(p)]++; });
+  var lastRank = 0;
   $("#idx").innerHTML = INDEX.map(function (p, i) {
     var href = p.site ? p.site.href : p.repo || "";
-    var tag = href ? "a" : "div";
-    return "<" + tag + ' class="row" ' + (href ? 'href="' + href + '"' + (p.repo && !p.site ? ' target="_blank" rel="noopener"' : "") : "") + ' data-peek="' + i + '" data-cursor="View">' +
-      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + (p.priv ? " · Private" : p.repo ? " · Open source" : "") + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
+    var tag = href ? "a" : "div", r = rank(p), head = "";
+    if (r !== lastRank) { lastRank = r; head = '<div class="idx-group"><span>' + GROUPS[r] + "</span><b>" + gcount[r] + "</b></div>"; }
+    var stamp = p.priv ? '<span class="tg priv">Private</span>' : '<span class="tg oss">Open source</span>';
+    return head + "<" + tag + ' class="row" ' + (href ? 'href="' + href + '"' + (p.repo && !p.site ? ' target="_blank" rel="noopener"' : "") : "") + ' data-peek="' + i + '" data-cursor="View">' +
+      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + stamp + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
   }).join("");
   $("#cards").innerHTML = WORK.map(function (w) {
     return '<article class="card"><p class="org mono">' + esc(w.org) + " · " + w.meta + "</p><h3>" + esc(w.name) + "</h3><p>" + esc(w.desc) + '</p><div class="ptech">' + w.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div></article>";
@@ -1528,6 +1606,11 @@
         gsap.ticker.add(el._sc);
       });
     });
+  }
+  if (root.classList.contains("motion")) {
+    ScrollTrigger.batch(".scard", { start: "top 90%", once: true, onEnter: function (els) {
+      gsap.from(els, { opacity: 0, y: 70, rotation: function (i) { return (i % 2 ? 6 : -6); }, duration: 0.9, ease: "power3.out", stagger: 0.12, clearProps: "transform,opacity" });
+    } });
   }
   gsap.from(".row", { opacity: 0, y: 40, duration: 0.8, ease: "power3.out", stagger: 0.05, scrollTrigger: { trigger: "#idx", start: "top 85%", toggleActions: "play none none reverse" } });
 
