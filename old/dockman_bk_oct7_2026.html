@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en" data-rt="both">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dockman · Docker and Podman in one desktop app</title>
+<meta name="description" content="Dockman is a native desktop app (Tauri, Rust, React) for managing Docker and Podman side by side: containers, images, volumes, networks, builds and runtimes. macOS, Windows, Linux. Free and open source." />
+<meta name="theme-color" content="#0a1220" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ee8a62'/%3E%3Cg transform='translate(14 14) scale(1.5)' fill='none' stroke='%23241a0f' stroke-width='1.7' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath d='M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4M21 7l-9 4M12 11v10'/%3E%3C/g%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #0a1220;
+    --ink2: #0d1627;
+    --panel: #111c31;
+    --panel2: #16233c;
+    --line: rgba(160,185,230,.14);
+    --line2: rgba(160,185,230,.26);
+    --text: #eaf0fa;
+    --muted: #a3b1c9;
+    --signal: #ee8a62;
+    --docker: #5aa9ff;
+    --podman: #b98af5;
+    --acc: var(--signal);
+    --acc-ink: #241a0f;
+    --display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --r: 20px;
+  }
+  :root[data-rt="docker"] { --acc: var(--docker); --acc-ink: #06182e; }
+  :root[data-rt="podman"] { --acc: var(--podman); --acc-ink: #1c0c33; }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  body {
+    background: var(--ink);
+    color: var(--text);
+    font: 400 16px/1.65 var(--body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: min(1200px, 100% - 32px); margin-inline: auto; }
+  .skip { position: absolute; left: 16px; top: -60px; background: var(--acc); color: var(--acc-ink); padding: 10px 14px; border-radius: 8px; z-index: 200; font-weight: 600; }
+  .skip:focus { top: 12px; }
+
+  /* nav */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(10,18,32,.82);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; min-height: 64px; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font: 700 19px/1 var(--display); letter-spacing: -.02em; min-height: 44px; }
+  .mark { width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #f0976a, #dc6e52); display: grid; place-items: center; }
+  .mark svg { width: 18px; height: 18px; }
+  .nav ul { display: flex; align-items: center; gap: 4px; list-style: none; }
+  .nav ul a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; color: var(--muted); text-decoration: none; font-size: 14px; border-radius: 8px; transition: color .2s; }
+  .nav ul a:hover { color: var(--text); }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px; padding: 0 22px; border-radius: 12px; border: 1px solid transparent;
+    font: 600 15px/1 var(--body); text-decoration: none; cursor: pointer;
+    transition: transform .2s, background .2s, border-color .2s, box-shadow .2s;
+  }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+  .btn.primary { background: var(--acc); color: var(--acc-ink); box-shadow: 0 10px 30px -10px var(--acc); }
+  .btn.primary:hover { transform: translateY(-2px); }
+  .btn.ghost { border-color: var(--line2); color: var(--text); background: rgba(255,255,255,.03); }
+  .btn.ghost:hover { border-color: var(--acc); transform: translateY(-2px); }
+  .nav .btn { min-height: 44px; padding: 0 16px; font-size: 14px; }
+
+  /* hero */
+  .hero { position: relative; overflow: hidden; padding: 72px 0 0; isolation: isolate; }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; z-index: -2;
+    background:
+      radial-gradient(900px 420px at 50% 100%, color-mix(in srgb, var(--acc) 34%, transparent), transparent 70%),
+      radial-gradient(600px 300px at 85% 0%, rgba(90,169,255,.10), transparent 70%),
+      linear-gradient(180deg, #091020 0%, #0f1b33 62%, #1a2540 100%);
+    transition: background .5s;
+  }
+  .hero::after { /* water lines */
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40%; z-index: -1; opacity: .5;
+    background: repeating-linear-gradient(180deg, transparent 0 14px, rgba(160,185,230,.06) 14px 15px);
+    mask-image: linear-gradient(180deg, transparent, #000);
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000);
+  }
+  .hero-top { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 40px; align-items: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 10px; border-radius: 99px;
+    border: 1px solid var(--line2); background: rgba(255,255,255,.04); font: 500 13px/1.2 var(--mono); color: var(--muted);
+  }
+  .badge i { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 25%, transparent); }
+  h1 { font: 800 clamp(2.6rem, 6.4vw, 5.2rem)/.98 var(--display); letter-spacing: -.035em; margin: 22px 0 20px; text-wrap: balance; }
+  h1 em { font-style: normal; color: var(--acc); transition: color .4s; }
+  .lede { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--muted); max-width: 34em; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .platforms { margin-top: 22px; font: 500 12.5px/1.6 var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+
+  /* runtime toggle (signature) */
+  .rt { justify-self: end; width: 100%; max-width: 440px; padding-bottom: 8px; }
+  .rt-label { font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .rt-seg { display: grid; grid-template-columns: repeat(3, 1fr); padding: 5px; gap: 4px; border: 1px solid var(--line2); border-radius: 16px; background: rgba(8,14,26,.7); }
+  .rt-seg button {
+    min-height: 48px; border-radius: 11px; border: 0; background: transparent; color: var(--muted);
+    font: 600 15px/1 var(--body); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .25s, color .25s;
+  }
+  .rt-seg button i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+  .rt-seg button[aria-checked="true"] { background: var(--panel2); color: var(--text); box-shadow: inset 0 0 0 1px var(--c); }
+  .rt-note { margin-top: 14px; font-size: 14.5px; color: var(--muted); min-height: 3.3em; }
+
+  /* window frame */
+  .stage { margin-top: 48px; perspective: 1600px; position: relative; }
+  .win {
+    position: relative; border-radius: 16px 16px 0 0; background: #0d0c0a; border: 1px solid var(--line2); border-bottom: 0;
+    box-shadow: 0 -20px 80px -30px color-mix(in srgb, var(--acc) 55%, transparent), 0 40px 80px -30px rgba(0,0,0,.7);
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transform-style: preserve-3d; transition: transform .25s ease-out, box-shadow .5s; overflow: hidden;
+  }
+  .win img { width: 100%; height: auto; }
+  .win-bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: #15130f; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .win-bar b { width: 11px; height: 11px; border-radius: 50%; background: #ff5f57; }
+  .win-bar b:nth-child(2) { background: #febc2e; } .win-bar b:nth-child(3) { background: #28c840; }
+  .win-bar span { margin-left: 10px; font: 500 12px/1 var(--mono); color: #9a9384; }
+  .hero .win { max-width: 1040px; margin-inline: auto; max-height: 520px; border-radius: 16px 16px 0 0; }
+  .stage { padding-bottom: 44px; }
+  .hero .win-shot { -webkit-mask-image: linear-gradient(180deg, #000 70%, transparent); mask-image: linear-gradient(180deg, #000 70%, transparent); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .win-shot { position: relative; }
+  .win-shot::after { /* runtime tint */
+    content: ""; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: color; opacity: 0; background: var(--acc); transition: opacity .4s;
+  }
+  :root[data-rt="docker"] .hero .win-shot::after, :root[data-rt="podman"] .hero .win-shot::after { opacity: .0; }
+
+  /* crates divider */
+  .quay { height: 18px; background: #070c17; border-top: 1px solid var(--line); position: relative; }
+  .crates { position: absolute; left: 0; right: 0; bottom: 100%; display: flex; align-items: flex-end; gap: 10px; justify-content: center; padding: 0 16px; }
+  .crate { height: 34px; width: 74px; border-radius: 4px 4px 0 0; position: relative; flex: none;
+    background: repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 3px, transparent 3px 9px), var(--cc); opacity: .92; }
+  .crate:nth-child(3n) { height: 26px; }
+  .crate:nth-child(2n) { width: 58px; }
+
+  section { padding: 88px 0; position: relative; }
+  .eyebrow { font: 500 12.5px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 16px; transition: color .4s; }
+  h2 { font: 800 clamp(2rem, 4.2vw, 3.2rem)/1.05 var(--display); letter-spacing: -.03em; max-width: 18em; text-wrap: balance; }
+  .sub { color: var(--muted); max-width: 40em; margin-top: 16px; font-size: 1.05rem; }
+  .head { margin-bottom: 48px; }
+
+  /* bento */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--ink2)); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 26px; position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px;
+    transition: border-color .3s, transform .3s;
+  }
+  .card:hover { border-color: color-mix(in srgb, var(--acc) 55%, transparent); }
+  .card h3 { font: 700 1.3rem/1.2 var(--display); letter-spacing: -.015em; }
+  .card p { color: var(--muted); font-size: .98rem; }
+  .ic { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--acc) 16%, transparent); color: var(--acc); margin-bottom: 6px; transition: .4s; }
+  .ic svg { width: 22px; height: 22px; }
+  .c-dash { grid-column: span 4; }
+  .c-cont { grid-column: span 2; }
+  .c-shell, .c-img, .c-vol { grid-column: span 2; }
+  .c-net { grid-column: span 3; }
+  .c-build { grid-column: span 3; }
+  .c-bin, .c-set, .c-free { grid-column: span 2; }
+  .thumb { margin: 10px -26px -26px; border-top: 1px solid var(--line); overflow: hidden; flex: 1; min-height: 210px; position: relative; }
+  .thumb img { width: 150%; max-width: none; height: auto; position: absolute; left: -26%; top: -18%; }
+  .thumb::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, var(--ink2)); }
+  .dual { display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  .chip { font: 500 12.5px/1 var(--mono); padding: 8px 12px; border-radius: 99px; border: 1px solid var(--line2); color: var(--muted); display: inline-flex; align-items: center; gap: 8px; }
+  .chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+  .kbd { font: 500 12.5px/1 var(--mono); border: 1px solid var(--line2); border-bottom-width: 2px; border-radius: 6px; padding: 3px 7px; color: var(--text); }
+  .c-free { background: linear-gradient(135deg, color-mix(in srgb, var(--acc) 22%, var(--panel)), var(--panel)); }
+
+  /* gallery */
+  .gallery { background: linear-gradient(180deg, var(--ink), #0c1527 50%, var(--ink)); }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 20px; scrollbar-width: thin; }
+  .tabs button {
+    flex: none; min-height: 44px; padding: 0 18px; border-radius: 99px; border: 1px solid var(--line2); background: transparent; color: var(--muted);
+    font: 500 14px/1 var(--body); cursor: pointer; transition: .2s;
+  }
+  .tabs button[aria-selected="true"] { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); font-weight: 600; }
+  .tabs button:hover:not([aria-selected="true"]) { color: var(--text); border-color: var(--text); }
+  .show { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
+  .show .win { border-radius: 14px; border-bottom: 1px solid var(--line2); }
+  .show .win img { aspect-ratio: 1600/1070; }
+  .show .zoom { position: absolute; right: 14px; bottom: 14px; }
+  .zoom { min-height: 44px; padding: 0 16px; border-radius: 10px; background: rgba(10,18,32,.85); color: var(--text); border: 1px solid var(--line2); font: 500 13px/1 var(--body); cursor: pointer; backdrop-filter: blur(6px); }
+  .zoom:hover { border-color: var(--acc); }
+  .cap h3 { font: 700 1.6rem/1.15 var(--display); letter-spacing: -.02em; margin-bottom: 10px; }
+  .cap p { color: var(--muted); }
+  dialog { border: 1px solid var(--line2); background: var(--ink); color: var(--text); border-radius: 14px; padding: 0; width: min(1500px, 96vw); max-height: 94vh; overflow: auto; margin: auto; }
+  dialog::backdrop { background: rgba(3,6,12,.86); }
+  dialog img { width: 100%; height: auto; }
+  dialog .close { position: sticky; top: 10px; float: right; margin: 10px; z-index: 2; }
+
+  /* how */
+  .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: stretch; }
+  .node { border: 1px solid var(--line2); border-radius: var(--r); padding: 24px; background: var(--panel); }
+  .node small { font: 500 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .node h3 { font: 700 1.25rem/1.2 var(--display); margin: 10px 0 8px; }
+  .node p { color: var(--muted); font-size: .96rem; }
+  .node code, .code-inline { font: 400 .88em var(--mono); background: rgba(255,255,255,.07); padding: 2px 6px; border-radius: 5px; }
+  .link { display: grid; place-items: center; color: var(--acc); }
+  .link svg { width: 34px; height: 34px; }
+  .stack { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+
+  /* download */
+  .dl { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .plat { border: 1px dashed var(--line2); border-radius: var(--r); padding: 24px; background: rgba(17,28,49,.5); }
+  .plat h3 { font: 700 1.25rem/1.2 var(--display); display: flex; align-items: center; gap: 10px; }
+  .plat ul { list-style: none; margin-top: 14px; display: grid; gap: 8px; }
+  .plat li { font: 400 14px/1.4 var(--mono); color: var(--muted); display: flex; gap: 10px; align-items: baseline; }
+  .plat li b { color: var(--text); font-weight: 500; }
+  .status-note { margin-top: 22px; display: flex; gap: 14px; align-items: flex-start; padding: 20px 22px; border-radius: var(--r); border: 1px solid color-mix(in srgb, var(--acc) 45%, transparent); background: color-mix(in srgb, var(--acc) 9%, var(--ink)); }
+  .status-note svg { width: 24px; height: 24px; color: var(--acc); flex: none; margin-top: 2px; }
+  .status-note a { color: var(--acc); font-weight: 600; }
+
+  /* first launch */
+  .launch { margin-top: 56px; border: 1px solid var(--line2); border-radius: 26px; background: linear-gradient(180deg, var(--panel), var(--ink2)); overflow: hidden; }
+  .launch-head { padding: 32px 32px 24px; border-bottom: 1px solid var(--line); }
+  .launch-head h3 { font: 800 clamp(1.5rem, 3vw, 2.1rem)/1.1 var(--display); letter-spacing: -.025em; }
+  .launch-head p { color: var(--muted); margin-top: 10px; max-width: 46em; }
+  .launch-head .lead { color: var(--text); font-size: 1.1rem; font-weight: 500; margin-top: 14px; }
+  .os { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .os > div { padding: 28px 32px 32px; border-right: 1px solid var(--line); min-width: 0; }
+  .os > div:last-child { border-right: 0; }
+  .os h4 { font: 700 1.1rem/1.2 var(--display); display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .os p { color: var(--muted); font-size: .96rem; margin-bottom: 14px; }
+  .os p b, .os p strong { color: var(--text); font-weight: 600; }
+
+  /* code */
+  .code { display: flex; align-items: flex-start; position: relative; background: #060b15; border: 1px solid var(--line); border-radius: 12px; margin: 10px 0 0; }
+  .code pre { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; padding: 16px 8px 16px 16px; overflow-x: auto; font: 400 13.5px/1.6 var(--mono); color: #d7e3f7; scrollbar-width: thin; }
+  .code .p { color: var(--acc); user-select: none; }
+  .copy {
+    flex: none; margin: 6px; min-height: 44px; min-width: 44px; padding: 0 12px; border-radius: 9px;
+    border: 1px solid var(--line2); background: var(--panel2); color: var(--text); font: 500 12.5px/1 var(--body); cursor: pointer;
+  }
+  .copy:hover { border-color: var(--acc); }
+  .copy.done { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
+  .code-lbl { font: 500 12.5px/1.4 var(--mono); color: var(--muted); margin-top: 18px; }
+  .code-lbl:first-child { margin-top: 0; }
+
+  /* build */
+  .build { display: grid; grid-template-columns: 5fr 7fr; gap: 40px; align-items: start; }
+  .prereq { list-style: none; display: grid; gap: 12px; margin-top: 26px; }
+  .prereq li { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--muted); font-size: .96rem; }
+  .prereq li b { color: var(--text); display: block; font-weight: 600; }
+  .prereq svg { width: 22px; height: 22px; color: var(--acc); flex: none; margin-top: 2px; }
+  .prereq a { color: var(--acc); }
+  .steps { grid-template-columns: minmax(0,1fr); display: grid; gap: 22px; counter-reset: s; min-width: 0; }
+  .build > *, .step, .show > *, .node { min-width: 0; }
+  .step { position: relative; padding-left: 52px; counter-increment: s; }
+  .step::before { content: counter(s); position: absolute; left: 0; top: 0; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in srgb, var(--acc) 18%, transparent); color: var(--acc); font: 700 15px/1 var(--display); border: 1px solid color-mix(in srgb, var(--acc) 50%, transparent); }
+  .step h3 { font: 700 1.1rem/1.3 var(--display); margin-bottom: 2px; }
+  .step p { color: var(--muted); font-size: .94rem; }
+
+  footer { border-top: 1px solid var(--line); padding: 48px 0 56px; background: #070c17; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; align-items: flex-start; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 4px 8px; }
+  footer nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; color: var(--muted); text-decoration: none; border-radius: 8px; }
+  footer nav a:hover { color: var(--text); }
+  .made { font-size: 13.5px; color: var(--muted); }
+  .made a { text-decoration: underline; text-underline-offset: 3px; display: inline-flex; align-items: center; min-height: 44px; }
+
+  /* reveal */
+  .js .rv { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0s); }
+  .js .rv.in { opacity: 1; transform: none; }
+  .js .crate { transform: translateY(-120px); opacity: 0; transition: transform .8s cubic-bezier(.3,.9,.3,1.15), opacity .4s; transition-delay: calc(var(--i) * 70ms); }
+  .js .quay.in .crate { transform: none; opacity: .92; }
+
+  @media (max-width: 980px) {
+    .hero-top { grid-template-columns: 1fr; }
+    .rt { justify-self: start; max-width: none; }
+    .c-dash, .c-net, .c-build { grid-column: span 6; }
+    .c-cont, .c-shell, .c-img, .c-vol, .c-bin, .c-set, .c-free { grid-column: span 3; }
+    .show { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr; }
+    .link svg { transform: rotate(90deg); }
+    .dl { grid-template-columns: 1fr; }
+    .os { grid-template-columns: 1fr; }
+    .os > div { border-right: 0; border-bottom: 1px solid var(--line); }
+    .os > div:last-child { border-bottom: 0; }
+    .build { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    section { padding: 72px 0; }
+    .hero { padding-top: 44px; }
+    .nav ul li:not(:last-child) { display: none; }
+    .c-dash, .c-net, .c-build, .c-cont, .c-shell, .c-img, .c-vol, .c-bin, .c-set, .c-free { grid-column: span 6; }
+    .launch-head, .os > div { padding-left: 20px; padding-right: 20px; }
+    .card { padding: 22px; }
+    .thumb { margin: 10px -22px -22px; }
+    .cta .btn { flex: 1 1 100%; }
+    .code pre { font-size: 12.5px; }
+    .crate { width: 44px !important; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+    .js .rv, .js .crate { opacity: 1 !important; transform: none !important; }
+    .win { transform: none !important; }
+  }
+</style>
+<script>document.documentElement.classList.add('js');</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Dockman home">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#241a0f" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4M21 7l-9 4M12 11v10"/></svg></span>
+      Dockman
+    </a>
+    <ul>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#inside">A look inside</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#download">Download</a></li>
+      <li><a class="btn ghost" href="https://github.com/AbyAbyss/dockman">GitHub</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main">
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-top">
+      <div>
+        <span class="badge"><i aria-hidden="true"></i>In development, but usable today</span>
+        <h1>Docker and Podman, <em>side by side.</em></h1>
+        <p class="lede">Dockman is a native desktop app for your container runtimes. Containers, images, volumes, networks, builds and the runtimes themselves, in one window.</p>
+        <div class="cta">
+          <a class="btn primary" href="#build">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+            Build from source</a>
+          <a class="btn ghost" href="https://github.com/AbyAbyss/dockman">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>
+            View on GitHub</a>
+        </div>
+        <p class="platforms">macOS · Windows · Linux · MIT licensed</p>
+      </div>
+
+      <div class="rt" role="radiogroup" aria-label="Runtime filter, changes the page accent colour">
+        <div class="rt-label">Pick a runtime, like in the app</div>
+        <div class="rt-seg">
+          <button type="button" role="radio" aria-checked="true" data-rt="both" style="--c: var(--signal)"><i></i>Both</button>
+          <button type="button" role="radio" aria-checked="false" data-rt="docker" style="--c: var(--docker)"><i></i>Docker</button>
+          <button type="button" role="radio" aria-checked="false" data-rt="podman" style="--c: var(--podman)"><i></i>Podman</button>
+        </div>
+        <p class="rt-note" id="rtnote" aria-live="polite">Both engines in one list. Run a container on either, or filter down to one.</p>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="win" id="tilt">
+        <div class="win-shot"><img src="../assets/dockman/dashboard.webp" width="1600" height="1066" alt="The Dockman dashboard: counts of running containers, cached images, volumes and networks, Docker and Podman engine cards, an activity feed and quick commands." fetchpriority="high" /></div>
+      </div>
+    </div>
+  </div>
+  <div class="quay" id="quay" aria-hidden="true">
+    <div class="crates">
+      <span class="crate" style="--i:0;--cc:#ee8a62"></span><span class="crate" style="--i:1;--cc:#3d7fd1"></span><span class="crate" style="--i:2;--cc:#8f63cf"></span><span class="crate" style="--i:3;--cc:#c9573f"></span><span class="crate" style="--i:4;--cc:#2f6aa8"></span><span class="crate" style="--i:5;--cc:#ee8a62"></span><span class="crate" style="--i:6;--cc:#7a52b8"></span><span class="crate" style="--i:7;--cc:#3d7fd1"></span><span class="crate" style="--i:8;--cc:#d4704c"></span><span class="crate" style="--i:9;--cc:#8f63cf"></span><span class="crate" style="--i:10;--cc:#2f6aa8"></span><span class="crate" style="--i:11;--cc:#ee8a62"></span><span class="crate" style="--i:12;--cc:#c9573f"></span><span class="crate" style="--i:13;--cc:#3d7fd1"></span>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">What's in the hold</div>
+      <h2>Everything you reach for, one window.</h2>
+      <p class="sub">Nine areas, all in the sidebar. Each one works with both runtimes.</p>
+    </div>
+    <div class="bento">
+      <article class="card c-dash rv">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+        <h3>Dashboard</h3>
+        <p>A live overview: running containers, cached images, volumes and networks. Twin Docker and Podman engine cards, an activity feed, and one-click quick commands.</p>
+        <div class="dual"><span class="chip" style="--c:var(--docker)"><i></i>docker</span><span class="chip" style="--c:var(--podman)"><i></i>podman</span><span class="chip"><span class="kbd">⌘K</span> search</span></div>
+        <div class="thumb"><img loading="lazy" src="../assets/dockman/dashboard.webp" width="1600" height="1066" alt="Dashboard with engine cards for Docker and Podman and an activity feed." style="width:112%;left:-8%;top:-30%" /></div>
+      </article>
+      <article class="card c-cont rv" style="--d:.05s">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4M21 7l-9 4M12 11v10"/></svg></div>
+        <h3>Containers</h3>
+        <p>A filterable, groupable table with start, stop, pause, restart and remove. The Run Container composer takes image presets, a name, a runtime, port, env and volume mappings, and a command override.</p>
+        <div class="thumb"><img loading="lazy" src="../assets/dockman/containers.webp" width="1600" height="1072" alt="Containers table with status and runtime filters." style="width:190%;left:-70%;top:-24%" /></div>
+      </article>
+      <article class="card c-shell rv">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
+        <h3>Built-in shell</h3>
+        <p>Open an interactive terminal into any running container. Switch between <span class="code-inline">sh</span> and <span class="code-inline">bash</span>, and walk command history with the arrow keys.</p>
+      </article>
+      <article class="card c-img rv" style="--d:.05s">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M21 16l-5-5-8 9"/></svg></div>
+        <h3>Images</h3>
+        <p>Browse the local library, pull from any registry, see a storage breakdown, prune what is unused and review top registries.</p>
+      </article>
+      <article class="card c-vol rv" style="--d:.1s">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div>
+        <h3>Volumes</h3>
+        <p>Usage and reclaimable space, active bind mounts, and scheduled backup snapshots.</p>
+      </article>
+      <article class="card c-net rv">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="19" r="2.5"/><path d="M8 7.5l8 .3M7 8.3l4 8.6M17 10.3l-4 6.6"/></svg></div>
+        <h3>Networks</h3>
+        <p>A topology map of what is attached to what, plus live inbound and outbound bandwidth.</p>
+        <div class="thumb"><img loading="lazy" src="../assets/dockman/networks.webp" width="1600" height="1070" alt="Networks page showing a topology map and bandwidth telemetry." /></div>
+      </article>
+      <article class="card c-build rv" style="--d:.05s">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4l6 6-9 9H5v-6zM12 6l6 6"/></svg></div>
+        <h3>Builds</h3>
+        <p>Start image builds with layer caching, follow the build history and inspect the layer waterfall.</p>
+        <div class="thumb"><img loading="lazy" src="../assets/dockman/builds.webp" width="1600" height="1066" alt="Builds page with build history and a layer waterfall." /></div>
+      </article>
+      <article class="card c-bin rv">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg></div>
+        <h3>Binaries</h3>
+        <p>Install, update and switch between Docker and Podman CLI versions, with a setup checklist.</p>
+      </article>
+      <article class="card c-set rv" style="--d:.05s">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></div>
+        <h3>Settings</h3>
+        <p>Pick the active runtime, tune engine resources, and toggle Compose v2, BuildKit and Rosetta.</p>
+      </article>
+      <article class="card c-free rv" style="--d:.1s">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3>Native, free, yours</h3>
+        <p>Built on Tauri, so there is no bundled browser. MIT licensed, no account, and telemetry is off by default. If a Podman run hits an architecture mismatch, Dockman can retry it on Docker.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="inside" class="gallery">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">A look inside</div>
+      <h2>Real screens, straight from the app.</h2>
+      <p class="sub">Pick a tab. Arrow keys move between them, and Enlarge opens the full size image.</p>
+    </div>
+    <div class="rv">
+      <div class="tabs" role="tablist" aria-label="Dockman screens" id="tabs"></div>
+      <div class="show">
+        <div class="win" id="gwin" role="tabpanel" aria-live="polite">
+          <div class="gtitle sr" id="gtitle"></div>
+          <div style="position:relative">
+            <img id="gimg" src="../assets/dockman/containers.webp" width="1600" height="1072" alt="Containers page" loading="lazy" />
+            <button class="zoom" type="button" id="zoom">Enlarge</button>
+          </div>
+        </div>
+        <div class="cap"><h3 id="gh">Containers</h3><p id="gp"></p></div>
+      </div>
+    </div>
+  </div>
+</section>
+<dialog id="dlg" aria-label="Screenshot, enlarged"><button class="zoom close" type="button" id="dclose">Close</button><img id="dimg" src="" alt="" width="1600" height="1070" /></dialog>
+
+<!-- HOW -->
+<section id="how">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">How it works</div>
+      <h2>A thin native shell over the CLIs you already have.</h2>
+      <p class="sub">Dockman does not ship its own container engine. It drives the Docker and Podman command line tools and shows you the result.</p>
+    </div>
+    <div class="flow">
+      <div class="node rv"><small>Interface</small><h3>React and TypeScript</h3><p>The UI, built with Vite, with state kept in Zustand. One page per area: dashboard, containers, images, volumes, networks, builds, binaries, settings.</p></div>
+      <div class="link rv" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-5-5l5 5-5 5"/></svg></div>
+      <div class="node rv" style="--d:.08s"><small>Shell</small><h3>Tauri 2 and Rust</h3><p>Commands in Rust handle containers, images, volumes, networks, builds, compose, exec and runtime detection. The app is a small native binary.</p></div>
+      <div class="link rv" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16m-5-5l5 5-5 5"/></svg></div>
+      <div class="node rv" style="--d:.16s"><small>Engines</small><h3>Docker and Podman</h3><p>Rust spawns the <code>docker</code> and <code>podman</code> CLIs and reads their output. Use the ones on your machine, or install them from the Binaries page.</p></div>
+    </div>
+    <div class="stack rv">
+      <span class="chip">Tauri 2</span><span class="chip">Rust</span><span class="chip">React 18</span><span class="chip">TypeScript 5</span><span class="chip">Vite</span><span class="chip">Zustand</span><span class="chip">MIT</span>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download" style="padding-top:40px">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Download</div>
+      <h2>Installers are on their way.</h2>
+      <p class="sub">Here is what each platform will get.</p>
+    </div>
+    <div class="dl">
+      <div class="plat rv">
+        <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.8-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.300.8 1.100 1.700 2.400 2.900 2.300 1.200 0 1.600-.7 3-.7s1.800.7 3 .7 2-1.100 2.800-2.200c.9-1.300 1.200-2.500 1.300-2.600-.1 0-2.500-1-2.500-3.900zM14.200 5.800c.6-.8 1.100-1.900.9-3-.9 0-2.100.6-2.700 1.400-.6.700-1.100 1.800-1 2.900 1.100.1 2.200-.5 2.800-1.300z"/></svg>macOS</h3>
+        <ul><li><b>.dmg</b> Apple Silicon</li><li><b>.dmg</b> Intel</li></ul>
+      </div>
+      <div class="plat rv" style="--d:.06s">
+        <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.5l7.5-1v7H3zM11.5 4.3L21 3v8.500h-9.500zM3 12.500h7.500v7L3 18.500zM11.500 12.500H21V21l-9.500-1.300z"/></svg>Windows</h3>
+        <ul><li><b>.msi</b> installer</li><li><b>.exe</b> installer</li></ul>
+      </div>
+      <div class="plat rv" style="--d:.12s">
+        <h3><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg>Linux</h3>
+        <ul><li><b>.AppImage</b> portable</li><li><b>.deb</b> Debian and Ubuntu</li></ul>
+      </div>
+    </div>
+    <div class="status-note rv">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5h.01"/></svg>
+      <p>There are no prebuilt installers yet. The first ones are being prepared and will appear on the <a href="https://github.com/AbyAbyss/dockman/releases">Releases page</a>. Until then, <a href="#build">build from source</a>.</p>
+    </div>
+
+    <div class="launch rv" id="first-launch">
+      <div class="launch-head">
+        <div class="eyebrow">First launch</div>
+        <h3>Your OS will ask you to confirm once.</h3>
+        <p class="lead">macOS will say it can't verify Dockman (free side project, not notarized).</p>
+        <p>This applies to the installers once they are published, and to a build you copy to another machine. An app you build locally opens normally.</p>
+      </div>
+      <div class="os">
+        <div>
+          <h4>macOS</h4>
+          <p>Open <strong>System Settings → Privacy &amp; Security</strong> and click <strong>Open Anyway</strong>, or run this in Terminal:</p>
+          <div class="code"><pre><code>xattr -dr com.apple.quarantine /Applications/Dockman.app</code></pre><button class="copy" type="button" aria-label="Copy macOS command">Copy</button></div>
+        </div>
+        <div>
+          <h4>Windows</h4>
+          <p>SmartScreen shows a prompt. Choose <strong>More info → Run anyway</strong>.</p>
+        </div>
+        <div>
+          <h4>Linux</h4>
+          <p>Make the AppImage executable and run it:</p>
+          <div class="code"><pre><code>chmod +x Dockman_*.AppImage &amp;&amp; ./Dockman_*.AppImage</code></pre><button class="copy" type="button" aria-label="Copy AppImage command">Copy</button></div>
+          <p style="margin-top:14px">Or install the .deb:</p>
+          <div class="code"><pre><code>sudo apt install ./Dockman_*.deb</code></pre><button class="copy" type="button" aria-label="Copy deb command">Copy</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BUILD -->
+<section id="build" style="padding-top:40px">
+  <div class="wrap">
+    <div class="head rv">
+      <div class="eyebrow">Build from source</div>
+      <h2>A few commands to a running app.</h2>
+      <p class="sub">The quickest way to try Dockman today.</p>
+    </div>
+    <div class="build">
+      <div class="rv">
+        <h3 style="font:700 1.2rem/1.2 var(--display)">You will need</h3>
+        <ul class="prereq">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span><b>Node.js 20 or newer</b><a href="https://nodejs.org">nodejs.org</a></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span><b>Rust, stable toolchain</b><a href="https://rustup.rs">rustup.rs</a></span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><span><b>Tauri platform dependencies</b><a href="https://tauri.app/start/prerequisites/">Tauri prerequisites guide</a></span></li>
+        </ul>
+      </div>
+      <div class="steps">
+        <div class="step rv"><h3>Clone the repo</h3><div class="code"><pre><code><span class="p">$ </span>git clone https://github.com/AbyAbyss/dockman.git
+<span class="p">$ </span>cd dockman</code></pre><button class="copy" type="button" aria-label="Copy clone commands">Copy</button></div></div>
+        <div class="step rv"><h3>Install dependencies</h3><div class="code"><pre><code><span class="p">$ </span>npm install</code></pre><button class="copy" type="button" aria-label="Copy install command">Copy</button></div></div>
+        <div class="step rv"><h3>Run in development mode</h3><div class="code"><pre><code><span class="p">$ </span>npm run tauri dev</code></pre><button class="copy" type="button" aria-label="Copy dev command">Copy</button></div></div>
+        <div class="step rv"><h3>Or build an installer</h3><p>The installer for your platform lands in <span class="code-inline">src-tauri/target/release/bundle/</span>.</p><div class="code"><pre><code><span class="p">$ </span>npm run tauri build</code></pre><button class="copy" type="button" aria-label="Copy build command">Copy</button></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#241a0f" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M3 7l9-4 9 4M3 7v10l9 4 9-4V7M3 7l9 4M21 7l-9 4M12 11v10"/></svg></span>Dockman</a>
+      <p class="made">Free and open source. <a href="../index.html">Made by Aby Saji Pappachan</a></p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="https://github.com/AbyAbyss/dockman">Repository</a>
+      <a href="https://github.com/AbyAbyss/dockman/releases">Releases</a>
+      <a href="https://github.com/AbyAbyss/dockman/blob/main/LICENSE">MIT License</a>
+      <a href="https://github.com/AbyAbyss/dockman/issues">Issues</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* reveal */
+  var rv = document.querySelectorAll('.rv, .quay');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    rv.forEach(function (n) { io.observe(n); });
+  } else { rv.forEach(function (n) { n.classList.add('in'); }); }
+
+  /* runtime toggle */
+  var notes = {
+    both: 'Both engines in one list. Run a container on either, or filter down to one.',
+    docker: 'Docker only. Containers, images and volumes from the Docker engine.',
+    podman: 'Podman only. Same pages, filtered to the Podman engine.'
+  };
+  var btns = document.querySelectorAll('.rt-seg button');
+  function setRt(v, focus) {
+    root.setAttribute('data-rt', v);
+    btns.forEach(function (b) {
+      var on = b.getAttribute('data-rt') === v;
+      b.setAttribute('aria-checked', on);
+      b.tabIndex = on ? 0 : -1;
+      if (on && focus) b.focus();
+    });
+    document.getElementById('rtnote').textContent = notes[v];
+  }
+  btns.forEach(function (b, i) {
+    b.tabIndex = i === 0 ? 0 : -1;
+    b.addEventListener('click', function () { setRt(b.getAttribute('data-rt')); });
+    b.addEventListener('keydown', function (e) {
+      var k = e.key, d = (k === 'ArrowRight' || k === 'ArrowDown') ? 1 : (k === 'ArrowLeft' || k === 'ArrowUp') ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      setRt(btns[(i + d + btns.length) % btns.length].getAttribute('data-rt'), true);
+    });
+  });
+
+  /* tilt */
+  var tilt = document.getElementById('tilt');
+  var stage = tilt.parentNode;
+  if (!reduce && window.matchMedia('(hover: hover)').matches) {
+    stage.addEventListener('pointermove', function (e) {
+      var r = stage.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+      tilt.style.setProperty('--ry', (x * 5).toFixed(2) + 'deg');
+      tilt.style.setProperty('--rx', (-y * 4).toFixed(2) + 'deg');
+    });
+    stage.addEventListener('pointerleave', function () { tilt.style.setProperty('--rx', '0deg'); tilt.style.setProperty('--ry', '0deg'); });
+  }
+
+  /* gallery */
+  var shots = [
+    ['containers', 'Containers', 1072, 'A filterable, groupable table with start, stop, pause, restart and remove for every container on both runtimes.'],
+    ['run-container', 'Run Container', 1068, 'The composer: image presets, name, runtime, port, env and volume mappings and a command override.'],
+    ['run-container-progress', 'Scaffolding loader', 960, 'An animated scaffolding loader plays while an image pulls.'],
+    ['images', 'Images', 1064, 'The local library, pulls from any registry, a storage breakdown, pruning and top registries.'],
+    ['volumes', 'Volumes', 1070, 'Usage and reclaimable space, active bind mounts and scheduled backup snapshots.'],
+    ['networks', 'Networks', 1070, 'A topology map of what is attached to what, with live inbound and outbound bandwidth.'],
+    ['builds', 'Builds', 1066, 'Image builds with layer caching, a build history and the layer waterfall.'],
+    ['binaries', 'Binaries', 1058, 'Install, update and switch Docker and Podman CLI versions, with a setup checklist.'],
+    ['settings', 'Settings', 1054, 'The active runtime, engine resources, and toggles for Compose v2, BuildKit and Rosetta.']
+  ];
+  var tabs = document.getElementById('tabs'), gimg = document.getElementById('gimg');
+  var gh = document.getElementById('gh'), gp = document.getElementById('gp'), gt = document.getElementById('gtitle');
+  var cur = 0, tb = [];
+  function pick(i, focus) {
+    cur = i; var s = shots[i];
+    gimg.src = '../assets/dockman/' + s[0] + '.webp'; gimg.height = s[2];
+    gimg.alt = s[1] + ' page of Dockman'; gh.textContent = s[1]; gp.textContent = s[3]; gt.textContent = 'Dockman · ' + s[1];
+    tb.forEach(function (b, j) { b.setAttribute('aria-selected', j === i); b.tabIndex = j === i ? 0 : -1; });
+    if (focus) tb[i].focus();
+  }
+  shots.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'tab'); b.textContent = s[1];
+    b.addEventListener('click', function () { pick(i); });
+    b.addEventListener('keydown', function (e) {
+      var n = shots.length;
+      if (e.key === 'ArrowRight') { e.preventDefault(); pick((i + 1) % n, true); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); pick((i + n - 1) % n, true); }
+      else if (e.key === 'Home') { e.preventDefault(); pick(0, true); }
+      else if (e.key === 'End') { e.preventDefault(); pick(n - 1, true); }
+    });
+    tabs.appendChild(b); tb.push(b);
+  });
+  pick(0);
+  var dlg = document.getElementById('dlg'), dimg = document.getElementById('dimg');
+  document.getElementById('zoom').addEventListener('click', function () {
+    dimg.src = gimg.src; dimg.alt = gimg.alt;
+    if (dlg.showModal) dlg.showModal(); else window.open(gimg.src);
+  });
+  document.getElementById('dclose').addEventListener('click', function () { dlg.close(); });
+  dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+
+  /* copy */
+  function fallbackCopy(t) {
+    var a = document.createElement('textarea'); a.value = t; a.setAttribute('readonly', '');
+    a.style.cssText = 'position:fixed;top:0;left:0;opacity:0'; document.body.appendChild(a); a.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(a);
+  }
+  document.querySelectorAll('.copy').forEach(function (b) {
+    var label = b.textContent;
+    b.addEventListener('click', function () {
+      var code = b.parentNode.querySelector('pre').cloneNode(true);
+      code.querySelectorAll('.p').forEach(function (p) { p.remove(); });
+      var t = code.textContent.trim();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t).catch(function () { fallbackCopy(t); });
+      } else { fallbackCopy(t); }
+      b.textContent = 'Copied'; b.classList.add('done');
+      setTimeout(function () { b.textContent = label; b.classList.remove('done'); }, 1800);
+    });
+  });
+})();
+</script>
+</body>
+</html>
