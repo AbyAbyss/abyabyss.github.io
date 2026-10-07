@@ -76,6 +76,8 @@
     font-size:clamp(15px,2.4vw,23px);color:var(--dim);margin-top:20px;
     letter-spacing:2px;font-weight:400;
   }
+  #intro .featLine{font-family:var(--mono);font-size:clamp(10px,1.6vw,13px);
+    color:var(--amber);margin-top:14px;letter-spacing:1px;}
   #startBtn{
     margin-top:44px;font-family:var(--display);font-weight:700;
     font-size:clamp(12px,2vw,16px);letter-spacing:2px;
@@ -128,6 +130,24 @@
     box-shadow:0 0 26px rgba(47,230,214,.6);opacity:0;transition:opacity .16s;text-align:center;
   }
   #prompt.on{opacity:1;}
+
+  /* ---------- featured panel ---------- */
+  #featPanel{top:90px;left:16px;padding:0;width:218px;}
+  .fpHead{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--amber);
+    padding:10px 12px;cursor:pointer;pointer-events:auto;display:flex;
+    justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);}
+  .fpHead:hover{color:#fff;}
+  .fpList{display:flex;flex-direction:column;}
+  .fpList.collapsed{display:none;}
+  .fpRow{display:flex;align-items:center;gap:9px;padding:8px 12px;cursor:pointer;
+    pointer-events:auto;border-bottom:1px solid rgba(28,39,66,.55);transition:background .14s;}
+  .fpRow:last-child{border-bottom:none;}
+  .fpRow:hover{background:rgba(47,230,214,.09);}
+  .fpDot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .fpName{font-family:var(--ui);font-size:15px;font-weight:600;color:var(--ink);
+    letter-spacing:.5px;}
+  .fpRow:hover .fpName{color:#fff;}
+  @media(max-width:680px){#featPanel{width:188px;}}
 
   /* ---------- touch controls ---------- */
   #touch{display:none;}
@@ -182,6 +202,27 @@
   }
   .mClose:hover{border-color:var(--red);color:var(--red);}
   .mPoster{width:100%;display:block;border-bottom:1px solid var(--line);background:#070a16;}
+  /* carousel */
+  .car{position:relative;width:100%;background:#070a16;
+    border-bottom:1px solid var(--line);overflow:hidden;}
+  .carTrack{display:flex;transition:transform .38s cubic-bezier(.3,.85,.3,1);}
+  .carSlide{min-width:100%;aspect-ratio:16/10;display:flex;
+    align-items:center;justify-content:center;background:#070a16;}
+  .carSlide img{max-width:100%;max-height:100%;object-fit:contain;display:block;}
+  .carNav{position:absolute;top:50%;transform:translateY(-50%);z-index:4;cursor:pointer;
+    width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+    background:rgba(7,10,22,.82);color:var(--cyan);font-size:20px;line-height:1;
+    align-items:center;justify-content:center;transition:.14s;padding:0;}
+  .carNav:hover{background:var(--cyan);color:var(--bg);}
+  .carNav.cPrev{left:10px;} .carNav.cNext{right:10px;}
+  .carDots{position:absolute;bottom:10px;left:0;right:0;display:flex;gap:6px;
+    justify-content:center;z-index:4;}
+  .carDot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);
+    cursor:pointer;transition:.14s;}
+  .carDot.on{background:var(--cyan);box-shadow:0 0 8px var(--cyan);}
+  .carCount{position:absolute;top:10px;right:12px;z-index:4;font-family:var(--mono);
+    font-size:10px;color:var(--cyan);background:rgba(7,10,22,.82);
+    padding:3px 8px;border:1px solid var(--line);letter-spacing:1px;}
   .mBody{padding:22px 24px 28px;}
   .mName{font-family:var(--display);font-weight:700;font-size:clamp(20px,3.6vw,30px);color:#fff;}
   .mSub{font-family:var(--mono);font-size:13px;margin-top:9px;letter-spacing:1px;}
@@ -263,7 +304,11 @@
 <div id="hud">
   <div class="panel" id="namePlate">
     <div class="ttl">ABY SAJI PAPPACHAN</div>
-    <div class="sb">Technical Lead · Josys</div>
+    <div class="sb">Tech Lead · Backend &amp; AI Engineer</div>
+  </div>
+  <div class="panel" id="featPanel">
+    <div class="fpHead" id="fpHead"><span>&#9733; FEATURED BUILDS</span><span id="fpTog">&#9650;</span></div>
+    <div class="fpList" id="fpList"></div>
   </div>
   <div id="topRight">
     <button class="hbtn" id="soundBtn">&#9685; SOUND</button>
@@ -298,7 +343,8 @@
 <div id="intro">
   <div class="eyebrow">INTERACTIVE PORTFOLIO &nbsp;//&nbsp; STAR SYSTEM</div>
   <div class="title">ABY SAJI<br><span>PAPPACHAN</span></div>
-  <div class="role">Technical Lead — Backend · Platform · AI Systems</div>
+  <div class="role">Tech Lead @ Josys — Backend &amp; AI Engineer · Generative AI</div>
+  <div class="featLine">&#9733; FEATURED BUILDS &nbsp;·&nbsp; Yankit · dockman · redis_gui · sandkit · InkTerm</div>
   <button id="startBtn">&#9656; LAUNCH EXPLORER</button>
   <div class="tip">pilot your ship through the system — approach a planet to open it</div>
 </div>
@@ -329,14 +375,21 @@
    ============================================================ */
 var ABOUT = {
   name:"Aby Saji Pappachan",
-  role:"Technical Lead @ Josys",
-  blurb:"Technical Lead with 7+ years across backend, platform, data and AI systems. "+
-        "I design distributed systems, build LLM-powered platforms, and turn ambiguous, "+
-        "high-impact problems into shipped products. Based in Bengaluru — open to senior "+
-        "Backend / Platform roles in the UK.",
+  role:"Tech Lead @ Josys · Backend & AI Engineer",
+  blurb:"A results-driven Tech Lead passionate about building scalable systems and "+
+        "intelligent, AI-powered solutions. At Josys I lead robust backend services, secure "+
+        "event-driven architectures, and AI agents that solve real-world problems. Across "+
+        "Node.js, Python, Golang and Lua I've architected everything from high-performance "+
+        "MCP client-server platforms to secure APIs and cross-platform mobile apps — and I "+
+        "design custom LLM agents that bring generative AI into production. I blend "+
+        "engineering leadership with hands-on problem solving: mentoring teams, designing "+
+        "clean APIs, and building things that scale.",
+  focus:["Generative AI","LLM Agents","MCP Client / Server",
+         "Backend · Node · Python · Golang · Lua","Event-Driven Architecture",
+         "Security","Mobile · Android & iOS"],
   stats:[
-    ["Backend Eng.",95],["Architecture",90],["Data / Analytics",88],
-    ["AI / LLM",82],["Cloud / Infra",80],["Frontend",70]
+    ["AI & LLM Systems",92],["Backend Engineering",95],["System Architecture",90],
+    ["Event-Driven & MCP",88],["Security",86],["Mobile — iOS / Android",78]
   ],
   timeline:[
     ["2025 — NOW","Technical Lead","Josys Digital Technologies"],
@@ -348,7 +401,7 @@ var ABOUT = {
   links:[
     {label:"EMAIL", url:"mailto:abyrocksaji@gmail.com", pri:true},
     {label:"GITHUB", url:"https://github.com/AbyAbyss"},
-    {label:"LINKEDIN", url:"https://linkedin.com/in/abyrocksaji"},
+    {label:"LINKEDIN", url:"https://www.linkedin.com/in/aby-saji/"},
     {label:"CODEPEN", url:"https://codepen.io/AbyAbyss"}
   ]
 };
@@ -362,24 +415,45 @@ var PROJECTS = [
          "yanking, stashing and recalling snippets, so your clipboard finally keeps up with you.",
     tech:["Swift","macOS","SwiftUI"],
     status:"Open-source project",
+    images:["https://raw.githubusercontent.com/AbyAbyss/Yankit/main/docs/panel.svg"],
     links:[{label:"VIEW CODE",url:"https://github.com/AbyAbyss/Yankit",pri:true}] },
 
   { id:"dockman", ring:"inner", name:"dockman", glyph:"docker", color:"#2f9bff",
     tag:"OPEN SOURCE", sub:"Docker Manager · Tauri",
     desc:"A lightweight Docker management desktop app built with Tauri and TypeScript — "+
-         "start, stop, inspect and monitor your containers, images and volumes from one "+
-         "fast, native-feeling window.",
+         "manage containers, images, volumes, networks and builds, run new containers with "+
+         "live progress, and monitor everything from one fast, native-feeling window.",
     tech:["TypeScript","Tauri","Rust","Docker"],
     status:"Open-source project",
+    images:[
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/dashboard.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/containers.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/images.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/volumes.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/networks.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/builds.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/binaries.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/run-container.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/run-container-progress.png",
+      "https://raw.githubusercontent.com/AbyAbyss/dockman/main/docs/screenshots/settings.png"
+    ],
     links:[{label:"VIEW CODE",url:"https://github.com/AbyAbyss/dockman",pri:true}] },
 
   { id:"redis", ring:"inner", name:"redis_gui", glyph:"db", color:"#ff4438",
     tag:"OPEN SOURCE", sub:"Redis Client · Webview",
     desc:"A graphical Redis client built in TypeScript with a lightweight Webview shell — "+
-         "browse keys, inspect values and run commands visually, turning a raw in-memory "+
-         "datastore into something you can actually see.",
+         "browse the keyspace, run commands in a CLI and workbench, and watch live memory, "+
+         "metrics and monitor streams, turning a raw datastore into something you can see.",
     tech:["TypeScript","Webview","Redis"],
     status:"Open-source project",
+    images:[
+      "https://raw.githubusercontent.com/AbyAbyss/redis_gui/main/docs/screenshots/workbench.png",
+      "https://raw.githubusercontent.com/AbyAbyss/redis_gui/main/docs/screenshots/keyspace.png",
+      "https://raw.githubusercontent.com/AbyAbyss/redis_gui/main/docs/screenshots/cli.png",
+      "https://raw.githubusercontent.com/AbyAbyss/redis_gui/main/docs/screenshots/monitor.png",
+      "https://raw.githubusercontent.com/AbyAbyss/redis_gui/main/docs/screenshots/metrics.png",
+      "https://raw.githubusercontent.com/AbyAbyss/redis_gui/main/docs/screenshots/memory.png"
+    ],
     links:[{label:"VIEW CODE",url:"https://github.com/AbyAbyss/redis_gui",pri:true}] },
 
   { id:"sandkit", ring:"inner", name:"sandkit", glyph:"code", color:"#f5b324",
@@ -389,15 +463,24 @@ var PROJECTS = [
          "execution via Piston, Pyodide and QuickJS — monetised through a hosted execution API.",
     tech:["TypeScript","Hono","Turborepo","Pyodide","QuickJS"],
     status:"Open-source project",
-    poster:"sandkit.svg",
+    poster:"../sandkit.svg",
     links:[{label:"VIEW CODE",url:"https://github.com/AbyAbyss/sandkit",pri:true}] },
 
   { id:"inkterm", ring:"inner", name:"InkTerm", glyph:"term", color:"#36e07f",
-    tag:"OPEN SOURCE", sub:"Terminal · TypeScript",
-    desc:"A modern, themeable terminal experience built in TypeScript — a clean, hackable "+
-         "take on the console that puts speed and a distraction-free interface first.",
-    tech:["TypeScript","Terminal","Node.js"],
+    tag:"OPEN SOURCE", sub:"AI Terminal · TypeScript",
+    desc:"A modern, themeable terminal built in TypeScript with a built-in AI agent and "+
+         "MCP (Model Context Protocol) support — bringing LLM-powered help and tooling "+
+         "straight into the command line, wrapped in polished themes from dark-pro to retro.",
+    tech:["TypeScript","AI Agent","MCP","Terminal","Node.js"],
     status:"Open-source project",
+    images:[
+      "https://raw.githubusercontent.com/AbyAbyss/InkTerm/main/docs/screenshots/terminal.png",
+      "https://raw.githubusercontent.com/AbyAbyss/InkTerm/main/docs/screenshots/ai-agent.png",
+      "https://raw.githubusercontent.com/AbyAbyss/InkTerm/main/docs/screenshots/mcp.png",
+      "https://raw.githubusercontent.com/AbyAbyss/InkTerm/main/docs/screenshots/retro-mcp.png",
+      "https://raw.githubusercontent.com/AbyAbyss/InkTerm/main/docs/screenshots/dark-pro.png",
+      "https://raw.githubusercontent.com/AbyAbyss/InkTerm/main/docs/screenshots/settings.png"
+    ],
     links:[{label:"VIEW CODE",url:"https://github.com/AbyAbyss/InkTerm",pri:true}] },
 
   /* ---- PROFESSIONAL WORK (outer ring) ---- */
@@ -693,6 +776,7 @@ function init(){
   buildShip();
 
   bindEvents();
+  buildFeaturedPanel();
   animate();
   $('#loader').style.display='none';
 }
@@ -804,22 +888,36 @@ function buildOrbits(){
 /* ---- planets ---- */
 function buildPlanet(data,x,y,z,radius,decor){
   var col=new THREE.Color(data.color);
+  var feat=data.ring==='inner';
   var grp=new THREE.Group();
   grp.position.set(x,y,z);
 
   var planet=new THREE.Mesh(
     new THREE.SphereGeometry(radius,32,32),
     new THREE.MeshStandardMaterial({color:col,roughness:0.72,metalness:0.18,
-      emissive:col,emissiveIntensity:0.12})
+      emissive:col,emissiveIntensity:feat?0.22:0.12})
   );
   grp.add(planet);
   /* atmosphere glow */
   var atmo=new THREE.Mesh(
-    new THREE.SphereGeometry(radius*1.22,28,28),
-    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.16,
+    new THREE.SphereGeometry(radius*(feat?1.34:1.22),28,28),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:feat?0.22:0.16,
       blending:THREE.AdditiveBlending,depthWrite:false})
   );
   grp.add(atmo);
+  /* featured projects — beacon of light */
+  var beacon=null;
+  if(feat){
+    beacon=new THREE.Mesh(
+      new THREE.ConeGeometry(radius*0.96,44,20,1,true),
+      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.16,
+        blending:THREE.AdditiveBlending,depthWrite:false,
+        side:THREE.DoubleSide,fog:false})
+    );
+    beacon.rotation.x=Math.PI;
+    beacon.position.y=radius+22;
+    grp.add(beacon);
+  }
   /* ring (some planets) */
   if(decor&1){
     var ring=new THREE.Mesh(
@@ -841,15 +939,16 @@ function buildPlanet(data,x,y,z,radius,decor){
     grp.userData.moon=moonPivot;
   }
 
-  var lab=makeLabelMesh(data.name,parseInt(data.color.slice(1),16),radius*2.6);
-  lab.position.y=radius+2.4;
+  var lab=makeLabelMesh((feat?'★ ':'')+data.name,
+    parseInt(data.color.slice(1),16),radius*2.7);
+  lab.position.y=radius+(feat?3.1:2.4);
   grp.add(lab);
 
   grp.userData.bodyIndex=bodies.length;
   scene.add(grp);
   bodies.push({group:grp,data:data,isAbout:false,r:radius,color:col,planet:planet,
                label:lab,baseY:y,spin:0.18+Math.random()*0.25,
-               phase:Math.random()*6.28});
+               phase:Math.random()*6.28,isFeatured:feat,beacon:beacon});
 }
 
 function buildPlanets(){
@@ -858,7 +957,7 @@ function buildPlanets(){
   inner.forEach(function(p,i){
     var a=-Math.PI/2 + i*(Math.PI*2/inner.length);
     var y=((i*53)%9)-4;
-    buildPlanet(p,Math.cos(a)*32,y,Math.sin(a)*32, 3.7+(i%2)*0.7, i%3);
+    buildPlanet(p,Math.cos(a)*32,y,Math.sin(a)*32, 4.4+(i%2)*0.6, i%3);
   });
   outer.forEach(function(p,i){
     var a=-Math.PI/2 + i*(Math.PI*2/outer.length) + 0.32;
@@ -935,7 +1034,7 @@ var keys={}, move={x:0,z:0};
 var camYaw=0, camPitch=0.4, camDist=24;
 var shipYaw=0, bank=0;
 var dragging=false, lastX=0, lastY=0, downX=0, downY=0, downT=0;
-var activeBody=-1;
+var activeBody=-1, activeCar=null;
 var BOUND=88, SPEED=27;
 
 function bindEvents(){
@@ -944,6 +1043,10 @@ function bindEvents(){
   window.addEventListener('keydown',function(e){
     var k=e.key.toLowerCase();keys[k]=true;
     if(k==='escape'&&modalOpen){closeModal();}
+    if(modalOpen&&activeCar&&(k==='arrowleft'||k==='arrowright')){
+      e.preventDefault();
+      if(k==='arrowleft')activeCar.prev();else activeCar.next();
+    }
     if((k==='e'||k===' '||k==='enter')&&started&&!modalOpen&&activeBody>=0){
       e.preventDefault();openModal(activeBody);
     }
@@ -1023,6 +1126,48 @@ function setupTouch(){
   $('#controls').innerHTML='<b>JOYSTICK</b> thrust &nbsp;·&nbsp; <b>DRAG</b> look &nbsp;·&nbsp; <b>TAP</b> a planet';
 }
 
+/* featured-projects HUD panel — guarantees visitors see the key builds */
+function buildFeaturedPanel(){
+  var list=$('#fpList'),head=$('#fpHead'),tog=$('#fpTog');
+  if(!list||!head)return;
+  for(var i=0;i<bodies.length;i++){
+    if(!bodies[i].isFeatured)continue;
+    (function(idx){
+      var b=bodies[idx];
+      var row=document.createElement('div');row.className='fpRow';
+      var dot=document.createElement('span');dot.className='fpDot';
+      dot.style.background=b.data.color;
+      dot.style.boxShadow='0 0 8px '+b.data.color;
+      var nm=document.createElement('span');nm.className='fpName';
+      nm.textContent=b.data.name;
+      row.appendChild(dot);row.appendChild(nm);
+      row.addEventListener('click',function(){warpTo(idx);});
+      list.appendChild(row);
+    })(i);
+  }
+  var collapsed=document.body.classList.contains('touch');
+  function apply(){
+    if(collapsed){list.classList.add('collapsed');if(tog)tog.innerHTML='&#9656;';}
+    else{list.classList.remove('collapsed');if(tog)tog.innerHTML='&#9650;';}
+  }
+  apply();
+  head.addEventListener('click',function(){collapsed=!collapsed;apply();});
+}
+
+/* jump the ship to a featured planet and open it */
+function warpTo(idx){
+  if(idx<0||idx>=bodies.length)return;
+  var b=bodies[idx];
+  var px=b.group.position.x,pz=b.group.position.z;
+  var d=Math.hypot(px,pz)||1;
+  ship.position.x=px+(px/d)*(b.r+12);
+  ship.position.y=0;
+  ship.position.z=pz+(pz/d)*(b.r+12);
+  activeBody=idx;
+  initAudio();warp();
+  openModal(idx);
+}
+
 var ray=new THREE.Raycaster(),ndc=new THREE.Vector2();
 function tryClick(px,py){
   ndc.x=(px/W)*2-1;ndc.y=-(py/H)*2+1;
@@ -1080,6 +1225,10 @@ function animate(){
       if(b.group.userData.moon)b.group.userData.moon.rotation.y=t*0.6+b.phase;
       var lift=(i===activeBody)?1:0;
       b.group.scale.setScalar(b.group.scale.x+((1+lift*0.08)-b.group.scale.x)*Math.min(1,dt*8));
+      if(b.beacon){
+        b.beacon.material.opacity=0.09+Math.abs(Math.sin(t*1.5+b.phase))*0.13;
+        b.beacon.rotation.y=t*0.35;
+      }
     }
     /* billboard labels */
     if(b.label)b.label.quaternion.copy(camera.quaternion);
@@ -1195,16 +1344,92 @@ function openModal(idx){
   $('#modalWrap').classList.add('on');
 }
 function closeModal(){
-  modalOpen=false;
+  modalOpen=false;activeCar=null;
   $('#modalWrap').classList.remove('on');
   blip(360);
 }
 
+/* image carousel — projects with screenshots show them here */
+function buildCarousel(p,defPoster){
+  var mount=$('#mCar'); if(!mount)return;
+  var track=document.createElement('div');track.className='carTrack';
+  var prev=document.createElement('button');prev.className='carNav cPrev';prev.innerHTML='&#8249;';
+  var next=document.createElement('button');next.className='carNav cNext';next.innerHTML='&#8250;';
+  var dots=document.createElement('div');dots.className='carDots';
+  var count=document.createElement('div');count.className='carCount';
+  mount.appendChild(track);mount.appendChild(prev);mount.appendChild(next);
+  mount.appendChild(dots);mount.appendChild(count);
+
+  var slides=[],idx=0;
+  function refresh(){
+    track.style.transform='translateX(-'+(idx*100)+'%)';
+    var multi=slides.length>1;
+    prev.style.display=multi?'flex':'none';
+    next.style.display=multi?'flex':'none';
+    count.style.display=multi?'block':'none';
+    count.textContent=(idx+1)+' / '+slides.length;
+    dots.innerHTML='';
+    if(multi){
+      for(var i=0;i<slides.length;i++){
+        var d=document.createElement('span');d.className='carDot'+(i===idx?' on':'');
+        (function(j){d.addEventListener('click',function(){idx=j;refresh();});})(i);
+        dots.appendChild(d);
+      }
+    }
+  }
+  function go(dir){if(slides.length){idx=(idx+dir+slides.length)%slides.length;refresh();}}
+  prev.addEventListener('click',function(){go(-1);});
+  next.addEventListener('click',function(){go(1);});
+  activeCar={prev:function(){go(-1);},next:function(){go(1);}};
+
+  function addSlide(url,ord){
+    var sl=document.createElement('div');sl.className='carSlide';
+    sl.setAttribute('data-ord',ord);
+    var im=document.createElement('img');im.alt=p.name;im.src=url;
+    sl.appendChild(im);
+    var at=slides.length;
+    for(var i=0;i<slides.length;i++){
+      if(parseFloat(slides[i].getAttribute('data-ord'))>ord){at=i;break;}
+    }
+    if(at>=slides.length){track.appendChild(sl);slides.push(sl);}
+    else{track.insertBefore(sl,slides[at]);slides.splice(at,0,sl);}
+    refresh();
+  }
+  /* generated cover — always first */
+  addSlide(defPoster,0);
+  /* explicit images */
+  (p.images||[]).forEach(function(url,i){
+    var probe=new Image();
+    probe.onload=function(){addSlide(url,10+i);};
+    probe.src=url;
+  });
+  /* probe screenshot folder for numbered files (1.png, 2.jpg, ...) */
+  if(p.imgFolder){
+    var exts=['png','jpg','jpeg','webp'];
+    for(var n=1;n<=6;n++){
+      for(var x=0;x<exts.length;x++){
+        (function(url,ord){
+          var probe=new Image();
+          probe.onload=function(){addSlide(url,ord);};
+          probe.src=url;
+        })(p.imgFolder+n+'.'+exts[x],100+n*4+x);
+      }
+    }
+  }
+  /* swipe */
+  var sx=0,sw=false;
+  mount.addEventListener('pointerdown',function(e){sx=e.clientX;sw=true;});
+  mount.addEventListener('pointerup',function(e){
+    if(!sw)return;sw=false;var dx=e.clientX-sx;
+    if(dx>44)go(-1);else if(dx<-44)go(1);
+  });
+}
+
 function renderProject(p){
-  $('#mTag').textContent=p.tag||'PROJECT';
+  $('#mTag').textContent=(p.ring==='inner'?'★ ':'')+(p.tag||'PROJECT');
   $('#mTag').style.color=p.color;
   $('#modal').style.borderColor=p.color;
-  var poster=p.poster?p.poster:makePoster(p).toDataURL();
+  var defPoster=p.poster?p.poster:makePoster(p).toDataURL();
   var chips=p.tech.map(function(t){
     return '<span class="chip" style="border-color:'+hexA(p.color,0.45)+';color:'+p.color+'">'+t+'</span>';
   }).join('');
@@ -1216,7 +1441,7 @@ function renderProject(p){
   }).join('');
   var statusHTML=p.status?'<div class="mStatus" style="color:'+p.color+'">&#9670; '+p.status+'</div>':'';
   $('#mContent').innerHTML=
-    '<img class="mPoster" src="'+poster+'" alt="'+p.name+'">'+
+    '<div id="mCar" class="car"></div>'+
     '<div class="mBody">'+
       '<div class="mName">'+p.name+'</div>'+
       '<div class="mSub" style="color:'+p.color+'">'+p.sub+'</div>'+
@@ -1225,13 +1450,18 @@ function renderProject(p){
       statusHTML+
       (links?'<div class="mLinks">'+links+'</div>':'')+
     '</div>';
+  buildCarousel(p,defPoster);
 }
 
 function renderAbout(){
+  activeCar=null;
   $('#mTag').textContent='PILOT PROFILE';
   $('#mTag').style.color='#ffd98a';
   $('#modal').style.borderColor='#ffd98a';
   var A=ABOUT;
+  var focus=A.focus.map(function(f){
+    return '<span class="chip" style="border-color:rgba(47,230,214,.4);color:#9fb4d8">'+f+'</span>';
+  }).join('');
   var stats=A.stats.map(function(s){
     return '<div class="stat"><div class="sl">'+s[0]+' <b>'+s[1]+'</b></div>'+
            '<div class="track"><i data-w="'+s[1]+'"></i></div></div>';
@@ -1249,6 +1479,8 @@ function renderAbout(){
       '<div class="mName" style="color:#ffd98a">'+A.name+'</div>'+
       '<div class="mSub" style="color:#ffd98a">&#9733; '+A.role+' · 7+ yrs · Bengaluru</div>'+
       '<div class="mDesc">'+A.blurb+'</div>'+
+      '<div class="secT">// FOCUS AREAS</div>'+
+      '<div class="chips">'+focus+'</div>'+
       '<div class="secT">// CORE STATS</div>'+stats+
       '<div class="secT">// CAREER LOG</div><div class="tl">'+tl+'</div>'+
       '<div class="secT">// CONTACT</div>'+

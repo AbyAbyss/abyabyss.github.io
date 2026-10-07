@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aby Saji Pappachan · Portfolio in Motion v2</title>
+<title>Aby Saji Pappachan · Portfolio in Motion v3</title>
 <meta name="description" content="Aby Saji Pappachan, Technical Lead with 8 years building scalable backend systems and AI-powered products. Walsall, West Midlands. Open to senior Backend, Platform and AI roles.">
 <meta name="author" content="Aby Saji Pappachan">
-<meta property="og:title" content="Aby Saji Pappachan · Portfolio in Motion v2">
+<meta property="og:title" content="Aby Saji Pappachan · Portfolio in Motion v3">
 <meta property="og:description" content="8 years building scalable backend systems and AI-powered products.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#e9edea">
@@ -194,6 +194,8 @@
   .plinks a { font: 500 13px/1.2 var(--mono); text-decoration: none; border-bottom: 2px solid var(--acc); padding-bottom: 2px; }
   .plinks a:hover { background: rgba(255, 75, 43, 0.12); }
   .badge-priv { align-self: flex-start; padding: 4px 8px 3px; border: 2px solid var(--acc); color: var(--acc); font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-3deg); }
+  .badge-oss { align-self: flex-start; padding: 4px 8px 3px; border: 2px solid #12805c; color: #0e6a4c; font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-3deg); }
+  .badge-priv.soon { display: inline-block; }
   .pcount { position: absolute; right: 22px; top: 14px; font: 500 12px/1 var(--mono); color: #7a7f7a; letter-spacing: 0.1em; z-index: 2; }
 
   .idx-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 8vh 16px; border-bottom: 2px solid var(--fg); }
@@ -258,7 +260,6 @@
 
 
   /* ---------- v2: paper explosions ---------- */
-  .fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 60; pointer-events: none; }
   .band { position: relative; z-index: 6; overflow: hidden; margin: -1.6vw -4vw; padding: 1vw 0; background: var(--fg); color: var(--bg); transform: rotate(-2.5deg); will-change: transform; }
   .band-in { display: flex; width: max-content; }
   .band-in span { flex: none; padding-right: 0.6em; font: 800 clamp(34px, 5.6vw, 88px)/1.05 var(--display); letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
@@ -277,10 +278,46 @@
   .chip.c4 .chip-i { background: #d6f3e8; color: #08110e; } .chip.c5 .chip-i { background: #08110e; color: #fbf8ef; }
   .chip.c6 .chip-i { background: #ff7a4d; color: #08110e; }
   .ring { position: absolute; left: 50%; top: 50%; width: 24vmin; height: 24vmin; margin: -12vmin 0 0 -12vmin; border-radius: 50%; border: 3px solid var(--fg); pointer-events: none; opacity: 0; }
-  html:not(.motion) .fx, html:not(.motion) .band, html:not(.motion) .ring { display: none; }
+  html:not(.motion) .band, html:not(.motion) .ring { display: none; }
   html:not(.motion) .cloud-scene { height: auto; min-height: 0; padding-block: 10vh; }
   html:not(.motion) .stat { transform: none; }
   .skills { overflow-x: clip; }
+
+
+  /* ---------- v3: the exploded watch ---------- */
+  .anat { position: relative; height: 100svh; min-height: 640px; display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 0.95fr); align-items: center; gap: 2vw; padding: 76px clamp(18px, 4.5vw, 72px) 30px; overflow: hidden; }
+  .anat-head .title { font-size: clamp(44px, 6.2vw, 108px); }
+  .anat-head p { margin-top: 22px; max-width: 24em; color: var(--mute); }
+  .anat-head .mono { color: var(--acc); margin-bottom: 14px; }
+  #machine { display: block; height: min(86svh, 900px); width: auto; max-width: 100%; margin-inline: auto; overflow: visible; }
+  .wt * { vector-effect: non-scaling-stroke; }
+  .wt text { font-family: var(--mono); font-weight: 700; }
+  .wt .disp { font-family: var(--display); }
+  .cur { animation: blink 1s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .legend li em { display: block; font: 500 11px/1.4 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acc); margin-bottom: 3px; }
+  .lyr { transition: opacity 350ms ease, filter 350ms ease; }
+  .wt[data-a] .lyr { opacity: 0.28; }
+  .wt[data-a] .lyr.on { opacity: 1; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--acc) 75%, transparent)); }
+  .shd { filter: blur(14px); }
+  .legend { display: grid; gap: 2px; align-content: center; list-style: none; margin: 0; padding: 0; }
+  .legend .intro { padding: 0 0 18px 18px; color: var(--acc); }
+  .legend li:not(.intro) { padding: 8px 0 8px 18px; border-left: 2px solid var(--hair); color: var(--mute); transition: color 300ms, border-color 300ms, padding 300ms; }
+  .legend li b { display: block; font: 800 clamp(17px, 1.5vw, 24px)/1.1 var(--display); text-transform: uppercase; letter-spacing: -0.01em; }
+  .legend li span { display: block; max-height: 0; overflow: hidden; opacity: 0; font-size: 15px; line-height: 1.45; transition: max-height 400ms ease, opacity 300ms ease, margin 300ms ease; }
+  .legend li.on:not(.intro) { color: var(--fg); border-color: var(--acc); padding-left: 28px; }
+  .legend li.on:not(.intro) span { max-height: 118px; opacity: 1; margin-top: 6px; }
+  html:not(.motion) .anat { height: auto; min-height: 0; padding-block: 12vh; overflow: visible; }
+  html:not(.motion) .legend li span { max-height: none; opacity: 1; margin-top: 4px; }
+  html:not(.motion) .legend .intro { display: none; }
+  @media (max-width: 1000px) {
+    .anat { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; padding-top: 62px; align-items: start; }
+    .anat-head .title { font-size: clamp(34px, 9vw, 60px); } .anat-head p { display: none; }
+    #machine { height: 100%; max-height: 52svh; }
+    html.motion .legend li:not(.on) { display: none; }
+    .legend { min-height: 128px; align-content: start; }
+  }
+  @media (max-width: 1000px) { html:not(.motion) #machine { height: auto; max-height: none; width: min(100%, 520px); } html:not(.motion) .anat { grid-template-rows: auto; } }
 
   /* ---------- No motion: a plain, complete page ---------- */
   html:not(.motion) .hero { height: auto; min-height: 0; display: block; text-align: center; padding: 130px clamp(18px, 4.5vw, 72px) 90px; overflow: visible; }
@@ -327,7 +364,7 @@
     .stats { gap: 26px 14px; } .stat { padding: 16px 14px 18px; }
     .lines .v { font-size: 16px; }
   }
-  @media (prefers-reduced-motion: reduce) { .cue i { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .cue i, .cur { animation: none; } }
 </style>
 </head>
 <body>
@@ -347,7 +384,6 @@
 
 <div class="cursor" id="cursor" aria-hidden="true"><span id="cursor-t"></span></div>
 <div class="rail" aria-hidden="true"><i id="rail"></i></div>
-<canvas class="fx" id="fx" aria-hidden="true"></canvas>
 <div class="peek" id="peek" aria-hidden="true"><img alt=""></div>
 
 <header class="nav">
@@ -404,6 +440,16 @@
       <div class="stat" data-speed="1.2"><b data-to="45" data-suffix="%">45%</b><span>lower infrastructure cost from my analytics stack</span></div>
       <div class="stat" data-speed="0.8"><span class="tape" aria-hidden="true" style="left:auto;right:24px"></span><b data-to="300" data-suffix="+">300+</b><span>SaaS providers in my simulation framework</span></div>
     </div>
+  </section>
+
+  <section class="anat scene" id="anatomy" data-bg="#0c2233" data-fg="#eaf3f5" data-acc="#ffb648" data-label="Anatomy" aria-label="Anatomy of a developer's machine">
+    <div class="anat-head">
+      <p class="mono">Inside the machine</p>
+      <h2 class="title">Taken<br>apart, <em>put<br>back.</em></h2>
+      <p>A laptop is where all of this gets built, so it's how I explain it. Every part has one job, the parts have to fit together, and nothing runs until they all do.</p>
+    </div>
+    <svg id="machine" class="wt" viewBox="0 0 900 1200" role="img" aria-label="An exploded laptop. From top to bottom: display, keyboard, logic board, AI chip, memory and storage, ports and radios, battery and cooling, and the case, each standing for one layer of a software system."></svg>
+    <ol class="legend" id="legend" aria-label="What each part stands for"></ol>
   </section>
 
   <section class="xp scene" id="experience" data-bg="#0d1513" data-fg="#eef3ef" data-acc="#2ed3a7" data-label="Experience" aria-label="Experience">
@@ -463,7 +509,7 @@
   <section class="work pad scene" id="work" data-bg="#dfe9e4" data-fg="#0f1714" data-acc="#e5432a" data-label="Work">
     <div class="work-head">
       <div><p class="mono kicker" style="margin-bottom:16px">Personal projects</p><h2 class="title" data-split>Things I've built</h2></div>
-      <p>Agent runtimes, developer tools, media pipelines and native apps. Projects stamped Private aren't public yet; where there's a live build, the card links to it instead.</p>
+      <p>Agent runtimes, developer tools, media pipelines and native apps. Projects marked Open source have public code you can read today. Projects stamped Private aren't public yet, and AgentKit is the next one being prepared for an open-source release.</p>
     </div>
     <div class="stack" id="stack"></div>
     <div class="idx-head"><h3>And the rest of the shelf</h3><span class="mono" style="color:var(--mute)" id="idx-count"></span></div>
@@ -510,20 +556,19 @@
         <a href="tel:+447435067875"><span class="l mono">Phone</span><span class="v">+44 7435 067875</span></a>
         <a href="https://www.linkedin.com/in/aby-saji/" target="_blank" rel="noopener"><span class="l mono">LinkedIn</span><span class="v">linkedin.com/in/aby-saji</span></a>
         <a href="https://github.com/AbyAbyss" target="_blank" rel="noopener"><span class="l mono">GitHub</span><span class="v">github.com/AbyAbyss</span></a>
-        <a href="Aby_Saji_Pappachan_Technical_Lead.pdf" download="Aby_Saji_Pappachan_Technical_Lead.pdf"><span class="l mono">CV</span><span class="v">Download the PDF ↓</span></a>
+        <a href="../Aby_Saji_Pappachan_Technical_Lead.pdf" download="../Aby_Saji_Pappachan_Technical_Lead.pdf"><span class="l mono">CV</span><span class="v">Download the PDF ↓</span></a>
       </div>
     </div>
     <footer class="foot">
       <span>Aby Saji Pappachan · Technical Lead · Backend &amp; AI Engineer · Walsall, West Midlands</span>
-      <span><a href="index.html">The main portfolio</a> · <a href="explore.html">3D version</a> · <a href="portfolio_motion.html">Motion v1</a></span>
-      <span>Motion by GSAP and Lenis. Set in Bodoni Moda, Instrument Sans, DM Mono and Caveat.</span>
+      <span><a href="../index.html">The main portfolio</a> · <a href="explore.html">3D version</a> · <a href="portfolio_motion.html">Motion v1</a> · <a href="portfolio_motion_v2.html">v2</a></span>
     </footer>
   </section>
 </main>
 
-<script src="vendor/gsap.min.js"></script>
-<script src="vendor/ScrollTrigger.min.js"></script>
-<script src="vendor/lenis.min.js"></script>
+<script src="../vendor/gsap.min.js"></script>
+<script src="../vendor/ScrollTrigger.min.js"></script>
+<script src="../vendor/lenis.min.js"></script>
 <script>
 (function () {
   "use strict";
@@ -533,20 +578,21 @@
                         name: "AgentKit",
                         meta: "Agent Runtime SDK \u00b7 TypeScript",
                         priv: true,
+                        soon: true,
                         site: {
-                            href: "agentkit/",
+                            href: "../agentkit/",
                             label: "Visit the site",
                         },
                         docs: {
-                            href: "agentkit/doc/docs/getting-started/",
+                            href: "../agentkit/doc/docs/getting-started/",
                             label: "Read the docs",
                         },
                         link: {
-                            href: "agentkit/#tour",
+                            href: "../agentkit/#tour",
                             label: "Watch the 40 second tour",
                         },
                         desc:
-                            "An MIT-licensed, config-first headless agent runtime for TypeScript. Multi-provider with " +
+                            "A config-first headless agent runtime for TypeScript, being prepared for an open-source release under the MIT licence. Multi-provider with " +
                             "mid-session model hot-swapping, full MCP support over stdio and HTTP, human-in-the-loop plan mode " +
                             "and approval gates, and a record-and-replay harness so agent behaviour is tested deterministically " +
                             "in CI with no API keys and no spend.",
@@ -560,28 +606,29 @@
                         ],
                         fit: true,
                         shots: [
-                            "shots/agentkit/tour-poster.jpg",
-                            "shots/agentkit/banner.svg",
-                            "shots/agentkit/architecture.svg",
+                            "../shots/agentkit/tour-poster.jpg",
+                            "../shots/agentkit/banner.svg",
+                            "../shots/agentkit/architecture.svg",
                         ],
                     },
                     {
                         name: "Helpy",
                         meta: "AI Desktop Companion \u00b7 Tauri + Rust",
-                        priv: true,
+                        repo: "https://github.com/AbyAbyss/helpy",
                         site: {
-                            href: "helpy/",
+                            href: "../helpy/",
                             label: "Visit the site",
                         },
                         link: {
-                            href: "helpy/#tour",
+                            href: "../helpy/#tour",
                             label: "Watch the 45 second tour",
                         },
                         desc:
                             "An AI companion that lives next to your cursor. Ask out loud and it looks at your screen, then " +
                             "highlights the real button, draws arrows and lines over your apps, and walks you through step by step. " +
                             "Say a task and it plans background agents, asks before anything risky, and can undo every file change. " +
-                            "Works with Anthropic, OpenAI, Gemini or a local model, on macOS, Windows and Linux.",
+                            "Works with Anthropic, OpenAI, Gemini or a local model, on macOS, Windows and Linux. Open source: the code is " +
+                            "public, there are no prebuilt installers yet, and you build it from source with your own model key.",
                         tech: [
                             "Rust",
                             "Tauri",
@@ -595,7 +642,7 @@
                             "plan-card",
                             "card-dark",
                         ].map(function (s) {
-                            return "shots/helpy/" + s + ".png";
+                            return "../shots/helpy/" + s + ".png";
                         }),
                     },
                     {
@@ -625,7 +672,7 @@
                             "job-site",
                             "event-log",
                         ].map(function (s) {
-                            return "shots/applyjobbot/" + s + ".png";
+                            return "../shots/applyjobbot/" + s + ".png";
                         }),
                     },
                     {
@@ -662,6 +709,10 @@
                         name: "redis_gui",
                         meta: "Redis Client \u00b7 Go + React",
                         repo: "https://github.com/AbyAbyss/redis_gui",
+                        site: {
+                            href: "../redis_gui.html",
+                            label: "Visit the site",
+                        },
                         desc:
                             "A full Redis GUI that ships as one static Go binary and runs as a local web app, a native desktop " +
                             "app, or headless in Docker. SCAN keyspace browser with per-type viewers, 1 Hz metrics, a coalesced " +
@@ -696,7 +747,7 @@
                         meta: "Animation Studio \u00b7 React",
                         priv: true,
                         link: {
-                            href: "animator/",
+                            href: "../animator/",
                             label: "Open the live app",
                         },
                         desc:
@@ -713,10 +764,10 @@
                             "Claude + GPT-4o",
                         ],
                         shots: [
-                            "shots/animator/editor.png",
-                            "shots/animator/ai-critic.png",
-                            "shots/animator/effects.png",
-                            "shots/animator/architecture.svg",
+                            "../shots/animator/editor.png",
+                            "../shots/animator/ai-critic.png",
+                            "../shots/animator/effects.png",
+                            "../shots/animator/architecture.svg",
                         ],
                     },
                     {
@@ -745,13 +796,17 @@
                             "library.png",
                             "upload.png",
                         ].map(function (s) {
-                            return "shots/reelforge/" + s;
+                            return "../shots/reelforge/" + s;
                         }),
                     },
                     {
                         name: "dockman",
                         meta: "Docker Manager \u00b7 Tauri",
                         repo: "https://github.com/AbyAbyss/dockman",
+                        site: {
+                            href: "../dockman.html",
+                            label: "Visit the site",
+                        },
                         desc:
                             "A native desktop app that drives Docker and Podman side by side from one window: containers, " +
                             "images, volumes, networks, builds and the runtime binaries themselves. An interactive shell into any " +
@@ -783,7 +838,7 @@
                         meta: "Code Playground SDK \u00b7 TypeScript",
                         repo: "https://github.com/AbyAbyss/sandkit",
                         site: {
-                            href: "sandkit/",
+                            href: "../sandkit/",
                             label: "Try it live",
                         },
                         desc:
@@ -800,7 +855,7 @@
                             "QuickJS",
                         ],
                         fit: true,
-                        shots: ["sandkit.svg"],
+                        shots: ["../sandkit.svg"],
                     },
                     {
                         name: "DevConnect",
@@ -819,7 +874,7 @@
                             "PostgreSQL",
                             "MongoDB",
                         ],
-                        shots: ["shots/devconnect.svg"],
+                        shots: ["../shots/devconnect.svg"],
                     },
                     {
                         name: "GraceTrack",
@@ -839,11 +894,11 @@
                         ],
                         fit: true,
                         shots: [
-                            "shots/gracetrack/screen-home.svg",
-                            "shots/gracetrack/screen-entry.svg",
-                            "shots/gracetrack/screen-reports.svg",
-                            "shots/gracetrack/screen-history.svg",
-                            "shots/gracetrack/privacy.svg",
+                            "../shots/gracetrack/screen-home.svg",
+                            "../shots/gracetrack/screen-entry.svg",
+                            "../shots/gracetrack/screen-reports.svg",
+                            "../shots/gracetrack/screen-history.svg",
+                            "../shots/gracetrack/privacy.svg",
                         ],
                     },
                     {
@@ -889,6 +944,10 @@
                         name: "InkTerm",
                         meta: "AI Terminal \u00b7 Tauri",
                         repo: "https://github.com/AbyAbyss/InkTerm",
+                        site: {
+                            href: "../inkterm.html",
+                            label: "Visit the site",
+                        },
                         desc:
                             "A cross-platform desktop terminal with a stylized UI: multi-tab sessions, a file-browser overlay, " +
                             "live CPU/memory/network stats, an AI agent panel and MCP server management with per-server tool " +
@@ -914,6 +973,10 @@
                         name: "RestClient",
                         meta: "REST Client \u00b7 Tauri",
                         repo: "https://github.com/AbyAbyss/RestClient",
+                        site: {
+                            href: "../restclient.html",
+                            label: "Visit the site",
+                        },
                         desc:
                             "An open-source desktop REST client with a cartoon UI, Postman-compatible test scripts and built-in " +
                             "load testing. A full response timeline breaks out DNS, TCP, TLS, TTFB and download, while Rust " +
@@ -955,7 +1018,7 @@
                             "Google Drive API",
                         ],
                         fit: true,
-                        shots: ["shots/privatevault.svg"],
+                        shots: ["../shots/privatevault.svg"],
                     },
                     {
                         name: "Term REST Client",
@@ -1075,7 +1138,7 @@
   var byName = function (n) { return OSS.filter(function (p) { return p.name === n; })[0]; };
 
   /* ---------- Content that comes from data ---------- */
-  var STACK = ["AgentKit", "Helpy", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
+  var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
   var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0; });
 
   function linksOf(p) {
@@ -1091,7 +1154,7 @@
     return '<article class="pcard" style="--i:' + i + '"><span class="tape" aria-hidden="true"></span><span class="shade"></span>' +
       '<span class="pcount">' + pad2(i + 1) + " / " + pad2(STACK.length) + "</span>" +
       '<div class="pframe' + (p.fit ? " fit" : "") + '"><img loading="lazy" src="' + p.shots[0] + '" alt="' + esc(p.name) + ' screenshot"></div>' +
-      '<div class="pbody"><p class="mono">' + p.meta + "</p>" + (p.priv ? '<span class="badge-priv">Private</span>' : "") +
+      '<div class="pbody"><p class="mono">' + p.meta + "</p>" + (p.soon ? '<span class="badge-priv soon">Private, open source soon</span>' : p.priv ? '<span class="badge-priv">Private</span>' : p.repo ? '<span class="badge-oss">Open source</span>' : "") +
       '<h3 class="pname">' + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
       '<div class="ptech">' + p.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" + linksOf(p) + "</div></article>";
   }).join("");
@@ -1100,7 +1163,7 @@
     var href = p.site ? p.site.href : p.repo || "";
     var tag = href ? "a" : "div";
     return "<" + tag + ' class="row" ' + (href ? 'href="' + href + '"' + (p.repo && !p.site ? ' target="_blank" rel="noopener"' : "") : "") + ' data-peek="' + i + '" data-cursor="View">' +
-      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + (p.priv ? " · Private" : "") + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
+      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + (p.priv ? " · Private" : p.repo ? " · Open source" : "") + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
   }).join("");
   $("#cards").innerHTML = WORK.map(function (w) {
     return '<article class="card"><p class="org mono">' + esc(w.org) + " · " + w.meta + "</p><h3>" + esc(w.name) + "</h3><p>" + esc(w.desc) + '</p><div class="ptech">' + w.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div></article>";
@@ -1121,6 +1184,100 @@
     "Platforms <i>✦</i> Data <i>✦</i> LLMs <i>✦</i> MCP <i>✦</i>",
     "Let's talk <i>✦</i> Available now <i>✦</i>"
   ];
+
+  /* ---------- Anatomy: a developer's laptop, drawn as isometric slabs ---------- */
+  var ANAT = [
+    ["Interface", "Display", "The surface people touch: React, Next.js and a browser extension serving 2M+ users."],
+    ["Product", "Keyboard", "Owning products end to end, from the first prototype to enterprise customers."],
+    ["Services", "Logic board", "NestJS, Spring Boot and FastAPI microservices, each chip with one job."],
+    ["AI", "AI chip", "LLM platforms, RAG, MCP clients and servers, and AI agents."],
+    ["Data", "Memory and storage", "PostgreSQL, MongoDB, OpenSearch, Redis, Airflow and DuckDB."],
+    ["APIs and events", "Ports and radios", "REST and GraphQL contracts, plus event-driven systems on AWS SQS and SNS at 50,000 messages a day."],
+    ["Infrastructure", "Battery and cooling", "AWS ECS, Docker, Kubernetes and CI/CD, with the load tests that keep it honest."],
+    ["Security", "Case", "Zero Trust networking, Semgrep, Gitleaks and Trivy, sealed in."]
+  ];
+  (function () {
+    var SIN = 0.4, R2 = 0.70711, W = 480, D = 300, MID = 600, GAP = 22, SPREAD = 118;
+    var ISO = "matrix(" + R2 + " " + f2(R2 * SIN) + " " + -R2 + " " + f2(R2 * SIN) + " 0 0)";
+    function f2(n) { return Math.round(n * 10000) / 10000; }
+    var f = function (n) { return Math.round(n * 10) / 10; };
+    var P = function (x, y) { return [R2 * (x - y), R2 * SIN * (x + y)]; };
+    var at = function (v) { return f(v[0]) + " " + f(v[1]); };
+    var rect = function (x, y, w, h, fill, o) { o = o || {}; return '<rect x="' + f(x) + '" y="' + f(y) + '" width="' + f(w) + '" height="' + f(h) + '"' + (o.rx ? ' rx="' + o.rx + '"' : "") + ' fill="' + fill + '"' + (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 1.5) + '"' : "") + (o.cls ? ' class="' + o.cls + '"' : "") + "/>"; };
+    var circ = function (x, y, r, fill, o) { o = o || {}; return '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="' + f(r) + '" fill="' + fill + '"' + (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 1.5) + '"' : "") + (o.dash ? ' stroke-dasharray="' + o.dash + '"' : "") + "/>"; };
+    var line = function (x1, y1, x2, y2, stroke, sw, extra) { return '<line x1="' + f(x1) + '" y1="' + f(y1) + '" x2="' + f(x2) + '" y2="' + f(y2) + '" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linecap="round"' + (extra || "") + "/>"; };
+    var poly = function (pts, stroke, sw) { return '<polyline points="' + pts.map(function (q) { return q[0] + "," + q[1]; }).join(" ") + '" fill="none" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linejoin="round" stroke-linecap="round"/>'; };
+    var txt = function (x, y, str, size, fill, o) { o = o || {}; return '<text x="' + f(x) + '" y="' + f(y) + '" font-size="' + size + '" fill="' + fill + '" text-anchor="middle"' + (o.ls ? ' letter-spacing="' + o.ls + '"' : "") + (o.cls ? ' class="' + o.cls + '"' : "") + (o.style ? ' font-style="' + o.style + '"' : "") + ">" + str + "</text>"; };
+    var pins = function (x, y, w, h, col) {
+      var o = "", n = Math.max(3, Math.floor(w / 13)), st = w / n;
+      for (var i = 0; i < n; i++) { var px = x + st * (i + 0.5) - 2; o += rect(px, y - 6, 4, 6, col) + rect(px, y + h, 4, 6, col); }
+      var m = Math.max(3, Math.floor(h / 13)), sv = h / m;
+      for (var j = 0; j < m; j++) { var py = y + sv * (j + 0.5) - 2; o += rect(x - 6, py, 6, 4, col) + rect(x + w, py, 6, 4, col); }
+      return o;
+    };
+    var chip = function (x, y, w, h, label, size) { return pins(x, y, w, h, "#b7c7c1") + rect(x, y, w, h, "#1b2226", { rx: 5, stroke: "#b7c7c1", sw: 1.5 }) + circ(x + 9, y + 9, 3, "#b7c7c1") + txt(x + w / 2, y + h / 2 + size * 0.35, label, size, "#f1f4f2"); };
+
+    var layers = [], lay = function (i, o) {
+      var base = MID + (i - 3.5) * GAP, exp = MID + (i - 3.5) * SPREAD, w = o.w || W, d = o.d || D, t = o.t;
+      var B = P(w / 2, -d / 2), C = P(w / 2, d / 2), L = P(-w / 2, d / 2);
+      var sideR = '<path d="M' + at(B) + "L" + at(C) + "L" + f(C[0]) + " " + f(C[1] + t) + "L" + f(B[0]) + " " + f(B[1] + t) + 'Z" fill="' + o.sideR + '"/>';
+      var sideL = '<path d="M' + at(L) + "L" + at(C) + "L" + f(C[0]) + " " + f(C[1] + t) + "L" + f(L[0]) + " " + f(L[1] + t) + 'Z" fill="' + o.sideL + '"/>';
+      var top = rect(-w / 2, -d / 2, w, d, o.top, { rx: 12, stroke: o.edge, sw: 2 });
+      var lifts = (o.lifts || []).map(function (l) { return '<g class="lift" data-lift="' + l[1] + '"><g transform="' + ISO + '">' + l[0] + "</g></g>"; }).join("");
+      layers.push('<g class="lyr" data-i="' + i + '" data-base="' + f(base) + '" transform="translate(450 ' + f(exp) + ')">' + sideR + sideL + '<g transform="' + ISO + '">' + top + (o.plane || "") + "</g>" + lifts + "</g>");
+    };
+
+    // 0 Display: a code editor
+    var code = [[0, [[90, "#2ed3a7"], [46, "rgba(234,243,245,.7)"]]], [0, [[54, "#ffb648"], [118, "#6ec3ff"]]], [1, [[70, "#ff5b3a"], [64, "rgba(234,243,245,.55)"]]], [2, [[40, "#2ed3a7"], [104, "rgba(234,243,245,.55)"], [30, "#ffb648"]]], [2, [[126, "#6ec3ff"]]], [1, [[30, "#ffb648"], [86, "rgba(234,243,245,.5)"]]], [0, [[62, "#2ed3a7"]]], [0, []], [0, [[104, "#ff5b3a"], [52, "#6ec3ff"]]], [1, [[84, "rgba(234,243,245,.55)"], [44, "#2ed3a7"]]]];
+    var codeSvg = "";
+    code.forEach(function (row, r) { var x = -114 + row[0] * 22, y = -96 + r * 21; row[1].forEach(function (sg) { codeSvg += rect(x, y, sg[0], 9, sg[1], { rx: 3 }); x += sg[0] + 7; }); });
+    var files = ""; for (var fi = 0; fi < 8; fi++) files += rect(-216, -98 + fi * 18, 40 + ((fi * 23) % 34), 7, "rgba(234,243,245,.32)", { rx: 3 });
+    lay(0, { t: 10, top: "#22384a", edge: "#7d98aa", sideR: "#0e1b26", sideL: "#152838", plane: rect(-226, -138, 452, 276, "#0b141d", { rx: 8, stroke: "#2f4a5e" }) + rect(-226, -138, 452, 24, "#152636", { rx: 8 }) + circ(-208, -126, 5, "#ff5b3a") + circ(-192, -126, 5, "#ffb648") + circ(-176, -126, 5, "#2ed3a7") + rect(-226, -114, 96, 252, "#101d2a") + files + codeSvg + rect(-2, 96, 9, 15, "#2ed3a7", { cls: "cur" }) + txt(120, -125, "api.controller.ts", 11, "rgba(234,243,245,.55)") });
+
+    // 1 Keyboard: the keycaps lift off the deck
+    var wells = "", caps = "", KR = [[-118, 13, 26, 14], [-96, 13, 28, 24], [-64, 13, 28, 24], [-32, 12, 30, 24], [0, 11, 31, 24]];
+    KR.forEach(function (r, ri) { var n = r[1], w = r[2], h = r[3], x0 = -(n * (w + 5) - 5) / 2; for (var k = 0; k < n; k++) { var kx = x0 + k * (w + 5), col = ri === 1 && k === 0 ? "#2ed3a7" : ri === 3 && k === n - 1 ? "#ff5b3a" : (ri * 7 + k) % 9 === 0 ? "#ffb648" : "#3a5368"; wells += rect(kx, r[0], w, h, "#0f1a24", { rx: 4 }); caps += rect(kx, r[0], w, h, col, { rx: 4, stroke: "#0e1822", sw: 1 }); } });
+    wells += rect(-158, 32, 316, 24, "#0f1a24", { rx: 4 }); caps += rect(-92, 32, 184, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 }) + rect(-158, 32, 58, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 }) + rect(100, 32, 58, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 });
+    lay(1, { t: 14, top: "#1d2f3f", edge: "#5d7a90", sideR: "#0c1720", sideL: "#132534", plane: wells + rect(-84, 74, 168, 62, "#25394a", { rx: 10, stroke: "#5d7a90" }), lifts: [[caps, 46]] });
+
+    // 2 Logic board: five chips, one per service
+    var traces = poly([[-220, 40], [-160, 40], [-130, 70], [-30, 70]], "#2ea58d", 2) + poly([[220, -20], [170, -20], [150, -60]], "#2ea58d", 2) + poly([[-30, 140], [-30, 110]], "#2ea58d", 2) + poly([[-200, -110], [-90, -110], [-60, -80]], "#2ea58d", 2) + poly([[200, 100], [160, 100], [140, 120]], "#2ea58d", 2);
+    var caps2 = ""; for (var ci = 0; ci < 9; ci++) caps2 += circ(-200 + ci * 26, -122, 5, "#0b1a17", { stroke: "#2ea58d", sw: 1.2 });
+    lay(2, { t: 8, top: "#0f3d35", edge: "#2ea58d", sideR: "#06211d", sideL: "#0a2e28", plane: traces + caps2, lifts: [[chip(-150, -76, 120, 120, "SVC", 26) + chip(70, -104, 90, 64, "AUTH", 17) + chip(100, 24, 100, 64, "ORDERS", 15) + chip(-200, 76, 90, 56, "NOTIFY", 14) + chip(0, 82, 80, 50, "API", 17), 36]] });
+
+    // 3 AI chip
+    var nn = line(-190, -20, -84, 0, "#ff8a6a", 2) + line(-190, 70, -84, 20, "#ff8a6a", 2) + line(190, -20, 84, 0, "#ff8a6a", 2) + line(190, 70, 84, 20, "#ff8a6a", 2) + line(0, -130, 0, -86, "#ff8a6a", 2) + line(0, 130, 0, 86, "#ff8a6a", 2);
+    var grid = ""; for (var gi = -2; gi <= 2; gi++) grid += line(gi * 30, -70, gi * 30, 70, "rgba(42,16,8,.55)", 1.2) + line(-70, gi * 30, 70, gi * 30, "rgba(42,16,8,.55)", 1.2);
+    lay(3, { t: 8, top: "#1c2445", edge: "#7f8fe0", sideR: "#0b1027", sideL: "#141b38", plane: nn + '<g class="spin airing"><circle r="112" fill="none" stroke="#ffb648" stroke-width="2" stroke-dasharray="6 9"/></g>', lifts: [[pins(-80, -80, 160, 160, "#d8dcf5") + rect(-80, -80, 160, 160, "#ff5b3a", { rx: 12, stroke: "#ffd0c4", sw: 2 }) + grid + txt(0, 24, "AI", 74, "#2a1008", { cls: "disp" }), 40], [chip(-214, -30, 70, 44, "MCP", 15) + chip(146, -30, 70, 44, "RAG", 15) + chip(-35, 96, 70, 44, "LLM", 15), 22]] });
+
+    // 4 Memory and storage
+    var stick = function (y, tag) { var c = ""; for (var k = 0; k < 8; k++) c += rect(-118 + k * 38, y + 8, 28, 22, "#0d1318", { rx: 3 }); var g = ""; for (var q = 0; q < 26; q++) g += rect(-146 + q * 11.4, y + 38, 8, 8, "#d9aa47"); return rect(-150, y, 300, 48, "#16564a", { rx: 4, stroke: "#2ea58d" }) + c + g + txt(140, y - 6, tag, 11, "#9be3cf").replace('text-anchor="middle"', 'text-anchor="end"'); };
+    var ssd = rect(-140, 74, 220, 66, "#2a3550", { rx: 8, stroke: "#6ec3ff" }) + rect(-130, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(-76, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(-22, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(32, 84, 40, 30, "#0d1318", { rx: 3 }) + txt(-30, 132, "POSTGRES · MONGO · OPENSEARCH", 10, "#9fc3e6");
+    lay(4, { t: 8, top: "#12293a", edge: "#4d90b5", sideR: "#08161f", sideL: "#0d2130", plane: rect(-210, -120, 420, 250, "rgba(255,255,255,.03)", { rx: 8, stroke: "rgba(109,190,255,.25)", sw: 1 }), lifts: [[stick(-112, "REDIS"), 26], [stick(-46, "AIRFLOW · DUCKDB"), 40], [ssd, 54]] });
+
+    // 5 Ports and radios
+    var ports = ""; for (var pi = 0; pi < 3; pi++) ports += rect(-150 + pi * 62, 112, 44, 14, "#0a1218", { rx: 7, stroke: "#9fb4c2" });
+    ports += rect(30, 110, 56, 16, "#0a1218", { rx: 3, stroke: "#9fb4c2" }) + circ(122, 118, 8, "#0a1218", { stroke: "#9fb4c2" });
+    var pk = ""; for (var kk = 0; kk < 4; kk++) pk += rect(-200 + kk * 96, 46, 42, 16, kk % 2 ? "#ffb648" : "#2ed3a7", { rx: 4 });
+    var wifi = '<g transform="translate(0 30)"><path d="M-84 -52A118 118 0 0 1 84 -52" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/><path d="M-56 -26A78 78 0 0 1 56 -26" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/><path d="M-28 -2A40 40 0 0 1 28 -2" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/>' + circ(0, 16, 7, "#6ec3ff") + "</g>";
+    lay(5, { t: 8, top: "#1a2b35", edge: "#5b8ea8", sideR: "#0a161d", sideL: "#10212b", plane: ports + line(-220, 54, 220, 54, "rgba(159,180,194,.35)", 2) + '<g class="pkg">' + pk + "</g>" + txt(0, -118, "REST · GRAPHQL · SQS · SNS", 14, "#9fc3e6", { ls: 2 }), lifts: [[wifi.replace(/translate/g, "translate"), 40]] });
+
+    // 6 Battery and cooling
+    var cells = ""; for (var bi = 0; bi < 4; bi++) cells += rect(-206 + bi * 58, -88, 50, 176, bi === 3 ? "#12a07d" : "#2ed3a7", { rx: 6 });
+    var blades = ""; for (var bl = 0; bl < 7; bl++) blades += '<path d="M0 0C10 -20 26 -46 22 -70C4 -60 -6 -30 0 0Z" fill="#6ec3ff" fill-opacity=".85" stroke="#0e1a22" stroke-width="1" transform="rotate(' + bl * (360 / 7) + ')"/>';
+    lay(6, { t: 18, top: "#17242f", edge: "#5b7a8a", sideR: "#091219", sideL: "#0f1c26", plane: rect(-222, -104, 240, 208, "#23303b", { rx: 12, stroke: "#5b7a8a" }) + cells + txt(-100, 118, "+   ·   −", 16, "#9fb4c2", { ls: 6 }) + poly([[18, -40], [70, -40], [90, -70]], "#b8c4cc", 8), lifts: [['<g transform="translate(140 -6)">' + circ(0, 0, 88, "#0e1a22", { stroke: "#5b7a8a", sw: 2 }) + '<g class="spin fan"><circle r="80" fill="none" stroke="none"/>' + blades + "</g>" + circ(0, 0, 14, "#dfe6e2", { stroke: "#0e1a22" }) + "</g>", 38]] });
+
+    // 7 Case
+    var vents = ""; for (var vi = 0; vi < 9; vi++) vents += line(70 + vi * 16, -110, 70 + vi * 16, -40, "rgba(8,14,18,.55)", 5);
+    var screws = ""; [[-214, -128], [214, -128], [-214, 128], [214, 128]].forEach(function (s, si) { screws += circ(s[0], s[1], 10, "#8fa1ac", { stroke: "#0b1211" }) + line(s[0] - 6, s[1], s[0] + 6, s[1], "#0b1211", 2, ' transform="rotate(' + si * 41 + " " + s[0] + " " + s[1] + ')"'); });
+    var feet = rect(-170, -104, 62, 26, "#0c1218", { rx: 8 }) + rect(108, -104, 62, 26, "#0c1218", { rx: 8 }) + rect(-170, 78, 62, 26, "#0c1218", { rx: 8 }) + rect(108, 78, 62, 26, "#0c1218", { rx: 8 });
+    var shield = '<path d="M0 -70L62 -46V8C62 46 30 68 0 80C-30 68 -62 46 -62 8V-46Z" fill="rgba(46,211,167,.12)" stroke="#2ed3a7" stroke-width="4" stroke-linejoin="round"/><path d="M-26 6L-6 26L30 -18" fill="none" stroke="#2ed3a7" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>';
+    lay(7, { t: 14, top: "#2b3b47", edge: "#7d98aa", sideR: "#0f1a22", sideL: "#182833", plane: rect(-232, -142, 464, 284, "none", { rx: 8, stroke: "rgba(255,255,255,.14)", sw: 1.5 }) + screws + feet + vents + txt(-100, 118, "ASP", 40, "rgba(255,255,255,.22)", { cls: "disp", style: "italic" }) + txt(110, 116, "ZERO TRUST · SEALED", 11, "rgba(255,255,255,.4)", { ls: 3 }), lifts: [[shield.replace(/^/, '<g transform="translate(-100 -20)">') + "</g>", 34]] });
+
+    var axis = '<line class="axis" x1="450" x2="450" y1="' + f(MID - 3.5 * SPREAD - 120) + '" y2="' + f(MID + 3.5 * SPREAD + 130) + '" stroke="rgba(234,243,245,.5)" stroke-width="2" stroke-dasharray="4 9" opacity="0"/>';
+    $("#machine").innerHTML = '<ellipse class="shd" cx="450" cy="1168" rx="250" ry="22" fill="rgba(0,0,0,.45)"/>' + axis + layers.join("");
+    $("#legend").innerHTML = '<li class="intro mono" id="legend-intro">Scroll to take it apart.</li>' + ANAT.map(function (a, i) { return '<li data-i="' + i + '"><b>' + a[0] + "</b><span><em>" + a[1] + "</em>" + a[2] + "</span></li>"; }).join("");
+  })();
 
   /* ---------- Small helpers ---------- */
   function splitChars(el, keepAria) {
@@ -1200,37 +1357,6 @@
 
   var finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-  /* Paper confetti: one canvas, small bursts on demand. */
-  var cv = $("#fx"), ctx = cv.getContext("2d"), dpr = Math.min(window.devicePixelRatio || 1, 2), parts = [], VW = 0, VH = 0, alive = false;
-  function fit() { VW = innerWidth; VH = innerHeight; cv.width = VW * dpr; cv.height = VH * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
-  fit(); addEventListener("resize", fit);
-  var CONFETTI = ["#ff4b2b", "#2ed3a7", "#ffd25c", "#fbf8ef", "#101715", "#ff7a4d", "#9be3cf"];
-  function burst(x, y, o) {
-    o = o || {};
-    var n = o.n || 60, sp = o.speed || 13, a0 = o.angle == null ? 0 : o.angle, spread = o.spread == null ? Math.PI * 2 : o.spread, cols = o.colors || CONFETTI;
-    for (var i = 0; i < n; i++) {
-      var a = a0 + (Math.random() - 0.5) * spread, v = sp * (0.35 + Math.random() * 0.75);
-      parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.4, w: 6 + Math.random() * 12, h: 4 + Math.random() * 9, c: cols[(Math.random() * cols.length) | 0], s: (Math.random() * 3) | 0, f: Math.random() * 6.28, life: 0, max: 90 + Math.random() * 70 });
-    }
-    if (parts.length > 700) parts.splice(0, parts.length - 700);
-    if (!alive) { alive = true; gsap.ticker.add(paintParts); }
-  }
-  function paintParts() {
-    ctx.clearRect(0, 0, VW, VH);
-    for (var i = parts.length - 1; i >= 0; i--) {
-      var q = parts[i];
-      q.life++; q.vx *= 0.975; q.vy = q.vy * 0.975 + 0.32; q.x += q.vx; q.y += q.vy; q.r += q.vr; q.f += 0.18;
-      if (q.life > q.max || q.y > VH + 40) { parts.splice(i, 1); continue; }
-      ctx.save(); ctx.globalAlpha = Math.min(1, (q.max - q.life) / 25); ctx.translate(q.x, q.y); ctx.rotate(q.r); ctx.scale(1, Math.cos(q.f)); ctx.fillStyle = q.c;
-      if (q.s === 0) ctx.fillRect(-q.w / 2, -q.h / 2, q.w, q.h);
-      else if (q.s === 1) { ctx.beginPath(); ctx.arc(0, 0, q.h / 2 + 1, 0, 6.28); ctx.fill(); }
-      else { ctx.beginPath(); ctx.moveTo(0, -q.w / 2); ctx.lineTo(q.w / 2, q.h / 2); ctx.lineTo(-q.w / 2, q.h / 2); ctx.closePath(); ctx.fill(); }
-      ctx.restore();
-    }
-    if (!parts.length) { ctx.clearRect(0, 0, VW, VH); gsap.ticker.remove(paintParts); alive = false; }
-  }
-  // Click anywhere for a little pop.
-  addEventListener("pointerdown", function (e) { if (e.target.closest("a, button, .chip")) return; burst(e.clientX, e.clientY, { n: 22, speed: 9 }); });
   // Letters and titles blow apart in random directions before they land.
   function blastVars(spread) {
     return { x: function () { return gsap.utils.random(-spread, spread); }, y: function () { return gsap.utils.random(-spread * 0.6, spread * 0.6); }, rotation: function () { return gsap.utils.random(-140, 140); }, scale: function () { return gsap.utils.random(0.2, 2.4); }, opacity: 0 };
@@ -1273,8 +1399,9 @@
   gsap.set(".hero-top, .cue", { opacity: 0 });
   gsap.set(".nav", { yPercent: -100 });
 
+  var heroTl;
   mm.add("(min-width: 1px)", function () {
-    var tl = gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=190%", pin: true, scrub: 0.7, anticipatePin: 1 } });
+    var tl = heroTl = gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=190%", pin: true, scrub: 0.7, anticipatePin: 1 } });
     // The name swells as you scroll, then tears apart in opposite directions.
     tl.to(nameChars, { fontWeight: 900, duration: 0.8, ease: "none", stagger: { each: 0.03, from: "center" } }, 0)
       .fromTo(".hero-top, .cue", { opacity: 1 }, { opacity: 0, duration: 0.2, immediateRender: false }, 0)
@@ -1293,12 +1420,8 @@
   });
   gsap.from("[data-fade]", { opacity: 0, y: 50, duration: 1, ease: "power3.out", scrollTrigger: { trigger: "[data-fade]", start: "top 88%", toggleActions: "play none none reverse" } });
   // The five stats start as a heap in the middle and blow out into place while the page holds still.
-  var statsEl = $("#stats"), statCards = $$(".stat", statsEl), statNat = statCards.map(function (c) { return gsap.getProperty(c, "rotation"); }), popped = false;
-  var tlStats = gsap.timeline({ scrollTrigger: { trigger: statsEl, start: "center center", end: "+=130%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true,
-    onUpdate: function (st) {
-      if (st.progress > 0.35 && !popped) { popped = true; var r = statsEl.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, { n: 120, speed: 16 }); }
-      else if (st.progress < 0.15) popped = false;
-    } } });
+  var statsEl = $("#stats"), statCards = $$(".stat", statsEl), statNat = statCards.map(function (c) { return gsap.getProperty(c, "rotation"); });
+  var tlStats = gsap.timeline({ scrollTrigger: { trigger: statsEl, start: "center center", end: "+=130%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true } });
   tlStats.fromTo(statCards,
     { x: function (i, el) { return statsEl.clientWidth / 2 - (el.offsetLeft + el.offsetWidth / 2); }, y: function (i, el) { return statsEl.clientHeight / 2 - (el.offsetTop + el.offsetHeight / 2); }, scale: 0.2, rotation: function (i) { return statNat[i] + (i % 2 ? 1 : -1) * gsap.utils.random(120, 320); }, opacity: 0 },
     { x: 0, y: 0, scale: 1, rotation: function (i) { return statNat[i]; }, opacity: 1, duration: 1, ease: "expo.out", stagger: { each: 0.16, from: "random" } }, 0);
@@ -1308,6 +1431,44 @@
     tlStats.to(o, { v: to, duration: 0.9, ease: "power2.out", onUpdate: function () { b.textContent = Math.round(o.v) + suffix; } }, 0.1 + i * 0.13);
   });
   tlStats.to({}, { duration: 0.6 });
+
+
+  /* ===== The laptop: takes itself apart as you scroll, then puts itself back together ===== */
+  (function () {
+    var svg = $("#machine"), L = $$(".lyr", svg), lifts = $$(".lift", svg), legend = $$("#legend li[data-i]"), intro = $("#legend-intro"), axis = $(".axis", svg);
+    var SPREAD = 118, GAP = 22, MIDI = (L.length - 1) / 2, base = L.map(function (l) { return +l.dataset.base; });
+    var apart = function (i) { return base[i] + (i - MIDI) * (SPREAD - GAP); };
+    gsap.set(L, { y: function (i) { return base[i]; } });
+    gsap.set($$(".spin", svg), { transformOrigin: "50% 50%" });
+    var active = -2, HOLD0 = 2.3, HOLD1 = 6.1;
+    function setActive(t) {
+      var a = t < HOLD0 || t > HOLD1 ? -1 : Math.min(ANAT.length - 1, Math.floor((t - HOLD0) / ((HOLD1 - HOLD0) / ANAT.length)));
+      if (a === active) return;
+      active = a;
+      if (a < 0) svg.removeAttribute("data-a"); else svg.setAttribute("data-a", "1");
+      L.forEach(function (l, i) { l.classList.toggle("on", i === a); });
+      legend.forEach(function (li, i) { li.classList.toggle("on", i === a); });
+      intro.classList.toggle("on", a < 0);
+      intro.style.display = a < 0 ? "" : "none";
+      if (a < 0) intro.textContent = t > HOLD1 ? "And back together again." : "Scroll to take it apart.";
+    }
+    var tl = gsap.timeline({ scrollTrigger: { trigger: "#anatomy", start: "top top", end: "+=430%", pin: true, scrub: 0.7, anticipatePin: 1, onUpdate: function (st) { setActive(st.progress * 8); } } });
+    // Apart: the layers slide away from the middle, and the small parts lift off their boards
+    tl.fromTo(L, { y: function (i) { return base[i]; } }, { y: apart, duration: 1.6, ease: "power3.inOut", stagger: { each: 0.06, from: "center" } }, 0.6)
+      .fromTo(lifts, { y: 0 }, { y: function (i, el) { return -el.dataset.lift; }, duration: 1.3, ease: "power3.inOut", stagger: 0.05 }, 1.3)
+      .fromTo(axis, { opacity: 0 }, { opacity: 1, duration: 0.8 }, 1.7)
+      // Back together
+      .fromTo(axis, { opacity: 1 }, { opacity: 0, duration: 0.6, immediateRender: false }, 6.2)
+      .fromTo(lifts, { y: function (i, el) { return -el.dataset.lift; } }, { y: 0, duration: 1.2, ease: "power3.inOut", stagger: { each: 0.05, from: "end" }, immediateRender: false }, 6.3)
+      .fromTo(L, { y: apart }, { y: function (i) { return base[i]; }, duration: 1.5, ease: "power3.inOut", stagger: { each: 0.06, from: "edges" }, immediateRender: false }, 6.4);
+    // Everything that moves, moves with the scroll
+    tl.to($(".fan", svg), { rotation: "+=2160", duration: 8, ease: "none" }, 0)
+      .to($(".airing", svg), { rotation: "+=360", duration: 8, ease: "none" }, 0)
+      .to($(".pkg", svg), { x: 80, duration: 8, ease: "none" }, 0)
+      .to(".shd", { opacity: 0.35, scaleX: 1.25, transformOrigin: "50% 50%", duration: 1.6, ease: "power3.inOut" }, 0.6)
+      .to(".shd", { opacity: 1, scaleX: 1, duration: 1.4, ease: "power3.inOut" }, 6.4);
+    setActive(0);
+  })();
 
   /* ===== Scene 3: horizontal filmstrip ===== */
   mm.add("(min-width: 901px)", function () {
@@ -1345,7 +1506,6 @@
     });
   });
   $$(".pcard").forEach(function (c) {
-    ScrollTrigger.create({ trigger: c, start: "top 45%", onEnter: function () { var r = c.getBoundingClientRect(); burst(r.left + 70, r.top + 8, { n: 30, speed: 12, angle: -Math.PI / 2, spread: Math.PI * 0.95 }); } });
     gsap.from($(".pframe", c), { clipPath: "inset(0 100% 0 0)", duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: c, start: "top 78%", toggleActions: "play none none reverse" } });
     var name = $(".pname", c), ch = splitChars(name);
     name.classList.add("mask");
@@ -1413,7 +1573,7 @@
   $$("[data-split]").forEach(function (el) {
     var ch = splitChars(el);
     gsap.from(ch, Object.assign(blastVars(520), { duration: 1.5, ease: "expo.out", stagger: { each: 0.02, from: "random" },
-      scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse", onEnter: function () { var r = el.getBoundingClientRect(); burst(r.left + Math.min(r.width, 700) * 0.4, r.top + r.height * 0.5, { n: 34, speed: 10 }); } } }));
+      scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } }));
   });
 
   /* ===== Scene 6: skills ticker, driven by scroll speed ===== */
@@ -1442,12 +1602,8 @@
   gsap.from(".mq", { yPercent: 80, opacity: 0, rotation: function (i) { return i % 2 ? 5 : -5; }, duration: 1, ease: "expo.out", stagger: 0.1, scrollTrigger: { trigger: "#mqs", start: "top 85%", toggleActions: "play none none reverse" } });
 
   /* The whole toolkit as paper chips: a heap in the middle blows out across the screen, then dodges the cursor. */
-  var cloudEl = $("#cloud"), cloudBox = $("#cloud-chips"), chips = $$(".chip", cloudEl), cloudPopped = false;
-  var tlCloud = gsap.timeline({ scrollTrigger: { trigger: cloudEl, start: "top top", end: "+=140%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true,
-    onUpdate: function (st) {
-      if (st.progress > 0.08 && !cloudPopped) { cloudPopped = true; burst(innerWidth / 2, innerHeight * 0.58, { n: 150, speed: 19 }); }
-      else if (st.progress < 0.03) cloudPopped = false;
-    } } });
+  var cloudEl = $("#cloud"), cloudBox = $("#cloud-chips"), chips = $$(".chip", cloudEl);
+  var tlCloud = gsap.timeline({ scrollTrigger: { trigger: cloudEl, start: "top top", end: "+=140%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true } });
   tlCloud.fromTo(".ring", { scale: 0, opacity: 0.9 }, { scale: 6, opacity: 0, duration: 1, ease: "power2.out", immediateRender: false }, 0)
     .fromTo(chips,
       { x: function (i, el) { return cloudBox.clientWidth / 2 - (el.offsetLeft + el.offsetWidth / 2); }, y: function (i, el) { return cloudBox.clientHeight / 2 - (el.offsetTop + el.offsetHeight / 2); }, scale: 0, rotation: function () { return gsap.utils.random(-360, 360); }, opacity: 0 },
@@ -1467,24 +1623,9 @@
     cloudEl.addEventListener("pointermove", function (e) { cmx = e.clientX; cmy = e.clientY; if (!cq) { cq = true; requestAnimationFrame(repel); } });
     cloudEl.addEventListener("pointerleave", function () { chips.forEach(function (c, i) { cqx[i](0); cqy[i](0); }); });
   }
-  chips.forEach(function (c) {
-    c.addEventListener("click", function (e) {
-      var i = $(".chip-i", c), col = getComputedStyle(i).backgroundColor;
-      burst(e.clientX, e.clientY, { n: 34, speed: 11, colors: [col, "#fbf8ef", "#ffd25c"] });
-    });
-  });
-
   /* ===== Scene 7: letters swell near the pointer ===== */
   var pxChars = splitChars($("#px"));
   gsap.from(pxChars, Object.assign(blastVars(700), { duration: 1.6, ease: "expo.out", stagger: { each: 0.025, from: "random" }, scrollTrigger: { trigger: "#px", start: "top 85%", toggleActions: "play none none reverse" } }));
-  var cannon = function () {
-    burst(0, innerHeight, { n: 110, angle: -Math.PI / 3, spread: 0.9, speed: 28 });
-    burst(innerWidth, innerHeight, { n: 110, angle: (-Math.PI * 2) / 3, spread: 0.9, speed: 28 });
-  };
-  ScrollTrigger.create({ trigger: "#px", start: "top 70%", onEnter: cannon, onEnterBack: cannon });
-  var ctaEl = $(".cta");
-  ctaEl.addEventListener("pointerenter", function () { var r = ctaEl.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, { n: 30, speed: 11 }); });
-  ctaEl.addEventListener("click", function () { var r = ctaEl.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, { n: 90, speed: 18 }); });
   if (finePointer) {
     var pxSetters = pxChars.map(function (c) { return gsap.quickSetter(c, "fontWeight"); });
     var mx = -999, my = -999, queued = false;
@@ -1543,14 +1684,16 @@
   });
   function open() {
     clearTimeout(failsafe);
-    var t = gsap.timeline({ defaults: { ease: "expo.out" } });
+    // The hero's scroll timeline may have read its start values while the name was still hidden.
+    // Once the intro has landed, make it read them again so scrolling back to the top restores the visible state.
+    var t = gsap.timeline({ defaults: { ease: "expo.out" }, onComplete: function () { if (heroTl && heroTl.scrollTrigger && heroTl.scrollTrigger.progress < 0.001) heroTl.invalidate(); lenis.start(); } });
     t.to(".pre-name, .pre-row .mono", { opacity: 0, y: -20, duration: 0.5 })
      .to(".pre", { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: "expo.inOut" }, 0.35)
      .to(nameChars, { yPercent: 0, rotation: 0, opacity: 1, duration: 1.3, stagger: { each: 0.045, from: "start" } }, 0.9)
      .to(".hero-top, .cue", { opacity: 1, duration: 0.8 }, 1.5)
      .to(".cut-in", { scale: 1, opacity: 1, duration: 0.9, ease: "back.out(1.8)", stagger: 0.12 }, 1.55)
      .to(".nav", { yPercent: 0, duration: 0.9 }, 1.7)
-     .add(function () { $("#pre").style.display = "none"; lenis.start(); ScrollTrigger.refresh(); }, 1.5);
+     .add(function () { $("#pre").style.display = "none"; ScrollTrigger.refresh(); }, 1.5);
   }
   loaded.then(function () { ScrollTrigger.refresh(); });
   if (document.fonts) document.fonts.ready.then(function () { measure(); ScrollTrigger.refresh(); });

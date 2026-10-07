@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aby Saji Pappachan · Portfolio in Motion</title>
+<title>Aby Saji Pappachan · Portfolio in Motion v2</title>
 <meta name="description" content="Aby Saji Pappachan, Technical Lead with 8 years building scalable backend systems and AI-powered products. Walsall, West Midlands. Open to senior Backend, Platform and AI roles.">
 <meta name="author" content="Aby Saji Pappachan">
-<meta property="og:title" content="Aby Saji Pappachan · Portfolio in Motion">
+<meta property="og:title" content="Aby Saji Pappachan · Portfolio in Motion v2">
 <meta property="og:description" content="8 years building scalable backend systems and AI-powered products.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#e9edea">
@@ -224,7 +224,7 @@
   .card .ptech { margin-top: 14px; }
 
   /* ---------- Scene 6: skills ---------- */
-  .skills { padding-block: 16vh 14vh; overflow: hidden; }
+  .skills { padding-block: 16vh 14vh; }
   .skills-head { margin-bottom: 8vh; }
   .mqs { display: grid; gap: clamp(10px, 2vw, 26px); }
   .mq { position: relative; padding-top: 30px; will-change: transform; }
@@ -255,6 +255,32 @@
   .copy { font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 8px; margin-left: 8px; border: 1px solid var(--hair); background: transparent; color: var(--fg); }
   .copy:hover { border-color: var(--acc); color: var(--acc); }
 
+
+
+  /* ---------- v2: paper explosions ---------- */
+  .fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 60; pointer-events: none; }
+  .band { position: relative; z-index: 6; overflow: hidden; margin: -1.6vw -4vw; padding: 1vw 0; background: var(--fg); color: var(--bg); transform: rotate(-2.5deg); will-change: transform; }
+  .band-in { display: flex; width: max-content; }
+  .band-in span { flex: none; padding-right: 0.6em; font: 800 clamp(34px, 5.6vw, 88px)/1.05 var(--display); letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
+  .band-in i { font-style: normal; color: var(--acc); padding: 0 0.15em; }
+  .card::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 250ms; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255, 255, 255, 0.75), transparent 55%); mix-blend-mode: soft-light; }
+  .card:hover::after { opacity: 1; }
+  .cloud-scene { position: relative; height: 100svh; min-height: 620px; display: grid; grid-template-rows: auto 1fr; padding: 96px clamp(18px, 4.5vw, 72px) 40px; }
+  .cloud-title { font: 800 clamp(34px, 5.6vw, 88px)/0.92 var(--display); letter-spacing: -0.03em; text-transform: uppercase; }
+  .cloud-title em { font-style: italic; text-transform: none; font-weight: 500; }
+  .cloud { position: relative; align-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 1240px; margin-inline: auto; }
+  .chip { display: inline-block; will-change: transform; }
+  .chip-i { display: block; padding: 11px 17px 12px; font: 700 clamp(14px, 1.5vw, 23px)/1 var(--sans); border-radius: 3px; box-shadow: 0 6px 12px -6px rgba(8, 17, 14, 0.55); rotate: var(--r, 0deg); cursor: default; }
+  .chip:nth-child(4n+1) { --r: -2.4deg; } .chip:nth-child(4n+2) { --r: 1.6deg; } .chip:nth-child(4n+3) { --r: -0.8deg; } .chip:nth-child(4n) { --r: 2.6deg; }
+  .chip.c0 .chip-i { background: #fbf8ef; color: #101715; } .chip.c1 .chip-i { background: #101715; color: #2ed3a7; }
+  .chip.c2 .chip-i { background: #ff4b2b; color: #fff; } .chip.c3 .chip-i { background: #ffd25c; color: #2b2610; }
+  .chip.c4 .chip-i { background: #d6f3e8; color: #08110e; } .chip.c5 .chip-i { background: #08110e; color: #fbf8ef; }
+  .chip.c6 .chip-i { background: #ff7a4d; color: #08110e; }
+  .ring { position: absolute; left: 50%; top: 50%; width: 24vmin; height: 24vmin; margin: -12vmin 0 0 -12vmin; border-radius: 50%; border: 3px solid var(--fg); pointer-events: none; opacity: 0; }
+  html:not(.motion) .fx, html:not(.motion) .band, html:not(.motion) .ring { display: none; }
+  html:not(.motion) .cloud-scene { height: auto; min-height: 0; padding-block: 10vh; }
+  html:not(.motion) .stat { transform: none; }
+  .skills { overflow-x: clip; }
 
   /* ---------- No motion: a plain, complete page ---------- */
   html:not(.motion) .hero { height: auto; min-height: 0; display: block; text-align: center; padding: 130px clamp(18px, 4.5vw, 72px) 90px; overflow: visible; }
@@ -291,6 +317,7 @@
     .row { grid-template-columns: 34px minmax(0, 1fr); } .row .mt, .row .tc { grid-column: 2; text-align: left; }
     .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .peek { display: none; }
+    .cloud-scene { padding-top: 74px; } .chip-i { padding: 8px 11px 9px; } .cloud { gap: 8px; }
     .contact { min-height: 0; }
   }
   @media (max-width: 560px) {
@@ -320,6 +347,7 @@
 
 <div class="cursor" id="cursor" aria-hidden="true"><span id="cursor-t"></span></div>
 <div class="rail" aria-hidden="true"><i id="rail"></i></div>
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
 <div class="peek" id="peek" aria-hidden="true"><img alt=""></div>
 
 <header class="nav">
@@ -361,6 +389,8 @@
     <p class="hero-sub" id="hero-sub">Eight years architecting distributed systems, secure platforms and LLM-powered products, from high-performance MCP platforms to production AI agents.</p>
     <div class="cue mono" aria-hidden="true"><span>Scroll</span><i></i></div>
   </section>
+
+  <div class="band" aria-hidden="true" data-i="0"></div>
 
   <section class="about pad scene" id="about" data-bg="#f1e6cf" data-fg="#1c1712" data-acc="#d8431f" data-label="About">
     <p class="mono kicker" style="margin-bottom:5vh">About</p>
@@ -428,9 +458,11 @@
     <div class="xp-bar" aria-hidden="true"><i id="xp-bar"></i></div>
   </section>
 
+  <div class="band" aria-hidden="true" data-i="1"></div>
+
   <section class="work pad scene" id="work" data-bg="#dfe9e4" data-fg="#0f1714" data-acc="#e5432a" data-label="Work">
     <div class="work-head">
-      <div><p class="mono kicker" style="margin-bottom:16px">Personal projects</p><h2 class="title mask" data-split>Things I've built</h2></div>
+      <div><p class="mono kicker" style="margin-bottom:16px">Personal projects</p><h2 class="title" data-split>Things I've built</h2></div>
       <p>Agent runtimes, developer tools, media pipelines and native apps. Projects stamped Private aren't public yet; where there's a live build, the card links to it instead.</p>
     </div>
     <div class="stack" id="stack"></div>
@@ -440,20 +472,28 @@
 
   <section class="plat pad scene" id="platforms" data-bg="#15110f" data-fg="#f4ece1" data-acc="#ff7a4d" data-label="Platforms">
     <div class="plat-head">
-      <div><p class="mono kicker" style="margin-bottom:16px">Professional work</p><h2 class="title mask" data-split>Platforms <em>&amp;</em> systems</h2></div>
+      <div><p class="mono kicker" style="margin-bottom:16px">Professional work</p><h2 class="title" data-split>Platforms <em>&amp;</em> systems</h2></div>
       <p>Backend, data and AI platforms I delivered at Josys and InstaSafe.</p>
     </div>
     <div class="cards" id="cards"></div>
   </section>
 
+  <div class="band" aria-hidden="true" data-i="2"></div>
+
   <section class="skills scene" id="skills" data-bg="#2ed3a7" data-fg="#08110e" data-acc="#08110e" data-label="Skills">
     <div class="skills-head pad">
       <p class="mono" style="margin-bottom:16px">Skills</p>
-      <h2 class="title mask" data-split>Technical <em>toolkit</em></h2>
+      <h2 class="title" data-split>Technical <em>toolkit</em></h2>
     </div>
     <div class="mqs" id="mqs"></div>
-    <ul class="sr" id="skills-sr"></ul>
+    <div class="cloud-scene" id="cloud" aria-label="The whole toolkit">
+      <span class="ring" aria-hidden="true"></span>
+      <div><p class="mono" style="margin-bottom:12px">All at once</p><h3 class="cloud-title">The whole toolkit, <em>exploded.</em></h3></div>
+      <div class="cloud" id="cloud-chips"></div>
+    </div>
   </section>
+
+  <div class="band" aria-hidden="true" data-i="3"></div>
 
   <section class="contact pad scene" id="contact" data-bg="#0d1513" data-fg="#eef3ef" data-acc="#ff5b3a" data-label="Contact">
     <div>
@@ -470,20 +510,20 @@
         <a href="tel:+447435067875"><span class="l mono">Phone</span><span class="v">+44 7435 067875</span></a>
         <a href="https://www.linkedin.com/in/aby-saji/" target="_blank" rel="noopener"><span class="l mono">LinkedIn</span><span class="v">linkedin.com/in/aby-saji</span></a>
         <a href="https://github.com/AbyAbyss" target="_blank" rel="noopener"><span class="l mono">GitHub</span><span class="v">github.com/AbyAbyss</span></a>
-        <a href="Aby_Saji_Pappachan_Technical_Lead.pdf" download="Aby_Saji_Pappachan_Technical_Lead.pdf"><span class="l mono">CV</span><span class="v">Download the PDF ↓</span></a>
+        <a href="../Aby_Saji_Pappachan_Technical_Lead.pdf" download="../Aby_Saji_Pappachan_Technical_Lead.pdf"><span class="l mono">CV</span><span class="v">Download the PDF ↓</span></a>
       </div>
     </div>
     <footer class="foot">
       <span>Aby Saji Pappachan · Technical Lead · Backend &amp; AI Engineer · Walsall, West Midlands</span>
-      <span><a href="index.html">The main portfolio</a> · <a href="explore.html">3D version</a></span>
+      <span><a href="../index.html">The main portfolio</a> · <a href="explore.html">3D version</a> · <a href="portfolio_motion.html">Motion v1</a></span>
       <span>Motion by GSAP and Lenis. Set in Bodoni Moda, Instrument Sans, DM Mono and Caveat.</span>
     </footer>
   </section>
 </main>
 
-<script src="vendor/gsap.min.js"></script>
-<script src="vendor/ScrollTrigger.min.js"></script>
-<script src="vendor/lenis.min.js"></script>
+<script src="../vendor/gsap.min.js"></script>
+<script src="../vendor/ScrollTrigger.min.js"></script>
+<script src="../vendor/lenis.min.js"></script>
 <script>
 (function () {
   "use strict";
@@ -494,15 +534,15 @@
                         meta: "Agent Runtime SDK \u00b7 TypeScript",
                         priv: true,
                         site: {
-                            href: "agentkit/",
+                            href: "../agentkit/",
                             label: "Visit the site",
                         },
                         docs: {
-                            href: "agentkit/doc/docs/getting-started/",
+                            href: "../agentkit/doc/docs/getting-started/",
                             label: "Read the docs",
                         },
                         link: {
-                            href: "agentkit/#tour",
+                            href: "../agentkit/#tour",
                             label: "Watch the 40 second tour",
                         },
                         desc:
@@ -520,9 +560,9 @@
                         ],
                         fit: true,
                         shots: [
-                            "shots/agentkit/tour-poster.jpg",
-                            "shots/agentkit/banner.svg",
-                            "shots/agentkit/architecture.svg",
+                            "../shots/agentkit/tour-poster.jpg",
+                            "../shots/agentkit/banner.svg",
+                            "../shots/agentkit/architecture.svg",
                         ],
                     },
                     {
@@ -530,11 +570,11 @@
                         meta: "AI Desktop Companion \u00b7 Tauri + Rust",
                         priv: true,
                         site: {
-                            href: "helpy/",
+                            href: "../helpy/",
                             label: "Visit the site",
                         },
                         link: {
-                            href: "helpy/#tour",
+                            href: "../helpy/#tour",
                             label: "Watch the 45 second tour",
                         },
                         desc:
@@ -555,7 +595,7 @@
                             "plan-card",
                             "card-dark",
                         ].map(function (s) {
-                            return "shots/helpy/" + s + ".png";
+                            return "../shots/helpy/" + s + ".png";
                         }),
                     },
                     {
@@ -585,7 +625,7 @@
                             "job-site",
                             "event-log",
                         ].map(function (s) {
-                            return "shots/applyjobbot/" + s + ".png";
+                            return "../shots/applyjobbot/" + s + ".png";
                         }),
                     },
                     {
@@ -656,7 +696,7 @@
                         meta: "Animation Studio \u00b7 React",
                         priv: true,
                         link: {
-                            href: "animator/",
+                            href: "../animator/",
                             label: "Open the live app",
                         },
                         desc:
@@ -673,10 +713,10 @@
                             "Claude + GPT-4o",
                         ],
                         shots: [
-                            "shots/animator/editor.png",
-                            "shots/animator/ai-critic.png",
-                            "shots/animator/effects.png",
-                            "shots/animator/architecture.svg",
+                            "../shots/animator/editor.png",
+                            "../shots/animator/ai-critic.png",
+                            "../shots/animator/effects.png",
+                            "../shots/animator/architecture.svg",
                         ],
                     },
                     {
@@ -705,7 +745,7 @@
                             "library.png",
                             "upload.png",
                         ].map(function (s) {
-                            return "shots/reelforge/" + s;
+                            return "../shots/reelforge/" + s;
                         }),
                     },
                     {
@@ -743,7 +783,7 @@
                         meta: "Code Playground SDK \u00b7 TypeScript",
                         repo: "https://github.com/AbyAbyss/sandkit",
                         site: {
-                            href: "sandkit/",
+                            href: "../sandkit/",
                             label: "Try it live",
                         },
                         desc:
@@ -760,7 +800,7 @@
                             "QuickJS",
                         ],
                         fit: true,
-                        shots: ["sandkit.svg"],
+                        shots: ["../sandkit.svg"],
                     },
                     {
                         name: "DevConnect",
@@ -779,7 +819,7 @@
                             "PostgreSQL",
                             "MongoDB",
                         ],
-                        shots: ["shots/devconnect.svg"],
+                        shots: ["../shots/devconnect.svg"],
                     },
                     {
                         name: "GraceTrack",
@@ -799,11 +839,11 @@
                         ],
                         fit: true,
                         shots: [
-                            "shots/gracetrack/screen-home.svg",
-                            "shots/gracetrack/screen-entry.svg",
-                            "shots/gracetrack/screen-reports.svg",
-                            "shots/gracetrack/screen-history.svg",
-                            "shots/gracetrack/privacy.svg",
+                            "../shots/gracetrack/screen-home.svg",
+                            "../shots/gracetrack/screen-entry.svg",
+                            "../shots/gracetrack/screen-reports.svg",
+                            "../shots/gracetrack/screen-history.svg",
+                            "../shots/gracetrack/privacy.svg",
                         ],
                     },
                     {
@@ -915,7 +955,7 @@
                             "Google Drive API",
                         ],
                         fit: true,
-                        shots: ["shots/privatevault.svg"],
+                        shots: ["../shots/privatevault.svg"],
                     },
                     {
                         name: "Term REST Client",
@@ -1069,7 +1109,18 @@
     var run = g[1].map(function (s) { return "<span>" + esc(s) + "<i>✦</i></span>"; }).join("");
     return '<div class="mq" aria-hidden="true"><p class="mq-label hand">' + esc(g[0]) + '</p><div class="mq-view"><div class="mq-in">' + run + run + "</div></div></div>";
   }).join("");
-  $("#skills-sr").innerHTML = SKILLS.map(function (g) { return "<li>" + esc(g[0]) + ": " + g[1].map(esc).join(", ") + "</li>"; }).join("");
+  // Every skill as a paper chip, shuffled with a fixed seed so the mix is the same each visit.
+  var seed = 11, rnd = function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  var chipData = [];
+  SKILLS.forEach(function (g, gi) { g[1].forEach(function (t) { chipData.push([t, gi % 7]); }); });
+  for (var ci = chipData.length - 1; ci > 0; ci--) { var cj = Math.floor(rnd() * (ci + 1)), tmp = chipData[ci]; chipData[ci] = chipData[cj]; chipData[cj] = tmp; }
+  $("#cloud-chips").innerHTML = chipData.map(function (c) { return '<span class="chip c' + c[1] + '"><span class="chip-i">' + esc(c[0]) + "</span></span>"; }).join("");
+  var BANDS = [
+    "Owning products end to end <i>✦</i> Backend <i>✦</i> Platform <i>✦</i> AI <i>✦</i>",
+    "Shipped <i>✦</i> Shipping <i>✦</i> Shipping next <i>✦</i>",
+    "Platforms <i>✦</i> Data <i>✦</i> LLMs <i>✦</i> MCP <i>✦</i>",
+    "Let's talk <i>✦</i> Available now <i>✦</i>"
+  ];
 
   /* ---------- Small helpers ---------- */
   function splitChars(el, keepAria) {
@@ -1149,6 +1200,42 @@
 
   var finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+  /* Paper confetti: one canvas, small bursts on demand. */
+  var cv = $("#fx"), ctx = cv.getContext("2d"), dpr = Math.min(window.devicePixelRatio || 1, 2), parts = [], VW = 0, VH = 0, alive = false;
+  function fit() { VW = innerWidth; VH = innerHeight; cv.width = VW * dpr; cv.height = VH * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+  fit(); addEventListener("resize", fit);
+  var CONFETTI = ["#ff4b2b", "#2ed3a7", "#ffd25c", "#fbf8ef", "#101715", "#ff7a4d", "#9be3cf"];
+  function burst(x, y, o) {
+    o = o || {};
+    var n = o.n || 60, sp = o.speed || 13, a0 = o.angle == null ? 0 : o.angle, spread = o.spread == null ? Math.PI * 2 : o.spread, cols = o.colors || CONFETTI;
+    for (var i = 0; i < n; i++) {
+      var a = a0 + (Math.random() - 0.5) * spread, v = sp * (0.35 + Math.random() * 0.75);
+      parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.4, w: 6 + Math.random() * 12, h: 4 + Math.random() * 9, c: cols[(Math.random() * cols.length) | 0], s: (Math.random() * 3) | 0, f: Math.random() * 6.28, life: 0, max: 90 + Math.random() * 70 });
+    }
+    if (parts.length > 700) parts.splice(0, parts.length - 700);
+    if (!alive) { alive = true; gsap.ticker.add(paintParts); }
+  }
+  function paintParts() {
+    ctx.clearRect(0, 0, VW, VH);
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var q = parts[i];
+      q.life++; q.vx *= 0.975; q.vy = q.vy * 0.975 + 0.32; q.x += q.vx; q.y += q.vy; q.r += q.vr; q.f += 0.18;
+      if (q.life > q.max || q.y > VH + 40) { parts.splice(i, 1); continue; }
+      ctx.save(); ctx.globalAlpha = Math.min(1, (q.max - q.life) / 25); ctx.translate(q.x, q.y); ctx.rotate(q.r); ctx.scale(1, Math.cos(q.f)); ctx.fillStyle = q.c;
+      if (q.s === 0) ctx.fillRect(-q.w / 2, -q.h / 2, q.w, q.h);
+      else if (q.s === 1) { ctx.beginPath(); ctx.arc(0, 0, q.h / 2 + 1, 0, 6.28); ctx.fill(); }
+      else { ctx.beginPath(); ctx.moveTo(0, -q.w / 2); ctx.lineTo(q.w / 2, q.h / 2); ctx.lineTo(-q.w / 2, q.h / 2); ctx.closePath(); ctx.fill(); }
+      ctx.restore();
+    }
+    if (!parts.length) { ctx.clearRect(0, 0, VW, VH); gsap.ticker.remove(paintParts); alive = false; }
+  }
+  // Click anywhere for a little pop.
+  addEventListener("pointerdown", function (e) { if (e.target.closest("a, button, .chip")) return; burst(e.clientX, e.clientY, { n: 22, speed: 9 }); });
+  // Letters and titles blow apart in random directions before they land.
+  function blastVars(spread) {
+    return { x: function () { return gsap.utils.random(-spread, spread); }, y: function () { return gsap.utils.random(-spread * 0.6, spread * 0.6); }, rotation: function () { return gsap.utils.random(-140, 140); }, scale: function () { return gsap.utils.random(0.2, 2.4); }, opacity: 0 };
+  }
+
   /* Cursor */
   if (finePointer) {
     var cur = $("#cursor"), curT = $("#cursor-t");
@@ -1205,16 +1292,22 @@
     gsap.fromTo(w, { opacity: 0.12 }, { opacity: 1, ease: "none", stagger: 0.1, scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 50%", scrub: true } });
   });
   gsap.from("[data-fade]", { opacity: 0, y: 50, duration: 1, ease: "power3.out", scrollTrigger: { trigger: "[data-fade]", start: "top 88%", toggleActions: "play none none reverse" } });
-  $$(".stat").forEach(function (el) {
-    var s = parseFloat(el.dataset.speed || 1);
-    gsap.fromTo(el, { y: 110 * s }, { y: -70 * s, ease: "none", scrollTrigger: { trigger: "#stats", start: "top bottom", end: "bottom top", scrub: true } });
+  // The five stats start as a heap in the middle and blow out into place while the page holds still.
+  var statsEl = $("#stats"), statCards = $$(".stat", statsEl), statNat = statCards.map(function (c) { return gsap.getProperty(c, "rotation"); }), popped = false;
+  var tlStats = gsap.timeline({ scrollTrigger: { trigger: statsEl, start: "center center", end: "+=130%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true,
+    onUpdate: function (st) {
+      if (st.progress > 0.35 && !popped) { popped = true; var r = statsEl.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, { n: 120, speed: 16 }); }
+      else if (st.progress < 0.15) popped = false;
+    } } });
+  tlStats.fromTo(statCards,
+    { x: function (i, el) { return statsEl.clientWidth / 2 - (el.offsetLeft + el.offsetWidth / 2); }, y: function (i, el) { return statsEl.clientHeight / 2 - (el.offsetTop + el.offsetHeight / 2); }, scale: 0.2, rotation: function (i) { return statNat[i] + (i % 2 ? 1 : -1) * gsap.utils.random(120, 320); }, opacity: 0 },
+    { x: 0, y: 0, scale: 1, rotation: function (i) { return statNat[i]; }, opacity: 1, duration: 1, ease: "expo.out", stagger: { each: 0.16, from: "random" } }, 0);
+  statCards.forEach(function (el, i) {
     var b = $("b", el), to = parseFloat(b.dataset.to), suffix = b.dataset.suffix || "", o = { v: 0 };
-    ScrollTrigger.create({ trigger: el, start: "top 88%", once: true, onEnter: function () {
-      gsap.to(o, { v: to, duration: 1.6, ease: "power3.out", onUpdate: function () { b.textContent = Math.round(o.v) + suffix; } });
-    } });
     b.textContent = "0" + suffix;
-    gsap.from(el, { rotation: gsap.getProperty(el, "rotation") + gsap.utils.random(-8, 8), duration: 1.1, ease: "elastic.out(1, 0.55)", scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" } });
+    tlStats.to(o, { v: to, duration: 0.9, ease: "power2.out", onUpdate: function () { b.textContent = Math.round(o.v) + suffix; } }, 0.1 + i * 0.13);
   });
+  tlStats.to({}, { duration: 0.6 });
 
   /* ===== Scene 3: horizontal filmstrip ===== */
   mm.add("(min-width: 901px)", function () {
@@ -1223,7 +1316,11 @@
     var move = gsap.to(track, { x: function () { return -dist(); }, ease: "none", scrollTrigger: { trigger: pin, start: "top top", end: function () { return "+=" + dist(); }, pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true,
       onUpdate: function (s) { pin.style.setProperty("--fx", (-dist() * s.progress).toFixed(1) + "px"); $("#xp-bar").style.transform = "scaleX(" + s.progress.toFixed(4) + ")"; } } });
     $$(".panel").forEach(function (p) {
-      var yr = $(".yr", p), items = $$(".p-list li, .p-role, .p-when, .p-org", p);
+      var yr = $(".yr", p), items = $$(".p-list li, .p-when, .p-org", p), role = $(".p-role", p);
+      if (role) {
+        var rch = splitChars(role);
+        gsap.fromTo(rch, blastVars(280), { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, ease: "power3.out", immediateRender: false, stagger: { each: 0.02, from: "random" }, scrollTrigger: { trigger: p, containerAnimation: move, start: "left 92%", end: "left 48%", scrub: true } });
+      }
       if (yr) gsap.fromTo(yr, { xPercent: 30 }, { xPercent: -30, ease: "none", scrollTrigger: { trigger: p, containerAnimation: move, start: "left right", end: "right left", scrub: true } });
       gsap.from(items, { opacity: 0, x: 60, duration: 0.7, ease: "power3.out", stagger: 0.06, scrollTrigger: { trigger: p, containerAnimation: move, start: "left 78%", toggleActions: "play none none reverse" } });
     });
@@ -1248,12 +1345,31 @@
     });
   });
   $$(".pcard").forEach(function (c) {
+    ScrollTrigger.create({ trigger: c, start: "top 45%", onEnter: function () { var r = c.getBoundingClientRect(); burst(r.left + 70, r.top + 8, { n: 30, speed: 12, angle: -Math.PI / 2, spread: Math.PI * 0.95 }); } });
     gsap.from($(".pframe", c), { clipPath: "inset(0 100% 0 0)", duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: c, start: "top 78%", toggleActions: "play none none reverse" } });
     var name = $(".pname", c), ch = splitChars(name);
     name.classList.add("mask");
     gsap.from(ch, { yPercent: 110, duration: 0.9, ease: "expo.out", stagger: 0.02, scrollTrigger: { trigger: c, start: "top 70%", toggleActions: "play none none reverse" } });
     gsap.from($$(".pbody > :not(.pname)", c), { opacity: 0, y: 30, duration: 0.8, ease: "power3.out", stagger: 0.07, scrollTrigger: { trigger: c, start: "top 66%", toggleActions: "play none none reverse" } });
   });
+  if (finePointer) {
+    var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+";
+    $$(".row").forEach(function (r) {
+      var el = $(".nm", r);
+      r.addEventListener("pointerenter", function () {
+        var final = el._t || (el._t = el.textContent), f = 0;
+        if (el._sc) gsap.ticker.remove(el._sc);
+        el._sc = function () {
+          f++;
+          var out = "";
+          for (var i = 0; i < final.length; i++) out += final[i] === " " || f > i * 1.4 + 5 ? final[i] : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+          el.textContent = out;
+          if (f > final.length * 1.4 + 7) { el.textContent = final; gsap.ticker.remove(el._sc); }
+        };
+        gsap.ticker.add(el._sc);
+      });
+    });
+  }
   gsap.from(".row", { opacity: 0, y: 40, duration: 0.8, ease: "power3.out", stagger: 0.05, scrollTrigger: { trigger: "#idx", start: "top 85%", toggleActions: "play none none reverse" } });
 
   /* Hover preview that follows the pointer */
@@ -1274,17 +1390,31 @@
     gsap.set(peek, { scale: 0.85 });
   }
 
-  /* ===== Scene 5: platform cards flip up ===== */
-  gsap.set(".card", { transformOrigin: "50% 100%" });
-  ScrollTrigger.batch(".card", { start: "top 90%", onEnter: function (b) { gsap.fromTo(b, { opacity: 0, y: 90, rotationX: -40 }, { opacity: 1, y: 0, rotationX: 0, duration: 1, ease: "power3.out", stagger: 0.1, overwrite: true }); }, onLeaveBack: function (b) { gsap.to(b, { opacity: 0, y: 90, rotationX: -40, duration: 0.5, overwrite: true }); }, onEnterBack: function (b) { gsap.to(b, { opacity: 1, y: 0, rotationX: 0, duration: 0.8, ease: "power3.out", stagger: 0.08, overwrite: true }); } });
-  gsap.set(".card", { opacity: 0 });
-
-  /* Big titles, letter by letter, in both directions */
-  $$("[data-split]").forEach(function (el) {
-    var ch = splitChars(el);
-    gsap.from(ch, { yPercent: 115, rotation: 6, duration: 1.1, ease: "expo.out", stagger: 0.025, scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } });
+  /* ===== Scene 5: platform cards fly in from the sides, columns drift, cards tilt ===== */
+  $$(".card").forEach(function (c, i) {
+    var col = i % 3, nat = gsap.getProperty(c, "rotation");
+    gsap.set(c, { transformPerspective: 900 });
+    gsap.fromTo(c,
+      { x: function () { return col === 0 ? -innerWidth * 0.55 : col === 2 ? innerWidth * 0.55 : 0; }, y: col === 1 ? 260 : 120, rotation: nat + (col - 1) * 40 + gsap.utils.random(-25, 25), opacity: 0, scale: 0.6 },
+      { x: 0, y: 0, rotation: nat, opacity: 1, scale: 1, ease: "power3.out", scrollTrigger: { trigger: c, start: "top 105%", end: "top 58%", scrub: true, invalidateOnRefresh: true } });
+    gsap.fromTo(c, { yPercent: col === 1 ? 12 : col === 2 ? 6 : 0 }, { yPercent: col === 1 ? -12 : col === 2 ? -6 : 0, ease: "none", scrollTrigger: { trigger: "#cards", start: "top bottom", end: "bottom top", scrub: true } });
+    if (finePointer) {
+      var rx = gsap.quickTo(c, "rotationX", { duration: 0.5, ease: "power3" }), ry = gsap.quickTo(c, "rotationY", { duration: 0.5, ease: "power3" });
+      c.addEventListener("pointermove", function (e) {
+        var r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        ry((px - 0.5) * 16); rx(-(py - 0.5) * 16);
+        c.style.setProperty("--gx", px * 100 + "%"); c.style.setProperty("--gy", py * 100 + "%");
+      });
+      c.addEventListener("pointerleave", function () { rx(0); ry(0); });
+    }
   });
 
+  /* Big titles blow in from random directions, and blow apart again on the way back up */
+  $$("[data-split]").forEach(function (el) {
+    var ch = splitChars(el);
+    gsap.from(ch, Object.assign(blastVars(520), { duration: 1.5, ease: "expo.out", stagger: { each: 0.02, from: "random" },
+      scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse", onEnter: function () { var r = el.getBoundingClientRect(); burst(r.left + Math.min(r.width, 700) * 0.4, r.top + r.height * 0.5, { n: 34, speed: 10 }); } } }));
+  });
 
   /* ===== Scene 6: skills ticker, driven by scroll speed ===== */
   var rows = $$(".mq").map(function (row, i) {
@@ -1292,7 +1422,7 @@
     return { row: row, inner: inner, dir: i % 2 ? 1 : -1, pos: 0, half: 0, set: gsap.quickSetter(inner, "x", "px"), skew: gsap.quickSetter(row, "skewX", "deg") };
   });
   var measure = function () { rows.forEach(function (r) { r.half = r.inner.scrollWidth / 2; r.pos = r.dir > 0 ? -r.half : 0; }); };
-  var vel = 0, smooth = 0;
+  var vel = 0, smooth = 0, bandSet = [];
   ScrollTrigger.create({ onUpdate: function (s) { vel = s.getVelocity(); } });
   gsap.ticker.add(function (time, dt) {
     smooth += (vel - smooth) * 0.12; vel *= 0.9;
@@ -1306,12 +1436,55 @@
       if (r.pos > 0) r.pos -= r.half;
       r.set(r.pos); r.skew(sk);
     });
+    bandSet.forEach(function (f) { f(sk * 0.5); });
   });
   gsap.from(".mq-label", { opacity: 0, x: -40, rotation: -12, duration: 0.7, ease: "back.out(2)", stagger: 0.08, scrollTrigger: { trigger: "#mqs", start: "top 80%", toggleActions: "play none none reverse" } });
+  gsap.from(".mq", { yPercent: 80, opacity: 0, rotation: function (i) { return i % 2 ? 5 : -5; }, duration: 1, ease: "expo.out", stagger: 0.1, scrollTrigger: { trigger: "#mqs", start: "top 85%", toggleActions: "play none none reverse" } });
+
+  /* The whole toolkit as paper chips: a heap in the middle blows out across the screen, then dodges the cursor. */
+  var cloudEl = $("#cloud"), cloudBox = $("#cloud-chips"), chips = $$(".chip", cloudEl), cloudPopped = false;
+  var tlCloud = gsap.timeline({ scrollTrigger: { trigger: cloudEl, start: "top top", end: "+=140%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true,
+    onUpdate: function (st) {
+      if (st.progress > 0.08 && !cloudPopped) { cloudPopped = true; burst(innerWidth / 2, innerHeight * 0.58, { n: 150, speed: 19 }); }
+      else if (st.progress < 0.03) cloudPopped = false;
+    } } });
+  tlCloud.fromTo(".ring", { scale: 0, opacity: 0.9 }, { scale: 6, opacity: 0, duration: 1, ease: "power2.out", immediateRender: false }, 0)
+    .fromTo(chips,
+      { x: function (i, el) { return cloudBox.clientWidth / 2 - (el.offsetLeft + el.offsetWidth / 2); }, y: function (i, el) { return cloudBox.clientHeight / 2 - (el.offsetTop + el.offsetHeight / 2); }, scale: 0, rotation: function () { return gsap.utils.random(-360, 360); }, opacity: 0 },
+      { x: 0, y: 0, scale: 1, rotation: 0, opacity: 1, duration: 1.3, ease: "expo.out", stagger: { each: 0.03, from: "random" } }, 0)
+    .to({}, { duration: 0.7 });
+  if (finePointer) {
+    var cin = chips.map(function (c) { return $(".chip-i", c); });
+    var cqx = cin.map(function (e) { return gsap.quickTo(e, "x", { duration: 0.6, ease: "power3" }); }), cqy = cin.map(function (e) { return gsap.quickTo(e, "y", { duration: 0.6, ease: "power3" }); });
+    var cmx = 0, cmy = 0, cq = false;
+    var repel = function () {
+      cq = false;
+      chips.forEach(function (c, i) {
+        var r = c.getBoundingClientRect(), dx = r.left + r.width / 2 - cmx, dy = r.top + r.height / 2 - cmy, d = Math.hypot(dx, dy), R = 190;
+        if (d < R) { var f = ((1 - d / R) * 90) / (d || 1); cqx[i](dx * f); cqy[i](dy * f); } else { cqx[i](0); cqy[i](0); }
+      });
+    };
+    cloudEl.addEventListener("pointermove", function (e) { cmx = e.clientX; cmy = e.clientY; if (!cq) { cq = true; requestAnimationFrame(repel); } });
+    cloudEl.addEventListener("pointerleave", function () { chips.forEach(function (c, i) { cqx[i](0); cqy[i](0); }); });
+  }
+  chips.forEach(function (c) {
+    c.addEventListener("click", function (e) {
+      var i = $(".chip-i", c), col = getComputedStyle(i).backgroundColor;
+      burst(e.clientX, e.clientY, { n: 34, speed: 11, colors: [col, "#fbf8ef", "#ffd25c"] });
+    });
+  });
 
   /* ===== Scene 7: letters swell near the pointer ===== */
   var pxChars = splitChars($("#px"));
-  gsap.from(pxChars, { yPercent: 110, opacity: 0, rotation: 8, duration: 1.1, ease: "expo.out", stagger: 0.03, scrollTrigger: { trigger: "#px", start: "top 85%", toggleActions: "play none none reverse" } });
+  gsap.from(pxChars, Object.assign(blastVars(700), { duration: 1.6, ease: "expo.out", stagger: { each: 0.025, from: "random" }, scrollTrigger: { trigger: "#px", start: "top 85%", toggleActions: "play none none reverse" } }));
+  var cannon = function () {
+    burst(0, innerHeight, { n: 110, angle: -Math.PI / 3, spread: 0.9, speed: 28 });
+    burst(innerWidth, innerHeight, { n: 110, angle: (-Math.PI * 2) / 3, spread: 0.9, speed: 28 });
+  };
+  ScrollTrigger.create({ trigger: "#px", start: "top 70%", onEnter: cannon, onEnterBack: cannon });
+  var ctaEl = $(".cta");
+  ctaEl.addEventListener("pointerenter", function () { var r = ctaEl.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, { n: 30, speed: 11 }); });
+  ctaEl.addEventListener("click", function () { var r = ctaEl.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, { n: 90, speed: 18 }); });
   if (finePointer) {
     var pxSetters = pxChars.map(function (c) { return gsap.quickSetter(c, "fontWeight"); });
     var mx = -999, my = -999, queued = false;
@@ -1331,6 +1504,15 @@
     });
   }
   gsap.from(".lines > *", { opacity: 0, y: 30, duration: 0.8, ease: "power3.out", stagger: 0.08, scrollTrigger: { trigger: ".lines", start: "top 88%", toggleActions: "play none none reverse" } });
+
+  /* Angled text bands across the seams: they slide with the scroll and lean into fast scrolling. */
+  $$(".band").forEach(function (b, i) {
+    var dir = i % 2 ? 1 : -1, unit = "<span>" + BANDS[+b.dataset.i] + "</span>", run = new Array(8).join(unit);
+    b.innerHTML = '<div class="band-in">' + run + run + "</div>";
+    gsap.fromTo($(".band-in", b), { xPercent: dir < 0 ? 0 : -50 }, { xPercent: dir < 0 ? -50 : 0, ease: "none", scrollTrigger: { trigger: b, start: "top bottom", end: "bottom top", scrub: true } });
+    gsap.fromTo(b, { rotation: -4 * -dir }, { rotation: 1.5 * -dir, ease: "none", scrollTrigger: { trigger: b, start: "top bottom", end: "bottom top", scrub: true } });
+    bandSet.push(gsap.quickSetter(b, "skewX", "deg"));
+  });
 
   /* The stage colours come last: the pins above have to exist first. */
   /* Stage colours follow the scenes, both ways */
