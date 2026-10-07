@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Helpy is an AI companion that lives next to your cursor. Ask out loud and it points at the answer, draws on top of your real apps, and runs agents in the background.">
+<meta property="og:title" content="The Helpy Notebook">
+<meta property="og:description" content="Ask out loud. Helpy points at the answer.">
+<meta property="og:image" content="https://abyabyss.github.io/shots/helpy/walkthrough.png">
+<meta name="theme-color" content="#e6eaf0">
+<title>The Helpy Notebook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=JetBrains+Mono:wght@400;600&family=Nanum+Pen+Script&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..500&display=swap">
+<style>
+  :root {
+    --display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+    --serif: "Newsreader", Georgia, "Times New Roman", serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --pen: "Nanum Pen Script", "Comic Sans MS", cursive;
+
+    /* The desk: graph paper under everything. */
+    --ground: #e6eaf0;
+    --grid: rgba(88, 110, 140, 0.13);
+    --grid-major: rgba(88, 110, 140, 0.22);
+    --ink: #171b26;
+    --ink-2: #4a5162;
+    --ink-3: #6f7789;
+    --marker: #e5484d;
+    --marker-ink: #ffffff;
+    --rule: rgba(23, 27, 38, 0.18);
+
+    /* Things taped onto the desk stay paper in both themes. */
+    --paper: #fbfbf8;
+    --paper-ink: #171b26;
+    --paper-ink-2: #4a5162;
+    --paper-rule: rgba(23, 27, 38, 0.12);
+    --tape: rgba(242, 220, 138, 0.78);
+    --sticky: #c9ecd8;
+    --kraft: #d8c4a0;
+    --shadow: 0 1px 1px rgba(23, 27, 38, 0.08), 0 10px 24px -12px rgba(23, 27, 38, 0.35);
+
+    --buddy: #f0544f;
+    --buddy-eye: #1b2030;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #11141a;
+      --grid: rgba(150, 170, 200, 0.07);
+      --grid-major: rgba(150, 170, 200, 0.13);
+      --ink: #e8ebf1;
+      --ink-2: #b1b8c6;
+      --ink-3: #8a93a5;
+      --marker: #ff6166;
+      --rule: rgba(232, 235, 241, 0.2);
+      --paper: #f1f0ea;
+      --shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 14px 30px -12px rgba(0, 0, 0, 0.8);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #11141a;
+    --grid: rgba(150, 170, 200, 0.07);
+    --grid-major: rgba(150, 170, 200, 0.13);
+    --ink: #e8ebf1;
+    --ink-2: #b1b8c6;
+    --ink-3: #8a93a5;
+    --marker: #ff6166;
+    --rule: rgba(232, 235, 241, 0.2);
+    --paper: #f1f0ea;
+    --shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 14px 30px -12px rgba(0, 0, 0, 0.8);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background-color: var(--ground);
+    background-image:
+      linear-gradient(var(--grid-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    color: var(--ink);
+    font: 400 18px/1.6 var(--serif);
+    padding-inline: clamp(16px, 4vw, 56px);
+    padding-block: 0 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1180px; margin-inline: auto; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--marker); outline-offset: 3px; border-radius: 4px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+
+  .mono { font: 600 11.5px/1.4 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+  .pen { font-family: var(--pen); color: var(--marker); font-size: 30px; line-height: 1; }
+
+  /* ---------- Masthead ---------- */
+  .masthead {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
+    padding-block: 22px 14px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .brand b { font: 800 26px/1 var(--display); font-variation-settings: "wdth" 80; letter-spacing: -0.01em; }
+  .folio { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--ink-2); }
+  .folio span + span::before { content: "·"; margin-right: 22px; color: var(--ink-3); }
+  .folio span + span { margin-left: -22px; }
+  .issue-line { display: flex; justify-content: space-between; gap: 16px; padding-block: 8px; border-bottom: 1px solid var(--rule); color: var(--ink-3); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: 40px 56px; align-items: center;
+    padding-block: 56px 72px;
+  }
+  .kicker { color: var(--marker); margin-bottom: 18px; }
+  .headline {
+    font: 800 clamp(58px, 9.4vw, 132px)/0.86 var(--display);
+    font-variation-settings: "wdth" 75, "opsz" 96;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+  .circled { position: relative; display: inline-block; white-space: nowrap; }
+  .circled svg { position: absolute; left: -9%; top: -16%; width: 118%; height: 132%; overflow: visible; pointer-events: none; }
+  .circled path { fill: none; stroke: var(--marker); stroke-width: 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .deck {
+    margin-top: 28px; max-width: 34em;
+    font: italic 400 clamp(20px, 2vw, 24px)/1.45 var(--serif);
+    color: var(--ink-2);
+  }
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 20px; margin-top: 30px; }
+  .stamp {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 22px; border-radius: 3px;
+    background: var(--marker); color: var(--marker-ink);
+    font: 700 17px/1 var(--display); font-variation-settings: "wdth" 85; letter-spacing: 0.02em; text-transform: uppercase;
+    text-decoration: none; box-shadow: 3px 3px 0 var(--ink);
+    transform: rotate(-1.5deg); transition: transform 160ms ease, box-shadow 160ms ease;
+  }
+  .stamp:hover { transform: rotate(0deg) translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+  .quiet-link { font: 600 15px/1 var(--display); text-decoration: none; border-bottom: 2px solid var(--rule); padding-bottom: 4px; }
+  .quiet-link:hover { border-color: var(--marker); }
+  .keys { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 26px; color: var(--ink-2); font-size: 16px; }
+  kbd {
+    display: inline-block; min-width: 30px; padding: 5px 9px 6px; border-radius: 6px;
+    background: var(--paper); color: var(--paper-ink);
+    border: 1px solid var(--paper-rule); border-bottom-width: 3px;
+    font: 600 12.5px/1 var(--mono); text-align: center;
+  }
+
+  /* Taped photos */
+  .photo {
+    position: relative; margin: 0;
+    background: var(--paper); padding: 12px 12px 14px;
+    box-shadow: var(--shadow);
+  }
+  .photo img { display: block; width: 100%; height: auto; }
+  .photo figcaption { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 10px; color: var(--paper-ink-2); }
+  .photo figcaption .pen { font-size: 26px; }
+  .tape {
+    position: absolute; width: 110px; height: 28px; background: var(--tape);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    clip-path: polygon(3% 0, 97% 4%, 100% 50%, 96% 100%, 2% 96%, 0 45%);
+  }
+  .hero .photo { transform: rotate(2.2deg); }
+  .hero .photo .tape { top: -14px; left: calc(50% - 55px); transform: rotate(-3deg); }
+
+  /* The hero's annotation layer and the buddy riding it */
+  .ink-layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .ink-layer path { fill: none; stroke: var(--marker); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; }
+  .buddy { position: absolute; left: 0; top: 0; width: 40px; height: 40px; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(10, 12, 20, 0.35)); will-change: transform; }
+  .buddy .body { fill: var(--buddy); stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+  .buddy .eye { fill: var(--buddy-eye); }
+
+  /* ---------- Section heads ---------- */
+  .section { padding-block: 64px 24px; border-top: 2px solid var(--ink); }
+  .section-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 16px 56px; align-items: end; margin-bottom: 44px; }
+  .section-head h2 {
+    font: 800 clamp(40px, 6vw, 76px)/0.9 var(--display);
+    font-variation-settings: "wdth" 78, "opsz" 96; letter-spacing: -0.03em; text-transform: uppercase;
+  }
+  .section-head .mono { color: var(--marker); margin-bottom: 12px; }
+  .intro { max-width: 36em; color: var(--ink-2); }
+  .intro::first-letter {
+    float: left; font: 800 76px/0.8 var(--display); font-variation-settings: "wdth" 75;
+    color: var(--marker); margin: 6px 10px 0 0;
+  }
+
+  /* ---------- Clippings ---------- */
+  .clippings { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 40px 32px; align-items: start; }
+  .clip { position: relative; background: var(--paper); color: var(--paper-ink); padding: 28px 28px 30px; box-shadow: var(--shadow); }
+  .clip h3 {
+    font: 800 34px/0.95 var(--display); font-variation-settings: "wdth" 80; letter-spacing: -0.02em;
+    margin: 8px 0 14px;
+  }
+  .clip p { color: var(--paper-ink-2); font-size: 17px; }
+  .clip p + p { margin-top: 12px; }
+  .clip .mono { color: var(--paper-ink-2); }
+  .clip .tape { top: -13px; }
+  .c-show { grid-column: 1 / span 5; transform: rotate(-1.2deg); }
+  .c-show .tape { left: 24px; transform: rotate(-6deg); }
+  .c-draw { grid-column: 6 / span 7; transform: rotate(0.8deg); margin-top: 34px; }
+  .c-draw .tape { right: 30px; transform: rotate(5deg); }
+  .c-work { grid-column: 1 / span 12; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 32px; transform: rotate(-0.4deg); }
+  .c-work .tape { left: calc(50% - 55px); transform: rotate(2deg); }
+
+  .hl { background: linear-gradient(transparent 58%, rgba(229, 72, 77, 0.28) 58%); padding-inline: 2px; }
+  .margin-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 18px; }
+  .margin-note svg { flex: none; margin-top: 4px; }
+  .margin-note path { fill: none; stroke: var(--marker); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* The drawing demo: its own sheet of graph paper */
+  .sheet {
+    position: relative; margin-top: 18px; border: 1px solid var(--paper-rule);
+    background-color: #f7f9fb;
+    background-image: linear-gradient(rgba(88, 110, 140, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(88, 110, 140, 0.12) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .sheet svg { display: block; width: 100%; height: auto; }
+  .sheet .given { fill: none; stroke: #9aa3b3; stroke-width: 2; stroke-dasharray: 6 6; }
+  .sheet .num { font: 600 15px var(--mono); fill: #4a5162; }
+  .sheet .mark { fill: none; stroke: var(--marker); stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 3px rgba(229, 72, 77, 0.45)); }
+  .sheet .tag rect { fill: var(--marker); }
+  .sheet .tag text { font: 700 12px var(--display); fill: #fff; }
+  .sheet .body { fill: var(--buddy); stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+  .sheet .eye { fill: var(--buddy-eye); }
+  .demo-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 14px; }
+  .btn {
+    font: 700 14px/1 var(--display); letter-spacing: 0.02em; text-transform: uppercase;
+    padding: 11px 16px; border-radius: 3px; cursor: pointer;
+    background: var(--paper-ink); color: var(--paper); border: 0; box-shadow: 2px 2px 0 var(--marker);
+  }
+  .btn:hover { box-shadow: 3px 3px 0 var(--marker); transform: translate(-1px, -1px); }
+  .btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+
+  .shots { position: relative; min-height: 360px; }
+  .shots .photo { position: absolute; width: 64%; }
+  .shots .photo:nth-child(1) { left: 0; top: 0; transform: rotate(-3deg); }
+  .shots .photo:nth-child(2) { right: 0; top: 70px; transform: rotate(2.5deg); }
+  .shots .photo .tape { top: -12px; left: 20px; width: 80px; transform: rotate(-8deg); }
+  .sticky {
+    position: absolute; right: 6%; bottom: -24px; width: 200px; padding: 18px 18px 22px;
+    background: var(--sticky); color: #1c3b2b; box-shadow: var(--shadow);
+    font: 28px/1.05 var(--pen); transform: rotate(-4deg);
+  }
+
+  /* ---------- The sequence strip ---------- */
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 2px solid var(--ink); }
+  .steps li { position: relative; padding: 24px 22px 26px; }
+  .steps li + li { border-left: 2px dashed var(--rule); }
+  .step-no {
+    font: 800 64px/0.8 var(--display); font-variation-settings: "wdth" 75;
+    color: transparent; -webkit-text-stroke: 1.5px var(--ink); font-variant-numeric: tabular-nums;
+  }
+  .steps li:first-child .step-no { color: var(--marker); -webkit-text-stroke: 0; }
+  .steps h3 { font: 700 22px/1.1 var(--display); font-variation-settings: "wdth" 85; margin: 16px 0 8px; }
+  .steps p { font-size: 16.5px; color: var(--ink-2); }
+  .said { display: inline-block; margin-top: 12px; font: 26px/1 var(--pen); color: var(--marker); transform: rotate(-2deg); }
+  .chips { display: flex; gap: 6px; margin-top: 12px; }
+  .chip { width: 26px; height: 26px; border-radius: 8px; background: #1b1f28; display: grid; place-items: center; box-shadow: 0 0 10px -1px var(--c); }
+  .chip svg { width: 14px; height: 14px; fill: var(--c); }
+
+  /* ---------- Pull quote ---------- */
+  .quote { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); gap: 24px 56px; padding-block: 72px; }
+  .quote blockquote { margin: 0; font: 500 clamp(30px, 4.4vw, 54px)/1.08 var(--serif); letter-spacing: -0.01em; text-wrap: balance; }
+  .quote blockquote::before { content: "\201C"; color: var(--marker); margin-left: -0.45em; }
+  .quote cite { display: block; margin-top: 18px; font-style: normal; color: var(--ink-3); }
+  .quote .mono { color: var(--ink-3); border-top: 2px solid var(--ink); padding-top: 12px; align-self: start; }
+
+  /* ---------- Ticket + stamps ---------- */
+  .extras { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 40px 48px; align-items: center; }
+  .ticket {
+    position: relative; background: var(--kraft); color: #2b2418; padding: 28px 32px 30px;
+    box-shadow: var(--shadow); transform: rotate(-1deg);
+    -webkit-mask: radial-gradient(circle 12px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 12px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+            mask: radial-gradient(circle 12px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 12px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  }
+  .ticket h3 { font: 800 30px/1 var(--display); font-variation-settings: "wdth" 80; margin: 8px 0 14px; }
+  .ticket .mono { color: #6b5a3c; }
+  .ticket ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .ticket li { font: 600 13px/1 var(--mono); padding: 8px 10px; border: 1.5px dashed rgba(43, 36, 24, 0.45); border-radius: 3px; }
+  .ticket p { margin-top: 16px; font-size: 16.5px; color: #4a3f2c; }
+  .stamps { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; }
+  .pstamp {
+    width: 124px; aspect-ratio: 1; max-width: 100%; display: grid; place-content: center; text-align: center;
+    border: 3px double var(--marker); border-radius: 50%; color: var(--marker);
+    font: 800 20px/0.95 var(--display); font-variation-settings: "wdth" 78; text-transform: uppercase;
+  }
+  .pstamp small { display: block; margin-top: 6px; font: 600 10px/1.2 var(--mono); letter-spacing: 0.06em; }
+  .pstamp:nth-child(1) { transform: rotate(-8deg); }
+  .pstamp:nth-child(2) { transform: rotate(5deg); }
+  .pstamp:nth-child(3) { transform: rotate(-3deg); opacity: 0.85; }
+
+  /* ---------- Close ---------- */
+  .tour { width: 100%; max-width: 920px; transform: rotate(-0.6deg); }
+  .tour video { display: block; width: 100%; height: auto; background: #111; }
+  .tour .tape { top: -14px; left: 32px; transform: rotate(-4deg); }
+  .source-note { color: var(--ink-2); font-size: 17px; }
+  .close { padding-block: 80px 40px; border-top: 2px solid var(--ink); margin-top: 72px; display: grid; justify-items: start; gap: 22px; }
+  .close h2 {
+    font: 800 clamp(48px, 8vw, 110px)/0.86 var(--display); font-variation-settings: "wdth" 75, "opsz" 96;
+    letter-spacing: -0.035em; text-transform: uppercase; max-width: 12ch;
+  }
+  .colophon {
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 40px;
+    padding-top: 18px; border-top: 1px solid var(--rule); color: var(--ink-3); font-size: 15px;
+  }
+  .colophon .mono { color: var(--ink-2); margin-bottom: 6px; }
+
+  /* ---------- Narrow screens ---------- */
+  @media (max-width: 860px) {
+    .hero, .section-head, .quote, .extras { grid-template-columns: minmax(0, 1fr); }
+    .c-show, .c-draw, .c-work { grid-column: 1 / -1; margin-top: 0; }
+    .c-work { grid-template-columns: minmax(0, 1fr); }
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps li:nth-child(3) { border-left: 0; }
+    .steps li:nth-child(n+3) { border-top: 2px dashed var(--rule); }
+    .colophon { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 520px) {
+    body { font-size: 17px; }
+    .steps { grid-template-columns: minmax(0, 1fr); }
+    .steps li + li { border-left: 0; border-top: 2px dashed var(--rule); }
+    .shots { min-height: 300px; }
+    .shots .photo { width: 78%; }
+    .sticky { width: 170px; font-size: 24px; }
+    .issue-line span:last-child { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stamp, .btn { transition: none; }
+  }
+</style>
+<style>img{max-width:100%}[hidden]{display:none!important}body{margin:0}</style>
+<style id="hb-css">
+  /* Helpy on the page: a buddy beside your cursor, highlights, a walkthrough card, and a pen. */
+  #hb { position: fixed; inset: 0; z-index: 9000; pointer-events: none; overflow: hidden; }
+  #hb-ink { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #hb-ink path { fill: none; stroke: var(--marker); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 1px rgba(10, 12, 20, 0.25)); }
+  #hb-ink .hb-guide { stroke-width: 3; }
+  #hb-hl {
+    position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 10px; opacity: 0;
+    border: 3px solid var(--marker);
+    box-shadow: 0 0 0 5px rgba(229, 72, 77, 0.16), 0 0 26px rgba(229, 72, 77, 0.5);
+    transition: left 280ms cubic-bezier(.3, 0, .2, 1), top 280ms cubic-bezier(.3, 0, .2, 1), width 280ms cubic-bezier(.3, 0, .2, 1), height 280ms cubic-bezier(.3, 0, .2, 1), opacity 160ms;
+  }
+  #hb-hl.on { opacity: 1; animation: hb-glow 1.8s ease-in-out infinite; }
+  @keyframes hb-glow { 50% { box-shadow: 0 0 0 8px rgba(229, 72, 77, 0.1), 0 0 34px rgba(229, 72, 77, 0.65); } }
+
+  #hb-buddy { position: absolute; left: 0; top: 0; width: 40px; height: 40px; opacity: 0; transition: opacity 220ms; will-change: transform; }
+  #hb-buddy.show { opacity: 1; }
+  #hb-buddy svg { display: block; width: 40px; height: 40px; overflow: visible; transform-origin: 6px 6px; filter: drop-shadow(0 2px 3px rgba(10, 12, 20, 0.35)); }
+  #hb-buddy .body { fill: var(--buddy); stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+  #hb-buddy .hb-eye { fill: var(--buddy-eye); transform-box: fill-box; transform-origin: center; transition: transform 110ms; }
+  #hb-buddy .hb-shut { display: none; fill: none; stroke: var(--buddy-eye); stroke-width: 2.2; stroke-linecap: round; }
+  #hb-buddy.blink .hb-eye { transform: scaleY(0.1); }
+  #hb-buddy.sleep .hb-eye { display: none; }
+  #hb-buddy.sleep .hb-shut { display: block; }
+  #hb-buddy.squish svg { animation: hb-squish 340ms cubic-bezier(.3, 1.6, .5, 1); }
+  #hb-buddy.hop svg { animation: hb-hop 420ms cubic-bezier(.3, 1.4, .5, 1); }
+  @keyframes hb-squish { 0% { scale: 1 1; } 30% { scale: 1.25 0.72; } 100% { scale: 1 1; } }
+  @keyframes hb-hop { 0% { translate: 0 0; } 40% { translate: 0 -9px; } 100% { translate: 0 0; } }
+  #hb-buddy .hb-zz { display: none; position: absolute; left: 34px; top: -14px; font: 700 15px/1 var(--mono); color: var(--ink-2); }
+  #hb-buddy.sleep .hb-zz { display: block; animation: hb-zz 2.4s ease-in-out infinite; }
+  @keyframes hb-zz { 0% { opacity: 0; transform: translate(0, 6px) scale(0.7); } 40% { opacity: 1; } 100% { opacity: 0; transform: translate(10px, -14px) scale(1.15); } }
+  #hb-buddy .hb-ring { position: absolute; left: -4px; top: -4px; width: 48px; height: 48px; border-radius: 50%; border: 2px solid var(--marker); opacity: 0; pointer-events: none; }
+  #hb-buddy.listen .hb-ring { animation: hb-ring 1.3s ease-out infinite; }
+  #hb-buddy.listen .hb-ring + .hb-ring { animation-delay: 0.65s; }
+  @keyframes hb-ring { 0% { opacity: 0.8; transform: scale(0.7); } 100% { opacity: 0; transform: scale(2.1); } }
+  .hb-ripple { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; border: 2px solid var(--marker); animation: hb-ripple 520ms ease-out forwards; }
+  @keyframes hb-ripple { to { transform: scale(4.2); opacity: 0; } }
+
+  #hb-card {
+    position: fixed; z-index: 9001; left: 0; top: 0; width: min(290px, calc(100vw - 24px)); box-sizing: border-box;
+    background: #1b2030; color: #f3f5fa; border-radius: 12px; padding: 12px 14px 12px;
+    box-shadow: 0 14px 34px -10px rgba(5, 8, 16, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity 160ms, transform 200ms;
+    font: 500 14px/1.45 var(--serif);
+  }
+  #hb-card.on { opacity: 1; transform: none; }
+  #hb-card.btns { pointer-events: auto; }
+  #hb-card .hb-step { font: 600 10.5px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: #9aa4ba; margin-bottom: 7px; display: flex; gap: 8px; align-items: center; }
+  #hb-card .hb-step i { width: 8px; height: 8px; border-radius: 50%; background: var(--buddy); display: inline-block; }
+  #hb-card p { margin: 0; }
+  #hb-card .hb-btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 11px; }
+  #hb-card .hb-btns:empty { display: none; }
+  #hb-card button { font: 600 12px/1 var(--mono); border-radius: 7px; padding: 9px 12px; min-height: 36px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.18); background: transparent; color: #e4e8f2; }
+  #hb-card button.hb-next { background: var(--buddy); border-color: var(--buddy); color: #fff; }
+  #hb-card kbd { font: 600 10px/1 var(--mono); opacity: 0.7; margin-left: 5px; }
+  #hb-card button:focus-visible, #hb-ask :is(input, button):focus-visible { outline: 2px solid var(--marker); outline-offset: 2px; }
+
+  #hb-ask {
+    position: fixed; z-index: 9002; left: 50%; bottom: 14px; transform: translateX(-50%); width: auto; max-width: calc(100vw - 24px); box-sizing: border-box;
+    background: var(--paper); color: #171b26; border-radius: 14px; padding: 6px 6px 6px 12px;
+    box-shadow: var(--shadow), 0 0 0 1.5px rgba(23, 27, 38, 0.22);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  #hb-ask svg { width: 22px; height: 22px; flex: none; }
+  #hb-ask svg .body { fill: var(--buddy); stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+  #hb-ask svg .e { fill: var(--buddy-eye); }
+  #hb-ask input { flex: 0 1 auto; width: 150px; min-width: 0; transition: width 220ms cubic-bezier(.3, 0, .2, 1); border: 0; background: transparent; font: 500 14px/1.2 var(--mono); color: #171b26; padding: 10px 2px; outline: none; }
+  #hb-ask input::placeholder { color: #6f7789; }
+  #hb-ask:focus-within input { width: min(300px, calc(100vw - 190px)); }
+  #hb-ask button { flex: none; min-height: 40px; padding: 0 13px; border-radius: 9px; border: 1.5px solid rgba(23, 27, 38, 0.25); background: transparent; color: #171b26; font: 700 12px/1 var(--mono); letter-spacing: 0.04em; cursor: pointer; }
+  #hb-ask button.hb-go { background: var(--buddy); border-color: var(--buddy); color: #fff; }
+  #hb-ask button[aria-pressed="true"] { background: #171b26; color: #fff; }
+  #hb-ask .hb-chips { flex-basis: 100%; display: none; gap: 6px; flex-wrap: wrap; padding: 2px 6px 6px 0; }
+  #hb-ask:focus-within .hb-chips { display: flex; }
+  #hb-ask .hb-chips button { min-height: 32px; padding: 0 10px; font-weight: 600; }
+  #hb-ask .hb-note { flex-basis: 100%; display: none; margin: 0; padding: 0 4px 4px 0; font: 500 11px/1.3 var(--mono); color: #6f7789; }
+  #hb-ask:focus-within .hb-note { display: block; }
+
+  #hb-cap { position: fixed; inset: 0; z-index: 8999; cursor: crosshair; touch-action: none; display: none; }
+  #hb-cap.on { display: block; }
+  .hb-hint { display: none; margin: 14px 0 0; color: var(--ink-3); }
+  html.hb-fine .hb-hint { display: block; }
+  html.hb-draw-on body { user-select: none; }
+  @media (max-width: 560px) { body { padding-bottom: 84px; } #hb-ask { width: calc(100vw - 24px); } #hb-ask input, #hb-ask:focus-within input { flex: 1 1 0; width: auto; } #hb-ask button { padding: 0 11px; } }
+  body { padding-bottom: 76px; }
+  @media (prefers-reduced-motion: reduce) {
+    #hb-hl, #hb-card, #hb-buddy { transition: none; }
+    #hb-hl.on, #hb-buddy.sleep .hb-zz, #hb-buddy.listen .hb-ring, #hb-buddy.squish svg, #hb-buddy.hop svg { animation: none; }
+    #hb-buddy.sleep .hb-zz { opacity: 1; }
+  }
+  @media print { #hb, #hb-card, #hb-ask, #hb-cap { display: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="masthead">
+    <a class="brand" href="#top" aria-label="Helpy">
+      <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z" fill="#f0544f" stroke="#fff" stroke-width="2"/><ellipse cx="29" cy="33" rx="2.9" ry="4" fill="#1b2030"/><ellipse cx="40" cy="33" rx="2.9" ry="4" fill="#1b2030"/></svg>
+      <b>Helpy</b>
+    </a>
+    <nav class="folio mono" aria-label="Sections">
+      <span><a href="#does">What it does</a></span>
+      <span><a href="#agents">Agents</a></span>
+      <span><a href="#models">Models</a></span>
+      <span><a href="#tour">Tour</a></span>
+      <span><a href="https://github.com/AbyAbyss/helpy" target="_blank" rel="noopener">GitHub</a></span>
+      <span><a href="../">Portfolio</a></span>
+    </nav>
+  </header>
+  <div class="issue-line mono"><span>Notebook No. 01</span><span>The companion that lives next to your cursor</span><span>Open source</span></div>
+
+  <section class="hero" id="top">
+    <div class="hero-text">
+      <p class="kicker mono">For macOS, Windows and Linux</p>
+      <h1 class="headline">Ask out loud. It <span class="circled" id="circled">points<svg viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true"><path id="circle-path" d="M112 8 C 60 2, 8 18, 6 50 C 4 84, 70 96, 120 92 C 170 88, 196 70, 194 46 C 192 20, 150 6, 92 10 C 70 12, 54 16, 46 20"/></svg></span> at the answer.</h1>
+      <p class="deck">Helpy looks at your screen, draws highlights, arrows and lines right on top of your real apps, and walks you through things one step at a time. Say a task and it starts agents in the background to do it for you.</p>
+      <div class="actions">
+        <a class="stamp" href="#tour">Watch the 45-second tour</a>
+        <a class="quiet-link" href="#does">See what it does</a>
+        <a class="quiet-link" href="https://github.com/AbyAbyss/helpy" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+      <div class="keys"><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd><span>hold and talk. Let go and Helpy answers.</span></div>
+    </div>
+    <figure class="photo" id="hero-photo">
+      <span class="tape" aria-hidden="true"></span>
+      <img src="../shots/helpy/walkthrough.png" width="780" height="400" alt="A Helpy walkthrough step: the Save settings button is outlined in glowing red, and a step card says Click Save settings, with Stop, Do it and Next buttons.">
+      <figcaption><span class="pen">"where's save?" found it.</span><span class="mono">Fig. 1</span></figcaption>
+    </figure>
+    <svg class="ink-layer" id="ink" aria-hidden="true"><path id="arrow-path" d=""/><path id="arrow-head" d=""/></svg>
+    <svg class="buddy" id="buddy" viewBox="0 0 64 64" aria-hidden="true"><path class="body" d="M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z"/><ellipse class="eye" cx="29" cy="33" rx="2.9" ry="4"/><ellipse class="eye" cx="40" cy="33" rx="2.9" ry="4"/></svg>
+  </section>
+
+  <section class="section" id="does">
+    <div class="section-head">
+      <div>
+        <p class="mono">What it does</p>
+        <h2>Shows, draws, gets it done</h2>
+      </div>
+      <p class="intro">Most AI help lives in a chat window you have to switch to. Helpy sits by your cursor instead. Ask it something about the app in front of you and it answers on that app, with marks you can follow. Ask it to do something and it plans the work, asks before anything risky, and keeps going while you carry on.</p>
+    </div>
+
+    <div class="clippings">
+      <article class="clip c-show">
+        <span class="tape" aria-hidden="true"></span>
+        <p class="mono">Walkthroughs</p>
+        <h3>It shows you where to click</h3>
+        <p>Ask "how do I turn on dark mode?" and Helpy highlights the real control, one step at a time. Click it, or press Next, and Helpy takes a fresh screenshot to check before it shows the next step.</p>
+        <p>Highlights <span class="hl">snap onto the actual button</span> through your computer's accessibility layer, so a slightly-off guess still lands.</p>
+        <div class="margin-note">
+          <svg width="34" height="26" viewBox="0 0 34 26" aria-hidden="true"><path d="M2 20 C 10 22, 22 18, 30 6 M22 5 L31 5 L29 14"/></svg>
+          <span class="pen">"Do it" clicks it for you, after you say OK</span>
+        </div>
+      </article>
+
+      <article class="clip c-draw">
+        <span class="tape" aria-hidden="true"></span>
+        <p class="mono">New in this issue · Drawing</p>
+        <h3>It draws to explain</h3>
+        <p>Stuck on a diagram, a chart or a lecture video? Helpy traces over it: lines, shapes and curves with short labels, drawn one after another while the buddy moves the pen.</p>
+        <div class="sheet">
+          <svg id="demo" viewBox="70 100 420 340" role="img" aria-label="A right triangle with sides 3 and 4. Helpy traces the hypotenuse, then builds a square on each leg labelled area 16 and area 9.">
+            <path class="given" d="M120 250 L280 250 L280 130 Z"/>
+            <text class="num" x="196" y="274">4</text>
+            <text class="num" x="290" y="196">3</text>
+            <text class="num" x="176" y="180">c</text>
+            <g id="demo-marks"></g>
+            <g id="demo-buddy" transform="translate(40 40)"><g transform="translate(-4 -4) scale(0.5)"><path class="body" d="M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z"/><ellipse class="eye" cx="29" cy="33" rx="2.9" ry="4"/><ellipse class="eye" cx="40" cy="33" rx="2.9" ry="4"/></g></g>
+          </svg>
+        </div>
+        <div class="demo-bar">
+          <span class="mono">Fig. 2 · 4² + 3² = 16 + 9 = 25</span>
+          <button class="btn" id="redraw" type="button">Draw it again</button>
+        </div>
+      </article>
+
+      <article class="clip c-work" id="agents">
+        <span class="tape" aria-hidden="true"></span>
+        <div>
+          <p class="mono">Background agents</p>
+          <h3>It does the task while you keep working</h3>
+          <p>Say "clean up my desktop" or "research standing desks under £400". Helpy plans one to five agents and shows you a plan card first: each agent's goal, its tools, and what it will ask before acting.</p>
+          <p>Every agent gets a glowing chip at the edge of your screen. Hover it to see what it's doing, answer its questions, or approve its next step. Finished work comes with suggested next steps and a follow-up bar.</p>
+          <p>Every file change is backed up, and a whole run can be <span class="hl">undone in one click</span>.</p>
+        </div>
+        <div class="shots">
+          <figure class="photo"><span class="tape" aria-hidden="true"></span><img src="../shots/helpy/plan-card.png" width="428" height="280" alt="A plan card: 1 agent ready to start, Desktop tidy, with a note that it asks first before deleting files, and a Start button."></figure>
+          <figure class="photo"><span class="tape" aria-hidden="true"></span><img src="../shots/helpy/card-dark.png" width="515" height="400" alt="A finished agent card: Desktop tidy, done in 7 seconds, sorted 2 files and deleted 1 temporary file, with an undo link and a follow-up field."></figure>
+          <p class="sticky">Deletes, sends and commands wait for your OK.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <div>
+        <p class="mono">From one sentence</p>
+        <h2>How a request becomes an agent</h2>
+      </div>
+      <p class="intro">You can start agents by voice, by typing, from a circled part of the screen, or from a template. Whichever way you start, it goes like this.</p>
+    </div>
+    <ol class="steps">
+      <li>
+        <div class="step-no">1</div>
+        <h3>Say it</h3>
+        <p>Hold the hotkey and ask in your own words. No commands to learn.</p>
+        <span class="said">"sort my downloads"</span>
+      </li>
+      <li>
+        <div class="step-no">2</div>
+        <h3>Check the plan</h3>
+        <p>The plan card lists each agent, its tools and what it will ask first. Press Enter, click Start, or say "yes, go".</p>
+      </li>
+      <li>
+        <div class="step-no">3</div>
+        <h3>Watch the dock</h3>
+        <p>A copy of the buddy flies to the screen edge and becomes the agent's chip.</p>
+        <div class="chips" aria-label="Chip colours: blue working, green done, yellow question, red needs you">
+          <span class="chip" style="--c:#5b93ff"><svg viewBox="0 0 64 64"><path d="M8 8 L27 15 A21 21 0 1 1 15 27 Z"/></svg></span>
+          <span class="chip" style="--c:#3ee08e"><svg viewBox="0 0 64 64"><path d="M8 8 L27 15 A21 21 0 1 1 15 27 Z"/></svg></span>
+          <span class="chip" style="--c:#f5c542"><svg viewBox="0 0 64 64"><path d="M8 8 L27 15 A21 21 0 1 1 15 27 Z"/></svg></span>
+          <span class="chip" style="--c:#ff5a5f"><svg viewBox="0 0 64 64"><path d="M8 8 L27 15 A21 21 0 1 1 15 27 Z"/></svg></span>
+        </div>
+      </li>
+      <li>
+        <div class="step-no">4</div>
+        <h3>Keep it or undo it</h3>
+        <p>Read the result on its card, ask a follow-up, or roll back every file change at once.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section class="quote" aria-label="Pull quote">
+    <p class="mono">On safety</p>
+    <div>
+      <blockquote>Limits are enforced in Rust and can't be talked around.</blockquote>
+      <cite class="mono">From Helpy's README, on steps, time and token budgets</cite>
+    </div>
+  </section>
+
+  <section class="extras" id="models">
+    <div class="ticket">
+      <p class="mono">Admit one · Bring your own model</p>
+      <h3>Use the AI you already pay for, or one on your own computer</h3>
+      <ul>
+        <li>Anthropic</li><li>OpenAI</li><li>Google Gemini</li><li>Ollama</li><li>LM Studio</li><li>llama.cpp</li><li>Any OpenAI-compatible endpoint</li>
+      </ul>
+      <p>API keys go in your system keychain. Speech recognition can run on your computer with Whisper.</p>
+    </div>
+    <div class="stamps" aria-label="Platforms">
+      <div class="pstamp">macOS<small>first class</small></div>
+      <div class="pstamp">Windows<small>first class</small></div>
+      <div class="pstamp">Linux<small>X11 · Wayland best effort</small></div>
+    </div>
+  </section>
+
+  <footer class="close">
+    <p class="pen">the 45-second tour</p>
+    <h2>Watch it work on real apps</h2>
+    <figure class="photo tour" id="tour">
+      <span class="tape" aria-hidden="true"></span>
+      <video controls playsinline preload="metadata" poster="../shots/helpy/tour-poster.jpg" src="../clips/helpy.mp4" width="1920" height="1080">
+        <a href="../clips/helpy.mp4">Watch the Helpy tour (MP4, 45 seconds)</a>
+      </video>
+      <figcaption><span class="pen">walkthroughs, a plan card, agents, budgets</span><span class="mono">Fig. 3</span></figcaption>
+    </figure>
+    <p class="source-note">Helpy is open source. Read the code on <a href="https://github.com/AbyAbyss/helpy" target="_blank" rel="noopener">GitHub</a>. There are no prebuilt installers yet, so you build it from source with your own model key, and the README has the steps. <a href="../">See more of my work</a>.</p>
+    <div class="colophon" style="width:100%">
+      <div><p class="mono">Built with</p><p>Tauri 2 and Rust, with React and TypeScript.</p></div>
+      <div><p class="mono">Set in</p><p>Bricolage Grotesque, Newsreader, JetBrains Mono and Nanum Pen Script.</p></div>
+      <div><p class="mono">Your screen</p><p>Screenshots go only to the model you choose, and never include Helpy's own windows.</p></div>
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+  // Draw a path in over `ms`, calling onPoint with the pen's position.
+  function draw(path, ms, onPoint) {
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    if (reduced) { path.style.strokeDashoffset = 0; onPoint && onPoint(path.getPointAtLength(len)); return Promise.resolve(); }
+    path.style.strokeDashoffset = len;
+    return new Promise((done) => {
+      const start = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / ms);
+        const e = ease(t);
+        path.style.strokeDashoffset = len * (1 - e);
+        onPoint && onPoint(path.getPointAtLength(len * e));
+        t < 1 ? requestAnimationFrame(step) : done();
+      };
+      requestAnimationFrame(step);
+    });
+  }
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
+
+  /* ---- Hero: circle the word, then an arrow from it to the photo, with the buddy on the pen ---- */
+  const hero = document.querySelector(".hero");
+  const word = document.getElementById("circled");
+  const photo = document.getElementById("hero-photo");
+  const ink = document.getElementById("ink");
+  const arrow = document.getElementById("arrow-path");
+  const head = document.getElementById("arrow-head");
+  const buddy = document.getElementById("buddy");
+  const circle = document.getElementById("circle-path");
+  const tip = 40 * 6 / 64;
+  const put = (x, y) => (buddy.style.transform = `translate(${x - tip}px, ${y - tip}px)`);
+
+  function layoutArrow() {
+    const h = hero.getBoundingClientRect();
+    const w = word.getBoundingClientRect();
+    const p = photo.getBoundingClientRect();
+    ink.setAttribute("viewBox", `0 0 ${h.width} ${h.height}`);
+    const stacked = p.top > w.bottom;
+    let from, to, c1, c2;
+    if (stacked) {
+      from = { x: w.left - h.left + w.width * 0.7, y: w.bottom - h.top + 14 };
+      to = { x: p.left - h.left + p.width * 0.55, y: p.top - h.top - 16 };
+      c1 = { x: from.x + 60, y: from.y + 40 };
+      c2 = { x: to.x + 50, y: to.y - 60 };
+    } else {
+      from = { x: w.right - h.left + 10, y: w.top - h.top + w.height * 0.35 };
+      to = { x: p.left - h.left + p.width * 0.18, y: p.top - h.top + p.height * 0.32 };
+      c1 = { x: from.x + 70, y: from.y - 110 };
+      c2 = { x: to.x - 40, y: to.y - 120 };
+    }
+    arrow.setAttribute("d", `M${from.x} ${from.y} C${c1.x} ${c1.y} ${c2.x} ${c2.y} ${to.x} ${to.y}`);
+    const ang = Math.atan2(to.y - c2.y, to.x - c2.x);
+    const L = 16, s = 0.5;
+    const a = { x: to.x - L * Math.cos(ang - s), y: to.y - L * Math.sin(ang - s) };
+    const b = { x: to.x - L * Math.cos(ang + s), y: to.y - L * Math.sin(ang + s) };
+    head.setAttribute("d", `M${a.x} ${a.y} L${to.x} ${to.y} L${b.x} ${b.y}`);
+    return { from, to };
+  }
+
+  // Where a point in the word's circle SVG sits in hero pixels.
+  function circlePoint(pt) {
+    const svg = circle.ownerSVGElement;
+    const m = svg.getScreenCTM();
+    const h = hero.getBoundingClientRect();
+    const sp = new DOMPoint(pt.x, pt.y).matrixTransform(m);
+    return { x: sp.x - h.left, y: sp.y - h.top };
+  }
+
+  let heroDone = false;
+  async function playHero() {
+    const { to } = layoutArrow();
+    head.style.opacity = 0;
+    const s0 = circlePoint(circle.getPointAtLength(0));
+    put(s0.x, s0.y);
+    await wait(350);
+    await draw(circle, 900, (pt) => { const q = circlePoint(pt); put(q.x, q.y); });
+    await wait(120);
+    await draw(arrow, 1000, (pt) => put(pt.x, pt.y));
+    head.style.transition = "opacity 150ms"; head.style.opacity = 1;
+    await wait(700);
+    // Rest just off the photo's corner, like the buddy beside a cursor.
+    buddy.style.transition = reduced ? "none" : "transform 600ms cubic-bezier(.3,0,.2,1)";
+    put(to.x + 26, to.y + 22);
+    heroDone = true;
+  }
+  addEventListener("resize", () => {
+    if (!heroDone) return;
+    const { to } = layoutArrow();
+    arrow.style.strokeDasharray = "none";
+    buddy.style.transition = "none";
+    put(to.x + 26, to.y + 22);
+  });
+
+  /* ---- Fig. 2: the drawing demo ---- */
+  const NS = "http://www.w3.org/2000/svg";
+  const marks = document.getElementById("demo-marks");
+  const pen = document.getElementById("demo-buddy");
+  const btn = document.getElementById("redraw");
+  const shapes = [
+    { d: "M120 250 L280 130", label: "hypotenuse c", at: [168, 172] },
+    { d: "M120 250 L280 250 L280 410 L120 410 Z", label: "area 16", at: [200, 334] },
+    { d: "M280 250 L280 130 L400 130 L400 250 Z", label: "area 9", at: [340, 190] },
+  ];
+  function tag(text, [x, y]) {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "tag");
+    const t = document.createElementNS(NS, "text");
+    t.textContent = text;
+    const w = text.length * 7.2 + 16;
+    const r = document.createElementNS(NS, "rect");
+    r.setAttribute("x", x - w / 2); r.setAttribute("y", y - 12); r.setAttribute("width", w); r.setAttribute("height", 22); r.setAttribute("rx", 5);
+    t.setAttribute("x", x); t.setAttribute("y", y + 4); t.setAttribute("text-anchor", "middle");
+    g.append(r, t);
+    return g;
+  }
+  let playing = false;
+  async function playDemo() {
+    if (playing) return;
+    playing = true; btn.disabled = true;
+    marks.replaceChildren();
+    const movePen = (pt) => pen.setAttribute("transform", `translate(${pt.x} ${pt.y})`);
+    for (const s of shapes) {
+      const p = document.createElementNS(NS, "path");
+      p.setAttribute("class", "mark"); p.setAttribute("d", s.d);
+      marks.append(p);
+      const start = p.getPointAtLength(0);
+      movePen(start);
+      await wait(260);
+      await draw(p, 1100, movePen);
+      const g = tag(s.label, s.at);
+      marks.append(g);
+      await wait(260);
+    }
+    movePen({ x: 440, y: 380 });
+    playing = false; btn.disabled = false;
+  }
+  btn.addEventListener("click", playDemo);
+
+  // The demo starts drawn, so the page reads complete at rest.
+  function drawDemoStill() {
+    marks.replaceChildren();
+    for (const s of shapes) {
+      const p = document.createElementNS(NS, "path");
+      p.setAttribute("class", "mark"); p.setAttribute("d", s.d);
+      marks.append(p, tag(s.label, s.at));
+    }
+    pen.setAttribute("transform", "translate(440 380)");
+  }
+  drawDemoStill();
+
+  // Replay the demo once when it first scrolls into view.
+  if (!reduced && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((es) => {
+      if (es.some((e) => e.isIntersecting)) { io.disconnect(); playDemo(); }
+    }, { threshold: 0.6 });
+    io.observe(document.getElementById("demo"));
+  }
+
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(playHero);
+})();
+</script>
+
+<script id="hb-js">
+(() => {
+  "use strict";
+  const doc = document, root = doc.documentElement;
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const NS = "http://www.w3.org/2000/svg";
+  const BODY = "M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z";
+  const TIP = 40 * 6 / 64;                       // the buddy's pointed corner, in px
+  const OFF = { x: 22, y: 18 };                  // where it sits beside the real cursor
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const q = (s) => doc.querySelector(s);
+  const byText = (sel, re) => [...doc.querySelectorAll(sel)].find((e) => re.test(e.textContent));
+  const isField = (t) => t && t.closest && t.closest("input, textarea, select, [contenteditable]");
+  if (root.classList.contains("hb-ready")) return;
+  root.classList.add("hb-ready");
+  if (fine) root.classList.add("hb-fine");
+
+  /* ---------- Layer ---------- */
+  const layer = doc.createElement("div");
+  layer.id = "hb"; layer.setAttribute("aria-hidden", "true");
+  layer.innerHTML =
+    '<svg id="hb-ink"></svg><div id="hb-hl"></div>' +
+    '<div id="hb-buddy"><i class="hb-ring"></i><i class="hb-ring"></i>' +
+    '<svg viewBox="0 0 64 64"><path class="body" d="' + BODY + '"/>' +
+    '<g class="hb-eyes"><ellipse class="hb-eye" cx="29" cy="33" rx="2.9" ry="4"/><ellipse class="hb-eye" cx="40" cy="33" rx="2.9" ry="4"/>' +
+    '<path class="hb-shut" d="M26 34 H32 M37 34 H43"/></g></svg><span class="hb-zz">z</span></div>';
+  doc.body.appendChild(layer);
+  const ink = layer.querySelector("#hb-ink"), hl = layer.querySelector("#hb-hl"), buddy = layer.querySelector("#hb-buddy");
+  const bsvg = buddy.querySelector("svg"), eyes = buddy.querySelector(".hb-eyes");
+
+  const card = doc.createElement("div");
+  card.id = "hb-card"; card.setAttribute("role", "status"); card.setAttribute("aria-live", "polite");
+  doc.body.appendChild(card);
+
+  const cap = doc.createElement("div"); cap.id = "hb-cap"; doc.body.appendChild(cap);
+
+  const ask = doc.createElement("form");
+  ask.id = "hb-ask"; ask.setAttribute("role", "search");
+  ask.innerHTML =
+    '<svg viewBox="0 0 64 64" aria-hidden="true"><path class="body" d="' + BODY + '"/><ellipse class="e" cx="29" cy="33" rx="2.9" ry="4"/><ellipse class="e" cx="40" cy="33" rx="2.9" ry="4"/></svg>' +
+    '<input type="text" id="hb-q" autocomplete="off" spellcheck="false" aria-label="Ask Helpy where something is on this page" placeholder="Ask Helpy  /">' +
+    '<button type="button" class="hb-pen" aria-pressed="false" title="Draw on the page (Shift and drag does the same)">Draw</button>' +
+    '<button type="submit" class="hb-go">Ask</button>' +
+    '<div class="hb-chips"><button type="button" data-q="tour">tour</button><button type="button" data-q="agents">agents</button><button type="button" data-q="models">models</button><button type="button" data-q="drawing">drawing</button><button type="button" data-q="github">GitHub</button><button type="button" data-q="privacy">privacy</button></div>' +
+    '<p class="hb-note">Scripted answers about this page, no AI call. Press / any time. Esc stops.</p>';
+  doc.body.appendChild(ask);
+  const input = ask.querySelector("#hb-q"), penBtn = ask.querySelector(".hb-pen");
+
+  const keys = q(".keys");
+  if (keys) {
+    const hint = doc.createElement("p");
+    hint.className = "hb-hint mono";
+    hint.textContent = "Move your mouse, Helpy follows. Hold Shift and drag to draw. Press / to ask it something.";
+    keys.insertAdjacentElement("afterend", hint);
+  }
+
+  /* ---------- Hover help text (only on things Helpy can speak for) ---------- */
+  const HELP = [
+    [".brand", "Helpy, the buddy that sits beside your cursor."],
+    ['.folio a[href="#does"]', "What Helpy does: shows, draws, gets it done."],
+    ['.folio a[href="#agents"]', "Background agents you start just by talking."],
+    ['.folio a[href="#models"]', "Bring your own model, cloud or local."],
+    ['.folio a[href="#tour"]', "Watch the 45 second tour."],
+    ['.folio a[href*="github"]', "The source, MIT licensed."],
+    ['.folio a[href="../"]', "More of my work."],
+    [".stamp", "Jump to the 45 second tour."],
+    [".quiet-link", "A shortcut. Click to go."],
+    [".keys", "The hold-to-talk shortcut in the real app."],
+    ["#hero-photo", "A real walkthrough step: the button is outlined and a card says what to do."],
+    ["#redraw", "Press to watch Helpy draw it again."],
+    ["#models .ticket", "Anthropic, OpenAI, Gemini, or a model on your own computer."]
+  ];
+  HELP.forEach(([sel, text]) => doc.querySelectorAll(sel).forEach((el) => { if (!el.dataset.help) el.dataset.help = text; }));
+
+  /* ---------- State ---------- */
+  const P = { x: innerWidth / 2, y: innerHeight / 2, seen: false };   // the real pointer
+  let x = P.x, y = P.y, vx = 0, vy = 0, tilt = 0, lx = 0, ly = 0, ex = 0, ey = 0;
+  let anchor = null;               // where the buddy is pointing during a walkthrough
+  let lookKick = null;             // brief glance (e.g. while scrolling)
+  let lastActive = performance.now(), asleep = false, last = performance.now(), running = false;
+  let mode = "follow";             // follow | guide
+  let hoverEl = null, hoverTimer = 0, hlEl = null;
+
+  const place = () => { buddy.style.transform = `translate3d(${x - TIP}px, ${y - TIP}px, 0)`; };
+  const target = () => (anchor ? anchor : { x: P.x + OFF.x, y: P.y + OFF.y });
+
+  function wake() {
+    lastActive = performance.now();
+    if (asleep) { asleep = false; buddy.classList.remove("sleep"); buddy.classList.add("hop"); setTimeout(() => buddy.classList.remove("hop"), 460); }
+  }
+  function frame(now) {
+    const dt = Math.min(0.032, (now - last) / 1000); last = now;
+    const t = target();
+    const k = 230, c = 2 * Math.sqrt(k) * 0.62;
+    vx += (k * (t.x - x) - c * vx) * dt; vy += (k * (t.y - y) - c * vy) * dt;
+    x += vx * dt; y += vy * dt;
+    const sp = Math.hypot(vx, vy), ang = Math.atan2(vy, vx) * 180 / Math.PI;
+    tilt += (clamp(vx / 38, -20, 20) - tilt) * Math.min(1, dt * 10);
+    const st = Math.min(0.2, sp / 3600);
+    bsvg.style.transform = `rotate(${tilt.toFixed(2)}deg) rotate(${ang.toFixed(1)}deg) scale(${(1 + st).toFixed(3)}, ${(1 - st).toFixed(3)}) rotate(${(-ang).toFixed(1)}deg)`;
+    // eyes look where it is heading, else at the pointer, else at the thing it is pointing at
+    let dx, dy;
+    if (lookKick && now < lookKick.until) { dx = lookKick.x; dy = lookKick.y; }
+    else if (anchor && hlEl) { const r = hlEl.getBoundingClientRect(); dx = r.left + r.width / 2 - x; dy = r.top + r.height / 2 - y; }
+    else if (sp > 90) { dx = vx; dy = vy; }
+    else { dx = P.x - x; dy = P.y - y; }
+    const m = Math.hypot(dx, dy) || 1; const gx = (dx / m) * Math.min(1, m / 60) * 2.6, gy = (dy / m) * Math.min(1, m / 60) * 2.6;
+    ex += (gx - ex) * Math.min(1, dt * 12); ey += (gy - ey) * Math.min(1, dt * 12);
+    eyes.style.transform = `translate(${ex.toFixed(2)}px, ${ey.toFixed(2)}px)`;
+    place();
+    if (mode === "guide" && hlEl) fitHighlight(hlEl, true);
+    if (!asleep && mode === "follow" && now - lastActive > 8000 && doc.activeElement !== input) { asleep = true; buddy.classList.add("sleep"); }
+    if (running) requestAnimationFrame(frame);
+  }
+  function start() { if (running || reduced) return; running = true; last = performance.now(); requestAnimationFrame(frame); }
+  doc.addEventListener("visibilitychange", () => { if (doc.hidden) running = false; else if (buddy.classList.contains("show")) start(); });
+
+  const heroBuddy = q("#buddy"), heroHead = q("#arrow-head");
+  function retireHero() {
+    if (!heroBuddy || heroBuddy.dataset.gone) return;
+    if (heroHead && parseFloat(heroHead.style.opacity || "0") < 1 && !reduced) { setTimeout(retireHero, 500); return; }
+    heroBuddy.dataset.gone = "1"; heroBuddy.style.transition = "opacity 500ms"; heroBuddy.style.opacity = 0;
+  }
+  function show() {
+    if (!buddy.classList.contains("show")) {
+      retireHero();
+      x = P.x + OFF.x; y = P.y + OFF.y; vx = vy = 0; place();
+      buddy.classList.add("show");
+    }
+    start();
+  }
+  function snap() { const t = target(); x = t.x; y = t.y; place(); }
+
+  /* ---------- Pointer ---------- */
+  addEventListener("pointermove", (e) => {
+    if (e.pointerType === "touch" && !fine) return;
+    P.x = e.clientX; P.y = e.clientY; P.seen = true;
+    wake(); show(); if (reduced) snap();
+    if (drawing) moveStroke(e);
+  }, { passive: true });
+  doc.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch") { P.x = e.clientX; P.y = e.clientY; P.seen = true; wake(); show(); if (reduced) snap(); }
+    if (!(e.target.closest && e.target.closest("#hb-card, #hb-ask"))) {
+      const r = doc.createElement("i"); r.className = "hb-ripple"; r.style.left = e.clientX + "px"; r.style.top = e.clientY + "px";
+      layer.appendChild(r); r.addEventListener("animationend", () => r.remove());
+      buddy.classList.remove("squish"); void buddy.offsetWidth; buddy.classList.add("squish");
+    }
+    if (shiftDraw(e)) startStroke(e);
+  });
+  root.addEventListener("mouseleave", () => { if (!anchor) buddy.classList.remove("show"); });
+  root.addEventListener("mouseenter", () => { if (P.seen) { buddy.classList.add("show"); start(); } });
+  addEventListener("wheel", (e) => { lookKick = { x: 0, y: Math.sign(e.deltaY) * 40, until: performance.now() + 450 }; wake(); }, { passive: true });
+  addEventListener("scroll", () => { if (mode === "follow") hideHl(); }, { passive: true });
+
+  // Blink now and then.
+  (function blink() {
+    setTimeout(() => {
+      if (!asleep && !reduced) { buddy.classList.add("blink"); setTimeout(() => buddy.classList.remove("blink"), 130); }
+      blink();
+    }, 2200 + Math.random() * 3200);
+  })();
+
+  /* ---------- Highlights and the step card ---------- */
+  function fitHighlight(el, quiet) {
+    const r = el.getBoundingClientRect(), pad = 6;
+    hl.style.left = r.left - pad + "px"; hl.style.top = r.top - pad + "px";
+    hl.style.width = r.width + pad * 2 + "px"; hl.style.height = r.height + pad * 2 + "px";
+    const rad = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+    hl.style.borderRadius = Math.max(8, rad + pad) + "px";
+    placeCard(r);
+  }
+  function placeCard(r) {
+    const w = card.offsetWidth, h = card.offsetHeight, vw = innerWidth, vh = innerHeight;
+    let cx = clamp(r.left, 12, vw - w - 12), cy = r.bottom + 16;
+    if (cy + h > vh - 76) cy = r.top - h - 16;
+    if (cy < 8) cy = Math.max(8, vh - h - 88);
+    card.style.left = cx + "px"; card.style.top = cy + "px";
+  }
+  function setCard(html, buttons) {
+    card.innerHTML = html + '<div class="hb-btns"></div>';
+    const bar = card.querySelector(".hb-btns");
+    (buttons || []).forEach((b) => bar.appendChild(b));
+    card.classList.toggle("btns", !!(buttons && buttons.length));
+  }
+  function showHl(el, text) {
+    hlEl = el;
+    setCard('<div class="hb-step"><i></i>Helpy</div><p></p>');
+    card.querySelector("p").textContent = text;
+    card.classList.add("on");
+    hl.classList.add("on");
+    fitHighlight(el);
+  }
+  function hideHl() {
+    if (mode === "guide") return;
+    hl.classList.remove("on"); card.classList.remove("on"); hlEl = null;
+  }
+  doc.addEventListener("pointerover", (e) => {
+    if (mode === "guide" || e.pointerType === "touch" || drawing || drawOn) return;
+    const t = e.target.closest && e.target.closest("[data-help]");
+    if (t === hoverEl) return;
+    hoverEl = t; clearTimeout(hoverTimer);
+    if (!t) { hideHl(); return; }
+    hoverTimer = setTimeout(() => { if (hoverEl === t && mode === "follow") showHl(t, t.dataset.help); }, 260);
+  });
+
+  /* ---------- Drawing lines ---------- */
+  let drawing = false, drawOn = false, stroke = null, pts = [];
+  const shiftDraw = (e) => e.shiftKey && e.button === 0 && e.pointerType !== "touch" && !isField(e.target) && !(e.target.closest && e.target.closest("video, #hb-card, #hb-ask"));
+  doc.addEventListener("mousedown", (e) => { if (e.shiftKey && e.button === 0 && !isField(e.target) && !(e.target.closest && e.target.closest("video, #hb-card, #hb-ask"))) e.preventDefault(); });
+  const curve = (p) => {
+    if (p.length < 3) return `M${p[0][0]} ${p[0][1]} L${p[p.length - 1][0]} ${p[p.length - 1][1]}`;
+    let d = `M${p[0][0]} ${p[0][1]}`;
+    for (let i = 1; i < p.length - 1; i++) { const mx = (p[i][0] + p[i + 1][0]) / 2, my = (p[i][1] + p[i + 1][1]) / 2; d += ` Q${p[i][0]} ${p[i][1]} ${mx} ${my}`; }
+    return d;
+  };
+  function startStroke(e) {
+    wake(); show();
+    stroke = doc.createElementNS(NS, "path"); ink.appendChild(stroke);
+    pts = [[e.clientX, e.clientY]]; drawing = true; hideHl();
+    stroke.setAttribute("d", `M${e.clientX} ${e.clientY} L${e.clientX + 0.1} ${e.clientY}`);
+  }
+  function moveStroke(e) {
+    const l = pts[pts.length - 1];
+    if (Math.hypot(e.clientX - l[0], e.clientY - l[1]) < 3) return;
+    pts.push([e.clientX, e.clientY]); stroke.setAttribute("d", curve(pts));
+  }
+  function endStroke() {
+    if (!drawing) return; drawing = false;
+    const s = stroke; stroke = null;
+    setTimeout(() => { s.style.transition = "opacity 700ms"; s.style.opacity = 0; }, 2600);
+    setTimeout(() => s.remove(), 3400);
+    const all = ink.querySelectorAll("path:not(.hb-guide)"); if (all.length > 12) all[0].remove();
+  }
+  addEventListener("pointerup", endStroke); addEventListener("pointercancel", endStroke);
+  cap.addEventListener("pointerdown", (e) => { cap.setPointerCapture && cap.setPointerCapture(e.pointerId); startStroke(e); });
+  function setDraw(on) {
+    drawOn = on; cap.classList.toggle("on", on); penBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    root.classList.toggle("hb-draw-on", on); penBtn.textContent = on ? "Done" : "Draw";
+    if (on) { hideHl(); card.classList.remove("on"); }
+  }
+  penBtn.addEventListener("click", () => setDraw(!drawOn));
+
+  /* ---------- Ask Helpy: a scripted walkthrough of this page ---------- */
+  const KB = [
+    { k: /draw|line|arrow|trace|circle|diagram|ink|pen/, say: "Helpy traces lines, shapes and curves with labels, one after another.", steps: [{ el: () => q("#demo"), t: "Here is the drawing demo. Press Draw it again to watch the pen move." }] },
+    { k: /tour|video|watch|film|clip|show me it/, steps: [{ el: () => q("#tour video") || q("#tour"), t: "The 45 second tour on real apps. Press play." }] },
+    { k: /github|source|code|repo|clone|build|install|run|download|licen|\bmit\b|open.?source/, steps: [
+      { el: () => q('.folio a[href*="github"]'), t: "The code is on GitHub, MIT licensed." },
+      { el: () => q(".source-note"), t: "There are no installers yet. You build it from source, and the README has the steps." }] },
+    { k: /agent|background|task|plan|undo|dock|voice/, steps: [
+      { el: () => q("#agents h3") || q("#agents"), t: "Say a task and Helpy starts an agent. It works while you keep working." },
+      { el: () => byText("h2", /How a request becomes an agent/), t: "Say it, check the plan, watch the dock, keep it or undo it." }] },
+    { k: /model|openai|anthropic|claude|gemini|ollama|local|provider|key|llm|whisper|lm studio/, steps: [{ el: () => q("#models .ticket"), t: "Bring your own model: Anthropic, OpenAI, Gemini, or one on your own computer like Ollama. Keys go in your system keychain." }] },
+    { k: /point|highlight|where|click|button|walk|step|guide|show/, steps: [{ el: () => q("#hero-photo"), t: "A walkthrough step. The real button is outlined and a card says what to do. Stop, Do it, or Next." }] },
+    { k: /mac|windows|linux|platform|\bos\b/, steps: [{ el: () => q(".stamps"), t: "macOS, Windows and Linux." }] },
+    { k: /privacy|private|screen|screenshot|safe|secure|data|spy/, steps: [{ el: () => byText(".colophon div", /Your screen/), t: "Screenshots go only to the model you choose, and never include Helpy's own windows." }] },
+    { k: /who|author|made|aby|portfolio|contact|hire|work/, steps: [{ el: () => q('.folio a[href="../"]'), t: "Helpy is made by Aby Saji Pappachan. More of the work is on the portfolio." }] },
+    { k: /hi\b|hello|hey|help|what|how/, steps: [{ el: () => q("h1"), t: "I am Helpy. I sit by your cursor, point at the answer, draw to explain, and run agents. Ask me about the tour, agents, models or the code." }] }
+  ];
+  let steps = [], si = 0, sayTimer = 0;
+  const btn = (label, cls, fn, kbd) => { const b = doc.createElement("button"); b.type = "button"; b.className = cls || ""; b.textContent = label; if (kbd) { const k = doc.createElement("kbd"); k.textContent = kbd; b.appendChild(k); } b.addEventListener("click", fn); return b; };
+
+  function arrowTo(a, b) {
+    const p = doc.createElementNS(NS, "path"); p.setAttribute("class", "hb-guide");
+    const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, nx = -(b.y - a.y) * 0.18, ny = (b.x - a.x) * 0.18;
+    p.setAttribute("d", `M${a.x} ${a.y} Q${mx + nx} ${my + ny} ${b.x} ${b.y}`);
+    ink.appendChild(p);
+    const len = p.getTotalLength();
+    if (reduced) { setTimeout(() => p.remove(), 1500); return; }
+    p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
+    p.getBoundingClientRect();
+    p.style.transition = "stroke-dashoffset 520ms cubic-bezier(.3,0,.2,1), opacity 500ms 1100ms"; p.style.strokeDashoffset = 0; p.style.opacity = 0;
+    setTimeout(() => p.remove(), 1800);
+  }
+  async function goStep(i) {
+    si = i; const s = steps[i], el = s.el();
+    if (!el) { endGuide(); return; }
+    clearTimeout(sayTimer);
+    const r0 = el.getBoundingClientRect();
+    if (r0.top < 70 || r0.bottom > innerHeight - 90) {
+      el.scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+      await new Promise((r) => setTimeout(r, reduced ? 0 : 520));
+    }
+    const r = el.getBoundingClientRect();
+    const small = r.width * r.height < 26000;
+    const from = { x: x, y: y }, to = small
+      ? { x: clamp(r.right + 10, 24, innerWidth - 46), y: clamp(r.top + r.height / 2, 24, innerHeight - 96) }
+      : { x: clamp(r.right - 24, 24, innerWidth - 30), y: clamp(r.bottom - 20, 24, innerHeight - 96) };
+    mode = "guide"; hlEl = el; anchor = to; wake(); show();
+    arrowTo({ x: from.x + TIP, y: from.y + TIP }, to);
+    const last = i === steps.length - 1;
+    setCard('<div class="hb-step"><i></i>Step ' + (i + 1) + ' of ' + steps.length + '</div><p></p>',
+      [btn("Stop", "hb-stop", endGuide, "Esc"), btn(last ? "Done" : "Next", "hb-next", () => (last ? endGuide() : goStep(i + 1)))]);
+    card.querySelector("p").textContent = s.t;
+    card.classList.add("on"); hl.classList.add("on"); fitHighlight(el);
+    if (reduced) snap();
+    const nb = card.querySelector(".hb-next"); if (nb && doc.activeElement !== input) nb.focus({ preventScroll: true });
+  }
+  function endGuide() {
+    mode = "follow"; anchor = null; hlEl = null; hoverEl = null;
+    hl.classList.remove("on"); card.classList.remove("on", "btns"); wake();
+    ink.querySelectorAll(".hb-guide").forEach((p) => p.remove());
+    if (reduced) snap();
+  }
+  function say(text) {
+    clearTimeout(sayTimer);
+    setCard('<div class="hb-step"><i></i>Helpy</div><p></p>', [btn("Close", "", () => { card.classList.remove("on", "btns"); })]);
+    card.querySelector("p").textContent = text;
+    hl.classList.remove("on");
+    const r = ask.getBoundingClientRect();
+    card.style.left = clamp(r.left, 12, innerWidth - card.offsetWidth - 12) + "px";
+    card.style.top = r.top - card.offsetHeight - 12 + "px";
+    card.classList.add("on", "btns");
+    sayTimer = setTimeout(() => card.classList.remove("on", "btns"), 7000);
+  }
+  function run(text) {
+    const s = text.toLowerCase().trim();
+    if (!s) { say("Ask me where something is. Try tour, agents, models, drawing or GitHub."); return; }
+    const hit = KB.find((e) => e.k.test(s));
+    if (!hit) { say("I only know this page. Try tour, agents, models, drawing, GitHub or privacy."); return; }
+    steps = hit.steps; endGuideSoft(); goStep(0);
+  }
+  function endGuideSoft() { ink.querySelectorAll(".hb-guide").forEach((p) => p.remove()); }
+
+  ask.addEventListener("submit", (e) => { e.preventDefault(); const v = input.value; input.blur(); run(v); input.value = ""; });
+  ask.querySelectorAll("[data-q]").forEach((b) => b.addEventListener("click", () => { run(b.dataset.q); input.value = ""; input.blur(); }));
+  input.addEventListener("focus", () => { buddy.classList.add("listen"); wake(); show(); });
+  input.addEventListener("blur", () => buddy.classList.remove("listen"));
+
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (mode === "guide") { endGuide(); return; }
+      if (drawOn) { setDraw(false); return; }
+      if (doc.activeElement === input) { input.blur(); return; }
+      card.classList.remove("on", "btns"); return;
+    }
+    if (mode === "guide" && !isField(e.target) && (e.key === "ArrowRight" || e.key === "Enter") && !(e.target.closest && e.target.closest("button, a"))) {
+      e.preventDefault(); const last = si === steps.length - 1; last ? endGuide() : goStep(si + 1); return;
+    }
+    if ((e.key === "/" && !isField(e.target) && !e.metaKey && !e.ctrlKey) || (e.altKey && e.shiftKey && e.code === "Space")) { e.preventDefault(); input.focus(); }
+  });
+  addEventListener("resize", () => { if (hlEl && (mode === "guide" || hl.classList.contains("on"))) fitHighlight(hlEl); });
+})();
+</script>
+</body>
+</html>
