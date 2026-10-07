@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Helpers</title>
+<meta name="description" content="Small browser tools: a JSON converter, an audio stem splitter, a screen recorder, a rent receipt generator, a handwriting font maker and a Malayalam PDF converter.">
+<meta name="theme-color" content="#e8dcc3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Caveat:wght@600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #e8dcc3;
+    --card: #fffdf7;
+    --ink: #1d1a16;
+    --ink-2: #4a4237;
+    --ink-3: #6e6455;
+    --red: #e8472b;
+    --red-ink: #b8321a;
+    --yellow: #ffe14d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background-color: var(--paper);
+    background-image: radial-gradient(rgba(29,26,22,.17) 1.2px, transparent 1.4px);
+    background-size: 20px 20px;
+    color: var(--ink);
+    font: 15px/1.5 'Instrument Sans', sans-serif;
+  }
+  ::selection { background: var(--yellow); color: var(--ink); }
+  main { max-width: 1100px; margin: 0 auto; padding: 36px 30px 60px; }
+
+  header { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin-bottom: 44px; }
+  .badge {
+    width: 54px; height: 54px; flex: none; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--red); color: var(--card);
+    border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink);
+    transform: rotate(-8deg);
+    font: 700 21px 'JetBrains Mono', monospace;
+  }
+  h1 { margin: 0; font: 800 40px/1 'Bricolage Grotesque', sans-serif; letter-spacing: -1.4px; }
+  h1 span { background: linear-gradient(transparent 60%, var(--yellow) 60%, var(--yellow) 90%, transparent 90%); padding: 0 4px; margin: 0 -4px; }
+  .sub { margin-top: 6px; font: italic 400 19px/1.2 'Instrument Serif', serif; color: var(--ink-2); }
+  .note { margin-left: auto; font: 600 24px 'Caveat', cursive; color: var(--red-ink); transform: rotate(-3deg); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px 34px; list-style: none; margin: 0; padding: 0; }
+  .grid li { position: relative; }
+  .tape {
+    position: absolute; top: -13px; left: 34px; width: 96px; height: 26px; z-index: 2;
+    clip-path: polygon(0 0,4% 30%,0 60%,3% 100%,100% 100%,96% 65%,100% 35%,97% 0);
+    transform: rotate(-4deg);
+  }
+  li:nth-child(6n+1) .tape { background: rgba(255,225,77,.82); }
+  li:nth-child(6n+2) .tape { background: rgba(246,184,200,.85); transform: rotate(4deg); left: 60px; }
+  li:nth-child(6n+3) .tape { background: rgba(169,205,240,.85); transform: rotate(-2deg); }
+  li:nth-child(6n+4) .tape { background: rgba(191,227,200,.9); transform: rotate(3deg); left: 52px; }
+  li:nth-child(6n+5) .tape { background: rgba(255,201,160,.9); }
+  li:nth-child(6n) .tape { background: rgba(217,200,245,.9); transform: rotate(5deg); left: 64px; }
+
+  .card {
+    display: flex; flex-direction: column; height: 100%;
+    background: var(--card); color: var(--ink); text-decoration: none;
+    border: 2px solid var(--ink); border-radius: 6px; box-shadow: 8px 8px 0 var(--ink);
+    padding: 26px 22px 18px;
+    transition: transform .12s, box-shadow .12s;
+  }
+  .card:hover { transform: translate(3px, 3px); box-shadow: 5px 5px 0 var(--ink); }
+  .card:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
+  .card h2 { margin: 0 0 8px; font: 800 22px/1.15 'Bricolage Grotesque', sans-serif; letter-spacing: -.5px; }
+  .card p { margin: 0 0 18px; color: var(--ink-2); }
+  .meta { margin-top: auto; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .chip { font: 500 11.5px 'JetBrains Mono', monospace; background: #efe6d2; border: 2px solid var(--ink); border-radius: 6px; padding: 2px 8px; }
+  .go { margin-left: auto; font: 700 13px 'Bricolage Grotesque', sans-serif; color: var(--red-ink); }
+
+  @media (max-width: 640px) {
+    main { padding: 24px 16px 48px; }
+    h1 { font-size: 32px; }
+    .note { margin-left: 0; }
+    .grid { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="badge" aria-hidden="true">&gt;_</div>
+    <div>
+      <h1><span>Helpers</span></h1>
+      <div class="sub">small tools that run in your browser</div>
+    </div>
+    <div class="note">nothing gets uploaded</div>
+  </header>
+
+  <ul class="grid">
+    <li>
+      <div class="tape"></div>
+      <a class="card" href="../json/">
+        <h2>JSON Studio</h2>
+        <p>Validate and repair JSON (JavaScript object syntax too), then convert between JSON, TOON, YAML, XML, TOML and CSV. Generates TypeScript and Go types, a draggable node graph, Mermaid diagrams and Markdown.</p>
+        <div class="meta"><span class="chip">json</span><span class="chip">convert</span><span class="go">Open →</span></div>
+      </a>
+    </li>
+    <li>
+      <div class="tape"></div>
+      <a class="card" href="../malayalam_pdf_to_doc/">
+        <h2>Malayalam PDF to Unicode</h2>
+        <p>Recovers Unicode Malayalam text from PDFs set in legacy ASCII fonts such as ML-TT Karthika and Revathi.</p>
+        <div class="meta"><span class="chip">pdf</span><span class="chip">malayalam</span><span class="go">Open →</span></div>
+      </a>
+    </li>
+    <li>
+      <div class="tape"></div>
+      <a class="card" href="../audio_splitter.html">
+        <h2>Stem Splitter</h2>
+        <p>Drop in an MP3, WAV, M4A or OGG and split it into vocals, bass, drums and the rest. Mute, solo or mix the parts, then download any of them.</p>
+        <div class="meta"><span class="chip">audio</span><span class="go">Open →</span></div>
+      </a>
+    </li>
+    <li>
+      <div class="tape"></div>
+      <a class="card" href="../recorder.html">
+        <h2>Screen Recorder</h2>
+        <p>Record your screen or a browser tab and download the video. Can also log cursor positions while recording.</p>
+        <div class="meta"><span class="chip">video</span><span class="go">Open →</span></div>
+      </a>
+    </li>
+    <li>
+      <div class="tape"></div>
+      <a class="card" href="../rent_receipt.html">
+        <h2>Rent Receipt</h2>
+        <p>Fill in tenant, landlord and payment details to produce a printable rent receipt.</p>
+        <div class="meta"><span class="chip">print</span><span class="go">Open →</span></div>
+      </a>
+    </li>
+    <li>
+      <div class="tape"></div>
+      <a class="card" href="../font_create_1.html">
+        <h2>Handwritten Font Creator</h2>
+        <p>Draw each character by hand, save the glyphs and download them as a font file.</p>
+        <div class="meta"><span class="chip">fonts</span><span class="go">Open →</span></div>
+      </a>
+    </li>
+  </ul>
+</main>
+</body>
+</html>
