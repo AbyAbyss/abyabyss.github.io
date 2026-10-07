@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JSON Studio</title>
+<meta name="description" content="Validate, repair and convert JSON in the browser. Translate between JSON, TOON, YAML, XML, TOML and CSV, generate TypeScript and Go types, explore a node graph, and draw Mermaid diagrams.">
+<meta name="theme-color" content="#e8dcc3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Caveat:wght@600&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@1&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/htm@3.1.1/dist/htm.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js" defer></script>
+<style>
+.md-prev{font:15px/1.7 'Instrument Sans',sans-serif;color:#1d1a16;padding:22px 30px}.md-prev h1{font:800 32px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-1px;margin:0 0 16px;padding-bottom:10px;border-bottom:2px solid #1d1a16}.md-prev h2{font:800 22px 'Bricolage Grotesque',sans-serif;margin:26px 0 8px;letter-spacing:-.4px}.md-prev h3{font:700 17px 'Bricolage Grotesque',sans-serif;margin:20px 0 6px}.md-prev p{margin:0 0 12px}.md-prev code{font:500 12.5px 'JetBrains Mono',monospace;background:#ffe9a8;padding:1px 6px;border-radius:4px}.md-prev pre{background:#16130f;color:#f3ecdd;padding:14px 16px;border-radius:6px;overflow:auto;box-shadow:4px 4px 0 #1d1a16;margin:14px 0}.md-prev pre code{background:none;padding:0;color:inherit}.md-prev blockquote{margin:14px 0;padding:10px 16px;background:#fff0c2;border-radius:6px;font:italic 400 19px/1.4 'Instrument Serif',serif}.md-prev blockquote p{margin:0}.md-prev table{border-collapse:collapse;margin:14px 0;border:2px solid #1d1a16}.md-prev th{background:#ffe14d;text-align:left}.md-prev th,.md-prev td{border:1.5px solid #1d1a16;padding:6px 12px}.md-prev a{color:#e8472b}.md-prev img{max-width:100%}.md-prev hr{border:0;border-top:2px dashed #1d1a16;margin:20px 0}.md-prev ul,.md-prev ol{padding-left:24px;margin:0 0 12px}.md-prev svg{max-width:100%;height:auto}
+body{margin:0;background:#e8dcc3}a{color:#e8472b}a:hover{color:#b8321a}textarea:focus,select:focus{outline:none}textarea::placeholder{color:#a89f88}::selection{background:#ffe14d;color:#1d1a16}::-webkit-scrollbar{width:11px;height:11px}::-webkit-scrollbar-thumb{background:#9c917a;border-radius:6px;border:2px solid transparent;background-clip:content-box}
+.press:hover{transform:translate(1px,1px);box-shadow:1px 1px 0 #1d1a16!important}
+.trow:hover{background:#2a251d}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<noscript><p style="font:16px sans-serif;padding:24px">JSON Studio needs JavaScript.</p></noscript>
+<script>
+(function () {
+'use strict';
+// React.createElement wrapper that accepts CSS strings in `style`, so the
+// design's inline styles can be used as-is.
+const camel = p => p.trim().replace(/^-(webkit|moz|ms)-/, (m, v) => v[0].toUpperCase() + v.slice(1) + '-').replace(/-([a-z])/g, (m, c) => c.toUpperCase());
+const cssObj = s => {
+  const o = {};
+  String(s).split(';').forEach(d => { const i = d.indexOf(':'); if (i > 0) { const k = d.slice(0, i).trim(); if (k) o[camel(k)] = d.slice(i + 1).trim(); } });
+  return o;
+};
+const h = (type, props, ...kids) => {
+  if (props && typeof props.style === 'string') props = Object.assign({}, props, { style: cssObj(props.style) });
+  return React.createElement(type, props, ...kids);
+};
+const html = htm.bind(h);
+const PAGES = ['convert', 'graph', 'mermaid', 'markdown'];
+const pageFromHash = () => { const p = location.hash.slice(1); return PAGES.includes(p) ? p : 'convert'; };
+
+const SAMPLE = {
+  id: 1024, name: "Ada Lovelace", active: true, score: 98.5, manager: null,
+  tags: ["math", "engine", "poetry"],
+  address: { city: "London", zip: "N1 9GU", geo: { lat: 51.5, lng: -0.12 } },
+  orders: [
+    { id: 1, sku: "A-100", qty: 2, price: 19.99 },
+    { id: 2, sku: "B-220", qty: 1, price: 5.5 },
+    { id: 3, sku: "C-310", qty: 4, price: 12 }
+  ]
+};
+const isObj = v => v && typeof v === 'object' && !Array.isArray(v);
+const isPrim = v => v === null || typeof v !== 'object';
+const sortDeep = v => Array.isArray(v) ? v.map(sortDeep) : isObj(v) ? Object.keys(v).sort().reduce((o, k) => (o[k] = sortDeep(v[k]), o), {}) : v;
+const pas = s => (String(s).replace(/[^a-zA-Z0-9]+/g, ' ').trim().split(' ').map(w => w ? w[0].toUpperCase() + w.slice(1) : '').join('')) || 'Field';
+const sing = s => /ies$/.test(s) ? s.slice(0, -3) + 'y' : /s$/.test(s) && s.length > 3 ? s.slice(0, -1) : s;
+
+// ---- TOON ----
+const tQ = (s, d = ',') => {
+  if (s === '' || /^\s|\s$/.test(s) || /^(true|false|null)$/.test(s) || /^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(s) || /[:"\\\[\]{}\n\r\t]/.test(s) || s.includes(d) || s[0] === '-') return JSON.stringify(s);
+  return s;
+};
+const tPrim = v => v === null ? 'null' : typeof v === 'string' ? tQ(v) : String(v);
+const tKey = k => /^[A-Za-z_][\w.]*$/.test(k) ? k : JSON.stringify(k);
+function toonArr(label, arr, ind) {
+  const pad = '  '.repeat(ind), head = `${label}[${arr.length}`;
+  if (arr.every(isPrim)) return [`${pad}${head}]:${arr.length ? ' ' : ''}${arr.map(tPrim).join(',')}`];
+  if (arr.every(isObj)) {
+    const ks = Object.keys(arr[0]);
+    if (ks.length && arr.every(o => Object.keys(o).length === ks.length && ks.every(k => k in o && isPrim(o[k]))))
+      return [`${pad}${head}]{${ks.map(tKey).join(',')}}:`, ...arr.map(o => '  '.repeat(ind + 1) + ks.map(k => tPrim(o[k])).join(','))];
+  }
+  const out = [`${pad}${head}]:`];
+  arr.forEach(it => {
+    const p = '  '.repeat(ind + 1);
+    if (isPrim(it)) out.push(`${p}- ${tPrim(it)}`);
+    else {
+      const ls = Array.isArray(it) ? toonArr('', it, ind + 2) : toonObj(it, ind + 2);
+      if (!ls.length) out.push(`${p}-`);
+      else { ls[0] = p + '- ' + ls[0].trimStart(); out.push(...ls); }
+    }
+  });
+  return out;
+}
+function toonObj(o, ind) {
+  const pad = '  '.repeat(ind), out = [];
+  Object.keys(o).forEach(k => {
+    const v = o[k];
+    if (isPrim(v)) out.push(`${pad}${tKey(k)}: ${tPrim(v)}`);
+    else if (Array.isArray(v)) out.push(...toonArr(tKey(k), v, ind));
+    else { out.push(`${pad}${tKey(k)}:`); out.push(...toonObj(v, ind + 1)); }
+  });
+  return out;
+}
+const toToon = v => isPrim(v) ? tPrim(v) : Array.isArray(v) ? toonArr('', v, 0).join('\n') : toonObj(v, 0).join('\n');
+function fromToon(text) {
+  const L = text.split('\n').map((t, i) => ({ ln: i + 1, ind: t.length - t.trimStart().length, t: t.trim() })).filter(l => l.t);
+  let i = 0;
+  const err = (m, l) => { throw new Error(`TOON: ${m}${l ? ' (line ' + l.ln + ')' : ''}`); };
+  const prim = s => {
+    s = s.trim();
+    if (s[0] === '"') { try { return JSON.parse(s); } catch (e) { err('bad string ' + s); } }
+    if (s === 'true') return true; if (s === 'false') return false; if (s === 'null') return null;
+    if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(s)) return Number(s);
+    return s;
+  };
+  const split = s => { const r = []; let cur = '', q = false; for (let j = 0; j < s.length; j++) { const c = s[j]; if (c === '\\' && q) { cur += c + s[++j]; continue; } if (c === '"') q = !q; if (c === ',' && !q) { r.push(cur); cur = ''; } else cur += c; } r.push(cur); return r; };
+  const unkey = k => k[0] === '"' ? JSON.parse(k) : k.trim();
+  const HDR = /^("(?:[^"\\]|\\.)*"|[^:\[\{"]*?)(?:\[(\d+)\])?(?:\{([^}]*)\})?:\s*(.*)$/;
+  function arrBody(n, fields, rest, ind) {
+    if (rest) { const v = split(rest).map(prim); if (v.length !== n) err(`expected ${n} values, got ${v.length}`, L[i - 1]); return v; }
+    const out = [];
+    if (fields) {
+      const fs = split(fields).map(unkey);
+      while (i < L.length && L[i].ind > ind && out.length < n) { const vs = split(L[i].t).map(prim); out.push(fs.reduce((o, f, j) => (o[f] = vs[j], o), {})); i++; }
+    } else {
+      while (i < L.length && L[i].ind > ind && L[i].t[0] === '-' && out.length < n) {
+        const l = L[i], rest2 = l.t.slice(1).trim();
+        if (!rest2) { out.push({}); i++; }
+        else if (/^\[\d+\]/.test(rest2)) { const m = rest2.match(/^\[(\d+)\](?:\{([^}]*)\})?:\s*(.*)$/); i++; out.push(arrBody(+m[1], m[2], m[3], l.ind)); }
+        else if (HDR.test(rest2) && /^("(?:[^"\\]|\\.)*"|[^\s",]+)(\[\d+\])?(\{[^}]*\})?:(\s|$)/.test(rest2)) { l.ind += 2; l.t = rest2; out.push(block(l.ind)); }
+        else { out.push(prim(rest2)); i++; }
+      }
+    }
+    if (out.length !== n) err(`expected ${n} items, got ${out.length}`, L[i - 1] || L[0]);
+    return out;
+  }
+  function block(ind) {
+    const o = {};
+    while (i < L.length && L[i].ind === ind) {
+      const l = L[i], m = l.t.match(HDR);
+      if (!m) err('expected "key: value"', l);
+      i++;
+      const k = unkey(m[1]);
+      if (m[2] !== undefined) o[k] = arrBody(+m[2], m[3], m[4], ind);
+      else if (m[4]) o[k] = prim(m[4]);
+      else if (i < L.length && L[i].ind > ind) o[k] = block(L[i].ind);
+      else o[k] = {};
+    }
+    if (i < L.length && L[i].ind > ind) err('unexpected indentation', L[i]);
+    return o;
+  }
+  if (!L.length) err('empty input');
+  const f = L[0].t;
+  if (/^\[\d+\]/.test(f)) { const m = f.match(/^\[(\d+)\](?:\{([^}]*)\})?:\s*(.*)$/); if (!m) err('bad array header', L[0]); i = 1; return arrBody(+m[1], m[2], m[3], L[0].ind); }
+  if (L.length === 1 && !HDR.test(f)) return prim(f);
+  return block(L[0].ind);
+}
+
+// ---- YAML ----
+const yS = s => (s === '' || /^\s|\s$|^[-?:,\[\]{}#&*!|>'"%@`]|: |:$| #|[\n\t]/.test(s) || /^(true|false|null|yes|no|on|off|~)$/i.test(s) || /^[-+]?(\d|\.\d)/.test(s)) ? JSON.stringify(s) : s;
+const yP = v => v === null ? 'null' : typeof v === 'string' ? yS(v) : String(v);
+const yK = k => /^[A-Za-z_][\w.-]*$/.test(k) ? k : JSON.stringify(k);
+const yEmpty = v => Array.isArray(v) ? v.length === 0 : isObj(v) && !Object.keys(v).length;
+function yl(v, ind) {
+  const pad = ' '.repeat(ind), out = [];
+  if (isPrim(v)) return [pad + yP(v)];
+  if (Array.isArray(v)) {
+    v.forEach(it => {
+      if (isPrim(it)) out.push(`${pad}- ${yP(it)}`);
+      else if (yEmpty(it)) out.push(`${pad}- ${Array.isArray(it) ? '[]' : '{}'}`);
+      else { const ls = yl(it, ind + 2); ls[0] = pad + '- ' + ls[0].slice(ind + 2); out.push(...ls); }
+    });
+  } else Object.keys(v).forEach(k => {
+    const c = v[k];
+    if (isPrim(c)) out.push(`${pad}${yK(k)}: ${yP(c)}`);
+    else if (yEmpty(c)) out.push(`${pad}${yK(k)}: ${Array.isArray(c) ? '[]' : '{}'}`);
+    else { out.push(`${pad}${yK(k)}:`); out.push(...yl(c, ind + 2)); }
+  });
+  return out;
+}
+const toYaml = v => yl(v, 0).join('\n');
+
+// ---- XML ----
+const xe = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const xn = k => { k = String(k).replace(/[^\w.-]/g, '_'); return /^[A-Za-z_]/.test(k) ? k : '_' + k; };
+function xml(v, name, ind, step) {
+  const pad = ' '.repeat(ind), n = xn(name);
+  if (Array.isArray(v)) return v.length ? v.map(x => xml(x, name, ind, step)).join('\n') : `${pad}<${n}/>`;
+  if (v === null) return `${pad}<${n}/>`;
+  if (isObj(v)) {
+    const ks = Object.keys(v);
+    if (!ks.length) return `${pad}<${n}/>`;
+    return `${pad}<${n}>\n${ks.map(k => xml(v[k], k, ind + step, step)).join('\n')}\n${pad}</${n}>`;
+  }
+  return `${pad}<${n}>${xe(v)}</${n}>`;
+}
+const toXml = (v, step) => '<?xml version="1.0" encoding="UTF-8"?>\n' + xml(Array.isArray(v) ? { item: v } : isObj(v) ? v : { value: v }, 'root', 0, step).replace(/^<root>\n?/, '<root>\n').replace(/^<root>\n( *)<item>/, '<root>\n$1<item>');
+
+// ---- TOML ----
+const tmK = k => /^[A-Za-z0-9_-]+$/.test(k) ? k : JSON.stringify(k);
+const tmV = v => v === null ? '""' : Array.isArray(v) ? '[' + v.map(tmV).join(', ') + ']' : isObj(v) ? '{ ' + Object.keys(v).map(k => `${tmK(k)} = ${tmV(v[k])}`).join(', ') + ' }' : typeof v === 'string' ? JSON.stringify(v) : String(v);
+function tmTable(o, path, out, arr) {
+  const ks = Object.keys(o).filter(k => o[k] !== null);
+  const tables = ks.filter(k => isObj(o[k])), aots = ks.filter(k => Array.isArray(o[k]) && o[k].length && o[k].every(isObj)), simple = ks.filter(k => !tables.includes(k) && !aots.includes(k));
+  if (path.length) out.push(arr ? `[[${path.map(tmK).join('.')}]]` : `[${path.map(tmK).join('.')}]`);
+  simple.forEach(k => out.push(`${tmK(k)} = ${tmV(o[k])}`));
+  if (path.length || simple.length) out.push('');
+  tables.forEach(k => tmTable(o[k], [...path, k], out));
+  aots.forEach(k => o[k].forEach(x => tmTable(x, [...path, k], out, true)));
+}
+function toToml(v) { if (!isObj(v)) throw new Error('TOML needs an object at the root'); const o = []; tmTable(v, [], o); return o.join('\n').trim() + '\n'; }
+
+// ---- CSV ----
+function toCsv(v) {
+  const rows = Array.isArray(v) ? v : isObj(v) ? [v] : null;
+  if (!rows || !rows.every(isObj)) throw new Error('CSV needs an array of objects');
+  const cols = []; rows.forEach(r => Object.keys(r).forEach(k => cols.includes(k) || cols.push(k)));
+  const c = x => { if (x === undefined || x === null) return ''; const s = typeof x === 'object' ? JSON.stringify(x) : String(x); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  return [cols.map(c).join(','), ...rows.map(r => cols.map(k => c(r[k])).join(','))].join('\n');
+}
+
+// ---- type inference ----
+function infer(v) {
+  if (v === null) return { k: 'null' };
+  if (Array.isArray(v)) return { k: 'arr', el: v.length ? v.map(infer).reduce(merge) : { k: 'any' } };
+  if (isObj(v)) { const f = {}; Object.keys(v).forEach(k => f[k] = infer(v[k])); return { k: 'obj', f, opt: {} }; }
+  if (typeof v === 'number') return { k: Number.isInteger(v) ? 'int' : 'float' };
+  return { k: typeof v === 'string' ? 'str' : 'bool' };
+}
+function merge(a, b) {
+  if (a.k === 'null') return { ...b, nullable: true };
+  if (b.k === 'null') return { ...a, nullable: true };
+  const nl = a.nullable || b.nullable;
+  if (a.k === b.k) {
+    if (a.k === 'arr') return { k: 'arr', el: merge(a.el, b.el), nullable: nl };
+    if (a.k === 'obj') { const f = {}, opt = { ...a.opt }; Object.keys(a.f).forEach(k => { if (k in b.f) f[k] = merge(a.f[k], b.f[k]); else { f[k] = a.f[k]; opt[k] = 1; } }); Object.keys(b.f).forEach(k => { if (!(k in a.f)) { f[k] = b.f[k]; opt[k] = 1; } else if (b.opt[k]) opt[k] = 1; }); return { k: 'obj', f, opt, nullable: nl }; }
+    return { ...a, nullable: nl };
+  }
+  if ((a.k === 'int' && b.k === 'float') || (a.k === 'float' && b.k === 'int')) return { k: 'float', nullable: nl };
+  return { k: 'any', nullable: nl };
+}
+function toTS(v) {
+  const out = [], used = {};
+  const t = (d, name) => {
+    let s;
+    if (d.k === 'obj') { let n = name; while (used[n]) n += '_'; used[n] = 1; const ls = Object.keys(d.f).map(k => `  ${/^[A-Za-z_$][\w$]*$/.test(k) ? k : JSON.stringify(k)}${d.opt[k] ? '?' : ''}: ${t(d.f[k], pas(sing(k)))};`); out.push(`export interface ${n} {\n${ls.join('\n')}\n}`); s = n; }
+    else if (d.k === 'arr') { const e = t(d.el, name); s = /[|]/.test(e) ? `(${e})[]` : e + '[]'; }
+    else s = { int: 'number', float: 'number', str: 'string', bool: 'boolean', null: 'null', any: 'unknown' }[d.k];
+    return d.nullable && d.k !== 'null' ? s + ' | null' : s;
+  };
+  const d = infer(v), r = t(d, 'Root');
+  if (d.k !== 'obj') out.push(`export type Root = ${r};`);
+  return out.reverse().join('\n\n');
+}
+function toGo(v) {
+  const out = [], used = {};
+  const t = (d, name) => {
+    let s;
+    if (d.k === 'obj') { let n = name; while (used[n]) n += '_'; used[n] = 1; const ks = Object.keys(d.f), w = Math.max(0, ...ks.map(k => pas(k).length)); const ls = ks.map(k => { const ty = t(d.f[k], pas(sing(k))); const ptr = (d.f[k].nullable || d.opt[k]) && !/^(\[\]|\*|interface)/.test(ty) ? '*' + ty : ty; return `\t${pas(k).padEnd(w)} ${ptr} \`json:"${k}${d.opt[k] ? ',omitempty' : ''}"\``; }); out.push(`type ${n} struct {\n${ls.join('\n')}\n}`); s = n; }
+    else if (d.k === 'arr') s = '[]' + t(d.el, name);
+    else s = { int: 'int64', float: 'float64', str: 'string', bool: 'bool', null: 'interface{}', any: 'interface{}' }[d.k];
+    return s;
+  };
+  const d = infer(v), r = t(d, 'Root');
+  if (d.k !== 'obj') out.push(`type Root ${r}`);
+  return 'package model\n\n' + out.reverse().join('\n\n');
+}
+
+function lenient(src, bare) {
+  let i = 0;
+  const fail = m => { throw new Error(m + ' at position ' + i); };
+  const ws = () => { for (;;) { while (/\s/.test(src[i] || '')) i++; if (src.startsWith('//', i)) { while (i < src.length && src[i] !== '\n') i++; } else if (src.startsWith('/*', i)) { const e = src.indexOf('*/', i + 2); if (e < 0) fail('Unclosed comment'); i = e + 2; } else break; } };
+  const str = q => {
+    let o = ''; i++;
+    for (;;) {
+      if (i >= src.length) fail('Unterminated string');
+      const c = src[i++];
+      if (c === q) return o;
+      if (c !== '\\') { o += c; continue; }
+      const e = src[i++];
+      if (e === 'u') { o += String.fromCharCode(parseInt(src.substr(i, 4), 16)); i += 4; }
+      else if (e === 'x') { o += String.fromCharCode(parseInt(src.substr(i, 2), 16)); i += 2; }
+      else if (e === '\n') {}
+      else o += ({ n: '\n', t: '\t', r: '\r', b: '\b', f: '\f', v: '\v', 0: '\0' })[e] ?? e;
+    }
+  };
+  const key = () => {
+    ws(); const c = src[i];
+    if (c === '"' || c === "'" || c === '`') return str(c);
+    const m = src.slice(i).match(/^[A-Za-z_$][\w$]*|^\d+(\.\d+)?/);
+    if (!m) fail('Expected a property name');
+    i += m[0].length; return m[0];
+  };
+  const val = () => {
+    ws(); const c = src[i];
+    if (c === '{') {
+      i++; const o = {};
+      for (;;) {
+        ws(); if (src[i] === '}') { i++; return o; }
+        const k = key(); ws(); if (src[i] !== ':') fail("Expected ':'"); i++;
+        o[k] = val(); ws();
+        if (src[i] === ',') i++; else if (src[i] !== '}') fail("Expected ',' or '}'");
+      }
+    }
+    if (c === '[') {
+      i++; const a = [];
+      for (;;) {
+        ws(); if (src[i] === ']') { i++; return a; }
+        a.push(val()); ws();
+        if (src[i] === ',') i++; else if (src[i] !== ']') fail("Expected ',' or ']'");
+      }
+    }
+    if (c === '"' || c === "'" || c === '`') return str(c);
+    if (bare) { const m2 = src.slice(i).match(/^[^,\]}]+/); if (!m2) fail('Unexpected ' + c); i += m2[0].length; return plain(m2[0].trim()); }
+    const m = src.slice(i).match(/^[-+]?(0x[\da-f]+|(\d+\.?\d*|\.\d+)(e[-+]?\d+)?|Infinity|NaN)|^[A-Za-z_$][\w$]*/i);
+    if (!m) fail('Unexpected ' + (c === undefined ? 'end of input' : "'" + c + "'"));
+    i += m[0].length; const t = m[0];
+    if (t === 'true') return true; if (t === 'false') return false;
+    if (t === 'null' || t === 'undefined' || /Infinity|NaN/.test(t)) return null;
+    const n = Number(t); if (isNaN(n)) fail('Unexpected ' + t); return n;
+  };
+  const r = val(); ws(); if (i < src.length) fail('Unexpected data after value'); return r;
+}
+
+const plain = t => {
+  if (t === '' || t === '~' || /^(null|Null|NULL)$/.test(t)) return null;
+  if (/^(true|True|TRUE)$/.test(t)) return true; if (/^(false|False|FALSE)$/.test(t)) return false;
+  if (/^[-+]?(\d[\d_]*)(\.\d+)?([eE][-+]?\d+)?$/.test(t)) return Number(t.replace(/_/g, ''));
+  if (/^0x[\da-fA-F]+$/.test(t)) return Number(t);
+  return t;
+};
+function fromYaml(text) {
+  const raw = text.split('\n').map(x => x.replace(/\r$/, ''));
+  const stripC = t => { let q = null, j = 0; for (; j < t.length; j++) { const c = t[j]; if (q) { if (c === q && (q === "'" || t[j - 1] !== '\\')) q = null; } else if ((c === '"' || c === "'") && (j === 0 || /[\s:\[{,-]/.test(t[j - 1]))) q = c; else if (c === '#' && (j === 0 || /\s/.test(t[j - 1]))) break; } return t.slice(0, j).trimEnd(); };
+  const L = [];
+  raw.forEach((r, idx) => { const t = stripC(r.trim() === '---' || r.trim() === '...' ? '' : r.trimStart()); if (t) L.push({ ind: r.length - r.trimStart().length, text: t, idx }); });
+  let p = 0;
+  const err = (m, e) => { throw new Error('YAML: ' + m + (e ? ' (line ' + (e.idx + 1) + ')' : '')); };
+  const isSeq = t => t === '-' || t.startsWith('- ');
+  const KEY = /^("(?:[^"\\]|\\.)*"|'(?:[^']|'')*'|[^\s'"#\[\]{},&*!|>%@`][^:]*?)\s*:(?:\s+(.*))?$/;
+  const unq = k => k[0] === '"' ? JSON.parse(k) : k[0] === "'" ? k.slice(1, -1).replace(/''/g, "'") : k;
+  const scalar = s => {
+    s = s.trim();
+    if (s[0] === '"') { try { return JSON.parse(s); } catch (e) { err('bad string ' + s); } }
+    if (s[0] === "'") return s.slice(1, -1).replace(/''/g, "'");
+    if (s[0] === '[' || s[0] === '{') { try { return lenient(s, true); } catch (e) { err('bad flow collection: ' + e.message); } }
+    return plain(s);
+  };
+  const block = (hdr, pind, cur) => {
+    const chomp = hdr.includes('-') ? '-' : hdr.includes('+') ? '+' : '', fold = hdr[0] === '>';
+    let j = cur.idx + 1, bi = -1; const ls = [];
+    for (; j < raw.length; j++) { const r = raw[j]; if (!r.trim()) { ls.push(''); continue; } const ind = r.length - r.trimStart().length; if (ind <= pind) break; if (bi < 0) bi = ind; ls.push(r.slice(Math.min(bi, ind))); }
+    while (p < L.length && L[p].idx < j) p++;
+    let tail = 0; while (ls.length && ls[ls.length - 1] === '') { ls.pop(); tail++; }
+    let v = fold ? ls.reduce((a, l, i) => i === 0 ? l : l === '' ? a + '\n' : a.endsWith('\n') ? a + l : a + ' ' + l, '') : ls.join('\n');
+    return chomp === '-' ? v : chomp === '+' ? v + '\n'.repeat(tail + 1) : v + '\n';
+  };
+  const value = (rest, ind, cur) => {
+    if (/^[|>][+-]?$/.test(rest)) return block(rest, ind, cur);
+    return scalar(rest);
+  };
+  function seq(ind) {
+    const a = [];
+    while (p < L.length && L[p].ind === ind && isSeq(L[p].text)) {
+      const e = L[p], rest = e.text.slice(1).trimStart(), off = e.text.length - rest.length;
+      if (!rest) { p++; a.push(p < L.length && L[p].ind > ind ? node() : null); }
+      else if (isSeq(rest)) { e.ind = ind + off; e.text = rest; a.push(seq(e.ind)); }
+      else if (KEY.test(rest) && !/^["'\[{]/.test(rest) || /^("(?:[^"\\]|\\.)*"|'[^']*')\s*:(\s|$)/.test(rest)) { e.ind = ind + off; e.text = rest; a.push(map(e.ind)); }
+      else { p++; a.push(value(rest, ind, e)); }
+    }
+    return a;
+  }
+  function map(ind) {
+    const o = {};
+    while (p < L.length && L[p].ind === ind && !isSeq(L[p].text)) {
+      const e = L[p], m = e.text.match(KEY);
+      if (!m) err('expected "key: value"', e);
+      p++;
+      const k = unq(m[1].trim()), rest = m[2];
+      if (rest === undefined || rest === '') {
+        if (p < L.length && L[p].ind > ind) o[k] = node();
+        else if (p < L.length && L[p].ind === ind && isSeq(L[p].text)) o[k] = seq(ind);
+        else o[k] = null;
+      } else o[k] = value(rest, ind, e);
+    }
+    return o;
+  }
+  function node() {
+    const e = L[p];
+    if (isSeq(e.text)) return seq(e.ind);
+    if (KEY.test(e.text) && !/^["'\[{]/.test(e.text) || /^("(?:[^"\\]|\\.)*"|'[^']*')\s*:(\s|$)/.test(e.text)) return map(e.ind);
+    p++; return value(e.text, e.ind - 1, e);
+  }
+  if (!L.length) err('empty input');
+  const v = node();
+  if (p < L.length) err('unexpected indentation', L[p]);
+  return v;
+}
+function fromCsv(t) {
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (q) { if (c === '"') { if (t[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cur); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && t[i + 1] === '\n') i++; row.push(cur); cur = ''; rows.push(row); row = []; }
+    else cur += c;
+  }
+  if (q) throw new Error('CSV: unterminated quote');
+  if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+  const data = rows.filter(r => r.some(x => x !== ''));
+  if (!data.length) throw new Error('CSV: empty input');
+  const head = data[0], cv = x => { if (x === undefined || x === '') return ''; if (/^(true|false)$/.test(x)) return x === 'true'; if (/^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(x)) return Number(x); if (/^[\[{]/.test(x)) { try { return JSON.parse(x); } catch (e) {} } return x; };
+  return data.slice(1).map((r, n) => { if (r.length > head.length) throw new Error('CSV: row ' + (n + 2) + ' has ' + r.length + ' fields, expected ' + head.length); return head.reduce((o, h, i) => (o[h] = cv(r[i]), o), {}); });
+}
+function fromXml(t) {
+  const d = new DOMParser().parseFromString(t, 'application/xml'), pe = d.getElementsByTagName('parsererror')[0];
+  if (pe) throw new Error('XML: ' + pe.textContent.trim().split('\n').filter(x => x.trim()).slice(0, 2).join(' ').slice(0, 200));
+  const xv = x => /^(true|false)$/.test(x) ? x === 'true' : /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test(x) ? Number(x) : x;
+  const conv = el => {
+    const kids = [...el.children], attrs = [...el.attributes];
+    const txt = [...el.childNodes].filter(n => n.nodeType === 3 || n.nodeType === 4).map(n => n.nodeValue).join('').trim();
+    if (!kids.length && !attrs.length) return txt === '' ? null : xv(txt);
+    const o = {}, arr = new Set();
+    attrs.forEach(a => o['@' + a.name] = xv(a.value));
+    kids.forEach(k => { const v = conv(k), n = k.nodeName; if (n in o) { if (!arr.has(n)) { o[n] = [o[n]]; arr.add(n); } o[n].push(v); } else o[n] = v; });
+    if (txt && kids.length) o['#text'] = xv(txt);
+    if (!kids.length && txt) o['#text'] = xv(txt);
+    return o;
+  };
+  const r = d.documentElement, v = conv(r);
+  if (r.nodeName === 'root') return v && isObj(v) && Object.keys(v).length === 1 && Array.isArray(v.item) ? v.item : v;
+  return { [r.nodeName]: v };
+}
+function fromToml(src) {
+  let i = 0;
+  const fail = m => { throw new Error('TOML: ' + m + ' (line ' + (src.slice(0, i).split('\n').length) + ')'); };
+  const sp = () => { while (src[i] === ' ' || src[i] === '\t') i++; };
+  const ws = () => { for (;;) { while (/\s/.test(src[i] || '')) i++; if (src[i] === '#') while (i < src.length && src[i] !== '\n') i++; else break; } };
+  const rstr = (q, multi) => {
+    const open = multi ? q + q + q : q; i += open.length;
+    if (multi && src[i] === '\n') i++; else if (multi && src.startsWith('\r\n', i)) i += 2;
+    let o = '';
+    for (;;) {
+      if (i >= src.length) fail('unterminated string');
+      if (src.startsWith(open, i)) { i += open.length; if (multi) while (src[i] === q) { o += q; i++; } return o; }
+      const c = src[i++];
+      if (!multi && c === '\n') fail('newline in string');
+      if (c === '\\' && q === '"') {
+        const e = src[i++];
+        if (e === 'u') { o += String.fromCharCode(parseInt(src.substr(i, 4), 16)); i += 4; }
+        else if (e === 'U') { o += String.fromCodePoint(parseInt(src.substr(i, 8), 16)); i += 8; }
+        else if (e === '\n' || e === ' ' || e === '\t') { while (/\s/.test(src[i] || '')) i++; }
+        else o += ({ n: '\n', t: '\t', r: '\r', b: '\b', f: '\f', '"': '"', '\\': '\\' })[e] ?? fail('bad escape \\' + e);
+      } else o += c;
+    }
+  };
+  const keyPath = () => {
+    const ks = [];
+    for (;;) {
+      sp(); const c = src[i];
+      if (c === '"') ks.push(rstr('"', false)); else if (c === "'") ks.push(rstr("'", false));
+      else { const m = src.slice(i).match(/^[A-Za-z0-9_-]+/); if (!m) fail('expected a key'); i += m[0].length; ks.push(m[0]); }
+      sp(); if (src[i] === '.') i++; else return ks;
+    }
+  };
+  const val = () => {
+    sp(); const c = src[i];
+    if (src.startsWith('"""', i)) return rstr('"', true);
+    if (src.startsWith("'''", i)) return rstr("'", true);
+    if (c === '"') return rstr('"', false);
+    if (c === "'") return rstr("'", false);
+    if (c === '[') { i++; const a = []; for (;;) { ws(); if (src[i] === ']') { i++; return a; } a.push(val()); ws(); if (src[i] === ',') i++; else if (src[i] !== ']') fail("expected ',' or ']'"); } }
+    if (c === '{') { i++; const o = {}; for (;;) { sp(); if (src[i] === '}') { i++; return o; } const ks = keyPath(); sp(); if (src[i] !== '=') fail("expected '='"); i++; setPath(o, ks, val()); sp(); if (src[i] === ',') i++; else if (src[i] !== '}') fail("expected ',' or '}'"); } }
+    const m = src.slice(i).match(/^[^\s,\]}#]+(\s\d\d:\d\d:\d\d[^\s,\]}#]*)?/);
+    if (!m) fail('expected a value');
+    i += m[0].length; const t = m[0];
+    if (t === 'true') return true; if (t === 'false') return false;
+    if (/^[-+]?(inf|nan)$/.test(t)) return null;
+    if (/^\d{4}-\d\d-\d\d|^\d\d:\d\d:\d\d/.test(t)) return t;
+    const n = Number(t.replace(/_/g, '')); if (isNaN(n)) fail('invalid value ' + t); return n;
+  };
+  const down = (o, ks) => { ks.forEach(k => { if (!isObj(o[k]) && !Array.isArray(o[k])) o[k] = {}; o = o[k]; if (Array.isArray(o)) o = o[o.length - 1]; }); return o; };
+  const setPath = (o, ks, v) => { o = down(o, ks.slice(0, -1)); o[ks[ks.length - 1]] = v; };
+  const root = {}; let cur = root;
+  for (;;) {
+    ws(); if (i >= src.length) break;
+    if (src[i] === '[') {
+      const aot = src[i + 1] === '['; i += aot ? 2 : 1;
+      const ks = keyPath(); sp();
+      if (!src.startsWith(aot ? ']]' : ']', i)) fail('unterminated table header'); i += aot ? 2 : 1;
+      if (aot) { const par = down(root, ks.slice(0, -1)), k = ks[ks.length - 1]; if (!Array.isArray(par[k])) par[k] = []; cur = {}; par[k].push(cur); }
+      else cur = down(root, ks);
+    } else {
+      const ks = keyPath(); sp(); if (src[i] !== '=') fail("expected '='"); i++;
+      setPath(cur, ks, val()); sp();
+      if (src[i] === '#') while (i < src.length && src[i] !== '\n') i++;
+      if (i < src.length && src[i] !== '\n' && src[i] !== '\r') fail('unexpected characters after value');
+    }
+  }
+  return root;
+}
+const FMT_NAMES = { json: 'JSON', toon: 'TOON', yaml: 'YAML', xml: 'XML', toml: 'TOML', csv: 'CSV' };
+const parseIn = (f, t) => ({ json: JSON.parse, toon: fromToon, yaml: fromYaml, xml: fromXml, toml: fromToml, csv: fromCsv })[f](t);
+const ser = (f, d, n) => ({ json: x => JSON.stringify(x, null, n), toon: toToon, yaml: toYaml, xml: x => toXml(x, n), toml: toToml, csv: toCsv })[f](d);
+function detect(t, name, cur) {
+  const e = (name.match(/\.(\w+)$/) || [])[1];
+  const map = { json: 'json', toon: 'toon', yaml: 'yaml', yml: 'yaml', xml: 'xml', toml: 'toml', csv: 'csv' };
+  if (e && map[e.toLowerCase()]) return map[e.toLowerCase()];
+  const x = t.trim(), first = x.split('\n')[0];
+  if (x[0] === '{' || x[0] === '[' && !/^\[\d+\]/.test(x)) return /^\[[\w.-]+\]\s*$/.test(first) ? 'toml' : 'json';
+  if (x[0] === '<') return 'xml';
+  if (/^\s*\[\[?[\w.-]+\]\]?\s*$/m.test(x) || /^\s*[\w.-]+\s*=\s*\S/m.test(x)) return 'toml';
+  if (/\[\d+\](\{[^}]*\})?:/.test(x)) return 'toon';
+  if (!/:/.test(first) && first.includes(',')) return 'csv';
+  if (/^---|^\s*-\s|^[\w"'-]+:/m.test(x)) return cur === 'toon' ? 'toon' : 'yaml';
+  return cur;
+}
+
+const MD_SAMPLE = '# API notes\n\nA short doc written in **Markdown**, rendered live.\n\n## Request\n\n```json\n{ "name": "sai", "age": 32 }\n```\n\n| Field | Type |\n|---|---|\n| name | string |\n| age | number |\n\n> Use *Insert JSON as table* above to build tables from your current input.\n\n```mermaid\nflowchart LR\n  A[Client] --> B[API] --> C[(DB)]\n```\n';
+const MM_SAMPLES = {
+  seq: 'sequenceDiagram\n  participant C as Client\n  participant A as API\n  participant D as Database\n  C->>A: POST /orders (JSON)\n  A->>A: validate payload\n  A->>D: insert order\n  D-->>A: id\n  A-->>C: 201 Created',
+  er: 'erDiagram\n  USER ||--o{ ORDER : places\n  ORDER ||--|{ LINE_ITEM : contains\n  USER {\n    int id\n    string name\n  }\n  ORDER {\n    int id\n    float total\n  }',
+  state: 'stateDiagram-v2\n  [*] --> Raw\n  Raw --> Valid: parse ok\n  Raw --> Invalid: syntax error\n  Invalid --> Raw: fix\n  Valid --> Converted: export\n  Converted --> [*]',
+  gantt: 'gantt\n  title Release plan\n  dateFormat YYYY-MM-DD\n  section Build\n  Parser :a1, 2026-10-01, 5d\n  Converters :after a1, 6d\n  section Ship\n  QA :5d'
+};
+const mmEsc = (t, n = 38) => { t = String(t).replace(/["<>]/g, "'").replace(/\n/g, ' '); return t.length > n ? t.slice(0, n - 1) + '…' : t; };
+const mmClean = t => mmEsc(String(t).replace(/[()\[\]{}'#;:]/g, ' ').replace(/\s+/g, ' ').trim() || '-', 30);
+function mmFlow(data) {
+  const lines = ['flowchart LR'], objs = [], leaves = []; let n = 0;
+  const add = (v, label, parent) => {
+    if (n > 90) return; const id = 'n' + n++;
+    if (isPrim(v)) { lines.push(id + '(["' + mmEsc(label + ': ' + (typeof v === 'string' ? v : String(v))) + '"])'); leaves.push(id); }
+    else { const a = Array.isArray(v), ks = a ? v.map((_, i) => i) : Object.keys(v); lines.push(id + '["' + mmEsc(label) + (a ? ' [' + ks.length + ']' : '') + '"]'); objs.push(id); if (parent) { } ks.forEach(k => add(v[k], a ? '[' + k + ']' : k, id)); }
+    if (parent) lines.push(parent + ' --> ' + id);
+  };
+  add(data, 'root', null);
+  lines.push('classDef obj fill:#ffe14d,stroke:#1d1a16,stroke-width:2px;', 'classDef leaf fill:#fffdf7,stroke:#1d1a16;');
+  if (objs.length) lines.push('class ' + objs.join(',') + ' obj;');
+  if (leaves.length) lines.push('class ' + leaves.join(',') + ' leaf;');
+  return lines.join('\n');
+}
+function mmMind(data) {
+  const lines = ['mindmap', '  root((data))']; let n = 0;
+  const add = (v, label, d) => {
+    if (n++ > 120) return; const pad = '  '.repeat(d + 1);
+    if (isPrim(v)) { lines.push(pad + mmClean(label + ' = ' + (typeof v === 'string' ? v : String(v)))); return; }
+    const a = Array.isArray(v); lines.push(pad + mmClean(label)); (a ? v.map((_, i) => i) : Object.keys(v)).forEach(k => add(v[k], a ? 'item ' + k : k, d + 1));
+  };
+  (Array.isArray(data) ? data.map((_, i) => i) : isObj(data) ? Object.keys(data) : []).forEach(k => add(data[k], Array.isArray(data) ? 'item ' + k : k, 1));
+  if (isPrim(data)) lines.push('    ' + mmClean(String(data)));
+  return lines.join('\n');
+}
+function mmClass(data) {
+  const classes = [], edges = [], used = {};
+  const ty = { int: 'int', float: 'float', str: 'string', bool: 'bool', null: 'null', any: 'any' };
+  const t = (d, name, parent) => {
+    if (d.k === 'obj') {
+      let n = name; while (used[n]) n += '_'; used[n] = 1;
+      const fs = Object.keys(d.f).map(k => '  +' + t(d.f[k], pas(sing(k)), n) + ' ' + (k.replace(/\W/g, '_') || '_'));
+      classes.push('class ' + n + ' {\n' + fs.join('\n') + '\n}'); if (parent) edges.push(parent + ' --> ' + n); return n;
+    }
+    if (d.k === 'arr') return 'List~' + t(d.el, name, parent) + '~';
+    return ty[d.k];
+  };
+  const d = infer(data); t(d.k === 'obj' ? d : { k: 'obj', f: { value: d }, opt: {} }, 'Root', null);
+  return 'classDiagram\n' + classes.join('\n') + '\n' + edges.join('\n');
+}
+function mdTable(data) {
+  const cell = x => String(x === null || x === undefined ? '' : typeof x === 'object' ? JSON.stringify(x) : x).replace(/\|/g, '\\|');
+  if (Array.isArray(data) && data.length && data.every(isObj)) {
+    const cols = []; data.forEach(r => Object.keys(r).forEach(k => cols.includes(k) || cols.push(k)));
+    return '| ' + cols.join(' | ') + ' |\n|' + cols.map(() => '---').join('|') + '|\n' + data.map(r => '| ' + cols.map(c => cell(r[c])).join(' | ') + ' |').join('\n');
+  }
+  if (isObj(data)) return '| Key | Value |\n|---|---|\n' + Object.keys(data).map(k => '| ' + cell(k) + ' | ' + cell(data[k]) + ' |').join('\n');
+  return '| Value |\n|---|\n| ' + cell(data) + ' |';
+}
+const HC = ['#ffe14d', '#bfe3c8', '#a9cdf0', '#f6b8c8', '#ffc9a0', '#d9c8f5'];
+function buildGraph(data, offs) {
+  const W = 250, RH = 22, HH = 26, GAP = 18, CG = 70; let count = 0;
+  const fv = c => c === null ? ['null', '#8a8378'] : typeof c === 'string' ? [mmEsc(JSON.stringify(c), 24), '#1f7a4d'] : typeof c === 'number' ? [String(c), '#c2410c'] : [String(c), '#7c3aed'];
+  const mk = (v, label, depth) => {
+    const id = ++count; const a = Array.isArray(v), ks = a ? v.map((_, i) => i) : Object.keys(v);
+    const node = { id, label, depth, meta: a ? '[' + ks.length + ']' : '{' + ks.length + '}', rows: [], kids: [] };
+    ks.slice(0, 16).forEach(k => {
+      const c = v[k], key = a ? '[' + k + ']' : k;
+      if (isPrim(c)) { const [t, col] = fv(c); node.rows.push({ k: key, v: t, c: col }); }
+      else { const n = Array.isArray(c) ? c.length : Object.keys(c).length; node.rows.push({ k: key, v: (Array.isArray(c) ? '[' + n + ']' : '{' + n + '}') + ' →', c: '#a35a00' }); if (count < 300) node.kids.push({ row: node.rows.length - 1, node: mk(c, key, depth + 1) }); }
+    });
+    if (ks.length > 16) node.rows.push({ k: '+' + (ks.length - 16) + ' more', v: '', c: '#8a8378' });
+    node.h = HH + 2 + Math.max(node.rows.length, 1) * RH + 2; return node;
+  };
+  const root = mk(isPrim(data) ? { value: data } : data, 'root', 0);
+  const nodes = [], edges = []; let maxX = 0, maxY = 0;
+  const place = (n, top) => {
+    n.x = n.depth * (W + CG);
+    if (!n.kids.length) { n.y = top; return n.h + GAP; }
+    let cur = top; n.kids.forEach(k => { cur += place(k.node, cur); });
+    const span = cur - top - GAP; n.y = top + Math.max(0, (span - n.h) / 2); return Math.max(cur - top, n.h + GAP);
+  };
+  place(root, 0);
+  let d = '';
+  const walk = n => {
+    const o = offs[n.id] || { dx: 0, dy: 0 }; n.x += o.dx; n.y += o.dy; nodes.push({ id: n.id, x: n.x, y: n.y, label: n.label, meta: n.meta, hc: HC[n.depth % HC.length], rows: n.rows });
+    maxX = Math.max(maxX, n.x + W); maxY = Math.max(maxY, n.y + n.h);
+    n.kids.forEach(k => { const c = offs[k.node.id] || { dx: 0, dy: 0 }, x1 = n.x + W, y1 = n.y + HH + 2 + k.row * RH + RH / 2, x2 = k.node.x + c.dx, y2 = k.node.y + c.dy + 13; d += 'M' + x1 + ' ' + y1 + 'C' + (x1 + 35) + ' ' + y1 + ' ' + (x2 - 35) + ' ' + y2 + ' ' + x2 + ' ' + y2; walk(k.node); });
+  };
+  walk(root);
+  return { nodes, d, w: maxX, h: maxY };
+}
+const TABS = [['tree', 'Tree'], ['json', 'JSON'], ['min', 'Minified'], ['toon', 'TOON'], ['yaml', 'YAML'], ['xml', 'XML'], ['toml', 'TOML'], ['csv', 'CSV'], ['ts', 'TypeScript'], ['go', 'Go struct']];
+const EXT = { json: 'json', min: 'min.json', toon: 'toon', yaml: 'yaml', xml: 'xml', toml: 'toml', csv: 'csv', ts: 'ts', go: 'go' };
+
+
+class App extends React.Component {
+  state = { page: pageFromHash(), goff: {}, vw: window.innerWidth, gx: 30, gy: 30, gz: 0.9, mmMode: 'flow', mmSrc: '', mdView: 'split', mmErr: '', md: MD_SAMPLE, input: JSON.stringify(SAMPLE, null, 2), inFmt: 'json', tab: 'tree', closed: {}, sort: false, indent: 2, copied: false };
+  fileRef = React.createRef();
+  gcRef = React.createRef(); mmRef = React.createRef(); mdRef = React.createRef(); mdPvRef = React.createRef(); mdFileRef = React.createRef();
+  _mmN = 0;
+  componentDidMount() {
+    this._rs = () => this.setState({ vw: window.innerWidth }); window.addEventListener('resize', this._rs);
+    this._hc = () => { const p = pageFromHash(); if (p !== this.state.page) this.setState({ page: p }); }; window.addEventListener('hashchange', this._hc);
+    // React attaches wheel listeners as passive; zooming the graph must not scroll the page.
+    this._wh = e => { const c = this.gcRef.current; if (c && c.contains(e.target)) e.preventDefault(); }; window.addEventListener('wheel', this._wh, { passive: false });
+    this.after();
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._rs); window.removeEventListener('hashchange', this._hc); window.removeEventListener('wheel', this._wh); }
+  componentDidUpdate() { const want = this.state.page === 'convert' ? '' : '#' + this.state.page; if (location.hash !== want) history.replaceState(null, '', want || location.pathname + location.search); this.after(); }
+  fit() {
+    const g = this._graph, c = this.gcRef.current; if (!g || !c || !g.w) return;
+    const z = Math.min(1.1, (c.clientWidth - 60) / g.w, (c.clientHeight - 60) / g.h);
+    this.setState({ gz: z, gx: Math.max(30, (c.clientWidth - g.w * z) / 2), gy: Math.max(30, (c.clientHeight - g.h * z) / 2) });
+  }
+  zoomAt(f, mx, my) { this.setState(s => { const nz = Math.min(2.5, Math.max(0.12, s.gz * f)), r = nz / s.gz; return { gz: nz, gx: mx - (mx - s.gx) * r, gy: my - (my - s.gy) * r }; }); }
+  mmCodeFor(data) {
+    const s = this.state, m = s.mmMode;
+    if (MM_SAMPLES[m]) return MM_SAMPLES[m];
+    if (m === 'custom') return s.mmSrc;
+    if (data === null) return 'flowchart LR\n  a["Fix the shared input to generate a diagram"]';
+    return m === 'mind' ? mmMind(data) : m === 'class' ? mmClass(data) : mmFlow(data);
+  }
+  after() {
+    const s = this.state;
+    const q = this.parse();
+    if (q.data !== undefined) {
+      const k = JSON.stringify(q.data);
+      if (k !== this._yk) {
+        this._yk = k;
+        const first = !this._yfirst; this._yfirst = 1;
+        [window, (() => { try { return window.parent !== window && window.parent.location.href ? window.parent : null; } catch (e) { return null; } })()].forEach(w => { if (w) w.yourJSON = q.data; });
+        if (first) console.log('%cPlay with your JSON here.', 'color:#e8472b;font:800 34px/1.4 Helvetica,Arial,sans-serif;letter-spacing:-1px');
+        console.log('%cyourJSON%c ' + (first ? 'is your parsed JSON. Type yourJSON in the console to use it, e.g. Object.keys(yourJSON), yourJSON.map(...), copy(JSON.stringify(yourJSON)).' : 'updated.'), 'background:#e8472b;color:#fffdf7;font-weight:700;padding:2px 8px;border-radius:4px', 'color:inherit', q.data);
+      }
+    }
+    if (s.page === 'graph') { const k = 'g' + s.input.length + s.sort + s.inFmt; if (this._gk !== k && this._graph) { this._gk = k; this.setState({ goff: {} }); this.fit(); } }
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.renderLive(), 220);
+  }
+  renderLive() {
+    const s = this.state, M = window.mermaid;
+    if (M && !this._mi) { this._mi = 1; M.initialize({ startOnLoad: false, theme: 'base', securityLevel: 'strict', fontFamily: 'JetBrains Mono, monospace', themeVariables: { primaryColor: '#ffe14d', primaryBorderColor: '#1d1a16', primaryTextColor: '#1d1a16', lineColor: '#1d1a16', secondaryColor: '#bfe3c8', tertiaryColor: '#fffdf7' } }); }
+    if (s.page === 'mermaid') {
+      if (!M || !window.marked) return void (this._t = setTimeout(() => this.renderLive(), 400));
+      const code = this._mmCode;
+      if (code !== this._mmLast && this.mmRef.current) {
+        this._mmLast = code; const id = 'mm' + (++this._mmN);
+        M.render(id, code).then(r => { this._svg = r.svg; if (this.mmRef.current) this.mmRef.current.innerHTML = r.svg; if (this.state.mmErr) this.setState({ mmErr: '' }); })
+          .catch(e => { const x = document.getElementById('d' + id); x && x.remove(); this.setState({ mmErr: String(e.message || e).split('\n').slice(0, 4).join('\n') }); });
+      }
+    }
+    if (s.page === 'markdown') {
+      if (!M || !window.marked || !window.DOMPurify) return void (this._t = setTimeout(() => this.renderLive(), 400));
+      const key = s.md + s.mdView;
+      if (key !== this._mdLast && this.mdPvRef.current) {
+        this._mdLast = key;
+        const html = window.DOMPurify.sanitize(window.marked.parse(s.md)); this._html = html;
+        const el = this.mdPvRef.current; el.innerHTML = html;
+        el.querySelectorAll('code.language-mermaid').forEach(c => { const pre = c.parentElement, id = 'mdm' + (++this._mmN); M.render(id, c.textContent).then(r => { pre.outerHTML = '<div style="margin:14px 0">' + r.svg + '</div>'; }).catch(() => { const x = document.getElementById('d' + id); x && x.remove(); }); });
+      }
+    }
+  }
+  wrapMd(a, b, ph) {
+    const ta = this.mdRef.current; if (!ta) return;
+    const st = ta.selectionStart, en = ta.selectionEnd, v = this.state.md, sel = v.slice(st, en) || ph;
+    this.setState({ md: v.slice(0, st) + a + sel + b + v.slice(en) });
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(st + a.length, st + a.length + sel.length); }, 30);
+  }
+  linePrefix(pre) {
+    const ta = this.mdRef.current; if (!ta) return;
+    const st = ta.selectionStart, v = this.state.md, ls = v.lastIndexOf('\n', st - 1) + 1;
+    this.setState({ md: v.slice(0, ls) + pre + v.slice(ls) });
+    setTimeout(() => { ta.focus(); ta.setSelectionRange(st + pre.length, st + pre.length); }, 30);
+  }
+  insertMd(txt) { const v = this.state.md; this.setState({ md: v + (v.endsWith('\n') || !v ? '' : '\n') + '\n' + txt + '\n' }); }
+  pageVals() {
+    const s = this.state, p = this.parse(), ok = p.data !== undefined, set = o => this.setState(o), pg = s.page;
+    const nar = s.vw < 980, data = ok ? this.sortIf(p.data) : null;
+    const dl = (txt, name, type) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type })); a.download = name; a.click(); };
+    const v = {
+      rootH: nar ? 'auto' : '100vh', rootMin: nar ? '100vh' : '700px', rootPad: nar ? '14px 14px 32px' : '18px 30px 28px',
+      cols2: nar ? 'minmax(0,1fr)' : 'minmax(0,1fr) minmax(0,1.2fr)', gap: nar ? '34px' : '34px', cellMin: nar ? '560px' : '0',
+      pages: [['convert', 'Convert'], ['graph', 'Graph'], ['mermaid', 'Mermaid'], ['markdown', 'Markdown']].map(([k, l]) => ({ label: l, bg: pg === k ? '#e8472b' : 'transparent', fg: pg === k ? '#fffdf7' : '#1d1a16', pick: () => set({ page: k }) })),
+      dConvert: pg === 'convert' ? 'grid' : 'none', dGraph: pg === 'graph' ? 'flex' : 'none', dMermaid: pg === 'mermaid' ? 'grid' : 'none', dMd: pg === 'markdown' ? 'flex' : 'none',
+      srcChip: ok ? 'shared input · ' + FMT_NAMES[s.inFmt] + ' · valid' : p.empty ? 'shared input is empty' : 'shared input has errors',
+      goConvert: () => set({ page: 'convert' }), noData: !ok,
+      gNodes: [], resetNodes: () => {}, gPath: '', gW: 10, gH: 10, gcRef: this.gcRef,
+      gTransform: 'translate(' + s.gx + 'px,' + s.gy + 'px) scale(' + s.gz + ')',
+      zoomIn: () => { const c = this.gcRef.current; this.zoomAt(1.25, c ? c.clientWidth / 2 : 0, c ? c.clientHeight / 2 : 0); },
+      zoomOut: () => { const c = this.gcRef.current; this.zoomAt(0.8, c ? c.clientWidth / 2 : 0, c ? c.clientHeight / 2 : 0); },
+      fit: () => this.fit(),
+      gDown: e => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} this._drag = { x: e.clientX, y: e.clientY, gx: s.gx, gy: s.gy }; },
+      gMove: e => { const d = this._drag; if (d) set({ gx: d.gx + e.clientX - d.x, gy: d.gy + e.clientY - d.y }); },
+      gUp: () => { this._drag = null; },
+      gWheel: e => { const r = this.gcRef.current.getBoundingClientRect(); this.zoomAt(e.deltaY < 0 ? 1.1 : 0.9, e.clientX - r.left, e.clientY - r.top); },
+      mmRef: this.mmRef, mdRef: this.mdRef, mdPvRef: this.mdPvRef, mdFileRef: this.mdFileRef
+    };
+    if (pg === 'graph' && ok) { const g = buildGraph(data, s.goff); this._graph = g;
+      v.gNodes = g.nodes.map(n => ({ ...n, z: this._nd && this._nd.id === n.id ? 5 : 1,
+        down: e => { e.stopPropagation(); e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} const o = s.goff[n.id] || { dx: 0, dy: 0 }; this._nd = { id: n.id, x: e.clientX, y: e.clientY, ox: o.dx, oy: o.dy }; },
+        move: e => { const d = this._nd; if (d && d.id === n.id) { e.stopPropagation(); set({ goff: { ...s.goff, [n.id]: { dx: d.ox + (e.clientX - d.x) / s.gz, dy: d.oy + (e.clientY - d.y) / s.gz } } }); } },
+        up: e => { e.stopPropagation(); this._nd = null; set({}); } })); v.gPath = g.d; v.resetNodes = () => set({ goff: {} }); v.gW = g.w; v.gH = g.h; }
+    const chip = (k, l) => ({ label: l, st: 'white-space:nowrap;cursor:pointer;border:2px solid #1d1a16;border-radius:999px;padding:3px 12px;font:700 12px "Instrument Sans",sans-serif;color:#1d1a16;background:' + (s.mmMode === k ? '#ffe14d' : '#fffdf7') + ';box-shadow:' + (s.mmMode === k ? 'none' : '2px 2px 0 #1d1a16'), pick: () => set({ mmMode: k }) });
+    const code = this.mmCodeFor(data); this._mmCode = code;
+    Object.assign(v, {
+      mmCode: code, mmGen: [chip('flow', 'Flowchart'), chip('mind', 'Mindmap'), chip('class', 'Class diagram')],
+      mmSamples: [chip('seq', 'Sequence'), chip('er', 'ER'), chip('state', 'State'), chip('gantt', 'Gantt')],
+      onMm: e => set({ mmMode: 'custom', mmSrc: e.target.value }),
+      mmBg: s.mmErr ? '#ffd9d0' : '#efe6d2', mmStatus: s.mmErr || 'Renders live as you type.',
+      mmCopy: () => navigator.clipboard.writeText(code).catch(() => {}),
+      mmDownload: () => this._svg && dl(this._svg, 'diagram.svg', 'image/svg+xml')
+    });
+    const views = [['split', 'Split'], ['edit', 'Edit'], ['preview', 'Preview']];
+    const wc = (s.md.trim().match(/\S+/g) || []).length;
+    Object.assign(v, {
+      md: s.md, onMd: e => set({ md: e.target.value }),
+      mdViews: views.map(([k, l]) => ({ label: l, bg: s.mdView === k ? '#1d1a16' : 'transparent', fg: s.mdView === k ? '#ffe14d' : '#1d1a16', pick: () => set({ mdView: k }) })),
+      mdCols: s.mdView === 'split' && !nar ? 'minmax(0,1fr) minmax(0,1fr)' : 'minmax(0,1fr)',
+      dMdEd: s.mdView === 'preview' ? 'none' : 'flex', dMdPv: s.mdView === 'edit' ? 'none' : 'flex',
+      mdCount: wc + ' words · ' + s.md.length + ' chars',
+      mdTools: [['B', 'Bold', () => this.wrapMd('**', '**', 'bold')], ['I', 'Italic', () => this.wrapMd('*', '*', 'italic')], ['H2', 'Heading', () => this.linePrefix('## ')], ['</>', 'Inline code', () => this.wrapMd('`', '`', 'code')], ['Block', 'Code block', () => this.wrapMd('```\n', '\n```', 'code')], ['List', 'Bullet list', () => this.linePrefix('- ')], ['Quote', 'Quote', () => this.linePrefix('> ')], ['Link', 'Link', () => this.wrapMd('[', '](https://)', 'text')]].map(([label, tip, run]) => ({ label, tip, run })),
+      mdOpen: () => this.mdFileRef.current && this.mdFileRef.current.click(),
+      onMdFile: e => { const f = e.target.files[0]; if (f) f.text().then(t => set({ md: t })); e.target.value = ''; },
+      mdTable: () => ok && this.insertMd(mdTable(data)),
+      mdCode: () => ok && this.insertMd('```json\n' + JSON.stringify(data, null, s.indent) + '\n```'),
+      mdCopyHtml: () => this._html && navigator.clipboard.writeText(this._html).catch(() => {}),
+      mdDownload: () => dl(s.md, 'document.md', 'text/markdown')
+    });
+    return v;
+  }
+
+  gutRef = React.createRef();
+
+  parse() {
+    const { input, inFmt } = this.state;
+    if (!input.trim()) return { empty: true };
+    try { return { data: parseIn(inFmt, input) }; }
+    catch (e) {
+      if (inFmt === 'json') { try { return { data: lenient(input), repaired: true }; } catch (e2) {} }
+      let m = String(e.message), line, col;
+      const a = m.match(/line (\d+) column (\d+)/);
+      if (a) { line = +a[1]; col = +a[2]; }
+      else { const p = m.match(/position (\d+)/); if (p) { const pre = input.slice(0, +p[1]).split('\n'); line = pre.length; col = pre[pre.length - 1].length + 1; } }
+      return { error: m.replace(/^SyntaxError: /, ''), line, col };
+    }
+  }
+  convert(tab, data) {
+    const n = this.state.indent;
+    if (this.state.sort) data = sortDeep(data);
+    switch (tab) {
+      case 'json': return JSON.stringify(data, null, n);
+      case 'min': return JSON.stringify(data);
+      case 'toon': return toToon(data);
+      case 'yaml': return toYaml(data);
+      case 'xml': return toXml(data, n);
+      case 'toml': return toToml(data);
+      case 'csv': return toCsv(data);
+      case 'ts': return toTS(data);
+      case 'go': return toGo(data);
+    }
+  }
+  rows(data) {
+    const rows = [], closed = this.state.closed;
+    const walk = (v, key, depth, path, last) => {
+      const has = !isPrim(v), open = has && !closed[path];
+      const n = has ? (Array.isArray(v) ? v.length : Object.keys(v).length) : 0;
+      let val = '', color = '#e6e8eb', hint = '';
+      if (has) { val = Array.isArray(v) ? (open ? '[' : '[…]') : (open ? '{' : '{…}'); color = '#6b7280'; hint = n + (Array.isArray(v) ? ' items' : ' keys'); if (!n) { val = Array.isArray(v) ? '[]' : '{}'; hint = ''; } }
+      else if (v === null) { val = 'null'; color = '#8a919c'; }
+      else if (typeof v === 'string') { val = JSON.stringify(v); color = '#9fd88a'; }
+      else if (typeof v === 'number') color = '#f0b46a', val = String(v);
+      else color = '#d49cf0', val = String(v);
+      const canToggle = has && n > 0;
+      rows.push({ pad: 12 + depth * 18, caret: canToggle ? (open ? '▾' : '▸') : '', key: key === null ? '' : (typeof key === 'number' ? key : JSON.stringify(key)), sep: key === null ? '' : ': ', val, color, hint: open && canToggle ? hint : '', cur: canToggle ? 'pointer' : 'default', toggle: () => canToggle && this.setState(s => ({ closed: { ...s.closed, [path]: !s.closed[path] } })) });
+      if (open && n) {
+        const ks = Array.isArray(v) ? v.map((_, i) => i) : Object.keys(v);
+        ks.forEach(k => walk(v[k], k, depth + 1, path + '/' + k));
+        rows.push({ pad: 12 + depth * 18, caret: '', key: '', sep: '', val: Array.isArray(v) ? ']' : '}', color: '#6b7280', hint: '', cur: 'default', toggle: () => {} });
+      }
+    };
+    walk(this.sortIf(data), null, 0, '');
+    return rows;
+  }
+  sortIf(d) { return this.state.sort ? sortDeep(d) : d; }
+  allPaths(v, p, o) { if (!isPrim(v)) { o[p] = true; Object.keys(v).forEach(k => this.allPaths(v[k], p + '/' + k, o)); } return o; }
+
+  renderVals() { return Object.assign(this.baseVals(), this.pageVals()); }
+  baseVals() {
+    const s = this.state, p = this.parse(), set = o => this.setState(o);
+    let output = '', outErr = '', rows = [];
+    if (p.data !== undefined) {
+      if (s.tab === 'tree') rows = this.rows(p.data);
+      else { try { output = this.convert(s.tab, p.data); } catch (e) { outErr = e.message; } }
+    }
+    const ok = p.data !== undefined;
+    const lines = s.input.split('\n').length;
+    const btn = 'white-space:nowrap;border:2px solid #1d1a16;background:#fffdf7;color:#1d1a16;border-radius:8px;padding:4px 11px;font:600 12px "Instrument Sans",sans-serif;cursor:pointer;box-shadow:2px 2px 0 #1d1a16';
+    let stat = ['', '', ''];
+    if (ok) {
+      const j = JSON.stringify(p.data), tn = toToon(p.data), tj = Math.ceil(j.length / 4), tt = Math.ceil(tn.length / 4);
+      stat = [`${j.length.toLocaleString()} chars minified`, `≈${tj.toLocaleString()} tokens JSON · ≈${tt.toLocaleString()} TOON`, tt < tj ? `TOON saves ${Math.round((1 - tt / tj) * 100)}%` : ''];
+    }
+    const fmtName = FMT_NAMES[s.inFmt];
+    const setInput = (v, f) => set({ input: v, inFmt: f || s.inFmt, closed: {} });
+    const out = outErr || output;
+    const dl = () => { const b = new Blob([out], { type: 'text/plain' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'data.' + (EXT[s.tab] || 'txt'); a.click(); };
+    const loadText = (t, name) => setInput(t, detect(t, name, s.inFmt));
+    return {
+      fmts: Object.entries(FMT_NAMES).map(([k, l]) => ({ label: l, bg: s.inFmt === k ? '#1d1a16' : 'transparent', fg: s.inFmt === k ? '#ffe14d' : '#1d1a16', pick: () => {
+        if (k === s.inFmt) return;
+        if (ok) try { set({ inFmt: k, input: ser(k, p.data, s.indent), closed: {} }); return; } catch (e) {}
+        set({ inFmt: k });
+      } })),
+      tabs: TABS.map(([k, l], n) => { const a = s.tab === k, col = ['#ffe14d', '#bfe3c8', '#a9cdf0', '#f6b8c8', '#ffc9a0', '#d9c8f5', '#bfe3c8', '#ffe14d', '#a9cdf0', '#f6b8c8'][n]; return { label: l, st: 'flex:none;cursor:pointer;border:2px solid #1d1a16;border-bottom:' + (a ? '2px solid ' + col : '2px solid #1d1a16') + ';border-radius:9px 9px 0 0;margin-bottom:-2px;padding:' + (a ? '8px 14px 7px' : '5px 12px 4px') + ';font:700 12.5px "Bricolage Grotesque",sans-serif;color:#1d1a16;background:' + (a ? col : '#e0d5bb') + ';transform:rotate(' + (a ? 0 : (n % 2 ? .8 : -.8)) + 'deg)', pick: () => set({ tab: k }) }; }),
+      btn, primaryBtn: btn.replace('#fffdf7', '#e8472b').replace('color:#1d1a16', 'color:#fffdf7'), accentBtn: btn.replace('#fffdf7', '#ffe14d'),
+      sortBtn: s.sort ? btn.replace('#fffdf7', '#bfe3c8') : btn,
+      input: s.input, lineNums: Array.from({ length: Math.min(lines, 999) }, (_, i) => i + 1).join('\n'),
+      onInput: e => set({ input: e.target.value, closed: {} }),
+      openFile: () => this.fileRef.current && this.fileRef.current.click(),
+      fileRef: this.fileRef, gutRef: this.gutRef,
+      onScroll: e => { if (this.gutRef.current) this.gutRef.current.scrollTop = e.target.scrollTop; },
+      onFile: e => { const f = e.target.files[0]; if (f) f.text().then(t => loadText(t, f.name)); e.target.value = ''; },
+      dragOver: e => e.preventDefault(),
+      onDrop: e => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) f.text().then(t => loadText(t, f.name)); },
+      paste: () => navigator.clipboard.readText().then(t => loadText(t, '')).catch(() => {}),
+      sample: () => setInput(s.inFmt === 'csv' ? toCsv(SAMPLE.orders) : ser(s.inFmt, SAMPLE, 2)),
+      format: () => { if (ok) try { set({ input: ser(s.inFmt, p.data, s.indent) }); } catch (e) {} },
+      minify: () => ok && s.inFmt === 'json' && set({ input: JSON.stringify(p.data) }),
+      clear: () => setInput(''),
+      statusBg: p.error ? '#ffd9d0' : p.empty ? '#fffdf7' : p.repaired ? '#fff0c2' : '#dff2e0',
+      statusDot: p.error ? '#c8321a' : p.empty ? '#6e675c' : p.repaired ? '#a35a00' : '#1f7a4d',
+      stamp: p.error ? 'Invalid' : p.empty ? 'Empty' : p.repaired ? 'Auto-fixed' : 'Valid', statusTitle: p.error ? `Invalid ${fmtName}` : p.empty ? 'No input' : p.repaired ? 'JavaScript object, auto-fixed to valid JSON' : `Valid ${fmtName}`,
+      statusDetail: p.repaired ? 'Single quotes, unquoted keys, comments or trailing commas were normalized. Outputs use strict JSON. Press Format to rewrite the input.' : p.error ? (p.line ? `Line ${p.line}, column ${p.col}\n` : '') + p.error : p.empty ? 'Paste, type, or drop a file.' : `${Array.isArray(p.data) ? 'Array of ' + p.data.length : isObj(p.data) ? 'Object with ' + Object.keys(p.data).length + ' keys' : typeof p.data} · ${lines} lines`,
+      isTree: s.tab === 'tree' && ok, notTree: s.tab !== 'tree' || !ok,
+      rows, output: ok ? out : p.empty ? '' : 'Fix the input errors to see output.',
+      outColor: outErr ? '#ff9b9b' : ok ? '#f3ecdd' : '#8a8378',
+      expandAll: () => set({ closed: {} }),
+      collapseAll: () => ok && set({ closed: Object.keys(this.allPaths(p.data, '', {})).reduce((o, k) => (k && (o[k] = true), o), {}) }),
+      toggleSort: () => set({ sort: !s.sort }),
+      toggleIndent: () => set({ indent: s.indent === 2 ? 4 : 2 }), indentLabel: s.indent,
+      useAsInput: () => { if (ok && !outErr) { const m = { json: 'json', min: 'json', toon: 'toon', yaml: 'yaml', xml: 'xml', toml: 'toml', csv: 'csv' }[s.tab]; if (m) setInput(output, m); } },
+      download: dl,
+      copy: () => { navigator.clipboard.writeText(s.tab === 'tree' ? JSON.stringify(this.sortIf(p.data), null, s.indent) : out).catch(() => {}); set({ copied: true }); setTimeout(() => set({ copied: false }), 1200); },
+      copyLabel: s.copied ? 'Copied' : 'Copy',
+      statSize: stat[0], statTokens: stat[1], statSave: stat[2], hasSave: !!stat[2]
+    };
+  }
+
+  render() {
+    const v = this.renderVals();
+    const P = 'press';
+    const tape = (st) => html`<div style=${'position:absolute;width:96px;height:26px;z-index:3;clip-path:polygon(0 0,4% 30%,0 60%,3% 100%,100% 100%,96% 65%,100% 35%,97% 0);' + st}></div>`;
+    const card = 'flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;background:#fffdf7;border:2px solid #1d1a16;border-radius:6px;box-shadow:8px 8px 0 #1d1a16;overflow:hidden';
+    const pill = 'display:flex;flex:none;gap:2px;background:#fffdf7;border:2px solid #1d1a16;border-radius:999px;padding:3px;box-shadow:3px 3px 0 #1d1a16';
+    const chipSt = 'font:500 11.5px "JetBrains Mono",monospace;background:#efe6d2;border:2px solid #1d1a16;border-radius:6px;padding:3px 9px';
+    return html`
+<div style="height:${v.rootH};min-height:${v.rootMin};box-sizing:border-box;display:flex;flex-direction:column;gap:14px;padding:${v.rootPad};background-color:#e8dcc3;background-image:radial-gradient(rgba(29,26,22,.17) 1.2px,transparent 1.4px);background-size:20px 20px;color:#1d1a16;font-family:'Instrument Sans',sans-serif;font-size:13px;overflow:auto">
+  <div style="display:flex;align-items:center;gap:18px;flex:none;flex-wrap:wrap">
+    <a href="../helpers/" title="All helper tools" style="text-decoration:none;width:54px;height:54px;border-radius:50%;background:#e8472b;color:#fffdf7;border:2px solid #1d1a16;box-shadow:3px 3px 0 #1d1a16;transform:rotate(-8deg);display:flex;align-items:center;justify-content:center;font:700 21px 'JetBrains Mono',monospace;flex:none">{ }</a>
+    <div>
+      <a href="../helpers/" style="display:inline-block;margin-bottom:4px;font:500 11.5px 'JetBrains Mono',monospace;color:#b8321a;text-decoration:none">← helpers</a>
+      <div style="font:800 34px/1 'Bricolage Grotesque',sans-serif;letter-spacing:-1.2px"><span style="background:linear-gradient(transparent 60%,#ffe14d 60%,#ffe14d 90%,transparent 90%);padding:0 4px;margin:0 -4px">JSON Studio</span></div>
+      <div style="font:italic 400 18px/1.2 'Instrument Serif',serif;margin-top:5px;color:#4a4237;white-space:nowrap">parse, repair and translate data between ten formats</div>
+    </div>
+    <div style="flex:1"></div>
+    <div style=${pill}>
+      ${v.pages.map(g => html`<button key=${g.label} onClick=${g.pick} style="border:0;border-radius:999px;padding:6px 14px;font:800 12.5px 'Bricolage Grotesque',sans-serif;cursor:pointer;background:${g.bg};color:${g.fg}">${g.label}</button>`)}
+    </div>
+    <div style="font:600 24px 'Caveat',cursive;transform:rotate(-3deg);color:#b8321a;white-space:nowrap">reading your input as</div>
+    <div style=${pill}>
+      ${v.fmts.map(f => html`<button key=${f.label} onClick=${f.pick} style="border:0;border-radius:999px;padding:6px 11px;font:800 12.5px 'Bricolage Grotesque',sans-serif;letter-spacing:.5px;cursor:pointer;background:${f.bg};color:${f.fg}">${f.label}</button>`)}
+    </div>
+  </div>
+
+  <div style="display:${v.dGraph};flex:1;min-height:${v.cellMin};padding:26px 8px 0 4px;position:relative">
+    ${tape('top:13px;left:40px;background:rgba(169,205,240,.85);transform:rotate(-3deg)')}
+    <div style=${card}>
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px 12px;flex-wrap:wrap">
+        <span style="font:800 22px 'Bricolage Grotesque',sans-serif;letter-spacing:-.5px">Graph</span>
+        <span style="font:italic 400 16px 'Instrument Serif',serif;color:#6e6455">drag the canvas to pan, drag a card to move it, scroll to zoom</span>
+        <div style="flex:1"></div>
+        <span style=${chipSt}>${v.srcChip}</span>
+        <button className=${P} onClick=${v.zoomOut} style=${v.btn}>−</button>
+        <button className=${P} onClick=${v.zoomIn} style=${v.btn}>+</button>
+        <button className=${P} onClick=${v.resetNodes} style=${v.btn}>Reset nodes</button>
+        <button className=${P} onClick=${v.fit} style=${v.accentBtn}>Fit</button>
+        <button className=${P} onClick=${v.goConvert} style=${v.btn}>Edit input</button>
+      </div>
+      <div ref=${v.gcRef} onPointerDown=${v.gDown} onPointerMove=${v.gMove} onPointerUp=${v.gUp} onPointerCancel=${v.gUp} style="flex:1;min-height:0;position:relative;overflow:hidden;background-color:#16130f;background-image:radial-gradient(rgba(243,236,221,.14) 1.2px,transparent 1.4px);background-size:22px 22px;border-top:2px solid #1d1a16;cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none">
+        <div style="position:absolute;left:0;top:0;transform-origin:0 0;transform:${v.gTransform}">
+          <svg width=${v.gW} height=${v.gH} style="position:absolute;left:0;top:0;overflow:visible"><path d=${v.gPath} fill="none" stroke="#8a8378" strokeWidth="2"></path></svg>
+          ${v.gNodes.map(n => html`<div key=${n.id} onPointerDown=${n.down} onPointerMove=${n.move} onPointerUp=${n.up} onPointerCancel=${n.up} style="cursor:move;z-index:${n.z};position:absolute;left:${n.x}px;top:${n.y}px;width:250px;background:#fffdf7;border:2px solid #1d1a16;border-radius:6px;box-shadow:4px 4px 0 #000;overflow:hidden;font:12px 'JetBrains Mono',monospace;color:#1d1a16">
+            <div style="height:24px;line-height:24px;padding:0 10px;background:${n.hc};border-bottom:2px solid #1d1a16;font:800 12px/24px 'Bricolage Grotesque',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${n.label} <span style="font:500 11px 'JetBrains Mono',monospace;opacity:.7">${n.meta}</span></div>
+            ${n.rows.map((r, i) => html`<div key=${i} style="height:22px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 10px;box-sizing:border-box"><span style="color:#4a4237;white-space:nowrap">${r.k}</span><span style="color:${r.c};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">${r.v}</span></div>`)}
+          </div>`)}
+        </div>
+        ${v.noData && html`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:italic 400 22px 'Instrument Serif',serif;color:#f3ecdd">Fix the input on the Convert page to see a graph.</div>`}
+      </div>
+    </div>
+  </div>
+
+  <div style="display:${v.dMermaid};flex:1;min-height:0;grid-template-columns:${v.cols2};gap:${v.gap};padding:26px 8px 0 4px">
+    <div style="position:relative;min-height:${v.cellMin};display:flex">
+      ${tape('top:-13px;left:34px;background:rgba(255,225,77,.82);transform:rotate(-4deg)')}
+      <div style=${card}>
+        <div style="display:flex;align-items:baseline;gap:10px;padding:14px 16px 6px"><span style="font:800 22px 'Bricolage Grotesque',sans-serif;letter-spacing:-.5px">Mermaid</span><span style="font:italic 400 16px 'Instrument Serif',serif;color:#6e6455">diagrams as text</span></div>
+        <div style="padding:6px 16px 12px;border-bottom:2px solid #1d1a16;display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:600 20px 'Caveat',cursive;color:#b8321a">from your JSON</span>${v.mmGen.map(c => html`<button key=${c.label} onClick=${c.pick} style=${c.st}>${c.label}</button>`)}</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:600 20px 'Caveat',cursive;color:#b8321a">samples</span>${v.mmSamples.map(c => html`<button key=${c.label} onClick=${c.pick} style=${c.st}>${c.label}</button>`)}</div>
+        </div>
+        <textarea value=${v.mmCode} onChange=${v.onMm} spellCheck=${false} style="flex:1;min-height:0;resize:none;border:0;background:transparent;color:#1d1a16;padding:12px 16px;font:12px/20px 'JetBrains Mono',monospace;white-space:pre;overflow:auto;background-image:repeating-linear-gradient(transparent 0 19px,rgba(29,26,22,.07) 19px 20px);background-position:0 12px"></textarea>
+        <div style="padding:10px 16px;border-top:2px solid #1d1a16;background:${v.mmBg};font:500 11.5px/1.5 'JetBrains Mono',monospace;color:#4a4237;white-space:pre-wrap;word-break:break-word">${v.mmStatus}</div>
+      </div>
+    </div>
+    <div style="position:relative;min-height:${v.cellMin};display:flex">
+      ${tape('top:-13px;left:60px;background:rgba(246,184,200,.85);transform:rotate(4deg)')}
+      <div style=${card}>
+        <div style="display:flex;align-items:center;gap:10px;padding:14px 16px 12px;flex-wrap:wrap"><span style="font:800 22px 'Bricolage Grotesque',sans-serif;letter-spacing:-.5px">Preview</span><span style=${chipSt}>${v.srcChip}</span><div style="flex:1"></div><button className=${P} onClick=${v.mmCopy} style=${v.btn}>Copy source</button><button className=${P} onClick=${v.mmDownload} style=${v.primaryBtn}>Download SVG</button></div>
+        <div style="flex:1;min-height:0;overflow:auto;border-top:2px solid #1d1a16;padding:24px;display:flex;background-color:#fffdf7;background-image:radial-gradient(rgba(29,26,22,.12) 1.2px,transparent 1.4px);background-size:20px 20px"><div ref=${v.mmRef} style="margin:auto"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:${v.dMd};flex:1;min-height:0;flex-direction:column;gap:18px;padding:26px 8px 0 4px">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:none">
+      <div style="display:flex;gap:2px;background:#fffdf7;border:2px solid #1d1a16;border-radius:999px;padding:3px;box-shadow:3px 3px 0 #1d1a16">${v.mdViews.map(m => html`<button key=${m.label} onClick=${m.pick} style="border:0;border-radius:999px;padding:5px 14px;font:800 12.5px 'Bricolage Grotesque',sans-serif;cursor:pointer;background:${m.bg};color:${m.fg}">${m.label}</button>`)}</div>
+      <button className=${P} onClick=${v.mdOpen} style=${v.btn}>Open .md</button>
+      <button className=${P} onClick=${v.mdTable} style=${v.accentBtn}>Insert JSON as table</button>
+      <button className=${P} onClick=${v.mdCode} style=${v.btn}>Insert JSON as code</button>
+      <div style="flex:1"></div>
+      <span style="font:italic 400 17px 'Instrument Serif',serif;color:#4a4237">${v.mdCount}</span>
+      <button className=${P} onClick=${v.mdCopyHtml} style=${v.btn}>Copy HTML</button>
+      <button className=${P} onClick=${v.mdDownload} style=${v.primaryBtn}>Download .md</button>
+      <input type="file" ref=${v.mdFileRef} onChange=${v.onMdFile} accept=".md,.markdown,.txt" style="display:none" />
+    </div>
+    <div style="flex:1;min-height:0;display:grid;grid-template-columns:${v.mdCols};gap:34px">
+      <div style="position:relative;min-height:${v.cellMin};display:${v.dMdEd}">
+        ${tape('top:-13px;left:34px;background:rgba(255,225,77,.82);transform:rotate(-4deg)')}
+        <div style=${card}>
+          <div style="display:flex;align-items:center;gap:6px;padding:12px 14px;border-bottom:2px solid #1d1a16;flex-wrap:wrap;flex:none">
+            <span style="font:800 18px 'Bricolage Grotesque',sans-serif;margin-right:6px">Edit</span>
+            ${v.mdTools.map(t => html`<button key=${t.tip} onClick=${t.run} style=${v.btn} title=${t.tip}>${t.label}</button>`)}
+          </div>
+          <textarea ref=${v.mdRef} value=${v.md} onChange=${v.onMd} spellCheck=${false} style="flex:1;min-height:0;resize:none;border:0;background:transparent;color:#1d1a16;padding:16px 18px;font:13px/22px 'JetBrains Mono',monospace;overflow:auto"></textarea>
+        </div>
+      </div>
+      <div style="position:relative;min-height:${v.cellMin};display:${v.dMdPv}">
+        ${tape('top:-13px;left:60px;background:rgba(246,184,200,.85);transform:rotate(4deg)')}
+        <div style=${card}>
+          <div style="padding:12px 14px;border-bottom:2px solid #1d1a16;flex:none;font:800 18px 'Bricolage Grotesque',sans-serif">Preview</div>
+          <div ref=${v.mdPvRef} className="md-prev" style="flex:1;min-height:0;overflow:auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:${v.dConvert};grid-template-columns:${v.cols2};gap:${v.gap};padding:26px 8px 0 4px">
+    <div style="position:relative;min-height:${v.cellMin};display:flex" onDragOver=${v.dragOver} onDrop=${v.onDrop}>
+      <div style="position:absolute;top:-13px;left:34px;width:96px;height:26px;background:rgba(255,225,77,.82);transform:rotate(-4deg);z-index:2;clip-path:polygon(0 0,4% 30%,0 60%,3% 100%,100% 100%,96% 65%,100% 35%,97% 0)"></div>
+      <div style="position:absolute;top:-10px;right:48px;width:70px;height:24px;background:rgba(246,184,200,.85);transform:rotate(5deg);z-index:2;clip-path:polygon(0 0,5% 40%,0 100%,100% 100%,95% 55%,100% 0)"></div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:#fffdf7;border:2px solid #1d1a16;border-radius:6px;box-shadow:8px 8px 0 #1d1a16;overflow:hidden">
+        <div style="display:flex;align-items:baseline;gap:10px;padding:14px 16px 8px">
+          <span style="font:800 22px 'Bricolage Grotesque',sans-serif;letter-spacing:-.5px">Input</span>
+          <span style="font:italic 400 16px 'Instrument Serif',serif;color:#6e6455">paste, type, or drop a file anywhere on this card</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 16px 12px;border-bottom:2px solid #1d1a16;flex-wrap:wrap">
+          <button className=${P} onClick=${v.openFile} style=${v.btn}>Open file</button>
+          <button className=${P} onClick=${v.paste} style=${v.btn}>Paste</button>
+          <button className=${P} onClick=${v.sample} style=${v.btn}>Sample</button>
+          <div style="flex:1"></div>
+          <button className=${P} onClick=${v.format} style=${v.accentBtn}>Format</button>
+          <button className=${P} onClick=${v.minify} style=${v.btn}>Minify</button>
+          <button className=${P} onClick=${v.clear} style=${v.btn}>Clear</button>
+          <input type="file" ref=${v.fileRef} onChange=${v.onFile} accept=".json,.toon,.yaml,.yml,.xml,.toml,.csv,.txt" style="display:none" />
+        </div>
+        <div style="flex:1;min-height:0;display:flex;background-image:repeating-linear-gradient(transparent 0 19px,rgba(29,26,22,.07) 19px 20px);background-position:0 12px">
+          <pre ref=${v.gutRef} style="margin:0;padding:12px 10px 12px 14px;text-align:right;color:#b0a589;font:12px/20px 'JetBrains Mono',monospace;user-select:none;overflow:hidden;min-width:26px;border-right:1px dashed #cfc4a8">${v.lineNums}</pre>
+          <textarea value=${v.input} onChange=${v.onInput} onScroll=${v.onScroll} spellCheck=${false} placeholder="Paste JSON, JS object, TOON, YAML, XML, TOML or CSV here" style="flex:1;min-width:0;resize:none;border:0;background:transparent;color:#1d1a16;padding:12px 14px;font:12px/20px 'JetBrains Mono',monospace;white-space:pre;overflow:auto;tab-size:2"></textarea>
+        </div>
+        <div style="padding:12px 16px;border-top:2px solid #1d1a16;display:flex;gap:16px;align-items:center;background:${v.statusBg}">
+          <div style="flex:none;border:2.5px solid ${v.statusDot};color:${v.statusDot};border-radius:6px;padding:3px 10px;transform:rotate(-4deg);font:800 15px 'Bricolage Grotesque',sans-serif;text-transform:uppercase;letter-spacing:1.5px;box-shadow:inset 0 0 0 2px transparent,0 0 0 2px ${v.statusBg},0 0 0 3px ${v.statusDot}">${v.stamp}</div>
+          <div style="min-width:0;line-height:1.5"><div style="font:700 13px 'Instrument Sans',sans-serif">${v.statusTitle}</div><div style="color:#4a4237;font-family:'JetBrains Mono',monospace;font-size:11.5px;white-space:pre-wrap;word-break:break-word">${v.statusDetail}</div></div>
+        </div>
+      </div>
+    </div>
+    <div style="position:relative;min-height:${v.cellMin};display:flex">
+      <div style="position:absolute;top:-12px;left:50%;width:100px;height:26px;background:rgba(169,205,240,.85);transform:rotate(3deg);z-index:2;clip-path:polygon(0 0,4% 35%,0 100%,100% 100%,96% 60%,100% 0)"></div>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;background:#16130f;border:2px solid #1d1a16;border-radius:6px;box-shadow:8px 8px 0 #e8472b;overflow:hidden">
+        <div style="display:flex;align-items:flex-end;gap:5px;padding:14px 14px 0;background:#efe6d2;border-bottom:2px solid #1d1a16;overflow-x:auto;scrollbar-width:none;flex:none">
+          ${v.tabs.map(t => html`<button key=${t.label} onClick=${t.pick} style=${t.st}>${t.label}</button>`)}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fffdf7;border-bottom:2px solid #1d1a16;flex-wrap:wrap;flex:none">
+          ${v.isTree && html`<button onClick=${v.expandAll} style=${v.btn}>Expand all</button>`}
+          ${v.isTree && html`<button onClick=${v.collapseAll} style=${v.btn}>Collapse all</button>`}
+          <button onClick=${v.toggleSort} style=${v.sortBtn}>Sort keys</button>
+          <button onClick=${v.toggleIndent} style=${v.btn}>Indent ${v.indentLabel}</button>
+          <div style="flex:1"></div>
+          <button onClick=${v.useAsInput} style=${v.btn}>Use as input</button>
+          <button onClick=${v.download} style=${v.btn}>Download</button>
+          <button onClick=${v.copy} style=${v.primaryBtn}>${v.copyLabel}</button>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto;background:#16130f">
+          ${v.isTree && html`<div style="padding:10px 0;font:12.5px/23px 'JetBrains Mono',monospace">
+            ${v.rows.map((r, i) => html`<div key=${i} className="trow" onClick=${r.toggle} style="display:flex;align-items:center;white-space:pre;padding:0 14px 0 ${r.pad}px;cursor:${r.cur}"><span style="width:14px;flex:none;color:#ffe14d;font-size:10px">${r.caret}</span><span style="color:#8ec5ff">${r.key}</span><span style="color:#7d7568">${r.sep}</span><span style="color:${r.color}">${r.val}</span><span style="color:#7d7568;margin-left:12px;font:italic 400 15px 'Instrument Serif',serif">${r.hint}</span></div>`)}
+          </div>`}
+          ${v.notTree && html`<pre style="margin:0;padding:14px 18px;font:12px/20px 'JetBrains Mono',monospace;color:${v.outColor};white-space:pre-wrap;word-break:break-word">${v.output}</pre>`}
+        </div>
+        <div style="padding:9px 16px;border-top:2px solid #1d1a16;display:flex;gap:16px;align-items:center;background:#efe6d2;font:500 11.5px 'JetBrains Mono',monospace;color:#4a4237;flex-wrap:wrap;flex:none">
+          <span>${v.statSize}</span><span>${v.statTokens}</span>
+          ${v.hasSave && html`<span style="margin-left:auto;background:#ffe14d;color:#1d1a16;border:2px solid #1d1a16;padding:2px 10px;transform:rotate(-2deg);font:800 13px 'Bricolage Grotesque',sans-serif;box-shadow:2px 2px 0 #1d1a16">${v.statSave}</span>`}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
+  }
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(h(App));
+})();
+</script>
+</body>
+</html>
