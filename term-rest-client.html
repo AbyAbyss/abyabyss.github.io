@@ -197,7 +197,7 @@ pre,code,kbd,.term pre,.panel pre{font-variant-ligatures:none;font-feature-setti
     <div class="rv">
       <div class="term" role="img" aria-label="A terminal running term-rest-client run against the Local environment. Five requests return 200 OK and all 15 tests pass.">
         <div class="bar"><i></i><i></i><i></i><span>~/shop-api · zsh</span></div>
-        <pre id="tty" aria-hidden="true"><span class="p">$</span> <span class="c">term-rest-client run -env Local &quot;Auth API&quot; &quot;User Service/Lookup&quot; &quot;Payment Gateway&quot;</span>
+        <pre id="tty" aria-hidden="true"><span class="p">$</span> <span class="c">term-rest-client -data demo.json run -env Local &quot;Auth API&quot; &quot;User Service/Lookup&quot; &quot;Payment Gateway&quot;</span>
 <span class="mu">Environment:</span> <span class="env">Local</span>
 <span class="m">GET</span> Login
   <span class="st">200 OK</span>  <span class="mu">1 ms  37 bytes</span>
@@ -224,7 +224,7 @@ pre,code,kbd,.term pre,.panel pre{font-variant-ligatures:none;font-feature-setti
   <span class="ok">✓</span> json.json.orderId == {{orderId}}
 <span class="p">$</span> </pre>
       </div>
-      <p class="cap">Real output of the headless <code>run</code> command against the project's local httpbin clone. It exits with status 1 when a test fails, so it drops straight into CI.</p>
+      <p class="cap">Real output, with the built-in demo API running in another terminal (<code>term-rest-client demo</code>). <code>-data demo.json</code> keeps the sample collections apart from your own. <code>run</code> exits with status 1 when a test fails, so it drops straight into CI.</p>
     </div>
   </div>
 </section>
@@ -524,6 +524,7 @@ cd cli-rest-client
 <span style="color:var(--dim)">2.</span> Unzip it and put term-rest-client.exe in a folder on your PATH
 <span style="color:var(--dim)">3.</span> Run it in Windows Terminal: term-rest-client</pre>
     </div>
+    <p class="note">Then try the samples offline: run <code>term-rest-client demo</code> in one terminal, and <code>term-rest-client -data demo.json</code> in another. The demo API answers every sample request, including GraphQL, streaming and WebSocket.</p>
     <p class="note">Prefer to download by hand? Every release has archives for macOS (arm64, amd64), Linux (amd64, arm64) and Windows, plus <code>SHA256SUMS</code>, on the <a href="https://github.com/AbyAbyss/cli-rest-client/releases">releases page</a>. If a browser download on macOS won't open, run <code>xattr -d com.apple.quarantine term-rest-client</code> once.</p>
   </div>
 </section>
