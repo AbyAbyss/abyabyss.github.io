@@ -781,19 +781,20 @@
                     },
                     {
                         name: "term-rest-client",
-                        meta: "REST Client \u00b7 Go TUI",
+                        meta: "API Client \u00b7 Go TUI + Web",
                         repo: "https://github.com/AbyAbyss/cli-rest-client",
                         site: {
                             href: "term-rest-client",
                             label: "Visit the site",
                         },
                         desc:
-                            "A Postman-style REST client that runs in the terminal: collections with nested folders, " +
-                            "environments, history, one-line tests and pre-request scripts, Postman and cURL import and " +
-                            "export, and code snippets in five languages. One static Go binary, with a headless run mode " +
-                            "that fails CI when a test fails.",
-                        tech: ["Go", "tview", "tcell", "Postman v2.1", "Playwright"],
-                        shots: ["main", "code", "history", "environments", "tests", "headers"].map(function (s) {
+                            "A Postman-style API client for REST, GraphQL, Server-Sent Events and WebSocket, in the " +
+                            "terminal or, with -gui, in the browser (requests still run in Go, so no CORS). Collections " +
+                            "with nested folders, environments, history, one-line tests and pre-request scripts, Postman " +
+                            "and cURL import and export, and code snippets in five languages. One static Go binary, with " +
+                            "a headless run mode that fails CI when a test fails.",
+                        tech: ["Go", "tview", "tcell", "GraphQL", "WebSocket", "Vanilla JS", "Playwright"],
+                        shots: ["main", "gui", "graphql-schema", "streaming", "websocket", "code", "history", "tests"].map(function (s) {
                             return "assets/term-rest-client/" + s + ".webp";
                         }),
                     },
@@ -1213,7 +1214,7 @@
     ["redis_gui", "assets/redis_gui/keyspace.webp", "A Redis GUI in one static Go binary. Browse the keyspace, run commands, watch live metrics and the MONITOR stream."],
     ["dockman", "assets/dockman/dashboard.webp", "Docker and Podman side by side in one native window, with a shell into any container and a build layer waterfall."],
     ["InkTerm", "assets/inkterm/terminal.webp", "A desktop terminal with tabs, live system stats, five themes and an MCP panel. Still in development.", "In development"],
-    ["term-rest-client", "assets/term-rest-client/main.webp", "Postman in the terminal. Collections, environments, history, tests, and Postman and cURL import, in one Go binary."],
+    ["term-rest-client", "assets/term-rest-client/main.webp", "Postman in the terminal, or the browser. REST, GraphQL, streams and WebSockets, with collections, environments, tests and Postman import, in one Go binary."],
     ["RestClient", "assets/restclient/main.webp", "A cartoon-UI REST client with Postman-style test scripts, environments and built-in load testing."],
     ["WALLE", "assets/walle/mascots.webp", "A little desktop companion in the corner of your screen, a robot or a parrot. An early experiment.", "Early experiment"]
   ].map(function (r) { var p = byName(r[0]); p.thumb = r[1]; p.blurb = r[2]; p.status = r[3] || ""; return p; });
