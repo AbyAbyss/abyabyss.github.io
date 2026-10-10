@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>term-rest-client, a REST client for the terminal</title>
-<meta name="description" content="term-rest-client is a Postman-style REST client that runs in your terminal: collections, environments, history, tests, Postman and cURL import, and code snippets. One static Go binary, MIT licensed, for macOS, Linux and Windows.">
+<meta name="description" content="term-rest-client is a Postman-style API client that runs in your terminal or your browser: REST, GraphQL, Server-Sent Events, NDJSON and WebSocket, with collections, environments, history, tests, Postman and cURL import, and code snippets. One static Go binary, MIT licensed, for macOS, Linux and Windows.">
 <meta name="theme-color" content="#1e1e2e">
 <meta property="og:title" content="term-rest-client, a REST client for the terminal">
-<meta property="og:description" content="Collections, environments, history, tests and Postman import in a keyboard-driven terminal UI. One static Go binary.">
+<meta property="og:description" content="REST, GraphQL, streams and WebSockets, with collections, environments, history, tests and Postman import. A keyboard-driven terminal UI, or a browser UI with -gui. One static Go binary.">
 <meta property="og:image" content="https://abyabyss.github.io/assets/term-rest-client/main.webp">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23cba6f7'/%3E%3Ctext x='16' y='22' font-size='15' font-weight='700' text-anchor='middle' fill='%231e1e2e' font-family='monospace'%3E%3E_%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -122,6 +122,7 @@ h2{margin:0 0 16px;font:700 clamp(30px,4.2vw,46px)/1.08 var(--head);letter-spaci
 .copy.ok{color:var(--green);border-color:var(--green)}
 .note{margin:16px 2px 0;font-size:14.5px;color:var(--dim);max-width:52em}
 .note code{color:var(--mute)}
+.lead code,.intro code{font-size:.9em;color:var(--text);background:rgba(17,17,27,.6);padding:1px 6px;border-radius:5px}
 
 /* gallery */
 .gal{display:grid;gap:22px;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr))}
@@ -167,6 +168,8 @@ pre,code,kbd,.term pre,.panel pre{font-variant-ligatures:none;font-feature-setti
     <a class="brand" href="#top" aria-label="term-rest-client, top of page"><i>&gt;_</i>term-rest-client</a>
     <nav class="links" aria-label="Primary">
       <a class="hide-s" href="#features">Features</a>
+      <a class="hide-s" href="#apis">API types</a>
+      <a class="hide-s" href="#gui">Browser UI</a>
       <a class="hide-s" href="#code">Code snippets</a>
       <a class="hide-s" href="#screens">Screens</a>
       <a href="https://github.com/AbyAbyss/cli-rest-client">GitHub</a>
@@ -182,7 +185,7 @@ pre,code,kbd,.term pre,.panel pre{font-variant-ligatures:none;font-feature-setti
     <div>
       <p class="badge"><span class="d"></span><b>Free</b> · MIT · macOS, Linux, Windows</p>
       <h1 id="h1"><span class="u">term-rest-client</span>Postman, in your <em>terminal</em>.</h1>
-      <p class="lead">Collections, environments, history, tests, and Postman and cURL import, in a keyboard-driven terminal UI. <strong>One static Go binary</strong>, and your requests live in a plain JSON file you can commit next to your code.</p>
+      <p class="lead">REST, GraphQL, Server-Sent Events and WebSockets, with collections, environments, history, tests, and Postman and cURL import. Use the keyboard-driven terminal UI, or run <code>-gui</code> for a browser UI. <strong>One static Go binary</strong>, and your requests live in a plain JSON file you can commit next to your code.</p>
       <div class="cta">
         <a class="btn primary" href="#install">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>Install</a>
@@ -190,7 +193,7 @@ pre,code,kbd,.term pre,.panel pre{font-variant-ligatures:none;font-feature-setti
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>View on GitHub</a>
       </div>
       <ul class="facts">
-        <li>Go + tview</li><li>~3.5 MB download</li><li>No account, no cloud</li>
+        <li>REST · GraphQL · SSE · WebSocket</li><li>Terminal or browser</li><li>No account, no cloud</li>
       </ul>
     </div>
 
@@ -260,6 +263,70 @@ pre,code,kbd,.term pre,.panel pre{font-variant-ligatures:none;font-feature-setti
         <p><code>term-rest-client run "Shop API"</code> sends saved requests, runs their tests and exits non-zero on failure. <code>-v</code> prints headers like <code>curl -v</code>, and <code>-set</code> overrides a variable for one run.</p></article>
       <article class="card rv"><h3><b style="background:rgba(166,173,200,.14);color:var(--mute)">◐</b>Small comforts</h3>
         <p>Unsaved edits survive a restart. Response sections fold and stay folded. Four themes, including a light one. Timeouts, redirects and TLS checks are all settings.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="apis" aria-labelledby="ah">
+  <div class="wrap">
+    <p class="kicker">API types</p>
+    <h2 id="ah">REST, GraphQL, streams and WebSockets.</h2>
+    <p class="intro">Pick the type next to the URL. The same environments, scripts, tests and history work for all of them, and so does <code>run</code> on the command line.</p>
+    <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr))">
+      <article class="card rv"><h3><b style="background:rgba(166,227,161,.16);color:var(--green)">{}</b>REST</h3>
+        <p>GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS. JSON, text, XML and form bodies, Basic, Bearer and API key auth, and <code>{{variables}}</code> anywhere.</p></article>
+      <article class="card rv"><h3><b style="background:rgba(203,166,247,.16);color:var(--mauve)">◇</b>GraphQL</h3>
+        <p>Query and Variables editors side by side. <code>Ctrl+T</code> reads the server's schema: browse types and arguments, and <code>i</code> writes the query for any field, nested ones included.</p></article>
+      <article class="card rv"><h3><b style="background:rgba(250,179,135,.16);color:var(--peach)">≋</b>Streaming</h3>
+        <p>Server-Sent Events and NDJSON show up live, each event with its time. <code>Esc</code> stops and keeps what arrived, and tests can check <code>events &gt;= 3</code> or <code>event[-1].json.done == true</code>.</p></article>
+      <article class="card rv"><h3><b style="background:rgba(148,226,213,.16);color:var(--teal)">⇅</b>WebSocket</h3>
+        <p>Connect with your headers and auth, send plain text or JSON, and watch a timed log of what goes out and comes back. Tests run on the received messages when it closes.</p></article>
+    </div>
+    <div class="gal" style="margin-top:28px">
+      <figure class="rv"><a href="assets/term-rest-client/graphql-schema.webp"><img loading="lazy" src="assets/term-rest-client/graphql-schema.webp" width="1600" height="910" alt="The GraphQL schema browser: a tree of root fields with country opened to show its fields, and a details pane with the field's arguments, its type's fields and the query it would write."></a>
+        <figcaption><b>GraphQL schema.</b> Browse the types, then <code>i</code> writes the query.</figcaption></figure>
+      <figure class="rv"><a href="assets/term-rest-client/graphql.webp"><img loading="lazy" src="assets/term-rest-client/graphql.webp" width="1600" height="910" alt="A GraphQL request with the query and its JSON variables side by side, and the response data on the right."></a>
+        <figcaption><b>GraphQL.</b> Query and variables side by side, sent as JSON.</figcaption></figure>
+      <figure class="rv"><a href="assets/term-rest-client/streaming.webp"><img loading="lazy" src="assets/term-rest-client/streaming.webp" width="1600" height="910" alt="A Server-Sent Events response arriving live, each event listed with its arrival time, type and JSON data."></a>
+        <figcaption><b>Server-Sent Events.</b> Each event as it arrives, with its time.</figcaption></figure>
+      <figure class="rv"><a href="assets/term-rest-client/websocket.webp"><img loading="lazy" src="assets/term-rest-client/websocket.webp" width="1600" height="910" alt="A WebSocket request in the Message tab, connected, with a log of sent and received messages and their timestamps."></a>
+        <figcaption><b>WebSocket.</b> A Message tab, and a log of what went out and came back.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="s" id="gui" aria-labelledby="gh">
+  <div class="wrap">
+    <p class="kicker">Browser UI</p>
+    <h2 id="gh">Prefer a mouse? Add <span style="font-family:var(--mono);letter-spacing:-.04em;white-space:nowrap">-gui</span>.</h2>
+    <p class="intro"><code>term-rest-client -gui</code> opens the same workspace in your browser. The page is built into the binary, nothing is loaded from the internet, and every request is still sent by term-rest-client itself, so there are <strong>no CORS errors</strong> and streams, WebSockets, scripts and tests work exactly as in the terminal.</p>
+    <div class="frame rv"><a href="assets/term-rest-client/gui.webp"><img loading="lazy" src="assets/term-rest-client/gui.webp" width="1440" height="860" alt="The browser UI in dark mode: a collections tree, request tabs, a GET request with its tests, and a Server-Sent Events stream arriving live on the right."></a></div>
+    <p class="cap">The browser UI following a Server-Sent Events stream. Real capture from the app.</p>
+    <div class="two" style="margin-top:32px">
+      <div class="term rv" role="img" aria-label="Terminal output of term-rest-client -gui listing the local and network links.">
+        <div class="bar"><i></i><i></i><i></i><span>~ · zsh</span></div>
+        <pre aria-hidden="true" style="min-height:0;white-space:pre;overflow-x:auto"><span class="p">$</span> <span class="c">term-rest-client -gui -lan</span>
+
+  term-rest-client GUI is running
+
+  <span class="mu">Local:  </span> http://localhost:51234/?t=6f1c…
+           http://127.0.0.1:51234/?t=6f1c…
+  <span class="mu">Network:</span> http://192.168.1.20:51234/?t=6f1c…
+
+  <span class="mu">The link carries a one-time key; keep it private.</span></pre>
+      </div>
+      <div class="grid" style="grid-template-columns:1fr">
+        <article class="card rv"><h3><b style="background:rgba(137,180,250,.16);color:var(--blue)">⌘</b>Everything, with a mouse</h3>
+          <p>Request tabs, the collections tree, environments, history, a JSON tree view, a GraphQL schema browser, a WebSocket composer, code snippets, cURL and Postman import (drop a file on the window) and a command palette on <code>Ctrl+K</code>. Light and dark.</p></article>
+        <article class="card rv"><h3><b style="background:rgba(249,226,175,.16);color:var(--yellow)">⚿</b>Local by default</h3>
+          <p>It picks a free port on 127.0.0.1, or the one you ask for with <code>-port</code>, falling back when it's taken. <code>-lan</code> lists a link per network address. A per-run key and Origin checks keep other sites from using it.</p></article>
+      </div>
+    </div>
+    <div class="gal" style="margin-top:28px">
+      <figure class="rv"><a href="assets/term-rest-client/gui-light.webp"><img loading="lazy" src="assets/term-rest-client/gui-light.webp" width="1440" height="860" alt="The browser UI in light mode with a GraphQL query and variables, and the response shown as a collapsible JSON tree."></a>
+        <figcaption><b>Light mode.</b> A GraphQL response as a collapsible tree.</figcaption></figure>
+      <figure class="rv"><a href="assets/term-rest-client/gui-websocket.webp"><img loading="lazy" src="assets/term-rest-client/gui-websocket.webp" width="1440" height="860" alt="The browser UI connected to a WebSocket, with sent and received messages listed and a composer at the bottom."></a>
+        <figcaption><b>WebSocket.</b> Type in the composer, watch the log.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -478,13 +545,15 @@ func main() {
       <li><kbd>Ctrl+S</kbd>Save</li>
       <li><kbd>Ctrl+N</kbd>New request</li>
       <li><kbd>Ctrl+G</kbd>Show as code</li>
+      <li><kbd>Ctrl+T</kbd>GraphQL schema</li>
+      <li><kbd>c</kbd> / <kbd>y</kbd>Copy the response</li>
       <li><kbd>Ctrl+O</kbd>Import cURL or Postman</li>
       <li><kbd>Alt+E</kbd>Next environment</li>
       <li><kbd>Alt+H</kbd>History</li>
       <li><kbd>Alt+1</kbd>…<kbd>8</kbd>Request tabs</li>
       <li><kbd>y</kbd>Copy selected as code</li>
       <li><kbd>m</kbd>Move request or folder</li>
-      <li><kbd>Esc</kbd>Cancel a running request</li>
+      <li><kbd>Esc</kbd>Stop a request, stream or socket</li>
       <li><kbd>Ctrl+Q</kbd>Quit</li>
     </ul>
   </div>
