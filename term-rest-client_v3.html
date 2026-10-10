@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>term-rest-client, a REST client for your terminal</title>
+<meta name="description" content="term-rest-client is a REST client for your terminal. REST, GraphQL, streams and WebSockets in a keyboard-driven terminal UI, with a browser UI too. Collections, environments, history, tests and code snippets. One static Go binary, MIT licensed, for macOS, Linux and Windows.">
+<meta name="theme-color" content="#e9e6df">
+<meta property="og:title" content="term-rest-client, a REST client for your terminal">
+<meta property="og:description" content="REST, GraphQL, streams and WebSockets in a keyboard-driven terminal UI, with a browser UI too. Collections, environments, history, tests and code snippets. One static Go binary.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="term-rest-client, a REST client for your terminal">
+<meta name="twitter:description" content="REST, GraphQL, streams and WebSockets in a keyboard-driven terminal UI, with a browser UI too. Collections, environments, history, tests and code snippets. One static Go binary.">
+<meta name="twitter:image" content="https://abyabyss.github.io/assets/term-rest-client/main.webp">
+<meta property="og:image" content="https://abyabyss.github.io/assets/term-rest-client/main.webp">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ff5a1f'/%3E%3Cpath d='M8 4h16v21l-2-2-2 2-2-2-2 2-2-2-2 2-2-2-2 2z' fill='%23fffdf7' stroke='%2314151a' stroke-width='1.6'/%3E%3Cpath d='M11 10h10M11 14h7M11 18h9' stroke='%2314151a' stroke-width='2'/%3E%3Ccircle cx='22' cy='17.5' r='3' fill='%232f4bff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Courier+Prime:wght@400;700&family=Caveat:wght@500;700&family=Doto:wght@400;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js')</script>
+<style>
+/* THE LIGHT BENCH: a warm workbench, an off-white studio printer, paper receipts, tape and pen */
+:root{
+  --bench:#e9e6df;--bench2:#dcd8ce;--kraft:#d3b98f;--sky:#dde4ff;--peach:#ffe9db;
+  --paper:#fffdf7;--paper2:#f4f0e4;--shade:#e3ddcc;
+  --plastic:#f6f4ee;--plastic2:#e7e4db;
+  --ink:#14151a;--ink2:#3a3c46;--ink3:#585b66;
+  --or:#ff5a1f;--or2:#ff7b44;--ord:#a8330a;
+  --co:#2f4bff;--link:#2236d6;--pen:#2f4bff;--carbon:#1b2aa8;
+  --mint:#6fe3b8;--mintd:#1f9f74;
+  --green:#12803f;--red:#d92d20;--redink:#b42318;
+  --disp:'Big Shoulders Display','Archivo Narrow','Arial Narrow','Liberation Sans Narrow','Helvetica Neue',Arial,sans-serif;
+  --mono:'Courier Prime','Courier New',Courier,'Liberation Mono',ui-monospace,monospace;
+  --dot:'Doto','DotGothic16',ui-monospace,'Courier New',monospace;
+  --eng:'Silkscreen','DotGothic16',ui-monospace,'Courier New',monospace;
+  --script:'Caveat','Segoe Print','Bradley Hand','Comic Sans MS',cursive;
+  --gut:clamp(16px,4vw,56px);
+  --sh:3px 4px 0 rgba(48,40,24,.13),0 14px 26px -10px rgba(48,40,24,.32);
+  --sh2:5px 6px 0 rgba(48,40,24,.14),0 22px 40px -14px rgba(48,40,24,.38);
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .26 0 0 0 0 .18 0 0 0 .4 -.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --worn:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.5' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -8 5.1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+  --arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 50' fill='none' stroke='%232f4bff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 42C18 8 52 2 70 22M58 13l13 9-14 6'/%3E%3C/svg%3E");
+  --ringimg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 60' preserveAspectRatio='none' fill='none' stroke='%232f4bff' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M30 9C58-1 104 3 114 26S86 58 40 54 2 42 8 22 60 2 100 7' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+  --waveimg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 8' fill='none' stroke='%232f4bff' stroke-width='2.6' stroke-linecap='round'%3E%3Cpath d='M0 4q6-5 12 0t12 0'/%3E%3C/svg%3E");
+  --clip-steel:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60' fill='none' stroke='%238a90a3' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M15 18v31a7 7 0 0 1-14 0V10a5.5 5.5 0 0 1 11 0v33a3 3 0 0 1-6 0V16'/%3E%3C/svg%3E");
+  --clip-or:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60' fill='none' stroke='%23ff5a1f' stroke-width='2.8' stroke-linecap='round'%3E%3Cpath d='M15 18v31a7 7 0 0 1-14 0V10a5.5 5.5 0 0 1 11 0v33a3 3 0 0 1-6 0V16'/%3E%3C/svg%3E");
+  --clip-co:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 60' fill='none' stroke='%232f4bff' stroke-width='2.8' stroke-linecap='round'%3E%3Cpath d='M15 18v31a7 7 0 0 1-14 0V10a5.5 5.5 0 0 1 11 0v33a3 3 0 0 1-6 0V16'/%3E%3C/svg%3E");
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px;-webkit-text-size-adjust:100%}
+body{margin:0;color:var(--ink);font:400 16px/1.62 var(--mono);overflow-x:clip;
+  background:radial-gradient(circle,rgba(20,21,26,.13) 1px,transparent 1.4px) 0 0/22px 22px,var(--bench)}
+img{max-width:100%;height:auto;display:block}
+a{color:var(--link);text-underline-offset:3px}
+code,pre,kbd,samp{font-family:var(--mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+code{background:rgba(20,21,26,.07);padding:1px 6px;border-radius:3px;font-size:.92em;color:var(--ink)}
+pre code{background:none;padding:0;font-size:inherit}
+:focus-visible{outline:3px solid var(--co);outline-offset:3px;border-radius:3px}
+.vh{position:absolute!important;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-999px;top:8px;background:var(--or);color:var(--ink);padding:12px 16px;font-weight:700;z-index:300}
+.skip:focus{left:8px}
+.wrap{max-width:1280px;margin:0 auto;padding:0 var(--gut)}
+.wrap>*,.grid2>*{min-width:0}
+button{font:inherit;color:inherit}
+mark{position:relative;display:inline-block;background:none;color:var(--ink);isolation:isolate;white-space:nowrap;line-height:inherit;padding:0 .04em}
+mark::before{content:"";position:absolute;z-index:-1;inset:.06em -.1em -.02em;background:var(--or);transform:skew(-4deg) rotate(-.9deg);border-radius:2px 8px 3px 7px;transform-origin:0 50%}
+.js .rv mark::before{transform:skew(-4deg) rotate(-.9deg) scaleX(0);transition:transform .5s steps(8) .25s}
+.js .rv.in mark::before{transform:skew(-4deg) rotate(-.9deg) scaleX(1)}
+
+/* ---------- bands, rhythm ---------- */
+.kraft,.sky,.peach{position:relative}
+.kraft{--ink2:#2a2b33;--ink3:#3b3d47;--link:#1a2aa8;background:repeating-linear-gradient(93deg,rgba(110,80,40,.07) 0 2px,transparent 2px 9px),var(--grain),var(--kraft)}
+.kraft::before,.kraft::after{content:"";position:absolute;left:0;right:0;height:12px;pointer-events:none;z-index:1}
+.kraft::before{bottom:calc(100% - 1px);background:conic-gradient(from 135deg at top,var(--kraft) 90deg,transparent 0) 0 0/24px 100% repeat-x}
+.kraft::after{top:calc(100% - 1px);background:conic-gradient(from -45deg at bottom,var(--kraft) 90deg,transparent 0) 0 0/24px 100% repeat-x}
+.sky{background:var(--sky);box-shadow:inset 0 2px 0 rgba(20,21,26,.9),inset 0 -2px 0 rgba(20,21,26,.9)}
+.peach{background:var(--peach);box-shadow:inset 0 2px 0 rgba(20,21,26,.9),inset 0 -2px 0 rgba(20,21,26,.9)}
+.sky,.peach{--hole:var(--sky)}
+.peach{--hole:var(--peach)}
+
+/* ---------- shared paper pieces ---------- */
+.paper{position:relative;color:var(--ink);background:linear-gradient(90deg,rgba(90,110,140,.1),transparent 4%,transparent 96%,rgba(90,110,140,.1)),var(--grain),var(--paper);box-shadow:var(--sh)}
+.torn::before,.torn::after{content:"";position:absolute;left:0;right:0;height:9px;pointer-events:none}
+.torn::before{bottom:100%;background:conic-gradient(from 135deg at top,var(--paper) 90deg,transparent 0) 0 0/18px 100% repeat-x}
+.torn::after{top:100%;background:conic-gradient(from -45deg at bottom,var(--paper) 90deg,transparent 0) 0 0/18px 100% repeat-x}
+.perf{height:6px;margin:18px 0;background:radial-gradient(circle,var(--ink3) 1.4px,transparent 1.8px) 0 50%/10px 6px repeat-x;opacity:.7}
+.dash{border:0;border-top:2px dashed rgba(20,21,26,.55);margin:10px 0}
+.kick{display:inline-flex;align-items:center;gap:.9em;margin:0 0 16px;font:700 12px/1 var(--eng);letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
+.kick b{padding:.6em .8em .5em;background:var(--or);color:var(--ink);letter-spacing:.1em;border:2px solid var(--ink);border-radius:5px;box-shadow:2px 2px 0 var(--ink);font-weight:700;transform:rotate(-2deg)}
+h2{margin:0 0 .3em;font:900 clamp(46px,7vw,108px)/.88 var(--disp);text-transform:uppercase;letter-spacing:.004em;color:var(--ink)}
+h3{margin:0;font:800 30px/1 var(--disp);text-transform:uppercase;letter-spacing:.02em}
+.intro{max-width:45em;margin:0 0 1em;font-size:17px;color:var(--ink2)}
+.sec{position:relative;padding:clamp(60px,8vw,120px) 0}
+.sh{max-width:980px;margin-bottom:clamp(32px,5vw,64px)}
+.pen{position:absolute;font:700 clamp(22px,2.2vw,30px)/1 var(--script);color:var(--pen);transform:rotate(var(--r,-4deg));pointer-events:none;white-space:nowrap}
+.bc{display:block;width:100%;height:46px;color:var(--ink)}
+.bc:empty{background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 5px,var(--ink) 5px 6px,transparent 6px 10px,var(--ink) 10px 13px,transparent 13px 15px)}
+.bcn{display:block;margin-top:3px;font:400 11px/1 var(--mono);letter-spacing:.38em;color:var(--ink3);text-align:center}
+
+/* ---------- scrapbook bits ---------- */
+.tape{position:absolute;z-index:4;width:92px;height:28px;background:repeating-linear-gradient(135deg,rgba(255,90,31,.88) 0 7px,rgba(255,138,92,.84) 7px 14px);clip-path:polygon(0 8%,4% 0,8% 10%,12% 0,100% 0,96% 12%,100% 25%,97% 38%,100% 52%,96% 64%,100% 80%,97% 100%,0 100%,3% 80%,0 62%,3% 42%,0 24%);transform:rotate(var(--tr,-3deg));pointer-events:none}
+.tape.c{background:radial-gradient(circle,rgba(255,255,255,.75) 2px,transparent 2.6px) 0 0/10px 10px,rgba(47,75,255,.84)}
+.tape.m{background:linear-gradient(rgba(255,255,255,.28),transparent 40%),rgba(111,227,184,.9)}
+.tape.demo{left:-20px;top:6px;width:150px;height:32px;--tr:-5deg;z-index:5}
+.tape.demo b{display:block;font:700 22px/32px var(--script);text-align:center;color:var(--ink)}
+.tape.k{background:repeating-linear-gradient(90deg,rgba(47,75,255,.84) 0 6px,rgba(255,255,255,.55) 6px 9px)}
+.js .rv .tape{opacity:0}
+.js .rv.in .tape{animation:slap .32s steps(5) .3s both}
+@keyframes slap{0%{opacity:0;transform:rotate(calc(var(--tr,-3deg) - 14deg)) translateY(-30px) scale(1.3)}55%{opacity:1;transform:rotate(var(--tr,-3deg)) translateY(3px) scale(.95)}100%{opacity:1;transform:rotate(var(--tr,-3deg))}}
+.clip{position:absolute;z-index:4;width:20px;height:58px;background:var(--clip-steel) center/contain no-repeat;transform:rotate(var(--r,8deg));pointer-events:none;filter:drop-shadow(1px 2px 0 rgba(20,21,26,.16))}
+.clip.o{background-image:var(--clip-or)}.clip.b{background-image:var(--clip-co)}
+.stk{position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;flex:none;width:var(--s,96px);height:var(--s,96px);border-radius:50%;background:var(--c,var(--or));color:var(--tc,var(--ink));text-align:center;text-transform:uppercase;transform:rotate(var(--r,-8deg));box-shadow:0 0 0 4px #fff,3px 5px 0 4px rgba(48,40,24,.2),0 14px 20px -4px rgba(48,40,24,.34);transition:transform .2s cubic-bezier(.3,1.5,.5,1)}
+.stk::before{content:"";position:absolute;inset:6px;border-radius:50%;border:2px dashed currentColor;opacity:.55}
+.stk b{font:900 40px/.85 var(--disp);letter-spacing:.02em}
+.stk small{margin-top:5px;font:700 9.5px/1 var(--eng);letter-spacing:.1em}
+.stk:hover{transform:rotate(0) scale(1.06)}
+.stickers{display:flex;align-items:center;justify-content:center;padding:6px 0;margin:0 0 26px}
+.stickers .stk+.stk{margin-left:-6px}
+@media(min-width:1180px){.stickers{position:absolute;z-index:6;right:-46px;top:92px;flex-direction:column;margin:0;padding:0;pointer-events:none}.stickers .stk+.stk{margin:-6px 0 0}}
+.js .stk{animation:settle .5s steps(6) calc(.5s + var(--i,0)*140ms) both}
+@keyframes settle{0%{opacity:0;transform:translateY(-44px) scale(1.35) rotate(calc(var(--r,-8deg) + 16deg))}55%{opacity:1;transform:translateY(5px) scale(.94) rotate(var(--r,-8deg))}100%{opacity:1;transform:rotate(var(--r,-8deg))}}
+.stamp{display:inline-block;padding:.08em .4em .02em;border:3px solid currentColor;border-radius:7px;font:900 34px/1 var(--disp);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;transform:rotate(var(--r,-7deg));box-shadow:inset 0 0 0 2px var(--paper),inset 0 0 0 4px currentColor;mix-blend-mode:multiply;-webkit-mask:var(--worn);mask:var(--worn);opacity:.94}
+.stamp.ok{color:var(--green)}.stamp.bad{color:var(--red)}.stamp.run,.stamp.blue{color:var(--co)}.stamp.big{font-size:46px}
+.stamp.abs{position:absolute;z-index:5;pointer-events:none;font-size:28px}
+.scrap{position:relative;padding:18px 20px 16px 58px;background:linear-gradient(90deg,transparent 44px,rgba(255,90,31,.7) 44px 46px,transparent 46px),radial-gradient(circle,var(--holec,var(--bench)) 6px,transparent 6.6px) 14px 14px/28px 52px repeat-y,repeating-linear-gradient(transparent 0 29px,rgba(47,75,255,.22) 29px 30px) 0 10px,var(--paper);box-shadow:var(--sh);clip-path:polygon(0 0,100% 1%,98% 12%,100% 24%,98% 38%,100% 52%,97.5% 66%,100% 80%,98% 100%,0 100%);transform:rotate(var(--r,2deg))}
+.scrap .pen{position:static;display:block;white-space:normal;transform:none;font-size:27px;line-height:30px}
+.arrow{position:absolute;width:80px;height:50px;background:var(--arrow) center/contain no-repeat;pointer-events:none}
+.ring{position:relative;display:inline-block;padding:0 .4em}
+.ring::after{content:"";position:absolute;inset:-.34em -.2em -.28em;background:var(--ringimg) center/100% 100% no-repeat;pointer-events:none}
+.js .rv .ring::after,.js .hero .ring::after{clip-path:inset(0 100% 0 0)}
+.js .rv.in .ring::after,.js .hero .ring::after{animation:draw .55s steps(9) .5s both}
+@keyframes draw{to{clip-path:inset(0)}}
+.uline{background:var(--waveimg) 0 100%/24px 8px repeat-x;padding-bottom:6px}
+.photo-c{position:relative}
+.lbb{position:relative;display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
+.lbb::before{content:"";position:absolute;inset:-3px;z-index:2;pointer-events:none;background:
+  linear-gradient(135deg,var(--pc,var(--ink)) 50%,transparent 50%) 0 0/30px 30px no-repeat,
+  linear-gradient(225deg,var(--pc,var(--ink)) 50%,transparent 50%) 100% 0/30px 30px no-repeat,
+  linear-gradient(45deg,var(--pc,var(--ink)) 50%,transparent 50%) 0 100%/30px 30px no-repeat,
+  linear-gradient(315deg,var(--pc,var(--ink)) 50%,transparent 50%) 100% 100%/30px 30px no-repeat}
+.lbb img{transition:transform .2s}
+.lbb:focus-visible::after{content:"";position:absolute;inset:-6px;border:3px solid var(--co);pointer-events:none;z-index:3}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:0;z-index:100;background:rgba(233,230,223,.93);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:0 2px 0 var(--ink)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px}
+.brand{display:flex;align-items:center;gap:11px;font:700 17px/1 var(--mono);text-decoration:none;letter-spacing:-.01em;white-space:nowrap;color:var(--ink)}
+.brand svg{width:28px;height:28px;flex:none}
+.nav{display:flex;align-items:center;gap:clamp(12px,2vw,28px)}
+.nav a{font-size:15px;color:var(--ink);text-decoration:none;min-height:44px;display:inline-flex;align-items:center;border-bottom:2px solid transparent}
+.nav a:hover{border-bottom-color:var(--or)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border:2px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink);font:800 20px/1 var(--disp);letter-spacing:.07em;text-transform:uppercase;text-decoration:none;cursor:pointer;box-shadow:4px 4px 0 var(--ink);transition:transform .12s steps(2),box-shadow .12s steps(2),background .12s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.hl{background:var(--or)}
+.btn.hl:hover{background:var(--or2)}
+.btn svg{width:18px;height:18px;flex:none}
+.nav .btn{min-height:44px;padding:0 16px;font-size:17px;box-shadow:3px 3px 0 var(--ink)}
+.nav a.btn:hover{border-bottom-color:var(--ink)}
+@media(max-width:820px){.nav .hide-s{display:none}}
+@media(max-width:520px){.nav .gh{display:none}.brand{font-size:15px}}
+
+/* ---------- hero ---------- */
+.hero{padding:clamp(28px,4vw,56px) 0 clamp(56px,7vw,100px);position:relative}
+.hero-grid{display:grid;gap:clamp(36px,5vw,72px);grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:1180px){.hero-grid{grid-template-columns:minmax(0,1fr) minmax(0,560px)}}
+.badge{display:inline-flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:8px 0 22px;padding:9px 16px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);box-shadow:3px 3px 0 var(--ink);font:700 13px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+.badge i{width:11px;height:11px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 2px var(--ink),0 0 8px 2px rgba(61,227,168,.6)}
+.badge b{color:var(--ink)}
+.u{margin:0 0 16px;font:700 14px/1 var(--eng);letter-spacing:.16em;text-transform:uppercase;color:var(--link)}
+h1{margin:0 0 24px;font:900 clamp(50px,13.5vw,70px)/.9 var(--disp);text-transform:uppercase;letter-spacing:.002em;color:var(--ink)}
+@media(min-width:700px){h1{font-size:clamp(70px,10vw,124px)}}
+@media(min-width:1180px){h1{font-size:clamp(70px,6.9vw,100px)}}
+h1 .l{display:block}
+.nb{white-space:nowrap}
+@media(max-width:600px){.nb,.nb mark{white-space:normal}h1,h2{overflow-wrap:anywhere}}
+.cutline{display:flex;align-items:center;gap:14px;max-width:1168px;margin:0 auto;padding:0 var(--gut);color:var(--ink3)}
+.cutline svg{width:30px;height:22px;flex:none;transform:rotate(-8deg)}
+.cutline i{flex:1;border-top:2px dashed var(--ink3);opacity:.7}
+.cutline span{font:700 24px/1 var(--script);color:var(--pen)}
+.lead{max-width:34em;margin:0 0 30px;font-size:clamp(16px,1.35vw,18px);color:var(--ink2)}
+.lead strong{color:var(--ink)}
+.cta{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:30px}
+.facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin:0;padding:0;list-style:none;font:700 13px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.facts li::before{content:"* ";color:var(--ord)}
+.hero-extras{display:flex;flex-wrap:wrap;align-items:center;gap:30px 52px;margin-top:44px}
+.note-slip{position:relative;display:inline-block;max-width:300px;padding:30px 20px 10px;transform:rotate(-2deg);background:linear-gradient(var(--or),var(--or)) 0 27px/100% 2px no-repeat,repeating-linear-gradient(transparent 0 25px,rgba(47,75,255,.24) 25px 26px) 0 33px,var(--paper);box-shadow:var(--sh2)}
+.note-slip .pen{position:static;display:block;white-space:normal;transform:none;font-size:25px;line-height:26px;padding-bottom:6px}
+.note-slip .push{position:absolute;left:50%;top:-9px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8fa0ff,var(--co) 55%,#1a2aa8);box-shadow:2px 4px 0 rgba(20,21,26,.25)}
+.note-slip .arrow{right:-78px;top:-6px;transform:rotate(-8deg)}
+@media(max-width:1179px){.note-slip .arrow{display:none}}
+
+/* ---------- printer: an off-white studio object ---------- */
+.printer{position:relative;width:100%;max-width:560px;margin-inline:auto}
+.tray{position:relative;height:clamp(360px,50vh,450px);overflow-x:hidden;overflow-y:auto;display:flex;flex-direction:column;padding:0 14px;scrollbar-width:thin;scrollbar-color:rgba(20,21,26,.35) transparent;margin-bottom:-12px;-webkit-mask-image:linear-gradient(transparent 0,#000 34px);mask-image:linear-gradient(transparent 0,#000 34px)}
+.tray:focus-visible{outline-offset:-3px}
+.stack{margin-top:auto;display:flex;flex-direction:column;gap:30px;padding-top:26px;will-change:transform}
+.lip{position:relative;z-index:3;height:36px;border:1.5px solid rgba(20,21,26,.9);border-bottom:0;border-radius:22px 22px 0 0;background:linear-gradient(#fcfbf8,var(--plastic))}
+.lip::after{content:"";position:absolute;left:6%;right:6%;top:-5px;height:12px;border-radius:6px;background:var(--ink);box-shadow:inset 0 3px 3px #000}
+.pbody{position:relative;z-index:2;padding:20px clamp(16px,3vw,28px) 22px;border:1.5px solid rgba(20,21,26,.9);border-top:0;border-radius:0 0 28px 28px;background:linear-gradient(var(--plastic),var(--plastic2));box-shadow:inset 0 -3px 0 rgba(20,21,26,.08),6px 8px 0 -1px rgba(48,40,24,.15),0 30px 44px -16px rgba(48,40,24,.45)}
+.pbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.pbar .m{display:flex;align-items:center;gap:10px;font:700 12px/1 var(--eng);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.led{width:13px;height:13px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 2px rgba(20,21,26,.85),0 0 10px 2px rgba(61,227,168,.75);transition:background .1s}
+.led.busy{background:var(--or);box-shadow:0 0 0 2px rgba(20,21,26,.85),0 0 12px 3px rgba(255,90,31,.8)}
+.grille{flex:1;max-width:120px;height:30px;border-radius:15px;background:radial-gradient(circle,rgba(20,21,26,.62) 1.9px,transparent 2.4px) 0 0/9px 9px;opacity:.85}
+.tearbtn{min-height:44px;padding:0 18px;border:2px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink);font:800 17px/1 var(--disp);letter-spacing:.09em;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 0 var(--ink);transition:transform .08s steps(2),box-shadow .08s steps(2)}
+.tearbtn:hover:not(:disabled){background:var(--or)}
+.tearbtn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.tearbtn:disabled{opacity:.5;cursor:default}
+.eng{display:flex;align-items:center;gap:8px;margin:14px 0 7px;font:700 10px/1 var(--eng);letter-spacing:.2em;text-transform:uppercase;color:var(--ink3)}
+.eng::after{content:"";flex:1;border-top:1.5px solid rgba(20,21,26,.22)}
+.prompt{display:flex;align-items:stretch;gap:16px}
+.screen{position:relative;flex:1;min-width:0;display:flex;align-items:center;background:var(--ink);border-radius:12px;box-shadow:inset 0 3px 8px #000,0 0 0 3px var(--plastic2),0 0 0 4.5px rgba(20,21,26,.85)}
+.screen .ps{display:flex;align-items:center;padding:0 2px 0 14px;color:var(--mint);font:700 17px/1 var(--dot)}
+.screen input{flex:1;min-width:0;min-height:56px;padding:0 10px;border:0;background:none;color:#ffa275;font:700 17px/1 var(--dot);caret-color:var(--mint);outline-offset:-3px;text-overflow:ellipsis}
+.screen input::placeholder{color:#a3a6b1}
+.prompt button{flex:none;width:100px;min-height:60px;border:2px solid var(--ink);border-radius:16px;background:linear-gradient(var(--or2),var(--or));color:var(--ink);font:900 24px/1 var(--disp);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 6px 0 var(--ord),0 6px 0 2px var(--ink),inset 0 2px 0 rgba(255,255,255,.4);transition:transform .08s steps(2),box-shadow .08s steps(2)}
+.prompt button:hover{background:var(--or2)}
+.prompt button:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ord),0 1px 0 2px var(--ink),inset 0 2px 0 rgba(255,255,255,.4)}
+.hint{min-height:22px;margin:12px 2px 4px;font-size:12.5px;color:var(--ink2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:44px;padding:0 14px;border:1.5px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);font:700 13px/1 var(--mono);cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:2px 2px 0 var(--ink);transition:transform .08s steps(2),box-shadow .08s steps(2),background .1s}
+.chip:hover{background:var(--or)}
+.chip:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+.chip i{width:8px;height:8px;border-radius:50%;background:var(--co)}
+.pnote{margin:16px 2px 0;font-size:12.5px;color:var(--ink2)}
+.pnote b{color:var(--ink)}
+.ns{margin:16px 0 0;padding:14px 16px;border:1.5px dashed var(--ink3);color:var(--ink2);font-size:14px}
+
+/* ---------- receipts ---------- */
+.rcpt{position:relative;flex:none;width:min(100%,400px);margin:0 auto;padding:18px 20px 12px;font:400 13px/1.55 var(--mono);color:var(--ink);background:linear-gradient(90deg,rgba(90,110,140,.12),transparent 6%,transparent 94%,rgba(90,110,140,.12)),var(--grain),var(--paper);box-shadow:3px 3px 0 rgba(48,40,24,.14),0 0 0 1px rgba(20,21,26,.22)}
+.rcpt.wide{width:min(100%,560px)}
+.rcpt.cut{margin-bottom:9px}
+.rcpt.cut::after{content:"";position:absolute;left:0;right:0;top:100%;height:9px;background:conic-gradient(from -45deg at bottom,var(--paper) 90deg,transparent 0) 0 0/18px 100% repeat-x}
+.rcpt>*{animation:heat .55s steps(4) both}
+@keyframes heat{from{opacity:.25}}
+.rcpt .rh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:800 24px/1 var(--disp);letter-spacing:.06em;text-transform:uppercase}
+.rcpt .rh span{font:700 11px/1 var(--mono);letter-spacing:.08em;color:var(--ink3)}
+.rcpt .cmd{margin:8px 0 2px;overflow-wrap:anywhere;font-size:12.5px;color:var(--ink2)}
+.rcpt .cmd s{text-decoration:none;color:var(--ink);font-weight:700;margin-right:.6ch}
+.rcpt .env{margin:2px 0}
+.rcpt .env b{background:var(--or);padding:0 4px;font-weight:700}
+.rcpt .rq{margin-top:7px;font-weight:700}
+.rcpt .rq i{font-style:normal;display:inline-block;min-width:5.2ch}
+.rcpt .st{padding-left:2ch;color:var(--ink2);white-space:pre-wrap}
+.rcpt .st b{color:var(--ink);font-weight:700}
+.rcpt .st b.hot{background:var(--or);padding:0 4px}
+.rcpt .t{padding-left:2ch;overflow-wrap:anywhere;white-space:pre-wrap}
+.rcpt .t s{text-decoration:none;font-weight:700;display:inline-block;width:2ch}
+.rcpt .t.x{font-weight:700;background:linear-gradient(transparent 12%,rgba(255,90,31,.55) 12% 92%,transparent 92%)}
+.rcpt .raw{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12.5px;min-height:1.55em}
+.rcpt .sum{display:flex;gap:6px;align-items:baseline;margin:1px 0;text-transform:uppercase;letter-spacing:.04em;font-size:12.5px}
+.rcpt .sum i{flex:1;border-bottom:2px dotted rgba(20,21,26,.45);transform:translateY(-3px)}
+.rcpt .sum.tot{margin-top:6px;font:900 30px/1 var(--disp);letter-spacing:.05em}
+.rcpt .sum.tot i{border-bottom-width:3px}
+.rcpt .sum.bad span:last-child{background:var(--or);padding:0 5px;font-weight:700}
+.rcpt .stamps{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:center;justify-content:center;margin:16px 0 8px;min-height:70px}
+.rcpt .note{margin:6px 0 8px;font-size:11.5px;line-height:1.45;color:var(--ink2)}
+.rcpt .note.warn{padding:6px 8px;border:1.5px solid var(--ink);background:var(--peach);color:var(--ink);font-weight:700}
+.rcpt .bcw{margin:8px 0 4px}
+.rcpt .tab{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px -20px 0;padding:12px 20px 4px;border-top:2px dotted rgba(20,21,26,.5)}
+.rcpt .tab span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.cp,.copy{min-height:44px;padding:0 14px;border:2px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);font:800 17px/1 var(--disp);letter-spacing:.09em;text-transform:uppercase;cursor:pointer;box-shadow:2px 2px 0 var(--ink)}
+.cp:hover,.copy:hover{background:var(--or)}
+.cp:active,.copy:active{transform:translate(2px,2px);box-shadow:0 0 0 var(--ink)}
+.cp.ok,.copy.ok{background:var(--mint);color:var(--ink)}
+.stamp.thunk{animation:thunk .34s steps(6) both}
+@keyframes thunk{0%{transform:scale(2.4) rotate(calc(var(--r) - 14deg));opacity:0}55%{opacity:1}100%{transform:scale(1) rotate(var(--r))}}
+.stack.tearing .rcpt{animation:tearaway .5s steps(7) both}
+@keyframes tearaway{to{transform:translate(var(--dx,30px),-140%) rotate(var(--dr,8deg));opacity:0}}
+
+/* ---------- main shot ---------- */
+.mainshot{padding:0 0 clamp(70px,9vw,140px)}
+.mainshot .wrap{position:relative}
+.print{position:relative;margin:0;padding:clamp(10px,1.6vw,20px) clamp(10px,1.6vw,20px) clamp(14px,2vw,26px);background:var(--grain),var(--paper);box-shadow:var(--sh2);color:var(--ink)}
+.print img{width:100%;box-shadow:0 0 0 1px rgba(20,21,26,.5)}
+.print .cap{margin:16px 4px 0;font-size:14.5px;line-height:1.5;color:var(--ink2)}
+.print .cap b{color:var(--ink)}
+.mainshot .print{transform:rotate(-.6deg);--pc:var(--co)}
+.mainshot .tape{top:-14px}
+.mainshot .pen{right:5%;bottom:-54px;--r:3deg}
+.mainshot .arrow{right:calc(5% + 190px);bottom:-52px;transform:scaleY(-1) rotate(-6deg)}
+.mainshot .stamp.abs{right:5%;top:-28px;--r:6deg}
+@media(max-width:700px){.mainshot .pen,.mainshot .arrow{display:none}.mainshot .stamp.abs{font-size:20px;right:3%;top:-20px}}
+
+/* ---------- features bill ---------- */
+.fgrid{display:grid;gap:40px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:1100px){.fgrid{grid-template-columns:minmax(0,680px) minmax(0,1fr)}}
+.bill{padding:clamp(22px,3vw,40px) clamp(18px,3vw,38px) 14px;margin:9px 0}
+.bill .bt{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:700 12px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.bill .bt b{font:900 28px/1 var(--disp);letter-spacing:.06em;color:var(--ink)}
+.items{margin:0;padding:0;list-style:none;counter-reset:it}
+.item{position:relative;counter-increment:it}
+.line{display:flex;align-items:baseline;gap:10px;width:100%;min-height:58px;padding:10px 6px;border:0;background:none;text-align:left;cursor:pointer;color:var(--ink)}
+.line .no{flex:none;width:2.4ch;font-size:12px;color:var(--ink3)}
+.line .no::before{content:counter(it,decimal-leading-zero)}
+.line .nm{font:800 clamp(24px,2.6vw,32px)/1 var(--disp);letter-spacing:.03em;text-transform:uppercase}
+.line .ld{flex:1;min-width:14px;border-bottom:3px dotted rgba(20,21,26,.5);transform:translateY(-5px)}
+.line .ky{flex:none;font:700 14px/1 var(--mono);padding:5px 8px;border:1.5px solid var(--ink);border-radius:5px;background:rgba(20,21,26,.04)}
+.item.on .nm{background:linear-gradient(transparent 14%,var(--or) 14% 90%,transparent 90%);padding:0 6px;margin:0 -6px}
+.item.on .ky{background:var(--ink);color:var(--paper)}
+.slip{margin:0;font-size:15px;line-height:1.55;color:var(--ink2)}
+.slip::before{content:"SLIP " attr(data-no);display:block;margin-bottom:8px;font:700 11px/1 var(--eng);letter-spacing:.18em;color:var(--ink3)}
+.js .slip{position:absolute;z-index:5;left:calc(100% + 36px);top:50%;width:min(340px,30vw);padding:18px 18px 20px;background:var(--grain),var(--paper);box-shadow:var(--sh2),0 0 0 1px rgba(20,21,26,.25);transform:translateY(-50%) rotate(var(--sr,1.4deg));clip-path:inset(0 0 100% 0);visibility:hidden}
+.js .item:nth-child(even) .slip{--sr:-1.2deg}
+.js .item.on .slip{visibility:visible;clip-path:inset(-20px);animation:slipin .42s steps(7) both}
+@keyframes slipin{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(-20px)}}
+.js .slip::after{content:"";position:absolute;left:0;right:0;top:100%;height:8px;background:conic-gradient(from -45deg at bottom,var(--paper) 90deg,transparent 0) 0 0/16px 100% repeat-x}
+@media(max-width:1099px){
+  .js .slip{position:static;width:auto;visibility:visible;clip-path:none;transform:none;box-shadow:none;background:rgba(20,21,26,.05);margin:0 0 12px;padding:12px 14px;display:none;animation:none}
+  .js .item.on .slip{display:block;animation:none;clip-path:none}
+  .js .slip::after{display:none}
+}
+.fnote{margin-top:6px;font-size:12px;color:var(--ink3);text-align:center;letter-spacing:.06em}
+.fside{position:relative;display:none}
+@media(min-width:1100px){.fside{display:block}}
+.fside .scrap{position:absolute;right:6%;bottom:30px;width:250px;--r:4deg;--holec:var(--kraft)}
+.fside .arrow{left:4%;bottom:70px;transform:scaleX(-1) rotate(-12deg)}
+
+/* ---------- ticket stubs ---------- */
+.tickets{display:grid;gap:clamp(36px,4vw,56px) clamp(24px,3vw,44px);grid-template-columns:minmax(0,1fr)}
+@media(min-width:900px){.tickets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stub{--n:11px;--tail:84px;position:relative;display:flex;flex-direction:column;color:var(--ink);background:var(--grain),var(--paper);-webkit-mask:radial-gradient(circle var(--n) at 0 calc(100% - var(--tail)),#0000 97%,#000),radial-gradient(circle var(--n) at 100% calc(100% - var(--tail)),#0000 97%,#000);-webkit-mask-composite:source-in;mask:radial-gradient(circle var(--n) at 0 calc(100% - var(--tail)),#0000 97%,#000),radial-gradient(circle var(--n) at 100% calc(100% - var(--tail)),#0000 97%,#000);mask-composite:intersect}
+.stubwrap{position:relative;display:flex;transform:rotate(var(--r,0deg));filter:drop-shadow(4px 5px 0 rgba(48,40,24,.14)) drop-shadow(0 16px 16px rgba(48,40,24,.26))}
+.stubwrap .stub{transform:none;filter:none;width:100%}
+.stubwrap::before{content:"";position:absolute;left:0;right:0;bottom:calc(100% - 1px);height:9px;background:conic-gradient(from 135deg at top,var(--paper) 90deg,transparent 0) 0 0/18px 100% repeat-x}
+.stubwrap .tape{top:-15px;left:50%;margin-left:-46px}
+.js .stubwrap:not(.in)::before{opacity:0}
+.stub .pic{position:relative;margin:18px 18px 0;background:var(--ink);box-shadow:0 0 0 1px rgba(20,21,26,.5);--pc:var(--or)}
+.stub .pic img{width:100%;filter:grayscale(1) contrast(1.12) brightness(1.05);transition:filter .25s}
+.stub:hover .pic img,.stub:focus-within .pic img{filter:none}
+.stub .pic::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.14) 0 1px,transparent 1px 3px);pointer-events:none;mix-blend-mode:multiply}
+.stub .pcap{margin:10px 20px 0;font-size:12px;color:var(--ink3)}
+.stub .sb{padding:12px 22px 18px;flex:1}
+.stub .sb .no{margin:0 0 2px;font:700 11px/1 var(--eng);letter-spacing:.16em;color:var(--ink3);text-transform:uppercase}
+.stub .sb h3{font-size:clamp(46px,5vw,64px);line-height:.88;margin:6px 0 10px;letter-spacing:.015em}
+.stub .sb p{margin:0;font-size:15px;line-height:1.55;color:var(--ink2)}
+.stub .tail{height:var(--tail);border-top:3px dashed rgba(20,21,26,.5);padding:12px 22px;display:grid;grid-template-columns:1fr minmax(0,150px);gap:16px;align-items:center;font:700 11px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.stub .tail .bc{height:34px}
+.js .stubwrap.rv{opacity:1;transform:rotate(var(--r,0deg))}
+.js .stubwrap:not(.in) .stub{clip-path:inset(0 0 100% 0)}
+.js .stubwrap.in .stub{animation:tear .75s steps(10) calc(var(--i,0)*120ms) both}
+@keyframes tear{0%{clip-path:inset(0 0 100% 0);transform:translateY(-12px)}62%{clip-path:inset(0);transform:translateY(0)}78%{transform:translateY(7px) rotate(1.6deg)}100%{clip-path:inset(0);transform:none}}
+
+/* ---------- CI scene ---------- */
+.ci{position:relative;padding:clamp(60px,8vw,110px) 0}
+.ci .pin{position:relative}
+@media(min-width:900px) and (min-height:660px){
+  .js.pin-ok .ci{height:330vh;padding:0}
+  .js.pin-ok .ci .pin{position:sticky;top:66px;height:calc(100vh - 66px);display:flex;align-items:center}
+}
+.ci-grid{display:grid;gap:clamp(30px,4vw,64px);grid-template-columns:minmax(0,1fr);align-items:center;width:100%}
+@media(min-width:960px){.ci-grid{grid-template-columns:minmax(0,1fr) minmax(0,560px)}}
+.ci h2{font-size:clamp(46px,6vw,96px)}
+.ci .intro code{font-size:.9em}
+.switch{display:inline-flex;align-items:center;gap:14px;min-height:56px;padding:6px 18px 6px 8px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);color:var(--ink);cursor:pointer;font:800 20px/1 var(--disp);letter-spacing:.09em;text-transform:uppercase;box-shadow:4px 4px 0 var(--ink)}
+.switch:hover{background:#fff}
+.switch .tg{position:relative;width:60px;height:34px;border-radius:17px;background:var(--bench2);border:2px solid var(--ink);box-shadow:inset 0 2px 4px rgba(20,21,26,.3);transition:background .15s}
+.switch .tg::after{content:"";position:absolute;left:2px;top:2px;width:26px;height:26px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);transition:transform .16s steps(3)}
+.switch[aria-checked=true] .tg{background:var(--or)}
+.switch[aria-checked=true] .tg::after{transform:translateX(26px)}
+.ci .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin-top:22px}
+.ci .ctl small{font-size:12.5px;color:var(--ink2);max-width:24em}
+.ci .runnote{margin-top:22px;font-size:14px;color:var(--ink2);max-width:36em}
+.circ{position:relative}
+.rc3{position:relative;width:min(100%,430px);margin:0 auto;transform:rotate(1.2deg)}
+.rc3 .tape{top:-16px;left:50%;margin-left:-46px}
+.rc3 .rcpt{width:100%;padding-bottom:16px}
+.rc3 .rcpt>*{animation:none}
+.rc3 [data-n]{transition:opacity .01s}
+.rc3 [data-n].off{display:none}
+.rc3 .stamps{min-height:76px}
+.rc3 .stamp{--r:-6deg}
+.pipe{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin:40px auto 0;max-width:520px;position:relative}
+.step{position:relative;padding:12px 8px 14px;text-align:center;border:2px solid var(--ink);background:var(--paper);color:var(--ink2);margin-left:-2px;box-shadow:3px 3px 0 rgba(20,21,26,.9);transition:background .15s,color .15s}
+.step b{display:block;font:900 26px/1 var(--disp);letter-spacing:.08em;text-transform:uppercase}
+.step small{display:block;margin-top:5px;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+.step.ok{background:var(--mint);color:var(--ink)}
+.step.bad{background:var(--or);color:var(--ink)}
+.step.sk{background:repeating-linear-gradient(135deg,var(--paper) 0 8px,var(--shade) 8px 16px);border-style:dashed;color:var(--ink3)}
+.step.idle{opacity:.7}
+.pipe .arr{position:absolute;top:50%;z-index:2;background:var(--sky);border:2px solid var(--ink);transform:rotate(45deg);border-left:0;border-bottom:0;width:14px;height:14px;margin:-9px 0 0 -6px}
+.pipe .arr:nth-of-type(1){left:33.33%}
+.pipe .arr:nth-of-type(2){left:66.66%}
+.pipecap{margin:14px 0 0;text-align:center;font-size:12px;color:var(--ink2)}
+.circ .pen{right:-6px;top:-44px;--r:5deg}
+.circ .arrow{right:64px;top:-30px;transform:scaleY(-1) rotate(8deg) scale(.7)}
+@media(max-width:959px){.circ .pen,.circ .arrow{display:none}}
+
+/* ---------- gui ---------- */
+.gui{position:relative;padding:clamp(72px,9vw,150px) 0}
+.feed{position:relative;margin:clamp(24px,3vw,40px) 0 0}
+.feedslot{position:relative;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:12px;height:52px;padding:0 22px;border:1.5px solid var(--ink);border-radius:16px 16px 0 0;background:linear-gradient(#fcfbf8,var(--plastic2));box-shadow:6px 8px 0 -1px rgba(48,40,24,.15);font:700 11px/1 var(--eng);letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+.feedslot::after{content:"";position:absolute;left:3%;right:3%;bottom:-5px;height:10px;background:var(--ink);border-radius:5px;box-shadow:inset 0 3px 3px #000}
+.feedclip{position:relative;overflow:hidden;padding:0 clamp(10px,3vw,40px)}
+.win{--q:1;margin:0 auto;max-width:1180px;transform:translateY(calc((var(--q) - 1)*104%));background:var(--paper);box-shadow:0 0 0 2px var(--ink),8px 10px 0 rgba(48,40,24,.16);will-change:transform}
+.win .chrome{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--paper2);border-bottom:2px solid var(--ink)}
+.win .chrome i{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink);flex:none}
+.win .chrome i:nth-child(1){background:var(--or)}.win .chrome i:nth-child(2){background:var(--mint)}.win .chrome i:nth-child(3){background:var(--co)}
+.win .chrome span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 12px;background:var(--paper);border:2px solid var(--ink);border-radius:6px;font-size:13px;color:var(--ink2)}
+.win .lbb::before{display:none}
+.win img{width:100%}
+.gui .cap{margin:16px 4px 0;font-size:14px;color:var(--ink2);max-width:52em}
+.grid2{display:grid;gap:clamp(24px,3vw,44px);grid-template-columns:minmax(0,1fr);margin-top:clamp(36px,5vw,64px);align-items:start}
+@media(min-width:900px){.grid2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.gui .rcpt{width:min(100%,460px);margin:9px auto}
+.gui .rcpt>*{animation:none}
+.gui .rcpt .raw{font-size:13px}
+.slips{display:grid;gap:34px}
+.slipcard{position:relative;padding:24px 22px 20px;color:var(--ink);background:var(--grain),var(--paper);box-shadow:var(--sh2)}
+.slipcard h3{font-size:34px;margin-bottom:10px;line-height:.95}
+.slipcard p{margin:0;font-size:15px;color:var(--ink2)}
+.slipcard.a{transform:rotate(-.7deg);padding-top:34px}
+.slipcard.a::before{content:"";position:absolute;left:0;right:0;top:12px;border-top:3px dashed rgba(20,21,26,.45)}
+.slipcard.b{transform:rotate(.8deg);margin-left:clamp(0px,3vw,36px);padding-left:64px;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 62%,10px 56%,0 50%)}
+.slipcard.b::before{content:"";position:absolute;left:18px;top:24px;width:26px;height:26px;border-radius:50%;background:var(--bench);box-shadow:inset 0 2px 4px rgba(20,21,26,.45)}
+.slipcard .tape{top:-13px;right:22px}
+.photos2{display:grid;gap:clamp(22px,3vw,40px);grid-template-columns:minmax(0,1fr);margin-top:clamp(40px,5vw,72px)}
+@media(min-width:760px){.photos2{grid-template-columns:1fr 1fr}}
+.photos2 .print:nth-child(1){transform:rotate(-1deg);--pc:var(--or)}
+.photos2 .print:nth-child(2){transform:rotate(.9deg);--pc:var(--co)}
+.photos2 .tape{top:-14px;left:50%;margin-left:-46px}
+
+/* ---------- carbon copies ---------- */
+.carbonbox{position:relative;max-width:1000px}
+.ctabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 -2px;position:relative;z-index:2}
+.ctabs [role=tab]{--c:#fff;min-height:48px;padding:0 20px;border:2px solid var(--ink);border-bottom:0;border-radius:8px 8px 0 0;background:var(--c);color:var(--ink);font:800 20px/1 var(--disp);letter-spacing:.09em;text-transform:uppercase;cursor:pointer;opacity:.82;transform:translateY(5px);transition:transform .1s steps(2),opacity .1s}
+.ctabs [role=tab]:hover{opacity:1}
+.ctabs [role=tab][aria-selected=true]{opacity:1;transform:none;box-shadow:inset 0 5px 0 var(--or)}
+.carbon{--c:#fff;--c2:#d6f3e6;--c3:#dde4ff;position:relative;padding:44px clamp(16px,3vw,34px) 24px;border:2px solid var(--ink);background:linear-gradient(transparent 0,transparent 27px,rgba(47,75,255,.1) 28px) 0 0/100% 28px,var(--grain),var(--c);box-shadow:7px 7px 0 -1px var(--c2),7px 7px 0 1px var(--ink),14px 14px 0 -1px var(--c3),14px 14px 0 1px var(--ink)}
+.carbon::before{content:attr(data-copy-no);position:absolute;left:clamp(16px,3vw,34px);top:14px;font:700 11px/1 var(--eng);letter-spacing:.16em;text-transform:uppercase;color:var(--carbon)}
+.carbon pre{margin:0;overflow-x:auto;padding-bottom:6px;font:400 14.5px/1.55 var(--mono);color:var(--carbon);text-shadow:.5px 0 0 rgba(27,42,168,.5),-.4px .3px 0 rgba(27,42,168,.28);tab-size:4}
+.carbon .copy{position:absolute;right:14px;top:8px;min-height:44px;border-color:var(--carbon);color:var(--carbon);box-shadow:2px 2px 0 var(--carbon)}
+.carbon .copy:hover{background:var(--carbon);color:#fff}
+.carbon .copy.ok{background:var(--mint);border-color:var(--ink);color:var(--ink)}
+.carbon[hidden]{display:none}
+.t-curl{--c:#fbfaf6}.t-python{--c:#d9f4e8}.t-javascript{--c:#dde4ff}.t-go{--c:#f2e8d3}.t-httpie{--c:#ffd9c8}
+.cnote{margin:38px 0 0;max-width:52em;font-size:14.5px;color:var(--ink2)}
+
+/* ---------- contact sheet ---------- */
+.sheetwide{padding:clamp(28px,4vw,56px) clamp(16px,3.4vw,52px) clamp(34px,4vw,64px);margin:9px 0}
+.sheetwide .sh{margin-bottom:clamp(24px,3vw,44px)}
+.sheetwide .sh .meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:18px;font:700 10.5px/1 var(--eng);letter-spacing:.16em;text-transform:uppercase;color:var(--ink3)}
+.photos{display:grid;gap:clamp(34px,3.6vw,52px) clamp(22px,2.8vw,40px);grid-template-columns:minmax(0,1fr);grid-auto-flow:dense}
+@media(min-width:640px){.photos{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1000px){.photos{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.photo{position:relative;margin:0;padding:12px 12px 14px;background:#fff;box-shadow:var(--sh);transform:rotate(var(--r,0deg));transition:transform .2s cubic-bezier(.3,1.4,.5,1),box-shadow .2s;color:var(--ink);--pc:var(--ink)}
+.photo:nth-child(3n+2){--pc:var(--co)}.photo:nth-child(3n){--pc:var(--or)}
+.photo:hover,.photo:focus-within{transform:rotate(0) translateY(-5px) scale(1.012);box-shadow:var(--sh2);z-index:3}
+.photo .lbb{background:var(--ink)}
+.photo .lbb img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top left}
+.photo.tall{grid-row:span 2}
+.photo.tall .lbb img{aspect-ratio:auto;object-fit:cover}
+.photo .tape{top:-13px;left:50%;margin-left:-46px}
+.photo:nth-child(3n+2) .tape{left:auto;right:-18px;top:6px;--tr:38deg;margin:0;width:78px}
+.photo:nth-child(3n) .tape{left:-16px;top:8px;--tr:-40deg;margin:0;width:78px}
+.photo figcaption{margin:12px 2px 0;font-size:13.5px;line-height:1.45;color:var(--ink2)}
+.photo figcaption b{color:var(--ink)}
+.photo figcaption code{padding:0 4px}
+.photo .fr{position:absolute;right:12px;bottom:-22px;font:700 10px/1 var(--eng);letter-spacing:.14em;color:var(--ord)}
+.js .photo.rv .lbb img{filter:brightness(1.7) contrast(.45) sepia(.3);transition:filter 1s steps(6)}
+.js .photo.rv.in .lbb img{filter:none}
+.pennote{position:relative;display:flex;align-items:center;justify-content:center;min-height:200px;padding:20px;--holec:var(--paper)}
+.pennote .scrap{width:min(100%,270px);--r:-3deg}
+dialog.lbx{width:min(1400px,96vw);max-width:96vw;max-height:96vh;padding:0;border:0;background:transparent;color:var(--ink);overflow:visible}
+dialog.lbx::backdrop{background:rgba(233,230,223,.94)}
+.lbx .frame{position:relative;padding:14px 14px 16px;background:var(--paper);color:var(--ink);box-shadow:0 0 0 2px var(--ink),10px 12px 0 rgba(48,40,24,.2)}
+.lbx img{width:100%;max-height:calc(96vh - 190px);object-fit:contain;background:var(--ink)}
+.lbx .lc{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap}
+.lbx .lc p{flex:1;min-width:200px;margin:0;font-size:14.5px;line-height:1.45}
+.lbx .lc em{font:700 11px/1 var(--eng);letter-spacing:.14em;font-style:normal;color:var(--ink3)}
+.lbx .nb{min-width:48px;min-height:48px;padding:0 14px;border:2px solid var(--ink);border-radius:8px;background:var(--paper);color:var(--ink);font:800 22px/1 var(--disp);letter-spacing:.08em;cursor:pointer;text-transform:uppercase;box-shadow:2px 2px 0 var(--ink)}
+.lbx .nb:hover{background:var(--or)}
+
+/* ---------- keycaps ---------- */
+.kgrid{display:grid;gap:clamp(24px,2.6vw,36px) clamp(14px,2vw,26px);margin:0;padding:0;list-style:none;grid-template-columns:repeat(auto-fill,minmax(min(100%,160px),1fr))}
+@media(min-width:700px){.kgrid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+.kc.span2{grid-column:span 2}
+.kc{position:relative;display:flex;flex-direction:column;gap:16px;outline-offset:6px}
+.kc .caps{display:flex;align-items:center;gap:8px;min-height:88px}
+.kc kbd{--d:7px;position:relative;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:76px;height:76px;padding:0 14px;border:2px solid var(--ink);border-radius:14px;background:linear-gradient(#fdfcf9,#ebe8df);color:var(--ink);font:900 34px/1 var(--disp);letter-spacing:.03em;text-transform:none;box-shadow:0 var(--d) 0 var(--ink),0 calc(var(--d) + 4px) 14px rgba(48,40,24,.3);transition:transform .08s steps(2),box-shadow .08s steps(2)}
+.kc kbd::before{content:"";position:absolute;inset:6px;border-radius:9px;background:linear-gradient(#f3f1ea,#faf9f5);box-shadow:inset 0 2px 4px rgba(48,40,24,.2);z-index:0}
+.kc kbd>*{position:relative;z-index:1}
+.kc kbd small{font:700 11px/1 var(--eng);letter-spacing:.1em;color:var(--ink3);margin-bottom:3px}
+.kc kbd.w{min-width:112px}
+.kc kbd.hot{background:var(--or)}
+.kc kbd.hot::before{background:linear-gradient(var(--or2),#ff6a30)}
+.kc kbd.hot small{color:var(--ink)}
+.kc kbd.esc{background:var(--co);color:#fff}
+.kc kbd.esc::before{background:linear-gradient(#5a70ff,#3f58ff)}
+.kc .sep{color:var(--ink3);font:700 22px/1 var(--mono)}
+.kc .lab{font-size:15px;color:var(--ink2)}
+.kc.p kbd,.kc:hover kbd,.kc:focus-visible kbd{transform:translateY(var(--d));box-shadow:0 0 0 var(--ink),0 2px 4px rgba(48,40,24,.3)}
+.kc:hover .lab,.kc:focus-visible .lab{color:var(--ink)}
+.js .kc.wave kbd{animation:keydown .5s steps(4) calc(var(--i)*70ms) both}
+@keyframes keydown{0%,100%{transform:none}40%,60%{transform:translateY(var(--d))}}
+.kfoot{margin-top:44px;max-width:46em;font-size:14.5px;color:var(--ink2)}
+.kfoot kbd{display:inline-block;padding:1px 8px;border:1.5px solid var(--ink);border-radius:4px;font-size:.9em;color:var(--ink);background:var(--paper)}
+
+/* ---------- install checkout ---------- */
+.instgrid{display:grid;gap:clamp(30px,5vw,70px);grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:1000px){.instgrid{grid-template-columns:minmax(0,780px) minmax(0,1fr)}}
+.chk{padding:clamp(22px,3vw,38px) clamp(18px,3vw,38px) 22px;margin:9px 0}
+.chk .tape{top:-14px}
+.chk .rh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:900 30px/1 var(--disp);letter-spacing:.06em;text-transform:uppercase}
+.chk .rh span{font:700 11px/1 var(--mono);letter-spacing:.1em;color:var(--ink3)}
+.chk .intro{margin:14px 0 18px;font-size:15px}
+.itabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 -2px;position:relative;z-index:1}
+.itabs [role=tab]{min-height:48px;padding:0 16px;border:2px solid var(--ink);border-bottom:0;border-radius:8px 8px 0 0;background:transparent;color:var(--ink);font:800 18px/1 var(--disp);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.itabs [role=tab]:hover{background:rgba(255,90,31,.25)}
+.itabs [role=tab][aria-selected=true]{background:var(--ink);color:var(--paper)}
+.ipanel{position:relative;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;padding:18px;border:2px solid var(--ink);background:rgba(20,21,26,.04)}
+.ipanel[hidden]{display:none}
+.ipanel pre,.ipanel .steps{order:1;flex:1 1 260px;min-width:0;margin:0;padding:2px 0;font:400 14px/1.7 var(--mono);color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.ipanel pre .c{color:var(--ink3)}
+.ipanel .copy{order:2;margin-left:auto}
+.ipanel a{color:var(--link);font-weight:700}
+.ipanel .steps{list-style:none;font-size:14px;line-height:1.75}
+.ipanel .steps span{color:var(--ink3);display:inline-block;width:2ch}
+.ipanel .steps code{padding:0 4px}
+.lines{position:relative;margin:22px 0 0}
+.lines .sum{display:flex;gap:6px;align-items:baseline;margin:2px 0;font-size:14px;text-transform:uppercase;letter-spacing:.04em}
+.lines .sum i{flex:1;border-bottom:2px dotted rgba(20,21,26,.45);transform:translateY(-3px)}
+.lines .sum.tot{margin-top:10px;font:900 clamp(40px,5vw,60px)/1 var(--disp);letter-spacing:.05em}
+.lines .sum.tot i{border-bottom-width:3px}
+.lines .total-note{margin:2px 0 0;font:700 13px/1.4 var(--mono);letter-spacing:.14em;text-transform:uppercase;text-align:right}
+.lines .stamp.abs{left:36%;top:52px;--r:-8deg}
+.chk .note{margin:16px 2px 0;font-size:14px;color:var(--ink2)}
+.chk .note a{color:var(--link);font-weight:700}
+.chk .bcw{margin-top:22px}
+.insideside{position:relative;min-height:200px}
+.insideside .scrap{max-width:270px;--r:-3deg;--holec:var(--kraft)}
+.insideside .arrow{left:-86px;top:8px;transform:scaleX(-1) rotate(-6deg) scale(.9)}
+@media(max-width:999px){.insideside .arrow{display:none}.insideside{min-height:0}}
+
+/* ---------- under the hood ---------- */
+.how{padding:clamp(72px,9vw,150px) 0}
+.howgrid{display:grid;gap:clamp(36px,5vw,80px);grid-template-columns:minmax(0,1fr);align-items:center}
+@media(min-width:960px){.howgrid{grid-template-columns:minmax(0,1fr) minmax(0,520px)}}
+.howgrid p{max-width:36em;margin:0 0 16px;color:var(--ink2)}
+.label{position:relative;margin:0 auto;max-width:520px;padding:0 0 18px;color:var(--ink);background:var(--grain),#fbf9f1;transform:rotate(-1.6deg);box-shadow:var(--sh2);border-radius:3px}
+.label .lh{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 18px;background:var(--co);color:#fff;font:900 24px/1 var(--disp);letter-spacing:.12em;text-transform:uppercase}
+.label .lh span{font:700 11px/1 var(--mono);letter-spacing:.14em}
+.label dl{margin:0;padding:6px 18px 0}
+.label .r{display:grid;grid-template-columns:118px minmax(0,1fr);gap:4px 14px;padding:11px 0;border-bottom:1.5px solid rgba(20,21,26,.25);align-items:baseline}
+.label dt{font:900 20px/1 var(--disp);letter-spacing:.1em;text-transform:uppercase}
+.label dd{margin:0;font-size:13.5px;line-height:1.5;overflow-wrap:anywhere}
+.label dd code{padding:0 3px}
+.label .hole{position:absolute;left:50%;top:-12px;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:var(--sky);box-shadow:inset 0 2px 4px rgba(20,21,26,.5)}
+.label .tape{left:-16px;top:-14px;--tr:-35deg;width:76px}
+.label .clip{right:22px;top:-34px;--r:-6deg}
+
+/* ---------- footer ---------- */
+footer{position:relative;margin-top:clamp(20px,3vw,40px);padding:44px 0 56px}
+.foot{position:relative;padding:34px clamp(18px,4vw,48px) 30px;margin:9px 0 0;max-width:1100px;margin-inline:auto}
+.foot .tape{top:-15px;left:6%}
+.foot .bcw{max-width:720px;margin:0 auto 26px}
+.foot .bc{height:64px}
+.foot ul{display:flex;flex-wrap:wrap;gap:6px 30px;justify-content:center;margin:0 0 22px;padding:0;list-style:none}
+.foot li a{display:inline-flex;align-items:center;min-height:44px;font:800 20px/1 var(--disp);letter-spacing:.09em;text-transform:uppercase;text-decoration:none;color:var(--ink);border-bottom:3px solid transparent}
+.foot li a:hover{border-bottom-color:var(--ink);background:var(--or)}
+.foot small{display:block;text-align:center;font-size:13.5px;color:var(--ink2)}
+.foot small a{font-weight:700;display:inline-block;padding:10px 2px}
+
+/* ---------- reveal ---------- */
+.js .rv{opacity:0;transform:translateY(22px);transition:opacity .6s steps(8),transform .7s cubic-bezier(.2,.7,.2,1)}
+.js .rv.in{opacity:1;transform:none}
+.js .stubwrap.rv{transition:none}
+.js .print.rv.in{transform:rotate(var(--rr,-.6deg))}
+.js .photo.rv{transform:translateY(22px) rotate(var(--r,0deg))}
+.js .photo.rv.in{transform:rotate(var(--r,0deg))}
+.js .photo.rv.in:hover,.js .photo.rv.in:focus-within{transform:rotate(0) translateY(-5px) scale(1.012)}
+.js .photos2 .print.rv.in:nth-child(1){transform:rotate(-1deg)}
+.js .photos2 .print.rv.in:nth-child(2){transform:rotate(.9deg)}
+.js .mainshot .print.rv.in{transform:rotate(-.6deg)}
+.js .label.rv{transform:translateY(22px) rotate(-1.6deg)}
+.js .label.rv.in{transform:rotate(-1.6deg)}
+.js .rc3.rv{transform:translateY(22px) rotate(1.2deg)}
+.js .rc3.rv.in{transform:rotate(1.2deg)}
+
+@media(max-width:560px){
+  .rcpt{font-size:12px;padding:16px 14px 10px}.rcpt .tab{margin:12px -14px 0;padding:12px 14px 4px}
+  .rcpt .rh{font-size:21px}.rcpt .raw,.rcpt .cmd{font-size:11.5px}
+  .stamp{font-size:28px}.stamp.big{font-size:38px}
+  .screen input{font-size:14px}.screen .ps{padding-left:10px}.prompt{gap:12px}.prompt button{width:84px;font-size:21px}
+  .grille{display:none}
+  .tray{height:clamp(360px,56vh,460px)}
+  .stub .tail{grid-template-columns:1fr 100px}
+  .kc kbd{min-width:64px;height:68px;font-size:30px}
+  .stk{--s:84px}.stk b{font-size:34px}
+  .hero-extras{gap:26px 20px}
+  .lines .stamp.abs{left:18%;top:52px;font-size:22px}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv,.js .rv.in{opacity:1}
+  .js .rv .tape{opacity:1}
+  .js .stubwrap:not(.in) .stub{clip-path:none}
+  .js .rv mark::before{transform:skew(-4deg) rotate(-.9deg) scaleX(1)}
+  .js .rv .ring::after,.js .hero .ring::after{clip-path:none}
+  .js .photo.rv .lbb img{filter:none}
+  .win{--q:1!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="term-rest-client, top of page">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 3h18v24l-2.25-2.25L20.5 27l-2.25-2.25L16 27l-2.25-2.25L11.5 27l-2.25-2.25L7 27z" fill="#fffdf7" stroke="#14151a" stroke-width="1.8" stroke-linejoin="round"/><path d="M11 9h10M11 13.5h7M11 18h9" stroke="#14151a" stroke-width="2"/><rect x="18.5" y="14.5" width="7" height="7" rx="1.5" fill="#ff5a1f" stroke="#14151a" stroke-width="1.6" transform="rotate(-8 22 18)"/></svg>
+      term-rest-client</a>
+    <nav class="nav" aria-label="Primary">
+      <a class="hide-s" href="#features">Features</a>
+      <a class="hide-s" href="#apis">API types</a>
+      <a class="hide-s" href="#gui">Browser UI</a>
+      <a class="hide-s" href="#code">Code snippets</a>
+      <a class="hide-s" href="#screens">Screens</a>
+      <a class="gh" href="https://github.com/AbyAbyss/cli-rest-client">GitHub</a>
+      <a class="btn hl" href="#install">Install</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<div id="top"></div>
+
+<!-- ============ HERO + PRINTER ============ -->
+<section class="hero" aria-labelledby="h1">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="badge"><i></i><b>Free</b> · MIT · macOS, Linux, Windows</p>
+      <p class="u">term-rest-client</p>
+      <h1 id="h1"><span class="l">A REST client</span><span class="l">for your</span><span class="l"><span class="nb"><mark>terminal</mark>.</span></span></h1>
+      <p class="lead">REST, GraphQL, Server-Sent Events and WebSockets in a keyboard-driven terminal UI, with a browser UI too. Collections, environments, history, tests, and cURL and Postman import. Run <code class="ring">-gui</code> for the browser UI. <strong class="uline">One static Go binary</strong>, and your requests live in a plain JSON file you can commit next to your code.</p>
+      <div class="cta">
+        <a class="btn hl" href="#install">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16"/></svg>Install</a>
+        <a class="btn" href="https://github.com/AbyAbyss/cli-rest-client">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 00-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 015.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0012 .5z"/></svg>View on GitHub</a>
+      </div>
+      <ul class="facts">
+        <li>REST · GraphQL · SSE · WebSocket</li><li>Terminal or browser</li><li>No account, no cloud</li>
+      </ul>
+      <div class="hero-extras">
+        <div class="note-slip" aria-hidden="true">
+          <i class="push"></i>
+          <span class="pen">every request prints a receipt. type a command, or tap a chip.</span>
+          <i class="arrow"></i>
+        </div>
+      </div>
+    </div>
+
+    <div class="printer" id="printer">
+      <h2 class="vh">Print a request</h2>
+      <div class="stickers" aria-hidden="true">
+        <span class="stk" style="--c:var(--co);--tc:#fff;--r:-9deg;--i:0"><b>MIT</b><small>licensed</small></span>
+        <span class="stk" style="--c:var(--mint);--r:6deg;--i:1"><b>No</b><small>account</small></span>
+        <span class="stk" style="--c:var(--or);--r:-5deg;--i:2"><b>One</b><small>binary</small></span>
+      </div>
+      <div class="tray" id="tray" tabindex="0" role="region" aria-label="Printed receipts, scrollable">
+        <div class="stack" id="stack">
+<noscript><article class="rcpt wide cut" aria-label="Receipt of the run command: five requests, 13 tests, all passed">
+<div class="rh"><b>term-rest-client</b><span>RECEIPT No. 0001</span></div>
+<p class="cmd"><s>$</s>term-rest-client -data demo.json run -env Local "Auth API" "User Service/Lookup" "Payment Gateway"</p>
+<hr class="dash">
+<div class="env">Environment: <b>Local</b></div>
+<div class="rq"><i>GET</i> Login</div><div class="st"><b>200 OK</b>  1 ms  37 bytes</div>
+<div class="t"><s>✓</s> status == 200</div><div class="t"><s>✓</s> json.authenticated == true</div>
+<div class="rq"><i>GET</i> Bearer Token</div><div class="st"><b>200 OK</b>  0 ms  49 bytes</div>
+<div class="t"><s>✓</s> status == 200</div><div class="t"><s>✓</s> json.token == {{token}}</div>
+<div class="rq"><i>GET</i> Get JSON</div><div class="st"><b>200 OK</b>  0 ms  75 bytes</div>
+<div class="t"><s>✓</s> status == 200</div><div class="t"><s>✓</s> header Content-Type contains json</div><div class="t"><s>✓</s> json.slideshow.title exists</div>
+<div class="rq"><i>GET</i> Query Params</div><div class="st"><b>200 OK</b>  0 ms  257 bytes</div>
+<div class="t"><s>✓</s> status == 200</div><div class="t"><s>✓</s> json.args.page == 1</div><div class="t"><s>✓</s> json.args.q == "terminal client"</div>
+<div class="rq"><i>POST</i> Charge</div><div class="st"><b>200 OK</b>  0 ms  328 bytes</div>
+<div class="t"><s>✓</s> status == 200</div><div class="t"><s>✓</s> time &lt; 5000</div><div class="t"><s>✓</s> json.json.orderId == {{orderId}}</div>
+<hr class="dash">
+<div class="sum"><span>Requests</span><i></i><span>5</span></div>
+<div class="sum"><span>Tests passed</span><i></i><span>13</span></div>
+<div class="sum"><span>Tests failed</span><i></i><span>0</span></div>
+<div class="sum tot"><span>Total</span><i></i><span>13 / 13</span></div>
+<div class="stamps"><span class="stamp ok big">EXIT 0</span><span class="stamp ok">Passed</span></div>
+<p class="note">Lines between the dashed rules are the real output of <code>run</code>. TOTAL and EXIT are this receipt's tally. Scripted demo of real output; nothing is sent over the network.</p>
+</article></noscript>
+        </div>
+      </div>
+      <div class="lip" aria-hidden="true"><span class="tape m demo"><b>scripted demo</b></span></div>
+      <div class="pbody">
+        <div class="pbar">
+          <span class="m"><span class="led" id="led"></span><span id="ledt">Ready</span></span>
+          <span class="grille" aria-hidden="true"></span>
+          <button type="button" class="tearbtn" id="tear" disabled>Tear off</button>
+        </div>
+        <div class="eng" aria-hidden="true">Command</div>
+        <form class="prompt" id="pf" autocomplete="off">
+          <label class="vh" for="cmd">Command to print</label>
+          <div class="screen">
+            <span class="ps" aria-hidden="true">$</span>
+            <input id="cmd" name="cmd" type="text" spellcheck="false" autocapitalize="off" autocorrect="off" placeholder="type a command, Tab completes" aria-describedby="hint">
+          </div>
+          <button type="submit">Print</button>
+        </form>
+        <p class="hint" id="hint">Try <b>run -env Staging</b>, then press Tab and Enter.</p>
+        <div class="eng" aria-hidden="true">Presets</div>
+        <div class="chips" role="group" aria-label="Example commands">
+          <button type="button" class="chip" data-cmd="L"><i></i>run -env Local</button>
+          <button type="button" class="chip" data-cmd="S"><i></i>run -env Staging</button>
+          <button type="button" class="chip" data-cmd="E"><i></i>export -lang python</button>
+          <button type="button" class="chip" data-cmd="G"><i></i>-gui -lan</button>
+          <button type="button" class="chip" data-cmd="H"><i></i>help</button>
+        </div>
+        <p class="pnote"><b>Scripted demo of real output; nothing is sent over the network.</b> The Local run is the real output, with the built-in demo API running in another terminal (<code>term-rest-client demo</code>). <code>-data demo.json</code> keeps the sample collections apart from your own. <code>run</code> exits with status 1 when a test fails, so it drops straight into CI.</p>
+        <p class="vh" id="pstat" role="status" aria-live="polite"></p>
+        <noscript><p class="ns">The live printer needs JavaScript. The receipt above is the real output of the Local run. The commands the printer knows: <code>run -env Local</code>, <code>run -env Staging</code> (a scripted failure), <code>export -lang python</code> and <code>-gui -lan</code>.</p></noscript>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mainshot" aria-label="Main screen screenshot">
+  <div class="wrap">
+    <figure class="print rv" style="--rr:-.6deg">
+      <span class="tape" style="left:8%;--tr:-6deg"></span><span class="tape c" style="right:8%;left:auto;--tr:5deg"></span><span class="stamp blue abs" aria-hidden="true">Real capture</span>
+      <button type="button" class="lbb lb" data-cap="The main screen: collections and folders, the request builder with eight tabs, and the response with tests."><img src="assets/term-rest-client/main.webp" width="1600" height="910" alt="term-rest-client main screen: a collections tree on the left with nested folders, a POST request with a JSON body in the middle, and the response with status 200, timing, headers, highlighted JSON and passing tests on the right."></button>
+      <figcaption class="cap">The main screen: collections and folders, the request builder with eight tabs, and the response with tests. Every terminal screenshot on this page is generated from the real app by the project's test suite.</figcaption>
+    </figure>
+    <i class="arrow" aria-hidden="true"></i><span class="pen" aria-hidden="true">the real thing, not a mockup</span>
+  </div>
+</section>
+
+<!-- ============ FEATURES: THE BILL ============ -->
+<section class="sec kraft" id="features" aria-labelledby="fh">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick"><b>No. 01</b> Features</p>
+      <h2 id="fh">What you'd reach for a <mark>REST client</mark> to do.</h2>
+      <p class="intro">Everything works from the keyboard, the mouse works too, and nothing needs a login or a network service of its own.</p>
+    </div>
+    <div class="fgrid">
+      <div class="bill paper torn rv">
+        <span class="tape m" style="left:5%;top:-16px;--tr:-4deg"></span><span class="tape c" style="right:7%;top:-16px;--tr:3deg"></span><i class="clip" style="right:-9px;top:70px;--r:12deg"></i>
+        <div class="bt"><b>Itemised</b><span>Item / key or flag</span></div>
+        <div class="perf"></div>
+        <ol class="items" id="bill">
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Collections and folders</span><i class="ld"></i><kbd class="ky">m</kbd></button>
+            <p class="slip" data-no="01">Collections, folders inside folders to any depth, and top-level requests. Rename, duplicate, reorder, and move anything with <code>m</code>. The request title shows its full path, so you always know which API you're editing.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Environments</span><i class="ld"></i><kbd class="ky">Alt+E</kbd></button>
+            <p class="slip" data-no="02">Globals plus named environments like Local and Staging. <code>Alt+E</code> switches, a missing variable tells you where it looked, and <code>run -env Staging</code> picks one for a single run.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">History</span><i class="ld"></i><kbd class="ky">Alt+H</kbd></button>
+            <p class="slip" data-no="03">Every request you send, grouped by day, with the response it got. Open, resend, save to a collection, filter or delete. Stored in its own file, so your workspace stays clean in git.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Tests and scripts</span><i class="ld"></i><kbd class="ky">Ctrl+R</kbd></button>
+            <p class="slip" data-no="04">One assertion per line: <code>status == 200</code>, <code>json.items[0].id exists</code>, <code>time &lt; 500</code>. Capture values with <code>set token = json.access_token</code>, and prepare data in a pre-request script.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Import Postman and cURL</span><i class="ld"></i><kbd class="ky">Ctrl+O</kbd></button>
+            <p class="slip" data-no="05">Postman collections (v2.0 and v2.1), environments and globals, with common <code>pm.test</code> scripts converted. Paste a curl command from browser dev tools into the URL field and it becomes a request.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Export as Postman v2.1</span><i class="ld"></i><kbd class="ky">x</kbd></button>
+            <p class="slip" data-no="06">Collections, folders, environments and globals export as Postman v2.1 files. Tests written here become <code>pm.test</code> JavaScript, so a teammate on Postman can run them.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Code snippets</span><i class="ld"></i><kbd class="ky">Ctrl+G</kbd></button>
+            <p class="slip" data-no="07"><code>Ctrl+G</code> shows the request as cURL, Python, JavaScript, Go or HTTPie, with real values or with variables kept. <code>c</code> copies it, and works over SSH too.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Headless runs</span><i class="ld"></i><kbd class="ky">run</kbd></button>
+            <p class="slip" data-no="08"><code>term-rest-client run "Shop API"</code> sends saved requests, runs their tests and exits non-zero on failure. <code>-v</code> prints headers like <code>curl -v</code>, and <code>-set</code> overrides a variable for one run.</p></li>
+          <li class="item"><button type="button" class="line" aria-expanded="false"><span class="no"></span><span class="nm">Small comforts</span><i class="ld"></i><kbd class="ky">Alt+8</kbd></button>
+            <p class="slip" data-no="09">Unsaved edits survive a restart. Response sections fold and stay folded. Four themes, including a light one. Timeouts, redirects and TLS checks are all settings.</p></li>
+        </ol>
+        <div class="perf"></div>
+        <p class="fnote">9 items. Hover, focus or tap a line for its slip.</p>
+      </div>
+      <div class="fside" aria-hidden="true"><i class="arrow"></i><div class="scrap"><span class="pen">each line prints its own slip</span></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="cutline" aria-hidden="true"><svg viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="4" r="3"/><circle cx="5" cy="16" r="3"/><path d="M8 5l17 10M8 15L25 5"/></svg><i></i><span>cut here</span></div>
+<!-- ============ API TYPES: TICKET STUBS ============ -->
+<section class="sec" id="apis" aria-labelledby="ah">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick"><b>No. 02</b> API types</p>
+      <h2 id="ah">REST, GraphQL, <mark>streams</mark> and WebSockets.</h2>
+      <p class="intro">Pick the type next to the URL. The same environments, scripts, tests and history work for all of them, and so does <code>run</code> on the command line.</p>
+    </div>
+    <div class="tickets">
+      <div class="stubwrap rv" style="--r:-1.1deg;--i:0"><span class="tape " style="--tr:-3deg"></span><article class="stub">
+        <div class="pic"><button type="button" class="lbb lb" data-cap="REST. Request and response headers, sent and received, each section foldable."><img loading="lazy" src="assets/term-rest-client/headers.webp" width="1600" height="910" alt="The response pane with request headers and response headers expanded and the body folded."></button></div>
+        <p class="pcap">Headers, sent and received, each foldable.</p>
+        <div class="sb"><p class="no">Type 01</p><h3>REST</h3><p>GET, POST, PUT, PATCH, DELETE, HEAD and OPTIONS. JSON, text, XML and form bodies, Basic, Bearer and API key auth, and <code>{{variables}}</code> anywhere.</p></div>
+        <div class="tail"><span>Type 01 of 04</span><div class="bcw"><span class="bc" data-bc="REST-01"></span></div></div>
+      </article></div>
+      <div class="stubwrap rv" style="--r:1deg;--i:1"><span class="tape c" style="--tr:3deg"></span><article class="stub">
+        <div class="pic"><button type="button" class="lbb lb" data-cap="GraphQL. Query and variables side by side, sent as JSON."><img loading="lazy" src="assets/term-rest-client/graphql.webp" width="1600" height="910" alt="A GraphQL request with the query and its JSON variables side by side, and the response data on the right."></button></div>
+        <p class="pcap">Query and variables side by side, sent as JSON.</p>
+        <div class="sb"><p class="no">Type 02</p><h3>GraphQL</h3><p>Query and Variables editors side by side. <code>Ctrl+T</code> reads the server's schema: browse types and arguments, and <code>i</code> writes the query for any field, nested ones included.</p></div>
+        <div class="tail"><span>Type 02 of 04</span><div class="bcw"><span class="bc" data-bc="GRAPHQL-02"></span></div></div>
+      </article></div>
+      <div class="stubwrap rv" style="--r:.8deg;--i:2"><span class="tape m" style="--tr:-2deg"></span><article class="stub">
+        <div class="pic"><button type="button" class="lbb lb" data-cap="Server-Sent Events. Each event as it arrives, with its time."><img loading="lazy" src="assets/term-rest-client/streaming.webp" width="1600" height="910" alt="A Server-Sent Events response arriving live, each event listed with its arrival time, type and JSON data."></button></div>
+        <p class="pcap">Each event as it arrives, with its time.</p>
+        <div class="sb"><p class="no">Type 03</p><h3>Streaming</h3><p>Server-Sent Events and NDJSON show up live, each event with its time. <code>Esc</code> stops and keeps what arrived, and tests can check <code>events &gt;= 3</code> or <code>event[-1].json.done == true</code>.</p></div>
+        <div class="tail"><span>Type 03 of 04</span><div class="bcw"><span class="bc" data-bc="SSE-03"></span></div></div>
+      </article></div>
+      <div class="stubwrap rv" style="--r:-.9deg;--i:3"><span class="tape k" style="--tr:4deg"></span><article class="stub">
+        <div class="pic"><button type="button" class="lbb lb" data-cap="WebSocket. A Message tab, and a log of what went out and came back."><img loading="lazy" src="assets/term-rest-client/websocket.webp" width="1600" height="910" alt="A WebSocket request in the Message tab, connected, with a log of sent and received messages and their timestamps."></button></div>
+        <p class="pcap">A Message tab, and a log of what went out and came back.</p>
+        <div class="sb"><p class="no">Type 04</p><h3>WebSocket</h3><p>Connect with your headers and auth, send plain text or JSON, and watch a timed log of what goes out and comes back. Tests run on the received messages when it closes.</p></div>
+        <div class="tail"><span>Type 04 of 04</span><div class="bcw"><span class="bc" data-bc="WS-04"></span></div></div>
+      </article></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CI: STICKY SCENE ============ -->
+<section class="ci sky" id="ci" aria-labelledby="cih">
+  <div class="pin">
+    <div class="wrap">
+      <div class="ci-grid">
+        <div class="ci-copy">
+          <p class="kick"><b>No. 03</b> Headless runs</p>
+          <h2 id="cih">Drops into <span class="nb"><mark>CI</mark>.</span></h2>
+          <p class="intro"><code>term-rest-client run "Shop API"</code> sends saved requests, runs their tests and exits non-zero on failure: status 1 if a request fails or any test fails. <code>-v</code> prints headers like <code>curl -v</code>, and <code>-set</code> overrides a variable for one run.</p>
+          <div class="ctl">
+            <button type="button" class="switch" id="brk" role="switch" aria-checked="false"><span class="tg"></span>Break a test</button>
+            <small>Flip it, or keep scrolling. The scene shows what a pipeline sees when one assertion fails.</small>
+          </div>
+          <p class="runnote" id="cistat" role="status" aria-live="polite">All three tests pass. run exits 0 and the pipeline carries on to deploy.</p>
+        </div>
+        <div class="circ">
+          <i class="arrow" aria-hidden="true"></i><span class="pen" aria-hidden="true">break it!</span>
+          <div class="rc3">
+            <span class="tape c" style="--tr:-4deg"></span>
+            <article class="rcpt" id="circ" aria-label="Receipt of three tests">
+              <div class="rh" data-n="0"><b>CI run</b><span>SAMPLE</span></div>
+              <p class="cmd" data-n="1"><s>$</s>term-rest-client -data demo.json run -env Local "Payment Gateway"</p>
+              <div class="rq" data-n="2"><i>POST</i> Charge</div>
+              <div class="st" data-n="3"><b id="cist">200 OK</b>  0 ms  328 bytes</div>
+              <div class="t" data-n="4" id="cit1"><s>✓</s> <span>status == 200</span></div>
+              <div class="t" data-n="5"><s>✓</s> time &lt; 5000</div>
+              <div class="t" data-n="6"><s>✓</s> json.json.orderId == {{orderId}}</div>
+              <div data-n="7"><hr class="dash"><div class="sum tot" id="cisum"><span>Total</span><i></i><span id="cisumv">3 / 3</span></div></div>
+              <div data-n="8"><div class="stamps"><span class="stamp ok big" id="cistamp">EXIT 0</span></div><div class="bcw"><span class="bc" id="cibc" data-bc="ci-pass"></span></div></div>
+            </article>
+          </div>
+          <div class="pipe" aria-hidden="true">
+            <div class="step idle" id="st1"><b>Build</b><small>your build</small></div>
+            <div class="step idle" id="st2"><b>Test</b><small>term-rest-client run</small></div>
+            <div class="step idle" id="st3"><b>Deploy</b><small>your deploy</small></div>
+            <span class="arr"></span><span class="arr"></span>
+          </div>
+          <p class="pipecap">A three-step pipeline drawn for illustration. Scripted sample, not tied to any CI product.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BROWSER UI ============ -->
+<section class="gui" id="gui" aria-labelledby="gh">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick"><b>No. 04</b> Browser UI</p>
+      <h2 id="gh">Prefer a mouse? Add <span class="nb"><mark>-gui</mark>.</span></h2>
+      <p class="intro"><code>term-rest-client -gui</code> opens the same workspace in your browser. The page is built into the binary, nothing is loaded from the internet, and every request is still sent by term-rest-client itself, so there are <strong>no CORS errors</strong> and streams, WebSockets, scripts and tests work exactly as in the terminal.</p>
+    </div>
+    <div class="feed" id="feed">
+      <div class="feedslot" aria-hidden="true"><span>term-rest-client -gui</span><span>printing a window</span></div>
+      <div class="feedclip">
+        <figure class="win" id="feedwin" style="margin-bottom:0">
+          <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>http://localhost:51234/?t=6f1c…</span></div>
+          <button type="button" class="lbb lb" data-cap="The browser UI following a Server-Sent Events stream. Real capture from the app."><img loading="lazy" src="assets/term-rest-client/gui.webp" width="1440" height="860" alt="The browser UI in dark mode: a collections tree, request tabs, a GET request with its tests, and a Server-Sent Events stream arriving live on the right."></button>
+        </figure>
+      </div>
+    </div>
+    <p class="cap">The browser UI following a Server-Sent Events stream. Real capture from the app.</p>
+
+    <div class="grid2">
+      <article class="rcpt rv" aria-label="Receipt of the command term-rest-client -gui -lan">
+        <div class="rh"><b>term-rest-client</b><span>-gui -lan</span></div>
+        <p class="cmd"><s>$</s>term-rest-client -gui -lan</p>
+        <hr class="dash">
+        <pre class="raw">
+  term-rest-client GUI is running
+
+  Local:   http://localhost:51234/?t=6f1c…
+           http://127.0.0.1:51234/?t=6f1c…
+  Network: http://192.168.1.20:51234/?t=6f1c…
+
+  The link carries a one-time key; keep it private. Press Ctrl+C to stop.</pre>
+        <div class="stamps"><span class="stamp run">Running</span></div>
+        <div class="tab"><span>Local by default</span><button type="button" class="cp" data-copy="term-rest-client -gui -lan">Copy command</button></div>
+      </article>
+      <div class="slips">
+        <article class="slipcard a rv"><span class="tape c" style="--tr:4deg"></span><h3>Everything, with a mouse</h3>
+          <p>Request tabs, the collections tree, environments, history, a JSON tree view, a GraphQL schema browser, a WebSocket composer, code snippets, cURL and Postman import (drop a file on the window) and a command palette on <code>Ctrl+K</code>. Light and dark.</p></article>
+        <article class="slipcard b rv"><h3>Local by default</h3>
+          <p>It picks a free port on 127.0.0.1, or the one you ask for with <code>-port</code>, falling back when it's taken. <code>-lan</code> lists a link per network address. A per-run key and Origin checks keep other sites from using it.</p></article>
+      </div>
+    </div>
+
+    <div class="photos2">
+      <figure class="print rv"><span class="tape"></span>
+        <button type="button" class="lbb lb" data-cap="Light mode. A GraphQL response as a collapsible tree."><img loading="lazy" src="assets/term-rest-client/gui-light.webp" width="1440" height="860" alt="The browser UI in light mode with a GraphQL query and variables, and the response shown as a collapsible JSON tree."></button>
+        <figcaption class="cap"><b>Light mode.</b> A GraphQL response as a collapsible tree.</figcaption></figure>
+      <figure class="print rv"><span class="tape m"></span>
+        <button type="button" class="lbb lb" data-cap="WebSocket. Type in the composer, watch the log."><img loading="lazy" src="assets/term-rest-client/gui-websocket.webp" width="1440" height="860" alt="The browser UI connected to a WebSocket, with sent and received messages listed and a composer at the bottom."></button>
+        <figcaption class="cap"><b>WebSocket.</b> Type in the composer, watch the log.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CODE: CARBON COPIES ============ -->
+<section class="sec peach" id="code" aria-labelledby="ch">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick"><b>No. 05</b> Code snippets</p>
+      <h2 id="ch">One request, <mark>five</mark> languages.</h2>
+      <p class="intro">The sample Charge request, exactly as the app generates it. Switch languages with the arrow keys in the app, or print any of them with <code>term-rest-client export -lang python</code>.</p>
+    </div>
+    <div class="carbonbox rv">
+      <div class="ctabs" role="tablist" aria-label="Snippet language">
+        <button class="t-curl" role="tab" id="t-curl" aria-controls="p-curl" aria-selected="true">cURL</button>
+        <button class="t-python" role="tab" id="t-python" aria-controls="p-python" aria-selected="false" tabindex="-1">Python</button>
+        <button class="t-javascript" role="tab" id="t-javascript" aria-controls="p-javascript" aria-selected="false" tabindex="-1">JavaScript</button>
+        <button class="t-go" role="tab" id="t-go" aria-controls="p-go" aria-selected="false" tabindex="-1">Go</button>
+        <button class="t-httpie" role="tab" id="t-httpie" aria-controls="p-httpie" aria-selected="false" tabindex="-1">HTTPie</button>
+      </div>
+      <div class="carbon t-curl" role="tabpanel" id="p-curl" aria-labelledby="t-curl" data-copy-no="Copy 1 of 5, cURL">
+        <button class="copy" data-copy="curl -X POST &#x27;https://httpbin.org/post&#x27; \
+  -H &#x27;Content-Type: application/json&#x27; \
+  -H &#x27;User-Agent: term-rest-client&#x27; \
+  --data-raw &#x27;{
+  &quot;amount&quot;: 200,
+  &quot;currency&quot;: &quot;INR&quot;,
+  &quot;orderId&quot;: &quot;order-831&quot;
+}&#x27;">Copy</button>
+        <pre><code>curl -X POST 'https://httpbin.org/post' \
+  -H 'Content-Type: application/json' \
+  -H 'User-Agent: term-rest-client' \
+  --data-raw '{
+  "amount": 200,
+  "currency": "INR",
+  "orderId": "order-831"
+}'</code></pre>
+      </div>
+      <div class="carbon t-python" role="tabpanel" id="p-python" aria-labelledby="t-python" data-copy-no="Copy 2 of 5, Python" hidden>
+        <button class="copy" data-copy="import requests
+
+url = &quot;https://httpbin.org/post&quot;
+headers = {
+    &quot;Content-Type&quot;: &quot;application/json&quot;,
+}
+payload = {
+    &quot;amount&quot;: 200,
+    &quot;currency&quot;: &quot;INR&quot;,
+    &quot;orderId&quot;: &quot;order-831&quot;,
+}
+
+response = requests.post(url, headers=headers, json=payload)
+print(response.status_code)
+print(response.text)">Copy</button>
+        <pre><code>import requests
+
+url = "https://httpbin.org/post"
+headers = {
+    "Content-Type": "application/json",
+}
+payload = {
+    "amount": 200,
+    "currency": "INR",
+    "orderId": "order-831",
+}
+
+response = requests.post(url, headers=headers, json=payload)
+print(response.status_code)
+print(response.text)</code></pre>
+      </div>
+      <div class="carbon t-javascript" role="tabpanel" id="p-javascript" aria-labelledby="t-javascript" data-copy-no="Copy 3 of 5, JavaScript" hidden>
+        <button class="copy" data-copy="const response = await fetch(&quot;https://httpbin.org/post&quot;, {
+  method: &quot;POST&quot;,
+  headers: {
+    &quot;Content-Type&quot;: &quot;application/json&quot;,
+  },
+  body: JSON.stringify({
+    &quot;amount&quot;: 200,
+    &quot;currency&quot;: &quot;INR&quot;,
+    &quot;orderId&quot;: &quot;order-831&quot;,
+  }),
+});
+
+console.log(response.status);
+console.log(await response.text());">Copy</button>
+        <pre><code>const response = await fetch("https://httpbin.org/post", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    "amount": 200,
+    "currency": "INR",
+    "orderId": "order-831",
+  }),
+});
+
+console.log(response.status);
+console.log(await response.text());</code></pre>
+      </div>
+      <div class="carbon t-go" role="tabpanel" id="p-go" aria-labelledby="t-go" data-copy-no="Copy 4 of 5, Go" hidden>
+        <button class="copy" data-copy="package main
+
+import (
+	&quot;fmt&quot;
+	&quot;io&quot;
+	&quot;net/http&quot;
+	&quot;strings&quot;
+)
+
+func main() {
+	payload := strings.NewReader(`{
+  &quot;amount&quot;: 200,
+  &quot;currency&quot;: &quot;INR&quot;,
+  &quot;orderId&quot;: &quot;order-831&quot;
+}`)
+
+	req, err := http.NewRequest(http.MethodPost, &quot;https://httpbin.org/post&quot;, payload)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Set(&quot;Content-Type&quot;, &quot;application/json&quot;)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(resp.Status)
+	fmt.Println(string(data))
+}">Copy</button>
+        <pre><code>package main
+
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"strings"
+)
+
+func main() {
+	payload := strings.NewReader(`{
+  "amount": 200,
+  "currency": "INR",
+  "orderId": "order-831"
+}`)
+
+	req, err := http.NewRequest(http.MethodPost, "https://httpbin.org/post", payload)
+	if err != nil {
+		panic(err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(resp.Status)
+	fmt.Println(string(data))
+}</code></pre>
+      </div>
+      <div class="carbon t-httpie" role="tabpanel" id="p-httpie" aria-labelledby="t-httpie" data-copy-no="Copy 5 of 5, HTTPie" hidden>
+        <button class="copy" data-copy="http POST https://httpbin.org/post \
+  amount:=200 \
+  currency=INR \
+  orderId=order-831">Copy</button>
+        <pre><code>http POST https://httpbin.org/post \
+  amount:=200 \
+  currency=INR \
+  orderId=order-831</code></pre>
+      </div>
+    </div>
+    <p class="cnote">Each language's generator is checked by the test suite. Every snippet is run with python3, node, go and http against a local server, and has to deliver the same method, URL, headers and body as the app itself.</p>
+  </div>
+</section>
+
+<!-- ============ SCREENS: CONTACT SHEET ============ -->
+<section class="sec" id="screens" aria-labelledby="sh">
+  <div class="wrap">
+    <div class="sheetwide paper torn"><span class="tape" style="left:4%;top:-16px;--tr:-5deg"></span><span class="tape m" style="right:6%;top:-16px;--tr:4deg"></span>
+      <div class="sh rv">
+        <p class="kick"><b>No. 06</b> Screens</p>
+        <h2 id="sh">Real captures, no mockups.</h2>
+        <p class="intro">Each terminal screen is rendered by <code>make screenshots</code>, which drives the app on a simulated terminal and keeps the exact colours it draws. Press Enter on a print to look closer, then use the arrow keys.</p>
+        <div class="meta"><span>Sheet 1 of 1</span><span>10 frames</span><span>Click or press Enter to enlarge</span></div>
+      </div>
+      <div class="photos">
+        <figure class="photo rv" style="--r:-1.4deg"><span class="tape "></span>
+          <button type="button" class="lbb lb" data-cap="Code snippets. Python with {{variables}} kept as real variables."><img loading="lazy" src="assets/term-rest-client/code.webp" width="1600" height="910" alt="The code window showing the Charge request as Python, with the variables base_url and order_id declared at the top."></button>
+          <figcaption><b>Code snippets.</b> Python with <code>{{variables}}</code> kept as real variables.</figcaption><span class="fr">01A</span></figure>
+        <figure class="photo rv" style="--r:1.1deg"><span class="tape c"></span>
+          <button type="button" class="lbb lb" data-cap="History. Every request you sent, grouped by day."><img loading="lazy" src="assets/term-rest-client/history.webp" width="1600" height="910" alt="The History sidebar listing requests grouped under Today with time, method, status and path."></button>
+          <figcaption><b>History.</b> Every request you sent, grouped by day.</figcaption><span class="fr">02A</span></figure>
+        <figure class="photo rv" style="--r:-.7deg"><span class="tape m"></span>
+          <button type="button" class="lbb lb" data-cap="Environments. Globals underneath, the active environment on top."><img loading="lazy" src="assets/term-rest-client/environments.webp" width="1600" height="910" alt="The Variables tab with globals and the Local and httpbin.org environments."></button>
+          <figcaption><b>Environments.</b> Globals underneath, the active environment on top.</figcaption><span class="fr">03A</span></figure>
+        <figure class="photo tall rv" style="--r:1.3deg"><span class="tape "></span>
+          <button type="button" class="lbb lb" data-cap="run from the command line. Two collections, one command, every test line ticked. Usable in CI."><img loading="lazy" src="assets/term-rest-client/cli.webp" width="1600" height="1929" alt="A terminal running term-rest-client run on User Service and Payment Gateway: each request with its status, timing and size, and every test line ticked."></button>
+          <figcaption><b>run, from the command line.</b> Two collections, one command, every test line ticked. Usable in CI.</figcaption><span class="fr">04A</span></figure>
+        <figure class="photo rv" style="--r:.9deg"><span class="tape c"></span>
+          <button type="button" class="lbb lb" data-cap="Tests. Each line passes or fails, with the actual value."><img loading="lazy" src="assets/term-rest-client/tests.webp" width="1600" height="910" alt="A pre-request script and a list of tests, three passing and one failing with the actual status shown."></button>
+          <figcaption><b>Tests.</b> Each line passes or fails, with the actual value.</figcaption><span class="fr">05A</span></figure>
+        <figure class="photo rv" style="--r:-1.1deg"><span class="tape m"></span>
+          <button type="button" class="lbb lb" data-cap="Headers. Sent and received, each section foldable."><img loading="lazy" src="assets/term-rest-client/headers.webp" width="1600" height="910" alt="The response pane with request headers and response headers expanded and the body folded."></button>
+          <figcaption><b>Headers.</b> Sent and received, each section foldable.</figcaption><span class="fr">06A</span></figure>
+        <figure class="photo rv" style="--r:1.5deg"><span class="tape "></span>
+          <button type="button" class="lbb lb" data-cap="Postman import. Folders, auth, bodies and common scripts carried over."><img loading="lazy" src="assets/term-rest-client/import.webp" width="1600" height="910" alt="A summary after importing a Postman collection, listing the requests, folders and converted scripts."></button>
+          <figcaption><b>Postman import.</b> Folders, auth, bodies and common scripts carried over.</figcaption><span class="fr">07A</span></figure>
+        <figure class="photo rv" style="--r:-.8deg"><span class="tape c"></span>
+          <button type="button" class="lbb lb" data-cap="GraphQL schema. Browse the types, then i writes the query."><img loading="lazy" src="assets/term-rest-client/graphql-schema.webp" width="1600" height="910" alt="The GraphQL schema browser: a tree of root fields with country opened to show its fields, and a details pane with the field's arguments, its type's fields and the query it would write."></button>
+          <figcaption><b>GraphQL schema.</b> Browse the types, then <code>i</code> writes the query.</figcaption><span class="fr">08A</span></figure>
+        <figure class="photo rv" style="--r:1deg"><span class="tape m"></span>
+          <button type="button" class="lbb lb" data-cap="Folders. Nest as deep as you like, and press m to move things."><img loading="lazy" src="assets/term-rest-client/move.webp" width="1600" height="910" alt="The move dialog choosing a destination folder in a nested collections tree."></button>
+          <figcaption><b>Folders.</b> Nest as deep as you like, and press <code>m</code> to move things.</figcaption><span class="fr">09A</span></figure>
+        <figure class="photo rv" style="--r:-1.2deg"><span class="tape "></span>
+          <button type="button" class="lbb lb" data-cap="Light theme. One of four, alongside Catppuccin Mocha, Gruvbox Dark and Original."><img loading="lazy" src="assets/term-rest-client/light.webp" width="1600" height="910" alt="The main screen in the Light theme."></button>
+          <figcaption><b>Light theme.</b> One of four, alongside Catppuccin Mocha, Gruvbox Dark and Original.</figcaption><span class="fr">10A</span></figure>
+        <div class="pennote" aria-hidden="true">
+          <div class="scrap"><span class="pen">ten frames, one app</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KEYBOARD ============ -->
+<section class="sec sky" id="keys" aria-labelledby="kh">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick"><b>No. 07</b> Keyboard</p>
+      <h2 id="kh">The keys you'll use <span class="nb"><mark>most</mark>.</span></h2>
+      <p class="intro"><kbd class="kf">F1</kbd> shows the full list in the app. Plain letters only act as shortcuts outside text fields, so typing never triggers a command.</p>
+    </div>
+    <ul class="kgrid" id="kgrid">
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="hot w"><small>Ctrl</small><i class="vh">+</i><b>R</b></kbd></div><span class="lab">Send the request</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Ctrl</small><i class="vh">+</i><b>S</b></kbd></div><span class="lab">Save</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Ctrl</small><i class="vh">+</i><b>N</b></kbd></div><span class="lab">New request</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Ctrl</small><i class="vh">+</i><b>G</b></kbd></div><span class="lab">Show as code</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Ctrl</small><i class="vh">+</i><b>T</b></kbd></div><span class="lab">GraphQL schema</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd><b>c</b></kbd><span class="sep">/</span><kbd><b>y</b></kbd></div><span class="lab">Copy the response</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Ctrl</small><i class="vh">+</i><b>O</b></kbd></div><span class="lab">Import cURL or Postman</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Alt</small><i class="vh">+</i><b>E</b></kbd></div><span class="lab">Next environment</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Alt</small><i class="vh">+</i><b>H</b></kbd></div><span class="lab">History</span></li>
+      <li class="kc span2" tabindex="0"><div class="caps"><kbd class="w"><small>Alt</small><i class="vh">+</i><b>1</b></kbd><span class="sep">…</span><kbd><b>8</b></kbd></div><span class="lab">Request tabs</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd><b>y</b></kbd></div><span class="lab">Copy selected as code</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd><b>m</b></kbd></div><span class="lab">Move request or folder</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="esc w"><b>Esc</b></kbd></div><span class="lab">Stop a request, stream or socket</span></li>
+      <li class="kc" tabindex="0"><div class="caps"><kbd class="w"><small>Ctrl</small><i class="vh">+</i><b>Q</b></kbd></div><span class="lab">Quit</span></li>
+    </ul>
+    <p class="kfoot">These are drawings of keys. They press when you hover, focus or scroll to them, and they do not capture any real shortcut, so your browser keeps Ctrl+R.</p>
+  </div>
+</section>
+
+<div class="cutline" aria-hidden="true"><svg viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="5" cy="4" r="3"/><circle cx="5" cy="16" r="3"/><path d="M8 5l17 10M8 15L25 5"/></svg><i></i><span>cut here</span></div>
+<!-- ============ INSTALL: CHECKOUT ============ -->
+<section class="sec kraft" id="install" aria-labelledby="ih">
+  <div class="wrap">
+    <div class="sh rv">
+      <p class="kick"><b>No. 08</b> Install</p>
+      <h2 id="ih">One line, then <span class="nb"><mark>term-rest-client</mark>.</span></h2>
+      <p class="intro">The installer picks the right binary for your machine, checks it against the release's SHA-256 sums, and puts it on your <code>PATH</code>.</p>
+    </div>
+    <div class="instgrid">
+      <div class="chk paper torn rv">
+        <span class="tape c" style="left:6%;--tr:-5deg"></span><span class="tape" style="right:8%;--tr:4deg"></span><i class="clip o" style="right:-10px;top:60px;--r:10deg"></i>
+        <div class="rh"><b>Checkout</b><span>RECEIPT No. 0000</span></div>
+        <div class="perf"></div>
+        <div class="itabs" role="tablist" aria-label="Install method">
+          <button role="tab" id="t-i1" aria-controls="p-i1" aria-selected="true">macOS and Linux</button>
+          <button role="tab" id="t-i2" aria-controls="p-i2" aria-selected="false" tabindex="-1">From source</button>
+          <button role="tab" id="t-i3" aria-controls="p-i3" aria-selected="false" tabindex="-1">go install</button>
+          <button role="tab" id="t-i4" aria-controls="p-i4" aria-selected="false" tabindex="-1">Windows</button>
+        </div>
+        <div class="ipanel" role="tabpanel" id="p-i1" aria-labelledby="t-i1">
+          <button class="copy" data-copy="curl -fsSL https://raw.githubusercontent.com/AbyAbyss/cli-rest-client/main/get.sh | sh">Copy</button>
+          <pre><span class="c"># Apple Silicon or Intel Macs, Linux on x86_64 or arm64</span>
+curl -fsSL https://raw.githubusercontent.com/AbyAbyss/cli-rest-client/main/get.sh | sh</pre>
+        </div>
+        <div class="ipanel" role="tabpanel" id="p-i2" aria-labelledby="t-i2" hidden>
+          <button class="copy" data-copy="git clone https://github.com/AbyAbyss/cli-rest-client.git
+cd cli-rest-client
+./install.sh">Copy</button>
+          <pre><span class="c"># needs Go 1.21 or newer (it fetches the 1.24 toolchain itself)</span>
+git clone https://github.com/AbyAbyss/cli-rest-client.git
+cd cli-rest-client
+./install.sh</pre>
+        </div>
+        <div class="ipanel" role="tabpanel" id="p-i3" aria-labelledby="t-i3" hidden>
+          <button class="copy" data-copy="go install github.com/AbyAbyss/cli-rest-client/cmd/term-rest-client@latest">Copy</button>
+          <pre>go install github.com/AbyAbyss/cli-rest-client/cmd/term-rest-client@latest</pre>
+        </div>
+        <div class="ipanel" role="tabpanel" id="p-i4" aria-labelledby="t-i4" hidden>
+          <button class="copy" data-copy="https://github.com/AbyAbyss/cli-rest-client/releases/latest/download/term-rest-client-windows-amd64.zip">Copy link</button>
+          <ol class="steps" style="list-style:none">
+            <li><span>1.</span> Download <a href="https://github.com/AbyAbyss/cli-rest-client/releases/latest/download/term-rest-client-windows-amd64.zip">term-rest-client-windows-amd64.zip</a></li>
+            <li><span>2.</span> Unzip it and put term-rest-client.exe in a folder on your PATH</li>
+            <li><span>3.</span> Run it in Windows Terminal: term-rest-client</li>
+          </ol>
+        </div>
+        <div class="lines">
+          <div class="sum"><span>1 x term-rest-client, one static Go binary</span><i></i><span>0.00</span></div>
+          <div class="sum"><span>Your requests, one JSON file</span><i></i><span>0.00</span></div>
+          <div class="sum tot"><span>Total</span><i></i><span>0.00</span></div>
+          <p class="total-note">MIT licensed, no account</p>
+          <span class="stamp blue abs" aria-hidden="true">Paid in full</span>
+        </div>
+        <div class="perf"></div>
+        <p class="note">Then try the samples offline: run <code>term-rest-client demo</code> in one terminal, and <code>term-rest-client -data demo.json</code> in another. The demo API answers every sample request, including GraphQL, streaming and WebSocket.</p>
+        <p class="note">Prefer to download by hand? Every release has archives for macOS (arm64, amd64), Linux (amd64, arm64) and Windows, plus <code>SHA256SUMS</code>, on the <a href="https://github.com/AbyAbyss/cli-rest-client/releases">releases page</a>. If a browser download on macOS won't open, run <code>xattr -d com.apple.quarantine term-rest-client</code> once.</p>
+        <div class="bcw"><span class="bc" data-bc="install-0.00"></span></div>
+      </div>
+      <div class="insideside" aria-hidden="true"><i class="arrow"></i><div class="scrap"><span class="pen">pick a tab, copy the line, done</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ UNDER THE HOOD ============ -->
+<section class="how sky" id="how" aria-labelledby="hh">
+  <div class="wrap howgrid">
+    <div class="rv">
+      <p class="kick"><b>No. 09</b> Under the hood</p>
+      <h2 id="hh">A plain file <span class="nb"><mark>you own</mark>.</span></h2>
+      <p>Collections, environments, settings and unsaved edits live in one JSON file, written atomically. History goes in a file next to it. Point <code>-data</code> at a file in your repo and the whole team shares the same requests through git.</p>
+      <p>The app is written in Go with <a href="https://github.com/rivo/tview">tview</a> and <a href="https://github.com/gdamore/tcell">tcell</a>. The tests drive the real interface on a simulated screen, typing and clicking, and pass under the race detector.</p>
+    </div>
+    <div class="label rv">
+      <span class="hole"></span><span class="tape m"></span><i class="clip b"></i>
+      <div class="lh"><b>Filed under</b><span>workspace.json</span></div>
+      <dl>
+        <div class="r"><dt>Linux</dt><dd><code>~/.config/term-rest-client/workspace.json</code> on Linux</dd></div>
+        <div class="r"><dt>macOS</dt><dd><code>~/Library/Application Support/term-rest-client/</code> on macOS</dd></div>
+        <div class="r"><dt>Windows</dt><dd><code>%AppData%\term-rest-client\</code> on Windows</dd></div>
+        <div class="r"><dt>Override</dt><dd>Override with <code>-data FILE</code> or <code>TERM_REST_CLIENT_DATA</code></dd></div>
+        <div class="r" style="border-bottom:0"><dt>Clipboard</dt><dd>Clipboard through <code>pbcopy</code>, <code>wl-copy</code>, <code>xclip</code>, <code>xsel</code> or <code>clip</code>, and OSC 52 over SSH</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot paper torn">
+      <span class="tape c" style="--tr:-3deg"></span>
+      <div class="bcw"><span class="bc" data-bc="AbyAbyss/cli-rest-client"></span></div>
+      <ul aria-label="Project links">
+        <li><a href="https://github.com/AbyAbyss/cli-rest-client">Repository</a></li>
+        <li><a href="https://github.com/AbyAbyss/cli-rest-client/releases">Releases</a></li>
+        <li><a href="https://github.com/AbyAbyss/cli-rest-client#readme">Documentation</a></li>
+        <li><a href="https://github.com/AbyAbyss/cli-rest-client/blob/main/LICENSE">License (MIT)</a></li>
+      </ul>
+      <small>Made by <a href="index.html">Aby Saji Pappachan</a> · <a href="index.html#sites">More projects</a></small>
+    </div>
+  </div>
+</footer>
+
+<dialog class="lbx" id="lbx" aria-label="Screenshot viewer">
+  <div class="frame">
+    <img id="lbi" src="" alt="" width="1600" height="910">
+    <div class="lc"><p id="lbc"></p><em id="lbn"></em>
+      <button type="button" class="nb" id="lbp" aria-label="Previous screenshot">Prev</button>
+      <button type="button" class="nb" id="lbf" aria-label="Next screenshot">Next</button>
+      <button type="button" class="nb" id="lbx-close" aria-label="Close viewer">Close</button>
+    </div>
+  </div>
+</dialog>
+<script>
+(function(){
+'use strict';
+var D=document,root=D.documentElement;
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function $(s,c){return (c||D).querySelector(s)}
+function $$(s,c){return Array.prototype.slice.call((c||D).querySelectorAll(s))}
+function el(t,c,h){var e=D.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function clamp(v,a,b){return v<a?a:v>b?b:v}
+function pad(n){return ('000'+n).slice(-4)}
+
+/* ---------- barcodes, generated from a seed ---------- */
+function rng(s){var a=0,i;for(i=0;i<s.length;i++)a=(a*31+s.charCodeAt(i))>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function barcode(seed){
+  var r=rng(seed),x=0,on=1,d='',W=260,g=[1,1,1,1,3,1,1,3];
+  function bar(w){if(on)d+='M'+x+' 0h'+w+'v1h-'+w+'z';x+=w;on^=1}
+  g.forEach(bar);
+  while(x<W-18){bar(1+Math.floor(r()*r()*4+r()*1.4))}
+  if(!on)bar(1);
+  g.slice().reverse().forEach(bar);
+  return '<svg viewBox="0 0 '+x+' 1" preserveAspectRatio="none" width="100%" height="100%" aria-hidden="true" focusable="false" shape-rendering="crispEdges"><path d="'+d+'" fill="currentColor"/></svg>';
+}
+function digits(seed){var r=rng(seed+'#'),o=[],i;for(i=0;i<4;i++)o.push(pad(Math.floor(r()*10000)));return o.join(' ')}
+function drawBc(e){var s=e.getAttribute('data-bc');e.innerHTML=barcode(s);if(!e.nextElementSibling||!e.nextElementSibling.classList.contains('bcn')&&e.id!=='cibc')e.insertAdjacentHTML('afterend','<span class="bcn">'+digits(s)+'</span>')}
+$$('[data-bc]').forEach(drawBc);
+
+/* ---------- copy ---------- */
+function fallbackCopy(t){var a=D.createElement('textarea');a.value=t;a.style.cssText='position:fixed;opacity:0';D.body.appendChild(a);a.select();var ok=false;try{ok=D.execCommand('copy')}catch(e){}D.body.removeChild(a);return ok}
+function copyTo(b){
+  var t=b.getAttribute('data-copy'),was=b.getAttribute('data-label')||b.textContent;b.setAttribute('data-label',was);
+  function done(ok){b.textContent=ok?'Copied':'Press Ctrl+C';b.classList.toggle('ok',ok);clearTimeout(b._t);b._t=setTimeout(function(){b.textContent=was;b.classList.remove('ok')},1800)}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){done(true)},function(){done(fallbackCopy(t))})}else done(fallbackCopy(t));
+}
+D.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('.copy,.cp');if(b&&b.hasAttribute('data-copy'))copyTo(b)});
+
+/* ---------- reveal on scroll ---------- */
+(function(){
+  var rv=$$('.rv');
+  if(reduce||!('IntersectionObserver' in window)){rv.forEach(function(e){e.classList.add('in')});return}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1,rootMargin:'0px 0px -6% 0px'});
+  rv.forEach(function(e){io.observe(e)});
+})();
+
+/* ---------- tabs (code carbons, install checkout) ---------- */
+$$('[role=tablist]').forEach(function(list){
+  var tabs=$$('[role=tab]',list);
+  function sel(i,focus){tabs.forEach(function(t,j){var on=i===j;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;D.getElementById(t.getAttribute('aria-controls')).hidden=!on});if(focus)tabs[i].focus()}
+  tabs.forEach(function(t,i){
+    t.addEventListener('click',function(){sel(i)});
+    t.addEventListener('keydown',function(e){
+      var n=i;
+      if(e.key==='ArrowRight')n=(i+1)%tabs.length;else if(e.key==='ArrowLeft')n=(i-1+tabs.length)%tabs.length;
+      else if(e.key==='Home')n=0;else if(e.key==='End')n=tabs.length-1;else return;
+      e.preventDefault();sel(n,true);
+    });
+  });
+});
+
+/* ---------- features bill: a slip prints next to the hovered or focused line ---------- */
+(function(){
+  var items=$$('#bill .item');if(!items.length)return;
+  var mq=matchMedia('(min-width:1100px)');
+  function setOn(k){items.forEach(function(it,j){var on=j===k;it.classList.toggle('on',on);it.querySelector('.line').setAttribute('aria-expanded',on?'true':'false')})}
+  items.forEach(function(it,i){
+    var b=it.querySelector('.line');
+    b.addEventListener('mouseenter',function(){if(mq.matches)setOn(i)});
+    b.addEventListener('focus',function(){setOn(i)});
+    b.addEventListener('click',function(){setOn(!mq.matches&&it.classList.contains('on')?-1:i)});
+  });
+  setOn(0);
+})();
+
+/* ---------- keycaps: press when they enter the viewport ---------- */
+(function(){
+  var g=$('#kgrid');if(!g)return;var ks=$$('.kc',g);
+  ks.forEach(function(k,i){k.style.setProperty('--i',i)});
+  if(reduce||!('IntersectionObserver' in window))return;
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){ks.forEach(function(k){k.classList.add('wave')});io.disconnect()}})},{threshold:.25});
+  io.observe(g);
+})();
+
+/* ---------- lightbox ---------- */
+(function(){
+  var dlg=$('#lbx');if(!dlg||!dlg.showModal)return;
+  var list=[],seen={},cur=0,from=null;
+  $$('.lb').forEach(function(b){
+    var im=$('img',b),s=im.getAttribute('src');
+    if(seen[s]==null){seen[s]=list.length;list.push({src:s,alt:im.alt,cap:b.getAttribute('data-cap')||'',w:im.getAttribute('width'),h:im.getAttribute('height')})}
+    b.setAttribute('data-i',seen[s]);b.setAttribute('aria-haspopup','dialog');
+    b.addEventListener('click',function(){from=b;show(+b.getAttribute('data-i'));dlg.showModal()});
+  });
+  var I=$('#lbi'),C=$('#lbc'),N=$('#lbn');
+  function show(i){cur=(i+list.length)%list.length;var o=list[cur];I.src=o.src;I.alt=o.alt;I.width=o.w;I.height=o.h;C.textContent=o.cap;N.textContent=pad(cur+1).slice(2)+' / '+pad(list.length).slice(2)}
+  $('#lbp').addEventListener('click',function(){show(cur-1)});
+  $('#lbf').addEventListener('click',function(){show(cur+1)});
+  $('#lbx-close').addEventListener('click',function(){dlg.close()});
+  dlg.addEventListener('keydown',function(e){if(e.key==='ArrowRight'){e.preventDefault();show(cur+1)}else if(e.key==='ArrowLeft'){e.preventDefault();show(cur-1)}});
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+  dlg.addEventListener('close',function(){
+    var t=$$('.lb').filter(function(b){return +b.getAttribute('data-i')===cur});
+    var f=(from&&+from.getAttribute('data-i')===cur)?from:(t[0]||from);
+    if(f){f.focus({preventScroll:false})}
+  });
+})();
+
+/* ---------- the printer ---------- */
+(function(){
+  var tray=$('#tray'),stack=$('#stack'),inp=$('#cmd'),pf=$('#pf'),hint=$('#hint'),tear=$('#tear'),led=$('#led'),ledt=$('#ledt'),stat=$('#pstat');
+  if(!stack)return;
+  var P='term-rest-client ',DD='-data demo.json ';
+  var RN='"Auth API" "User Service/Lookup" "Payment Gateway"';
+  var CHARGE='"Payment Gateway/Charges/Charge"';
+  var LANGS=['curl','python','javascript','go','httpie'];
+  var SHORT=['run -env Local '+RN,'run -env Staging '+RN].concat(LANGS.map(function(l){return 'export -lang '+l+' '+CHARGE}));
+  var CANDS=[];
+  SHORT.forEach(function(s){CANDS.push(P+DD+s,DD+s,s)});
+  ['-gui','-gui -lan'].forEach(function(s){CANDS.push(P+s,s)});
+  CANDS.push(P+'help','help');
+  var CHIP={L:P+DD+SHORT[0],S:P+DD+SHORT[1],E:P+DD+'export -lang python '+CHARGE,G:P+'-gui -lan',H:P+'help'};
+
+  var REQ=[
+    ['GET','Login','1 ms','37 bytes',['status == 200','json.authenticated == true']],
+    ['GET','Bearer Token','0 ms','49 bytes',['status == 200','json.token == {{token}}']],
+    ['GET','Get JSON','0 ms','75 bytes',['status == 200','header Content-Type contains json','json.slideshow.title exists']],
+    ['GET','Query Params','0 ms','257 bytes',['status == 200','json.args.page == 1','json.args.q == "terminal client"']],
+    ['POST','Charge','0 ms','328 bytes',['status == 200','time < 5000','json.json.orderId == {{orderId}}']]
+  ];
+  var STG=['41 ms','38 ms','52 ms','47 ms','63 ms'];
+  var GUI=['','  term-rest-client GUI is running','','  Local:   http://localhost:51234/?t=6f1c…','           http://127.0.0.1:51234/?t=6f1c…','NET','','  The link carries a one-time key; keep it private. Press Ctrl+C to stop.'];
+
+  function runItems(env,fail){
+    var it=[['env',env]],pass=0,bad=0;
+    REQ.forEach(function(r,i){
+      it.push(['rq',r[0],r[1]],['st','200 OK',fail?STG[i]:r[2],r[3]]);
+      r[4].forEach(function(t,j){if(fail&&i===1&&j===1){it.push(['x',t,'got "expired-7c1e"']);bad++}else{it.push(['t',t]);pass++}});
+    });
+    it.push(['rule'],['sum','Requests',5],['sum','Tests passed',pass],['sum','Tests failed',bad,bad?'bad':''],['tot','Total',pass+' / '+(pass+bad),bad?'bad':'']);
+    it.push(['stamps',bad?[['EXIT 1','bad big'],['Failed','bad']]:[['EXIT 0','ok big'],['Passed','ok']]]);
+    it.push(bad?['note','SCRIPTED SAMPLE FAILURE. Not real output: the sample workspace has no Staging environment. It shows what CI sees when one assertion fails and run exits 1.','warn']:['note','Lines between the dashed rules are the real output of run. TOTAL and EXIT are this receipt\'s tally. Scripted demo of real output; nothing is sent over the network.']);
+    return it;
+  }
+  function snippet(lang){var c=$('#p-'+lang+' code');return c?c.textContent.split('\n'):['(snippet not found)']}
+  function usage(bad){
+    var it=[];
+    if(bad)it.push(['raw','term-rest-client: not in this demo: "'+bad+'"'],['raw',' ']);
+    it.push(['raw','KNOWN COMMANDS'],['raw',' '],['raw','run -env Local'],['raw','  13 of 13 tests pass'],['raw','run -env Staging'],['raw','  scripted failure, EXIT 1'],['raw','export -lang python'],['raw','  or curl, javascript, go, httpie'],['raw','-gui -lan'],['raw','  browser UI start banner'],['raw','help'],['raw','  this list'],['raw',' '],['raw','Tab completes a command.'],['raw','Enter prints it.'],['rule'],['stamps',[['Usage','run']]],['note','Scripted demo: nothing is sent over the network.']);
+    return it;
+  }
+  function sameNames(n){return n.join('|').toLowerCase()===['Auth API','User Service/Lookup','Payment Gateway'].join('|').toLowerCase()}
+  function tok(s){var o=[],re=/"([^"]*)"|'([^']*)'|(\S+)/g,m;while((m=re.exec(s)))o.push(m[1]!=null?m[1]:m[2]!=null?m[2]:m[3]);return o}
+  function parse(raw){
+    var s=raw.trim().replace(/\s+/g,' '),t=tok(s),i;
+    if(t[0]==='term-rest-client')t.shift();
+    for(i=0;i<t.length;i++)if(t[i]==='-data'){t.splice(i,2);i--}
+    var cmd=P+s.replace(/^term-rest-client\s*/,'');
+    if(!t.length)return {k:'none'};
+    if(t.indexOf('-gui')>-1)return {k:'gui',lan:t.indexOf('-lan')>-1,cmd:cmd};
+    if(t[0]==='help')return {k:'help',cmd:cmd};
+    if(t[0]==='run'){
+      var env=null,names=[];
+      for(i=1;i<t.length;i++){if(t[i]==='-env')env=t[++i];else names.push(t[i])}
+      if(env&&/^(local|staging)$/i.test(env)&&sameNames(names))return {k:'run',fail:/^staging$/i.test(env),env:/^staging$/i.test(env)?'Staging':'Local',cmd:cmd};
+      return {k:'usage',bad:'run '+t.slice(1).join(' '),cmd:cmd};
+    }
+    if(t[0]==='export'){
+      var lang=null,paths=[];
+      for(i=1;i<t.length;i++){if(t[i]==='-lang')lang=t[++i];else paths.push(t[i])}
+      if(lang&&LANGS.indexOf(lang)>-1&&(!paths.length||(paths.length===1&&paths[0].toLowerCase()===CHARGE.replace(/"/g,'').toLowerCase())))return {k:'export',lang:lang,cmd:cmd};
+      return {k:'usage',bad:'export '+t.slice(1).join(' '),cmd:cmd};
+    }
+    return {k:'usage',bad:t[0],cmd:cmd};
+  }
+  var NO=0;
+  function job(p){
+    var items=[['h'],['cmd',p.cmd],['rule']],wide=false,sr,exit=null;
+    if(p.k==='run'){items=items.concat(runItems(p.env,p.fail));sr='Printed a receipt for run -env '+p.env+(p.fail?': 12 of 13 tests passed, 1 failed, exit 1. Scripted sample failure.':': 13 of 13 tests passed, exit 0.')}
+    else if(p.k==='export'){snippet(p.lang).forEach(function(l){items.push(['raw',l||' '])});items.push(['rule'],['stamps',[['EXIT 0','ok big']]],['note','The '+p.lang+' snippet for the sample Charge request, as on the code snippets section.']);wide=true;sr='Printed the '+p.lang+' snippet.'}
+    else if(p.k==='gui'){GUI.forEach(function(l){items.push(['raw',l==='NET'?(p.lan?'  Network: http://192.168.1.20:51234/?t=6f1c…':'  Network: use -lan to open it from other devices'):l])});items.push(['rule'],['stamps',[['Running','run big']]],['note','Sample addresses and key. The real banner prints your own port and a new key each start.']);sr='Printed the browser UI start banner.'}
+    else{items=items.concat(usage(p.bad));sr='Printed a usage receipt listing the known commands.'}
+    items.push(['bar']);
+    return {p:p,items:items,wide:wide,sr:sr,copy:p.cmd,seed:p.cmd};
+  }
+  var PAUSE={h:160,cmd:240,rule:40,env:70,rq:90,st:60,t:60,x:200,raw:55,sum:60,tot:160,stamps:260,note:60,bar:120};
+  function build(it,n,seed){
+    var t=it[0],e,i,h='';
+    switch(t){
+      case 'h':e=el('div','rh','<b>term-rest-client</b><span>RECEIPT No. '+pad(n)+'</span>');break;
+      case 'cmd':e=el('p','cmd','<s>$</s>'+esc(it[1]));break;
+      case 'rule':e=el('hr','dash');break;
+      case 'env':e=el('div','env','Environment: <b>'+esc(it[1])+'</b>');break;
+      case 'rq':e=el('div','rq','<i>'+esc(it[1])+'</i> '+esc(it[2]));break;
+      case 'st':e=el('div','st','<b>'+it[1]+'</b>  '+it[2]+'  '+it[3]);break;
+      case 't':e=el('div','t','<s>✓</s> '+esc(it[1]));break;
+      case 'x':e=el('div','t x','<s>✗</s> '+esc(it[1])+'  ('+esc(it[2])+')');break;
+      case 'raw':e=el('div','raw',esc(it[1]));break;
+      case 'sum':e=el('div','sum '+(it[3]||''),'<span>'+esc(it[1])+'</span><i></i><span>'+esc(it[2])+'</span>');break;
+      case 'tot':e=el('div','sum tot '+(it[3]||''),'<span>'+esc(it[1])+'</span><i></i><span>'+esc(it[2])+'</span>');break;
+      case 'stamps':
+        for(i=0;i<it[1].length;i++)h+='<span class="stamp '+it[1][i][1]+(reduce?'':' thunk')+'" style="--r:'+(i?5:-7)+'deg">'+esc(it[1][i][0])+'</span>';
+        e=el('div','stamps',h);break;
+      case 'note':e=el('p','note'+(it[2]?' '+it[2]:''),esc(it[1]));break;
+      case 'bar':e=el('div','bcw','<span class="bc">'+barcode(seed)+'</span><span class="bcn">'+digits(seed)+'</span>');break;
+    }
+    e.setAttribute('data-t',t);
+    return e;
+  }
+  var gen=0,timer=0,cur=null,pad0=0,tilt=[-.4,.5,-.2,.4];
+  function setBusy(b){led.classList.toggle('busy',b);ledt.textContent=b?'Printing':'Ready'}
+  function feed(h,stepsN){
+    if(reduce||!h)return;
+    stack.style.transition='none';stack.style.transform='translateY('+h+'px)';
+    void stack.offsetHeight;
+    stack.style.transition='transform '+(stepsN>3?.22:.14)+'s steps('+(stepsN||4)+',end)';stack.style.transform='translateY(0)';
+  }
+  function toBottom(){tray.scrollTop=tray.scrollHeight}
+  function add(c,it){
+    var e=build(it,c.no,c.job.seed);c.rc.appendChild(e);
+    var extra=pad0;if(pad0){stack.style.paddingBottom='0';pad0=0}
+    toBottom();feed(e.offsetHeight+extra+(e.getAttribute('data-t')==='h'?0:0),e.offsetHeight>40?5:3);
+    return e;
+  }
+  function finish(c){
+    c.rc.classList.add('cut');
+    var tab=el('div','tab','<span>Tear here</span><button type="button" class="cp">Copy command</button>');
+    tab.querySelector('.cp').setAttribute('data-copy',c.job.copy);
+    c.rc.appendChild(tab);
+    stack.style.paddingBottom='26px';pad0=26;
+    toBottom();feed(tab.offsetHeight-26>0?tab.offsetHeight:30,5);
+    setBusy(false);cur=null;stat.textContent=c.job.sr;tear.disabled=false;
+  }
+  function flush(){
+    if(!cur)return;clearTimeout(timer);var c=cur;
+    while(c.i<c.job.items.length){c.rc.appendChild(build(c.job.items[c.i++],c.no,c.job.seed))}
+    c.rc.classList.add('cut');
+    var tab=el('div','tab','<span>Tear here</span><button type="button" class="cp">Copy command</button>');tab.querySelector('.cp').setAttribute('data-copy',c.job.copy);c.rc.appendChild(tab);
+    stack.style.transition='none';stack.style.transform='none';
+    setBusy(false);cur=null;stat.textContent=c.job.sr;
+  }
+  function print(raw){
+    var p=parse(raw);
+    if(p.k==='none'){hint.textContent='Type a command, or tap a chip.';inp.focus();return}
+    flush();
+    var j=job(p),rc=el('article','rcpt'+(j.wide?' wide':''));
+    rc.style.transform='rotate('+tilt[NO%4]+'deg)';
+    rc.setAttribute('aria-label','Receipt '+(NO+1)+': '+p.cmd);
+    NO++;
+    var c={job:j,rc:rc,i:0,no:NO};cur=c;
+    gen++;var my=gen;
+    stack.classList.remove('tearing');
+    stack.appendChild(rc);tear.disabled=false;setBusy(true);
+    if(reduce){while(c.i<j.items.length)rc.appendChild(build(j.items[c.i++],NO,j.seed));rc.classList.add('cut');var tab=el('div','tab','<span>Tear here</span><button type="button" class="cp">Copy command</button>');tab.querySelector('.cp').setAttribute('data-copy',j.copy);rc.appendChild(tab);setBusy(false);cur=null;stat.textContent=j.sr;toBottom();return}
+    (function step(){
+      if(my!==gen||cur!==c)return;
+      if(c.i<j.items.length){var it=j.items[c.i++];add(c,it);timer=setTimeout(step,PAUSE[it[0]]||60)}
+      else finish(c);
+    })();
+  }
+  function tearOff(){
+    gen++;clearTimeout(timer);cur=null;setBusy(false);
+    var rs=$$('.rcpt',stack);if(!rs.length)return;
+    function clear(){stack.innerHTML='';stack.style.cssText='';stack.classList.remove('tearing');pad0=0;tear.disabled=true;tray.scrollTop=0;stat.textContent='Receipts torn off.'}
+    if(reduce){clear();return}
+    rs.forEach(function(r,i){r.style.setProperty('--dx',(i%2?-40:40)+'px');r.style.setProperty('--dr',(i%2?-9:9)+'deg');r.style.animationDelay=(i*50)+'ms'});
+    stack.style.transition='none';stack.style.transform='none';
+    stack.classList.add('tearing');
+    setTimeout(clear,520+rs.length*50);
+  }
+  tear.addEventListener('click',tearOff);
+
+  /* input, chips, Tab completion */
+  var DEFHINT=hint.innerHTML,cyc=null,touched=false;
+  function matches(v){var l=v.toLowerCase();return CANDS.filter(function(c){return c.toLowerCase().indexOf(l)===0})}
+  function lcp(a){var p=a[0],i;for(i=1;i<a.length;i++){while(a[i].toLowerCase().indexOf(p.toLowerCase())!==0)p=p.slice(0,-1)}return p}
+  function showHint(){
+    var v=inp.value;if(!v.trim()){hint.innerHTML=DEFHINT;return}
+    var m=matches(v);
+    if(!m.length)hint.textContent='Not a known command. Enter prints a usage receipt.';
+    else{var n=m.map(function(x){return x.replace(P,'').replace(DD,'').replace(/ "Auth API".*$/,' ...').replace(/ "Payment Gateway\/.*$/,' ...')});var seen={},u=n.filter(function(x){return seen[x]?0:(seen[x]=1)});hint.textContent='Tab completes: '+u.slice(0,3).join(' | ')+(u.length>3?' ...':'')}
+  }
+  inp.addEventListener('input',function(){cyc=null;touched=true;showHint()});
+  inp.addEventListener('keydown',function(e){
+    touched=true;
+    if(e.key!=='Tab'||e.shiftKey||e.ctrlKey||e.altKey||e.metaKey)return;
+    var v=inp.value;if(!v.trim())return;
+    if(cyc&&cyc.list[cyc.i]===v){if(cyc.i<cyc.list.length-1){cyc.i++;inp.value=cyc.list[cyc.i];showHint();e.preventDefault()}else cyc=null;return}
+    var m=matches(v);if(!m.length)return;
+    var l=lcp(m);
+    if(l.length>v.length){inp.value=l;showHint();e.preventDefault();return}
+    if(m.length>1){var k=m.indexOf(v)+1;if(k<m.length){cyc={list:m,i:k};inp.value=m[k];showHint();e.preventDefault()}}
+  });
+  pf.addEventListener('submit',function(e){e.preventDefault();touched=true;print(inp.value);inp.select()});
+  $$('.chip').forEach(function(b){b.addEventListener('click',function(){touched=true;var c=CHIP[b.getAttribute('data-cmd')];inp.value=c;cyc=null;showHint();print(c)})});
+  ['pointerdown','focusin'].forEach(function(n){$('#printer').addEventListener(n,function(){touched=true})});
+
+  /* first receipt prints itself, typed in the prompt, unless you start first */
+  function auto(){
+    if(touched)return;
+    var c=CHIP.L,i=0;
+    if(reduce){inp.value=c;print(c);return}
+    (function type(){
+      if(touched)return;
+      inp.value=c.slice(0,i);
+      if(i<c.length){i+=2;setTimeout(type,16)}else{setTimeout(function(){if(!touched){print(c)}},260)}
+    })();
+  }
+  setTimeout(auto,reduce?0:700);
+})();
+
+/* ---------- CI scene: a sticky receipt that breaks as you scroll ---------- */
+(function(){
+  var sec=$('#ci');if(!sec)return;
+  var parts=$$('#circ [data-n]'),N=parts.length,brk=$('#brk');
+  var pinOK=!reduce&&matchMedia('(min-width:900px) and (min-height:660px)').matches;
+  if(pinOK)root.classList.add('pin-ok');
+  var broken=false,manual=null,reveal=!pinOK,shown=N,lastAuto=false,lastKey='';
+  var steps=[$('#st1'),$('#st2'),$('#st3')],defs=['your build','term-rest-client run','your deploy'];
+  var stampEl=$('#cistamp'),bc=$('#cibc'),status=$('#cistat');
+  function render(force){
+    var key=shown+'|'+broken;if(key===lastKey&&!force)return;
+    var flipped=lastKey.split('|')[1]!==String(broken);lastKey=key;
+    parts.forEach(function(p,i){p.classList.toggle('off',i>=shown)});
+    var t1=$('#cit1');t1.className='t'+(broken?' x':'');t1.innerHTML=broken?'<s>✗</s> <span>status == 200  (got 502)</span>':'<s>✓</s> <span>status == 200</span>';
+    var st=$('#cist');st.textContent=broken?'502 Bad Gateway':'200 OK';st.className=broken?'hot':'';
+    $('#cisumv').textContent=broken?'2 / 3':'3 / 3';$('#cisum').classList.toggle('bad',broken);
+    stampEl.textContent=broken?'EXIT 1':'EXIT 0';stampEl.className='stamp big '+(broken?'bad':'ok');
+    if(flipped&&!reduce&&shown>=N){void stampEl.offsetWidth;stampEl.classList.add('thunk')}
+    bc.innerHTML=barcode(broken?'ci-fail-1':'ci-pass-0');
+    var s=[shown>=1?'ok':'idle',shown<7?'idle':(broken?'bad':'ok'),shown<N?'idle':(broken?'sk':'ok')];
+    var small=[defs[0],shown<7?defs[1]:(broken?'failed, exit 1':'passed, exit 0'),shown<N?defs[2]:(broken?'skipped':'deployed')];
+    steps.forEach(function(e,i){e.className='step '+s[i];$('small',e).textContent=small[i]});
+    brk.setAttribute('aria-checked',broken?'true':'false');
+    if(shown>=N)status.textContent=broken?'One test fails, so run exits 1. The pipeline stops at Test and the deploy step is skipped.':'All three tests pass. run exits 0 and the pipeline carries on to deploy.';
+  }
+  brk.addEventListener('click',function(){manual=!broken;reveal=true;broken=manual;shown=N;render(true)});
+  function onScroll(){
+    if(!pinOK)return;
+    var r=sec.getBoundingClientRect(),span=r.height-innerHeight+64;
+    var p=clamp((64-r.top)/span,0,1);
+    var auto=p>.62;
+    if(auto!==lastAuto){lastAuto=auto;manual=null}
+    broken=manual!==null?manual:auto;
+    shown=reveal?N:Math.round(clamp((p-.02)/.26,0,1)*N);
+    if(reveal&&manual===null&&p<.02){reveal=false}
+    render();
+  }
+  if(pinOK){shown=0;render(true);onScroll()}else render(true);
+  window._ciScroll=onScroll;
+})();
+
+/* ---------- gui window feeds out of the printer slot ---------- */
+(function(){
+  var feed=$('#feed'),win=$('#feedwin');if(!feed||!win||reduce)return;
+  function upd(){var r=feed.getBoundingClientRect();var q=clamp((innerHeight*.92-r.top)/(r.height*.6),0,1);win.style.setProperty('--q',q.toFixed(3))}
+  window._feedScroll=upd;upd();
+})();
+
+/* one scroll listener, one rAF */
+(function(){
+  var tick=false;
+  function run(){tick=false;if(window._ciScroll)window._ciScroll();if(window._feedScroll)window._feedScroll()}
+  addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(run)}},{passive:true});
+  addEventListener('resize',function(){if(!tick){tick=true;requestAnimationFrame(run)}});
+})();
+})();
+</script>
+</body>
+</html>
