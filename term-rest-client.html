@@ -465,6 +465,24 @@ kbd.f1{padding:4px 8px}
 .extras b{font:400 9px/1.3 var(--disp);text-transform:uppercase}
 .extras span{font-size:16.5px}
 
+/* ---------- 2-5 stress test: the load scope ---------- */
+.scope{margin:8px 12px 18px 4px;background:#0c0c26;color:#e8e8ff;box-shadow:var(--ring),var(--drop)}
+.scope .sh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 14px;background:var(--navy);font:400 8px/1.4 var(--disp);color:var(--gold);flex-wrap:wrap}
+.scope .sh output{color:#d8f7e0;font:400 18px/1 var(--mono);text-transform:none}
+.scope .lanes{padding:14px 16px 10px}
+.scope .lt{display:flex;justify-content:space-between;font:400 7px/1.4 var(--disp);color:#b4bcff;margin:0 0 6px}
+.scope .lt b{font-weight:400;color:var(--gold)}
+.scope .bars{position:relative;display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:4px;align-items:end;height:96px;margin-bottom:14px;background:repeating-linear-gradient(0deg,rgba(180,188,255,.12) 0 2px,transparent 2px 24px)}
+.scope .bars i{display:block;height:var(--h,0);background:var(--gold);transition:height .25s steps(4);transition-delay:var(--d,0s)}
+.scope .bars.p95 i{background:var(--mint)}
+.scope .bars.p95 i.over{background:var(--red)}
+.scope .thr{position:absolute;left:0;right:0;bottom:var(--t,60%);height:0;border-top:4px dashed var(--red);pointer-events:none}
+.scope .thr span{position:absolute;right:0;bottom:4px;padding:2px 6px;background:var(--red);color:#fff;font:400 7px/1.3 var(--disp)}
+.scope:not(.on) .bars i{height:0}
+.scope .ax{display:flex;justify-content:space-between;font:400 16px/1 var(--mono);color:#8f97d8;margin-top:-8px}
+.ltrc pre{min-height:9.5em}
+.ltrc .ok{color:var(--mint)}.ltrc .bad{color:#ff8a8a}
+@media (prefers-reduced-motion:reduce){.scope .bars i{transition:none}}
 /* ---------- boss fight ---------- */
 .boss{position:relative;background:var(--dusk);padding:clamp(56px,7vw,100px) 0 0;overflow-x:clip}
 .boss::before{content:"";position:absolute;left:0;right:0;top:0;height:100%;background:var(--t-chk) 0 0/8px 8px;opacity:.5;pointer-events:none}
@@ -652,6 +670,7 @@ html.rm .stage .plate{background:var(--gold);color:var(--navy)}
       <a href="#screens">Screens</a>
       <a href="#keys">Keys</a>
       <a href="#install">Install</a>
+      <a href="#load">Load test</a>
     </nav>
     <div class="stats">
       <div class="stat"><i>SCORE</i><output id="score" aria-label="Score">000000</output></div>
@@ -713,7 +732,7 @@ html.rm .stage .plate{background:var(--gold);color:var(--navy)}
           <div class="crtw"><div class="crt dark" id="crt" tabindex="0" role="region" aria-label="Cabinet screen, scrollable">
             <div class="out" id="out">
 <noscript><div class="ln hd"><b>PLAYER 1</b><span>PRINT No. 0001</span></div>
-<div class="ln cmd"><span class="pr">$</span> term-rest-client -data demo.json run -env Local "Auth API" "User Service/Lookup" "Payment Gateway"</div>
+<div class="ln cmd"><span class="pr">$</span> rest -data demo.json run -env Local "Auth API" "User Service/Lookup" "Payment Gateway"</div>
 <div class="ln dash"></div>
 <div class="ln env">Environment: <b>Local</b></div>
 <div class="ln rq"><i>GET</i> Login</div><div class="ln st"><b>200 OK</b>  1 ms  37 bytes</div>
@@ -750,11 +769,12 @@ html.rm .stage .plate{background:var(--gold);color:var(--navy)}
             <button type="button" class="cart" data-cmd="S" style="--cc:#ff8a8a"><span class="ct" aria-hidden="true">CART 2</span><span class="cl2">run -env Staging</span></button>
             <button type="button" class="cart" data-cmd="E" style="--cc:#8fdcf0"><span class="ct" aria-hidden="true">CART 3</span><span class="cl2">export -lang python</span></button>
             <button type="button" class="cart" data-cmd="G" style="--cc:#ff9cc4"><span class="ct" aria-hidden="true">CART 4</span><span class="cl2">-gui -lan</span></button>
-            <button type="button" class="cart" data-cmd="H" style="--cc:#ffe27a"><span class="ct" aria-hidden="true">CART 5</span><span class="cl2">help</span></button>
+            <button type="button" class="cart" data-cmd="O" style="--cc:#ffb27a"><span class="ct" aria-hidden="true">CART 5</span><span class="cl2">load -vus 20</span></button>
+            <button type="button" class="cart" data-cmd="H" style="--cc:#ffe27a"><span class="ct" aria-hidden="true">CART 6</span><span class="cl2">help</span></button>
           </div>
-          <p class="pnote"><b>Scripted demo of real output; nothing is sent over the network.</b> The Local run is the real output, with the built-in demo API running in another terminal (<code>term-rest-client demo</code>). <code>-data demo.json</code> keeps the sample collections apart from your own. <code>run</code> exits with status 1 when a test fails, so it drops straight into CI.</p>
+          <p class="pnote"><b>Scripted demo of real output; nothing is sent over the network.</b> The Local run is the real output, with the built-in demo API running in another terminal (<code>rest demo</code>). <code>-data demo.json</code> keeps the sample collections apart from your own. <code>run</code> exits with status 1 when a test fails, so it drops straight into CI.</p>
           <p class="vh" id="pstat" role="status" aria-live="polite"></p>
-          <noscript><p class="ns">The live cabinet needs JavaScript. The screen above shows the real output of the Local run. The commands it knows: <code>run -env Local</code>, <code>run -env Staging</code> (a scripted failure), <code>export -lang python</code> and <code>-gui -lan</code>.</p></noscript>
+          <noscript><p class="ns">The live cabinet needs JavaScript. The screen above shows the real output of the Local run. The commands it knows: <code>run -env Local</code>, <code>run -env Staging</code> (a scripted failure), <code>export -lang python</code>, <code>load -vus 20</code> and <code>-gui -lan</code>.</p></noscript>
         </div>
         <div class="coindoor" aria-hidden="true">
           <span class="joy"><i></i></span>
@@ -811,7 +831,7 @@ html.rm .stage .plate{background:var(--gold);color:var(--navy)}
           <li class="card" style="--ic:#ffb38a"><div class="ch"><span class="slot"><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-i-in"/></svg></span><kbd class="key">Ctrl+O</kbd></div><h4>Import Postman and cURL</h4><p>Postman collections (v2.0 and v2.1), environments and globals, with common <code>pm.test</code> scripts converted. Paste a curl command from browser dev tools into the URL field and it becomes a request.</p></li>
           <li class="card" style="--ic:#ffe27a"><div class="ch"><span class="slot"><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-i-out"/></svg></span><kbd class="key">x</kbd></div><h4>Export as Postman v2.1</h4><p>Collections, folders, environments and globals export as Postman v2.1 files. Tests written here become <code>pm.test</code> JavaScript, so a teammate on Postman can run them.</p></li>
           <li class="card" style="--ic:#d9c6ff"><div class="ch"><span class="slot"><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-i-code"/></svg></span><kbd class="key">Ctrl+G</kbd></div><h4>Code snippets</h4><p><code>Ctrl+G</code> shows the request as cURL, Python, JavaScript, Go or HTTPie, with real values or with variables kept. <code>c</code> copies it, and works over SSH too.</p></li>
-          <li class="card" style="--ic:#8fdcf0"><div class="ch"><span class="slot"><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-i-run"/></svg></span><kbd class="key">run</kbd></div><h4>Headless runs</h4><p><code>term-rest-client run "Shop API"</code> sends saved requests, runs their tests and exits non-zero on failure. <code>-v</code> prints headers like <code>curl -v</code>, and <code>-set</code> overrides a variable for one run.</p></li>
+          <li class="card" style="--ic:#8fdcf0"><div class="ch"><span class="slot"><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-i-run"/></svg></span><kbd class="key">run</kbd></div><h4>Headless runs</h4><p><code>rest run "Shop API"</code> sends saved requests, runs their tests and exits non-zero on failure. <code>-v</code> prints headers like <code>curl -v</code>, and <code>-set</code> overrides a variable for one run.</p></li>
           <li class="card" style="--ic:#ff9cc4"><div class="ch"><span class="slot"><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-i-star"/></svg></span><kbd class="key">Alt+8</kbd></div><h4>Small comforts</h4><p>Unsaved edits survive a restart. Response sections fold and stay folded. Four themes, including a light one. Timeouts, redirects and TLS checks are all settings.</p></li>
         </ul>
       </div>
@@ -869,7 +889,7 @@ html.rm .stage .plate{background:var(--gold);color:var(--navy)}
       <div class="dh"><span class="wn">WORLD 1-3</span><span class="wt">BROWSER UI</span></div>
       <div class="db">
         <h2 id="h-gui">Prefer a mouse? Add -gui.</h2>
-        <p class="intro"><code>term-rest-client -gui</code> opens the same workspace in your browser. The page is built into the binary, nothing is loaded from the internet, and every request is still sent by term-rest-client itself, so there are <strong>no CORS errors</strong> and streams, WebSockets, scripts and tests work exactly as in the terminal.</p>
+        <p class="intro"><code>rest -gui</code> opens the same workspace in your browser. The page is built into the binary, nothing is loaded from the internet, and every request is still sent by term-rest-client itself, so there are <strong>no CORS errors</strong> and streams, WebSockets, scripts and tests work exactly as in the terminal.</p>
         <figure class="tvbig second">
           <div class="mon big">
             <div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span>http://localhost:51234/?t=6f1c…</span></div>
@@ -889,8 +909,8 @@ html.rm .stage .plate{background:var(--gold);color:var(--navy)}
 
         <div class="gui2">
           <div class="term bx dark">
-            <div class="th"><span>term-rest-client -gui -lan</span><button type="button" class="cp mini" data-copy="term-rest-client -gui -lan">Copy command</button></div>
-<pre class="raw">$ term-rest-client -gui -lan
+            <div class="th"><span>rest -gui -lan</span><button type="button" class="cp mini" data-copy="rest -gui -lan">Copy command</button></div>
+<pre class="raw">$ rest -gui -lan
 
   term-rest-client GUI is running
 
@@ -927,7 +947,7 @@ html.rm .stage .plate{background:var(--gold);color:var(--navy)}
       <div class="dh"><span class="wn">WORLD 1-4</span><span class="wt">CODE SNIPPETS</span></div>
       <div class="db">
         <h2 id="h-code">One request, five languages.</h2>
-        <p class="intro">The sample Charge request, exactly as the app generates it. Switch languages with the arrow keys in the app, or print any of them with <code>term-rest-client export -lang python</code>.</p>
+        <p class="intro">The sample Charge request, exactly as the app generates it. Switch languages with the arrow keys in the app, or print any of them with <code>rest export -lang python</code>.</p>
         <div class="ctabs" role="tablist" aria-label="Snippet language">
           <button class="cart sm" role="tab" id="t-curl" aria-controls="p-curl" aria-selected="true" style="--cc:#8be28a"><span class="cl2">cURL</span></button>
           <button class="cart sm" role="tab" id="t-python" aria-controls="p-python" aria-selected="false" tabindex="-1" style="--cc:#8fdcf0"><span class="cl2">Python</span></button>
@@ -1112,7 +1132,7 @@ func main() {
           <figure class="fr"><span class="fn" aria-hidden="true">01</span><div class="mon"><button type="button" class="lbb lb" data-cap="Code snippets. Python with {{variables}} kept as real variables."><img loading="lazy" src="assets/term-rest-client/code.webp" width="1600" height="910" alt="The code window showing the Charge request as Python, with the variables base_url and order_id declared at the top."></button></div><figcaption><b>Code snippets.</b> Python with <code>{{variables}}</code> kept as real variables.</figcaption></figure>
           <figure class="fr"><span class="fn" aria-hidden="true">02</span><div class="mon"><button type="button" class="lbb lb" data-cap="History. Every request you sent, grouped by day."><img loading="lazy" src="assets/term-rest-client/history.webp" width="1600" height="910" alt="The History sidebar listing requests grouped under Today with time, method, status and path."></button></div><figcaption><b>History.</b> Every request you sent, grouped by day.</figcaption></figure>
           <figure class="fr"><span class="fn" aria-hidden="true">03</span><div class="mon"><button type="button" class="lbb lb" data-cap="Environments. Globals underneath, the active environment on top."><img loading="lazy" src="assets/term-rest-client/environments.webp" width="1600" height="910" alt="The Variables tab with globals and the Local and httpbin.org environments."></button></div><figcaption><b>Environments.</b> Globals underneath, the active environment on top.</figcaption></figure>
-          <figure class="fr tall"><span class="fn" aria-hidden="true">04</span><div class="mon"><button type="button" class="lbb lb" data-cap="run from the command line. Two collections, one command, every test line ticked. Usable in CI."><img loading="lazy" src="assets/term-rest-client/cli.webp" width="1600" height="1929" alt="A terminal running term-rest-client run on User Service and Payment Gateway: each request with its status, timing and size, and every test line ticked."></button></div><figcaption><b>run, from the command line.</b> Two collections, one command, every test line ticked. Usable in CI.</figcaption></figure>
+          <figure class="fr tall"><span class="fn" aria-hidden="true">04</span><div class="mon"><button type="button" class="lbb lb" data-cap="run from the command line. Two collections, one command, every test line ticked. Usable in CI."><img loading="lazy" src="assets/term-rest-client/cli.webp" width="1600" height="1929" alt="A terminal running rest run on User Service and Payment Gateway: each request with its status, timing and size, and every test line ticked."></button></div><figcaption><b>run, from the command line.</b> Two collections, one command, every test line ticked. Usable in CI.</figcaption></figure>
           <figure class="fr"><span class="fn" aria-hidden="true">05</span><div class="mon"><button type="button" class="lbb lb" data-cap="Tests. Each line passes or fails, with the actual value."><img loading="lazy" src="assets/term-rest-client/tests.webp" width="1600" height="910" alt="A pre-request script and a list of tests, three passing and one failing with the actual status shown."></button></div><figcaption><b>Tests.</b> Each line passes or fails, with the actual value.</figcaption></figure>
           <figure class="fr"><span class="fn" aria-hidden="true">06</span><div class="mon"><button type="button" class="lbb lb" data-cap="Headers. Sent and received, each section foldable."><img loading="lazy" src="assets/term-rest-client/headers.webp" width="1600" height="910" alt="The response pane with request headers and response headers expanded and the body folded."></button></div><figcaption><b>Headers.</b> Sent and received, each section foldable.</figcaption></figure>
           <figure class="fr"><span class="fn" aria-hidden="true">07</span><div class="mon"><button type="button" class="lbb lb" data-cap="Postman import. Folders, auth, bodies and common scripts carried over."><img loading="lazy" src="assets/term-rest-client/import.webp" width="1600" height="910" alt="A summary after importing a Postman collection, listing the requests, folders and converted scripts."></button></div><figcaption><b>Postman import.</b> Folders, auth, bodies and common scripts carried over.</figcaption></figure>
@@ -1174,8 +1194,8 @@ func main() {
       <div class="dh"><span class="wn">WORLD 2-3</span><span class="wt">INSTALL</span></div>
       <div class="db">
         <p class="pstart" aria-hidden="true">PRESS START</p>
-        <h2 id="h-install">One line, then term-rest-client.</h2>
-        <p class="intro">The installer picks the right binary for your machine, checks it against the release's SHA-256 sums, and puts it on your <code>PATH</code>.</p>
+        <h2 id="h-install">One line, then <span style="white-space:nowrap">rest</span>.</h2>
+        <p class="intro">The installer picks the right binary for your machine, checks it against the release's SHA-256 sums, and puts it on your <code>PATH</code> as <code>rest</code>. The old name, <code>term-rest-client</code>, still works as a link to it.</p>
         <div class="itabs" role="tablist" aria-label="Install method">
           <button role="tab" id="t-i1" aria-controls="p-i1" aria-selected="true">macOS and Linux</button>
           <button role="tab" id="t-i2" aria-controls="p-i2" aria-selected="false" tabindex="-1">From source</button>
@@ -1197,24 +1217,24 @@ cd cli-rest-client
 ./install.sh</pre>
         </div>
         <div class="ipanel bx dark" role="tabpanel" id="p-i3" aria-labelledby="t-i3" hidden>
-          <button class="copy mini" data-copy="go install github.com/AbyAbyss/cli-rest-client/cmd/term-rest-client@latest">Copy</button>
-          <pre tabindex="0">go install github.com/AbyAbyss/cli-rest-client/cmd/term-rest-client@latest</pre>
+          <button class="copy mini" data-copy="go install github.com/AbyAbyss/cli-rest-client/cmd/rest@latest">Copy</button>
+          <pre tabindex="0">go install github.com/AbyAbyss/cli-rest-client/cmd/rest@latest</pre>
         </div>
         <div class="ipanel bx dark" role="tabpanel" id="p-i4" aria-labelledby="t-i4" hidden>
-          <button class="copy mini" data-copy="https://github.com/AbyAbyss/cli-rest-client/releases/latest/download/term-rest-client-windows-amd64.zip">Copy link</button>
+          <button class="copy mini" data-copy="https://github.com/AbyAbyss/cli-rest-client/releases/latest/download/rest-windows-amd64.zip">Copy link</button>
           <ol class="steps">
-            <li><span>1.</span> Download <a href="https://github.com/AbyAbyss/cli-rest-client/releases/latest/download/term-rest-client-windows-amd64.zip">term-rest-client-windows-amd64.zip</a></li>
-            <li><span>2.</span> Unzip it and put term-rest-client.exe in a folder on your PATH</li>
-            <li><span>3.</span> Run it in Windows Terminal: term-rest-client</li>
+            <li><span>1.</span> Download <a href="https://github.com/AbyAbyss/cli-rest-client/releases/latest/download/rest-windows-amd64.zip">rest-windows-amd64.zip</a></li>
+            <li><span>2.</span> Unzip it and put rest.exe in a folder on your PATH</li>
+            <li><span>3.</span> Run it in Windows Terminal: rest</li>
           </ol>
         </div>
         <ul class="loot">
-          <li><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-coin"/></svg>1 x term-rest-client, one static Go binary</li>
+          <li><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-coin"/></svg>1 x <code>rest</code>, one static Go binary</li>
           <li><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-coin"/></svg>Your requests, one JSON file</li>
           <li><svg class="sp" width="32" height="32" aria-hidden="true"><use href="#s-heart"/></svg>MIT licensed, no account, free</li>
         </ul>
-        <p class="note">Then try the samples offline: run <code>term-rest-client demo</code> in one terminal, and <code>term-rest-client -data demo.json</code> in another. The demo API answers every sample request, including GraphQL, streaming and WebSocket.</p>
-        <p class="note">Prefer to download by hand? Every release has archives for macOS (arm64, amd64), Linux (amd64, arm64) and Windows, plus <code>SHA256SUMS</code>, on the <a href="https://github.com/AbyAbyss/cli-rest-client/releases">releases page</a>. If a browser download on macOS won't open, run <code>xattr -d com.apple.quarantine term-rest-client</code> once.</p>
+        <p class="note">Then try the samples offline: run <code>rest demo</code> in one terminal, and <code>rest -data demo.json</code> in another. The demo API answers every sample request, including GraphQL, streaming and WebSocket.</p>
+        <p class="note">Prefer to download by hand? Every release has archives for macOS (arm64, amd64), Linux (amd64, arm64) and Windows, plus <code>SHA256SUMS</code>, on the <a href="https://github.com/AbyAbyss/cli-rest-client/releases">releases page</a>. If a browser download on macOS won't open, run <code>xattr -d com.apple.quarantine rest</code> once.</p>
       </div>
     </div>
   </section>
@@ -1246,6 +1266,70 @@ cd cli-rest-client
       </div>
     </div>
   </section>
+  <section class="stage wrap" id="load" data-w="2-5" aria-labelledby="h-load">
+    <div class="lane" aria-hidden="true"><div class="pin"></div>
+      <div class="node"><span class="plate"><b>2-5</b>Stress test</span><svg class="sp flag" width="48" height="64"><use href="#s-flag"/></svg></div>
+      <svg class="sp deco d1" width="40" height="64"><use href="#s-cactus"/></svg>
+      <svg class="sp deco d2" width="40" height="28"><use href="#s-rock"/></svg>
+      <svg class="sp deco d3" width="20" height="20"><use href="#s-flower"/></svg>
+    </div>
+    <div class="dlg bx" style="--hc:var(--brick)">
+      <div class="dh"><span class="wn">WORLD 2-5</span><span class="wt">LOAD TEST</span></div>
+      <div class="db">
+        <h2 id="h-load">Ramp it up. See what holds.</h2>
+        <p class="intro"><code>rest load</code> sends a saved request, or every request in a folder in order, from many virtual users at once. Each user keeps its own variables, so a token captured at login is used by that user's next request. You get requests per second, p50/p95/p99 latency, errors, and your tests as checks, live and at the end.</p>
+
+        <div class="scope" id="scope" role="img" aria-label="Virtual users and p95 latency over a load test. A ramp to 50 users keeps p95 under the 300 ms threshold; switch to a spike and p95 crosses it.">
+          <div class="sh"><span id="scplan">PLAN: RAMP 0 &gt; 50 &gt; 0 USERS</span><output id="scp95">p95 96ms</output></div>
+          <div class="lanes">
+            <div class="lt"><span>VIRTUAL USERS</span><b id="scvu">PEAK 50</b></div>
+            <div class="bars vus" id="scv"></div>
+            <div class="lt"><span>P95 LATENCY</span><b>THRESHOLD 300MS</b></div>
+            <div class="bars p95" id="scl"><div class="thr" style="--t:62%"><span>p95&lt;300ms</span></div></div>
+            <div class="ax" id="scax"><span>0s</span><span>1m</span><span>2m</span></div>
+          </div>
+        </div>
+        <div class="ctl">
+          <button type="button" class="switch" id="spk" role="switch" aria-checked="false"><span class="tg"></span>Spike it</button>
+          <small>Swap the gentle ramp for a spike to 100 users and watch p95 cross the line. Drawn for illustration; your numbers depend on your server.</small>
+        </div>
+        <div class="term bx dark ltrc">
+          <div class="th"><span>rest load</span><button type="button" class="cp mini" id="ltcopy" data-copy='rest load -stages 30s:50,1m:50,30s:0 -threshold "p95&lt;300ms" "Shop API"'>Copy command</button></div>
+<pre class="raw" id="ltout" aria-live="polite">$ rest load -stages 30s:50,1m:50,30s:0 -threshold "p95&lt;300ms" "Shop API"
+
+  ramping 0 &rarr; 50 &rarr; 0 virtual users over 2m, ran 2m
+
+  requests        48,210     401.8/s
+  failed          0%
+  response time   p50 41.2ms  p95 96.4ms  p99 131ms
+
+  Thresholds
+    <span class="ok">&#10003; p95&lt;300ms  96.4ms</span>          <span class="ok">EXIT 0</span></pre>
+          <p class="tnote">Sample numbers, in the format <code>rest load</code> prints.</p>
+        </div>
+
+        <div class="npcrow">
+          <div class="npc" aria-hidden="true"><svg class="sp" width="48" height="64"><use href="#s-npc"/></svg><span class="nm">LOAD MASTER</span></div>
+          <div class="say bx" role="note">
+            <p><strong>Virtual users send requests back to back. A fixed rate (<code>-rate 200/s</code>) starts them on schedule however slow the server gets,</strong> so a slowdown shows up as latency instead of quietly lowering the load. Load tests ask before hitting anything that isn't your machine or a private network. Only test servers you own.</p>
+            <span class="more" aria-hidden="true"></span>
+          </div>
+        </div>
+
+        <div class="quests" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));margin-bottom:28px">
+          <article class="qcard"><h3>Ramp, hold, spike</h3><p><code>-vus 20 -duration 1m</code> holds steady. <code>-stages 30s:50,1m:50,30s:0</code> ramps up, holds and ramps down; add <code>/s</code> to ramp a request rate instead.</p></article>
+          <article class="qcard"><h3>Pass or fail CI</h3><p><code>-threshold "p95&lt;300ms,errors&lt;1%"</code> exits 1 when one breaks. <code>-out results.json</code> or <code>.csv</code> keeps the per-second timeline.</p></article>
+          <article class="qcard"><h3>Watch it live</h3><p><kbd class="key">Alt+L</kbd> in the terminal app shows sparklines; the browser UI draws live charts for requests/s, users and p50/p95/p99.</p></article>
+        </div>
+
+        <div class="duo">
+          <figure class="fr"><div class="mon"><button type="button" class="lbb lb" data-cap="Load test results in the browser UI: thresholds, requests/s with virtual users, and p50/p95/p99 over time."><img loading="lazy" src="assets/term-rest-client/gui-load.webp" width="1500" height="940" alt="The browser UI's load test results: a failed errors threshold, tiles for requests, failures, p95 and checks, and charts of requests per second and latency."></button></div><figcaption><b>In the browser.</b> Thresholds, then the charts.</figcaption></figure>
+          <figure class="fr"><div class="mon"><button type="button" class="lbb lb" data-cap="Load test results in the terminal app, here with a failed errors&lt;1% threshold."><img loading="lazy" src="assets/term-rest-client/loadtest.webp" width="1600" height="910" alt="The terminal app's load test summary: requests, failures, latency percentiles, status codes, checks and thresholds."></button></div><figcaption><b>In the terminal.</b> <kbd class="key">Alt+L</kbd>, the same summary.</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
   </div><!-- /w2 -->
 
   <!-- ---- END OF THE PATH: THE CASTLE ---- -->
@@ -1267,7 +1351,7 @@ cd cli-rest-client
           <div class="dh"><span class="wn">WORLD 3-1</span><span class="wt">THE CASTLE</span></div>
           <div class="db">
             <h2 id="h-castle">Drops into CI.</h2>
-            <p class="intro"><code>term-rest-client run "Shop API"</code> sends saved requests, runs their tests and exits non-zero on failure: status 1 if a request fails or any test fails. <code>-v</code> prints headers like <code>curl -v</code>, and <code>-set</code> overrides a variable for one run.</p>
+            <p class="intro"><code>rest run "Shop API"</code> sends saved requests, runs their tests and exits non-zero on failure: status 1 if a request fails or any test fails. <code>-v</code> prints headers like <code>curl -v</code>, and <code>-set</code> overrides a variable for one run.</p>
             <div class="ctl">
               <button type="button" class="switch" id="brk" role="switch" aria-checked="false"><span class="tg"></span>Break a test</button>
               <small>Flip it, press Space on it, or keep scrolling. The scene shows what a pipeline sees when one assertion fails.</small>
@@ -1283,13 +1367,13 @@ cd cli-rest-client
           <div class="gate" aria-hidden="true">
             <div class="tw idle" id="st1"><svg class="sp flag" width="36" height="48"><use href="#s-flag"/></svg><b>Build</b><small>your build</small><i class="port"></i></div>
             <span class="chev"></span>
-            <div class="tw idle" id="st2"><svg class="sp flag" width="36" height="48"><use href="#s-flag"/></svg><b>Test</b><small>term-rest-client run</small><i class="port"></i></div>
+            <div class="tw idle" id="st2"><svg class="sp flag" width="36" height="48"><use href="#s-flag"/></svg><b>Test</b><small>rest run</small><i class="port"></i></div>
             <span class="chev"></span>
             <div class="tw idle" id="st3"><svg class="sp flag" width="36" height="48"><use href="#s-flag"/></svg><b>Deploy</b><small>your deploy</small><i class="port"></i></div>
           </div>
           <article class="bossrc dark" id="circ" aria-label="Receipt of three tests">
             <div class="ln hd" data-n="0"><b>CI RUN</b><span>SAMPLE</span></div>
-            <div class="ln cmd" data-n="1"><span class="pr">$</span> term-rest-client -data demo.json run -env Local "Payment Gateway"</div>
+            <div class="ln cmd" data-n="1"><span class="pr">$</span> rest -data demo.json run -env Local "Payment Gateway"</div>
             <div class="ln rq" data-n="2"><i>POST</i> Charge</div>
             <div class="ln st" data-n="3"><b id="cist">200 OK</b>  0 ms  328 bytes</div>
             <div class="ln t" data-n="4" id="cit1"><s class="ck"></s> <span>status == 200</span></div>
@@ -1496,16 +1580,17 @@ if(!reduce){setInterval(function(){if(req1s==='req'){setFrame(req1u,'reqb');setT
 (function(){
   var crt=$('#crt'),out=$('#out'),inp=$('#cmd'),pf=$('#pf'),hint=$('#hint'),clr=$('#clr'),copyb=$('#copyb'),led=$('#led'),ledt=$('#ledt'),stat=$('#pstat');
   if(!out)return;
-  var P='term-rest-client ',DD='-data demo.json ';
+  var P='rest ',DD='-data demo.json ';
   var RN='"Auth API" "User Service/Lookup" "Payment Gateway"';
   var CHARGE='"Payment Gateway/Charges/Charge"';
   var LANGS=['curl','python','javascript','go','httpie'];
-  var SHORT=['run -env Local '+RN,'run -env Staging '+RN].concat(LANGS.map(function(l){return 'export -lang '+l+' '+CHARGE}));
+  var LOAD='load -env Local -vus 20 -duration 10s -threshold "p95<200ms" "Auth API"';
+  var SHORT=['run -env Local '+RN,'run -env Staging '+RN,LOAD].concat(LANGS.map(function(l){return 'export -lang '+l+' '+CHARGE}));
   var CANDS=[];
   SHORT.forEach(function(s){CANDS.push(P+DD+s,DD+s,s)});
   ['-gui','-gui -lan'].forEach(function(s){CANDS.push(P+s,s)});
   CANDS.push(P+'help','help');
-  var CHIP={L:P+DD+SHORT[0],S:P+DD+SHORT[1],E:P+DD+'export -lang python '+CHARGE,G:P+'-gui -lan',H:P+'help'};
+  var CHIP={L:P+DD+SHORT[0],S:P+DD+SHORT[1],O:P+DD+LOAD,E:P+DD+'export -lang python '+CHARGE,G:P+'-gui -lan',H:P+'help'};
   var REQ=[
     ['GET','Login','1 ms','37 bytes',['status == 200','json.authenticated == true']],
     ['GET','Bearer Token','0 ms','49 bytes',['status == 200','json.token == {{token}}']],
@@ -1527,23 +1612,39 @@ if(!reduce){setInterval(function(){if(req1s==='req'){setFrame(req1u,'reqb');setT
     it.push(bad?['note','SCRIPTED SAMPLE FAILURE. Not real output: the sample workspace has no Staging environment. It shows what CI sees when one assertion fails and run exits 1.','warn']:['note','Lines between the dashed rules are the real output of run. TOTAL and EXIT are this run\'s tally. Scripted demo of real output; nothing is sent over the network.']);
     return it;
   }
+  /* The real output of: rest -data demo.json load -env Local -vus 20 -duration 10s
+     -threshold "p95<200ms" "Auth API", with the demo API running locally. Trimmed
+     to fit the screen: the per-request table and the check list are left out. */
+  var LOADOUT=['Load test: 2 requests per iteration, starting with Auth API/Login','Environment: Local','Plan: 20 virtual users for 10s.'];
+  function loadItems(){
+    var it=[];
+    LOADOUT.forEach(function(l){it.push(['raw',l])});
+    it.push(['rule'],['raw','20 virtual users for 10s, ran 10s'],['sum','requests','400,754'],['sum','per second','40,072.8'],['sum','failed','0%'],['sum','p50 / p95','324µs / 1.52ms'],['sum','p99 / max','2.40ms / 8.86ms'],
+      ['t','Checks 100% passed (4 checks)'],['t','p95<200ms  1.52ms'],['rule'],['tot','Thresholds','1 / 1'],
+      ['stamps',[['EXIT 0','ok big'],['LEVEL CLEAR','ok flash']]],['note','Real output of this command against the local demo API, trimmed to fit: the per-request table and check list are left out. Your numbers depend on your machine and server.']);
+    return it;
+  }
   function snippet(lang){var c=$('#p-'+lang+' code');return c?c.textContent.split('\n'):['(snippet not found)']}
   function usage(bad){
     var it=[];
-    if(bad)it.push(['raw','term-rest-client: not in this demo: "'+bad+'"'],['raw',' ']);
-    it.push(['raw','KNOWN COMMANDS'],['raw',' '],['raw','run -env Local'],['raw','  13 of 13 tests pass'],['raw','run -env Staging'],['raw','  scripted failure, EXIT 1'],['raw','export -lang python'],['raw','  or curl, javascript, go, httpie'],['raw','-gui -lan'],['raw','  browser UI start banner'],['raw','help'],['raw','  this list'],['raw',' '],['raw','Tab completes a command.'],['raw','Enter prints it.'],['rule'],['stamps',[['USAGE','run big']]],['note','Scripted demo: nothing is sent over the network.']);
+    if(bad)it.push(['raw','rest: not in this demo: "'+bad+'"'],['raw',' ']);
+    it.push(['raw','KNOWN COMMANDS'],['raw',' '],['raw','run -env Local'],['raw','  13 of 13 tests pass'],['raw','run -env Staging'],['raw','  scripted failure, EXIT 1'],['raw','export -lang python'],['raw','  or curl, javascript, go, httpie'],['raw','load -vus 20'],['raw','  a 10 second load test'],['raw','-gui -lan'],['raw','  browser UI start banner'],['raw','help'],['raw','  this list'],['raw',' '],['raw','Tab completes a command.'],['raw','Enter prints it.'],['rule'],['stamps',[['USAGE','run big']]],['note','Scripted demo: nothing is sent over the network.']);
     return it;
   }
   function sameNames(n){return n.join('|').toLowerCase()===['Auth API','User Service/Lookup','Payment Gateway'].join('|').toLowerCase()}
   function tok(s){var o=[],re=/"([^"]*)"|'([^']*)'|(\S+)/g,m;while((m=re.exec(s)))o.push(m[1]!=null?m[1]:m[2]!=null?m[2]:m[3]);return o}
   function parse(raw){
     var s=raw.trim().replace(/\s+/g,' '),t=tok(s),i;
-    if(t[0]==='term-rest-client')t.shift();
+    if(t[0]==='rest'||t[0]==='term-rest-client')t.shift();
     for(i=0;i<t.length;i++)if(t[i]==='-data'){t.splice(i,2);i--}
-    var cmd=P+s.replace(/^term-rest-client\s*/,'');
+    var cmd=P+s.replace(/^(rest|term-rest-client)\s*/,'');
     if(!t.length)return {k:'none'};
     if(t.indexOf('-gui')>-1)return {k:'gui',lan:t.indexOf('-lan')>-1,cmd:cmd};
     if(t[0]==='help')return {k:'help',cmd:cmd};
+    if(t[0]==='load'){
+      if(t.join(' ').toLowerCase()===tok(LOAD).join(' ').toLowerCase())return {k:'load',cmd:cmd};
+      return {k:'usage',bad:'load '+t.slice(1).join(' '),cmd:cmd};
+    }
     if(t[0]==='run'){
       var env=null,names=[];
       for(i=1;i<t.length;i++){if(t[i]==='-env')env=t[++i];else names.push(t[i])}
@@ -1563,6 +1664,7 @@ if(!reduce){setInterval(function(){if(req1s==='req'){setFrame(req1u,'reqb');setT
     var items=[['h'],['cmd',p.cmd],['rule']],sr;
     if(p.k==='run'){items=items.concat(runItems(p.env,p.fail));sr='Printed run -env '+p.env+(p.fail?': 12 of 13 tests passed, 1 failed, exit 1, game over. Scripted sample failure.':': 13 of 13 tests passed, exit 0, level clear.')}
     else if(p.k==='export'){snippet(p.lang).forEach(function(l){items.push(['raw',l||' '])});items.push(['rule'],['stamps',[['EXIT 0','ok big'],['DONE','ok']]],['note','The '+p.lang+' snippet for the sample Charge request, as in the code snippets level.']);sr='Printed the '+p.lang+' snippet.'}
+    else if(p.k==='load'){items=items.concat(loadItems());sr='Printed a 10 second load test: 400,754 requests, p95 1.52 ms, threshold passed, exit 0.'}
     else if(p.k==='gui'){GUI.forEach(function(l){items.push(['raw',l==='NET'?(p.lan?'  Network: http://192.168.1.20:51234/?t=6f1c…':'  Network: use -lan to open it from other devices'):l])});items.push(['rule'],['stamps',[['RUNNING','run big']]],['note','Sample addresses and key. The real banner prints your own port and a new key each start.']);sr='Printed the browser UI start banner.'}
     else{items=items.concat(usage(p.bad));sr='Printed the list of known commands.'}
     return {p:p,items:items,sr:sr,copy:p.cmd};
@@ -1798,6 +1900,52 @@ var relayout=null;
 })();
 var bossEl=$('#castle'),finEl=$('#finish'),bossTop_=0;
 
+/* ---------- 2-5 stress test: the load scope ---------- */
+(function(){
+  var sc=$('#scope'),sw=$('#spk');if(!sc||!sw)return;
+  var V=$('#scv'),L=$('#scl'),ax=$('#scax'),out=$('#ltout'),cp=$('#ltcopy'),plan=$('#scplan'),p95o=$('#scp95'),vu=$('#scvu');
+  var N=24,TH=300,MAXMS=480; /* the threshold line sits at TH/MAXMS of the lane */
+  /* Two illustrative runs: a gentle ramp and a spike. Numbers are drawn, not measured. */
+  function ramp(){var o=[],i;for(i=0;i<N;i++)o.push(i<6?Math.round(50*(i+1)/6):i<18?50:Math.round(50*(N-i-1)/6));return o}
+  function spike(){var o=[],i;for(i=0;i<N;i++)o.push(i<4?5:i<8?Math.round(5+95*(i-3)/4):i<18?100:i<22?5:0);return o}
+  function lat(v){return v?Math.round(v>=80?330+(v-80)*7+(v%3)*9:38+v*1.1+(v%4)*3):0}
+  var RUNS={
+    ramp:{vus:ramp(),plan:'PLAN: RAMP 0 &gt; 50 &gt; 0 USERS',peak:50,ax:['0s','1m','2m'],cmd:'rest load -stages 30s:50,1m:50,30s:0 -threshold "p95<300ms" "Shop API"',
+      text:['  ramping 0 &rarr; 50 &rarr; 0 virtual users over 2m, ran 2m','','  requests        48,210     401.8/s','  failed          0%','  response time   p50 41.2ms  p95 96.4ms  p99 131ms','','  Thresholds','    <span class="ok">&#10003; p95&lt;300ms  96.4ms</span>          <span class="ok">EXIT 0</span>'],p95:'96ms'},
+    spike:{vus:spike(),plan:'PLAN: SPIKE 5 &gt; 100 &gt; 5 USERS',peak:100,ax:['0s','30s','1m'],cmd:'rest load -stages 10s:5,10s:100,30s:100,10s:5 -threshold "p95<300ms" "Shop API"',
+      text:['  ramping 5 &rarr; 100 &rarr; 5 virtual users over 1m, ran 1m','','  requests        31,688     528.1/s','  failed          1.84%','  response time   p50 188ms  p95 412ms  p99 655ms','','  Thresholds','    <span class="bad">&#10007; p95&lt;300ms  412ms</span>           <span class="bad">EXIT 1</span>'],p95:'412ms'}
+  };
+  var vb=[],lb=[],i;
+  for(i=0;i<N;i++){var a=el('i'),b=el('i');a.style.setProperty('--d',(reduce?0:i*0.03)+'s');b.style.setProperty('--d',(reduce?0:i*0.03)+'s');V.appendChild(a);L.appendChild(b);vb.push(a);lb.push(b)}
+  var on=false;
+  function q(px){return Math.round(px/4)*4} /* whole 4px pixels */
+  function draw(spiked){
+    var r=spiked?RUNS.spike:RUNS.ramp,peak=100;
+    r.vus.forEach(function(v,j){
+      vb[j].style.setProperty('--h',q(96*v/peak)+'px');
+      var ms=lat(v);
+      lb[j].style.setProperty('--h',q(96*Math.min(ms,MAXMS)/MAXMS)+'px');
+      lb[j].classList.toggle('over',ms>TH);
+    });
+    plan.innerHTML=r.plan;vu.textContent='PEAK '+r.peak;p95o.textContent='p95 '+r.p95;
+    $$('span',ax).forEach(function(e,k){e.textContent=r.ax[k]});
+    out.innerHTML='$ '+esc(r.cmd)+'\n\n'+r.text.join('\n');
+    cp.setAttribute('data-copy',r.cmd);
+  }
+  L.querySelector('.thr').style.setProperty('--t',(100*TH/MAXMS)+'%');
+  function set(spiked,sound){
+    sw.setAttribute('aria-checked',spiked?'true':'false');
+    draw(spiked);
+    if(sound)(spiked?sfx.lose:sfx.win)();
+  }
+  sw.addEventListener('click',function(){set(sw.getAttribute('aria-checked')!=='true',true)});
+  set(false,false);
+  function show(){if(!on){on=true;sc.classList.add('on')}}
+  if(reduce||!('IntersectionObserver' in W)){show();return}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){show();io.disconnect()}})},{threshold:.35});
+  io.observe(sc);
+})();
+
 /* ---------- boss fight: the castle ---------- */
 var bossUpd=function(){};
 (function(){
@@ -1806,7 +1954,7 @@ var bossUpd=function(){};
   var pinOK=!reduce&&matchMedia('(min-width:900px) and (min-height:660px)').matches;
   if(pinOK)root.classList.add('pin-ok');
   var broken=false,manual=null,reveal=!pinOK,shown=N,lastAuto=false,lastKey='';
-  var steps=[$('#st1'),$('#st2'),$('#st3')],defs=['your build','term-rest-client run','your deploy'];
+  var steps=[$('#st1'),$('#st2'),$('#st3')],defs=['your build','rest run','your deploy'];
   var stampEl=$('#cistamp'),stamp2=$('#cistamp2'),status=$('#cistat'),bossu=$('#bossu'),bossw=$('#bossw'),bossb=$('#bossb');
   var top=0,h=0;
   function render(force){
