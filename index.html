@@ -1027,37 +1027,6 @@
                         }),
                     },
                     {
-                        name: "RestClient",
-                        meta: "REST Client \u00b7 Tauri",
-                        repo: "https://github.com/AbyAbyss/RestClient",
-                        site: {
-                            href: "restclient",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "An open-source desktop REST client with a cartoon UI, Postman-compatible test scripts and built-in " +
-                            "load testing. A full response timeline breaks out DNS, TCP, TLS, TTFB and download, while Rust " +
-                            "spawns concurrent async workers for performance runs with virtual users, ramp-up profiles and " +
-                            "saved-run comparison.",
-                        tech: [
-                            "Rust",
-                            "Tauri",
-                            "React",
-                            "TypeScript",
-                            "SQLite",
-                        ],
-                        shots: [
-                            "screenshot-main",
-                            "screenshot-timeline",
-                            "screenshot-tests",
-                            "screenshot-environments",
-                            "screenshot-perf-config",
-                            "screenshot-perf-results",
-                        ].map(function (s) {
-                            return R + "RestClient/main/docs/" + s + ".png";
-                        }),
-                    },
-                    {
                         name: "WALLE",
                         meta: "AI Desktop Companion \u00b7 Tauri + Rust",
                         repo: "https://github.com/AbyAbyss/my_walle",
@@ -1091,19 +1060,6 @@
                         ],
                         fit: true,
                         shots: ["shots/privatevault.svg"],
-                    },
-                    {
-                        name: "Term REST Client",
-                        meta: "Terminal REST Client \u00b7 Go",
-                        repo: "https://github.com/AbyAbyss/cli-rest-client",
-                        desc:
-                            "A terminal-based REST client in pure Go with a tview UI: collections, all common HTTP methods, a " +
-                            "JSON body editor with syntax highlighting, a response viewer, two themes and full keyboard " +
-                            "navigation. One binary, no external services.",
-                        tech: ["Go", "tview", "Terminal UI", "REST"],
-                        shots: [
-                            R + "cli-rest-client/main/assets/screenshot.png",
-                        ],
                     },
                 ];
                 var WORK = [
@@ -1216,7 +1172,6 @@
     ["dockman", "assets/dockman/dashboard.webp", "Docker and Podman side by side in one native window, with a shell into any container and a build layer waterfall."],
     ["InkTerm", "assets/inkterm/terminal.webp", "A desktop terminal with tabs, live system stats, five themes and an MCP panel. Still in development.", "In development"],
     ["term-rest-client", "assets/term-rest-client/main.webp", "An API client for the terminal or the browser, run as rest. REST, GraphQL, streams, WebSockets and load testing, with collections, environments and tests, in one Go binary."],
-    ["RestClient", "assets/restclient/main.webp", "A cartoon-UI REST client with Postman-style test scripts, environments and built-in load testing."],
     ["WALLE", "assets/walle/mascots.webp", "A little desktop companion in the corner of your screen, a robot or a parrot. An early experiment.", "Early experiment"]
   ].map(function (r) { var p = byName(r[0]); p.thumb = r[1]; p.blurb = r[2]; p.status = r[3] || ""; return p; });
   var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0 && SITES.indexOf(p) < 0; });
