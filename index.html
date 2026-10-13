@@ -215,6 +215,7 @@
   .scard { position: relative; grid-column: span 2; display: flex; flex-direction: column; gap: 14px; padding: 14px 14px 20px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); transform: rotate(var(--r, 0deg)); transition: transform 380ms cubic-bezier(.3, 0, .2, 1), box-shadow 380ms; }
   .scard:nth-child(3n+1) { --r: -1deg; } .scard:nth-child(3n+2) { --r: 0.8deg; } .scard:nth-child(3n) { --r: -0.5deg; }
   .scard:nth-child(n+4) { grid-column: span 3; flex-direction: row; align-items: stretch; gap: 20px; }
+  .scard:nth-child(4):last-child { grid-column: span 6; }
   .scard:hover, .scard:focus-within { transform: rotate(0deg) translateY(-8px); box-shadow: 0 1px 1px rgba(16, 23, 21, 0.1), 0 26px 40px -16px rgba(16, 23, 21, 0.5); }
   .scard .tape { top: -13px; left: 34px; transform: rotate(-4deg); }
   .scard:nth-child(even) .tape { left: auto; right: 34px; transform: rotate(5deg); }
@@ -1166,12 +1167,11 @@
   var byName = function (n) { return OSS.filter(function (p) { return p.name === n; })[0]; };
 
   /* ---------- Content that comes from data ---------- */
-  var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
+  var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "term-rest-client", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
   var SITES = [
     ["redis_gui", "assets/redis_gui/keyspace.webp", "A Redis GUI in one static Go binary. Browse the keyspace, run commands, watch live metrics and the MONITOR stream."],
     ["dockman", "assets/dockman/dashboard.webp", "Docker and Podman side by side in one native window, with a shell into any container and a build layer waterfall."],
     ["InkTerm", "assets/inkterm/terminal.webp", "A desktop terminal with tabs, live system stats, five themes and an MCP panel. Still in development.", "In development"],
-    ["term-rest-client", "assets/term-rest-client/main.webp", "An API client for the terminal or the browser, run as rest. REST, GraphQL, streams, WebSockets and load testing, with collections, environments and tests, in one Go binary."],
     ["WALLE", "assets/walle/mascots.webp", "A little desktop companion in the corner of your screen, a robot or a parrot. An early experiment.", "Early experiment"]
   ].map(function (r) { var p = byName(r[0]); p.thumb = r[1]; p.blurb = r[2]; p.status = r[3] || ""; return p; });
   var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0 && SITES.indexOf(p) < 0; });
