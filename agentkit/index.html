@@ -262,6 +262,11 @@
   /* Video */
   .player { position: relative; border-radius: 28px; padding: 10px; background: linear-gradient(140deg, var(--t3), var(--accent-soft) 40%, var(--t1)); box-shadow: var(--shadow-lg); }
   .player video { width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 20px; background: #111; }
+  .cuts { display: flex; justify-content: center; gap: 4px; margin: 0 auto 18px; padding: 4px; width: max-content; max-width: 100%; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); }
+  .cuts button { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border: 0; border-radius: 999px; background: transparent; cursor: pointer; font-weight: 700; font-size: 14.5px; color: var(--text-2); }
+  .cuts button b { font: 500 12.5px/1 var(--mono); color: var(--text-3); }
+  .cuts button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  .chapters[hidden] { display: none; }
   .chapters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; justify-content: center; }
   .chapters button { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14.5px; }
   .chapters button b { font: 500 12.5px/1 var(--mono); color: var(--text-3); }
@@ -491,7 +496,11 @@
       <div class="sec-head center rv">
         <span class="eyebrow"><span class="dot"></span>The demo</span>
         <h2>Two minutes, the whole thing.</h2>
-        <p>The SDK, an agent that asks before it acts, MCP tools, a workflow the model writes, then the console: which call failed, why, and what it cost. Real runs, sound on.</p>
+        <p>The SDK, an agent that asks before it acts, MCP tools, a workflow the model writes, then the console: which call failed, why, and what it cost. Real runs, sound on. Short on time? The teaser is 18 seconds.</p>
+      </div>
+      <div class="cuts rv" role="tablist" aria-label="Choose a video">
+        <button type="button" role="tab" aria-selected="true" data-cut="demo">Full demo <b>2:05</b></button>
+        <button type="button" role="tab" aria-selected="false" data-cut="teaser">Teaser <b>0:18</b></button>
       </div>
       <div class="player rv">
         <video id="video" controls playsinline preload="metadata" poster="tour-poster.jpg" width="1920" height="1080">
@@ -806,6 +815,25 @@ result.output; <span class="tk-c">// typed and validated</span></code></pre>
     chapBtns.forEach((b, i) => { if (video.currentTime >= Number(b.dataset.t) - 0.05) on = i; });
     chapBtns.forEach((b, i) => b.classList.toggle("on", i === on && video.currentTime > 0));
   });
+
+  /* ---------- Teaser / full demo switch ---------- */
+  const cuts = {
+    demo: { src: "tour.mp4", poster: "tour-poster.jpg" },
+    teaser: { src: "teaser.mp4", poster: "teaser-poster.jpg" },
+  };
+  const cutBtns = $$("[data-cut]");
+  cutBtns.forEach((b) => b.addEventListener("click", () => {
+    const cut = cuts[b.dataset.cut];
+    if (!cut || video.currentSrc.endsWith(cut.src)) return;
+    const playing = !video.paused;
+    cutBtns.forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+    video.pause();
+    video.poster = cut.poster;
+    video.querySelector("source").src = cut.src;
+    video.load();
+    $("#chapters").hidden = b.dataset.cut !== "demo";
+    if (playing) video.play().catch(() => {});
+  }));
 
   /* ---------- Console tabs, auto-advancing until someone clicks ---------- */
   const tabs = $$("#tabs .tab"), imgs = $$("#shots img");
