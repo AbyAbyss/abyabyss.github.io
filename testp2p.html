@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WebRTC P2P Demo</title>
+<style>
+body{font:16px system-ui;max-width:650px;margin:30px auto;padding:16px}
+textarea{width:100%;height:110px;box-sizing:border-box;margin:8px 0}
+button,select{padding:10px;margin:4px 0}
+button{cursor:pointer}
+#status{font-weight:bold}
+#remote{padding:20px;background:#eee;border-radius:8px;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<h1>WebRTC P2P Demo</h1>
+<p>Status: <strong id="status">Not connected</strong></p>
+
+<label>Your role:
+<select id="role">
+<option value="a">Person A (initiator)</option>
+<option value="b">Person B (receiver)</option>
+</select>
+</label>
+
+<div id="stepA">
+<h3>Person A</h3>
+<button id="createOffer">1. Create offer</button>
+<p>Send this offer to Person B:</p>
+<textarea id="offerOut" placeholder="Offer appears here"></textarea>
+<p>Paste Person B's answer:</p>
+<textarea id="answerIn" placeholder="Paste answer here"></textarea>
+<button id="applyAnswer">2. Apply answer</button>
+</div>
+
+<div id="stepB" hidden>
+<h3>Person B</h3>
+<p>Paste Person A's offer:</p>
+<textarea id="offerIn" placeholder="Paste offer here"></textarea>
+<button id="createAnswer">1. Create answer</button>
+<p>Send this answer to Person A:</p>
+<textarea id="answerOut" placeholder="Answer appears here"></textarea>
+</div>
+
+<hr>
+<h3>Send a signal</h3>
+<button id="send" disabled>Click me to notify the other person</button>
+<p>Received message:</p>
+<div id="remote">Nothing received yet</div>
+
+<script>
+const $ = id => document.getElementById(id);
+let pc, channel;
+
+$("role").onchange = () => {
+  $("stepA").hidden = $("role").value !== "a";
+  $("stepB").hidden = $("role").value !== "b";
+};
+
+function status(s) { $("status").textContent = s; }
+
+function setup() {
+  pc = new RTCPeerConnection({
+    iceServers: [{urls:"stun:stun.l.google.com:19302"}]
+  });
+
+  pc.onconnectionstatechange = () => status(pc.connectionState);
+
+  function attach(ch) {
+    channel = ch;
+    channel.onopen = () => {
+      status("Connected!");
+      $("send").disabled = false;
+    };
+    channel.onclose = () => {
+      $("send").disabled = true;
+      status("Disconnected");
+    };
+    channel.onmessage = e => $("remote").textContent = e.data;
+  }
+
+  pc.ondatachannel = e => attach(e.channel);
+  return pc;
+}
+
+async function waitICE() {
+  if (pc.iceGatheringState === "complete") return;
+  await new Promise(resolve => {
+    const check = () => {
+      if (pc.iceGatheringState === "complete") {
+        pc.removeEventListener("icegatheringstatechange", check);
+        resolve();
+      }
+    };
+    pc.addEventListener("icegatheringstatechange", check);
+    check();
+  });
+}
+
+$("createOffer").onclick = async () => {
+  try {
+    setup();
+    attachOfferChannel();
+    await pc.setLocalDescription(await pc.createOffer());
+    status("Gathering connection details...");
+    await waitICE();
+    $("offerOut").value = JSON.stringify(pc.localDescription);
+    status("Offer ready. Send it to Person B.");
+  } catch(e) { alert(e.message); }
+};
+
+function attachOfferChannel() {
+  channel = pc.createDataChannel("messages");
+  channel.onopen = () => {
+    status("Connected!");
+    $("send").disabled = false;
+  };
+  channel.onclose = () => {
+    $("send").disabled = true;
+    status("Disconnected");
+  };
+  channel.onmessage = e => $("remote").textContent = e.data;
+}
+
+$("createAnswer").onclick = async () => {
+  try {
+    setup();
+    await pc.setRemoteDescription(JSON.parse($("offerIn").value));
+    await pc.setLocalDescription(await pc.createAnswer());
+    status("Gathering connection details...");
+    await waitICE();
+    $("answerOut").value = JSON.stringify(pc.localDescription);
+    status("Answer ready. Send it to Person A.");
+  } catch(e) { alert("Could not create answer: " + e.message); }
+};
+
+$("applyAnswer").onclick = async () => {
+  try {
+    await pc.setRemoteDescription(JSON.parse($("answerIn").value));
+    status("Answer applied. Connecting...");
+  } catch(e) { alert("Could not apply answer: " + e.message); }
+};
+
+$("send").onclick = () => {
+  if (channel && channel.readyState === "open") {
+    channel.send("Button clicked at " + new Date().toLocaleTimeString());
+  }
+};
+</script>
+</body>
+</html>
