@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- A draft redesign for review; not linked anywhere and kept out of search until it replaces index.html. -->
+<meta name="robots" content="noindex">
+<meta name="description" content="Helpy is an AI companion that lives next to your cursor. Ask out loud and it points at the answer, draws on top of your real apps, and runs agents in the background.">
+<meta property="og:title" content="Helpy · help that lives next to your cursor">
+<meta property="og:description" content="Ask out loud. Helpy points at the answer.">
+<meta property="og:image" content="https://abyabyss.github.io/shots/helpy/walkthrough.png">
+<meta name="theme-color" content="#f5f3ee">
+<title>Helpy · help next to your cursor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z' fill='%23f0544f'/%3E%3Cellipse cx='29' cy='33' rx='2.9' ry='4' fill='%231b2030'/%3E%3Cellipse cx='40' cy='33' rx='2.9' ry='4' fill='%231b2030'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400..700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+  :root {
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+    --bg: #f5f3ee;
+    --bg-2: #ebe8e1;
+    --card: #ffffff;
+    --ink: #151924;
+    --ink-2: #4b5263;
+    --ink-3: #6f7789;
+    --line: rgba(21, 25, 36, 0.11);
+    --coral: #f0544f;
+    --coral-ink: #c4302b;
+    --shadow: 0 24px 60px -30px rgba(20, 24, 40, 0.45);
+    --wall: radial-gradient(120% 90% at 0% 0%, #3b4fe0 0%, transparent 55%), radial-gradient(90% 80% at 100% 0%, #d8457a 0%, transparent 55%), radial-gradient(100% 90% at 100% 100%, #22b377 0%, transparent 60%), #171b2c;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1117; --bg-2: #171a23; --card: #1a1e29; --ink: #eef0f5; --ink-2: #b3b9c7; --ink-3: #8c93a3;
+      --line: rgba(255, 255, 255, 0.1); --coral-ink: #ff7d78; --shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1117; --bg-2: #171a23; --card: #1a1e29; --ink: #eef0f5; --ink-2: #b3b9c7; --ink-3: #8c93a3;
+    --line: rgba(255, 255, 255, 0.1); --coral-ink: #ff7d78; --shadow: 0 24px 60px -30px rgba(0, 0, 0, 0.8);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  img, video { max-width: 100%; display: block; }
+  a { color: inherit; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- Top bar ---------- */
+  .top { display: flex; align-items: center; justify-content: space-between; height: 72px; gap: 16px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font: 800 21px/1 var(--display); text-decoration: none; }
+  .brand svg { width: 30px; height: 30px; }
+  .links { display: flex; gap: 22px; font-size: 15px; }
+  .links a { color: var(--ink-2); text-decoration: none; }
+  .links a:hover { color: var(--ink); }
+
+  /* ---------- Hero ---------- */
+  .hero { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; align-items: center; padding: 36px 0 96px; }
+  .kicker, .eyebrow { font: 600 13px/1.4 var(--mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--coral-ink); margin: 0; }
+  h1 { font: 800 clamp(42px, 5.6vw, 72px)/1.0 var(--display); letter-spacing: -0.025em; margin: 16px 0 22px; }
+  h1 .cur { white-space: nowrap; }
+  h1 .glyph { display: inline-block; width: 0.42em; height: 0.56em; margin-left: 0.08em; vertical-align: -0.02em; }
+  .lede { font-size: 19px; color: var(--ink-2); margin: 0; max-width: 46ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin: 30px 0 24px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 20px; border-radius: 999px; font: 600 15px var(--body); text-decoration: none; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; transition: transform 0.15s, border-color 0.15s; }
+  .btn:hover { transform: translateY(-1px); border-color: var(--ink-3); }
+  .btn--ink { background: var(--ink); color: var(--bg); border-color: transparent; }
+  .btn:focus-visible, .ask:focus-visible, .wbtn:focus-visible, .switch:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+  .keys { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; align-items: center; color: var(--ink-3); font-size: 14px; }
+  .keys span:first-child, .keys > span:nth-child(odd) { white-space: nowrap; }
+  kbd { font: 600 12px var(--mono); padding: 3px 7px; border-radius: 6px; background: var(--card); border: 1px solid var(--line); box-shadow: 0 1px 0 var(--line); color: var(--ink); }
+
+  /* ---------- The live demo ---------- */
+  .asks { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+  .asks__label { font: 600 13px var(--mono); color: var(--ink-3); margin-right: 4px; }
+  .ask { display: inline-flex; gap: 8px; align-items: center; min-height: 38px; padding: 0 14px 0 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 500 14px var(--body); cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+  .ask svg { width: 18px; height: 18px; flex: none; }
+  .ask:hover:not([disabled]) { border-color: var(--coral); transform: translateY(-1px); }
+  .ask[disabled] { opacity: 0.5; cursor: default; }
+  .desk { position: relative; border-radius: 24px; padding: 34px 30px 30px; background: var(--wall); box-shadow: var(--shadow); }
+  .win { position: relative; background: #f7f7f9; color: #1b2030; border-radius: 12px; box-shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(0, 0, 0, 0.06); overflow: hidden; }
+  .win__bar { display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; background: #ececf0; border-bottom: 1px solid #dcdce3; font: 500 12px var(--body); color: #6b7080; }
+  .win__bar i { width: 11px; height: 11px; border-radius: 50%; }
+  .win__bar span { margin-left: 10px; }
+  .win__body { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; padding: 20px; }
+  .form h3 { font: 700 17px var(--display); margin: 0 0 6px; }
+  .form label { display: block; font-size: 12px; color: #6b7080; margin: 10px 0 4px; }
+  .field { min-height: 34px; border: 1px solid #dcdce3; border-radius: 8px; background: #fff; padding: 0 10px; display: flex; align-items: center; font-size: 14px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 16px 0; font-size: 14px; }
+  .switch { flex: none; width: 42px; height: 24px; border-radius: 12px; background: #cfd2da; border: 0; position: relative; cursor: pointer; transition: background 0.2s; padding: 0; }
+  .switch::after { content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: transform 0.2s; }
+  .switch[aria-checked="true"] { background: #2fbf71; }
+  .switch[aria-checked="true"]::after { transform: translateX(18px); }
+  .btns { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+  .wbtn { min-height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid #dcdce3; background: #fff; font: 600 13px var(--body); cursor: pointer; color: #1b2030; transition: transform 0.12s, background 0.2s; }
+  .wbtn--primary { background: #3157e0; border-color: #3157e0; color: #fff; }
+  .wbtn--primary.is-done { background: #2fbf71; border-color: #2fbf71; }
+  .is-pressed { transform: scale(0.93); }
+  .chart { background: #fff; border: 1px solid #e3e3ea; border-radius: 10px; padding: 14px; align-self: start; }
+  .chart h4 { margin: 0; font: 700 14px var(--display); }
+  .chart p { margin: 2px 0 12px; font-size: 12px; color: #6b7080; }
+  .bars { height: 132px; display: flex; align-items: flex-end; gap: 8px; border-bottom: 1px solid #e3e3ea; }
+  .bars b { flex: 1; background: #5576f0; border-radius: 4px 4px 0 0; }
+  .legend { display: flex; gap: 8px; font-size: 10px; color: #8a8fa0; margin-top: 4px; }
+  .legend span { flex: 1; text-align: center; }
+  .overlay { position: absolute; inset: 0; pointer-events: none; }
+  .marks { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .mark { fill: none; stroke: #ff4d55; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 4px rgba(255, 77, 85, 0.6)); }
+  .mark--thin { stroke-width: 2; }
+  .marks.is-fading { opacity: 0; transition: opacity 0.5s; }
+  .tag { position: absolute; background: #ff4d55; color: #fff; font: 700 12px/1.3 var(--body); padding: 3px 9px; border-radius: 7px; white-space: nowrap; box-shadow: 0 6px 16px -6px rgba(255, 77, 85, 0.8); opacity: 0; transform: translateY(4px); transition: opacity 0.25s, transform 0.25s; }
+  .tag--dark { background: #151925; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, 0.6); }
+  .tag.is-on { opacity: 1; transform: none; }
+  .stepcard { position: absolute; background: #151925; color: #eef0f5; border-radius: 14px; padding: 12px 14px; box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.06); pointer-events: auto; font-size: 13px; opacity: 0; transform: translateY(6px); transition: opacity 0.25s, transform 0.25s; }
+  .stepcard.is-on { opacity: 1; transform: none; }
+  .stepcard .k { font: 600 10px var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: #ff8a8e; }
+  .stepcard p { margin: 4px 0 10px; font-weight: 600; font-size: 14px; }
+  .stepcard .acts { display: flex; gap: 6px; justify-content: flex-end; }
+  .stepcard button { min-height: 30px; padding: 0 12px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.14); background: transparent; color: #eef0f5; font: 600 12px var(--body); cursor: pointer; }
+  .stepcard button.go { background: #f0544f; border-color: #f0544f; color: #fff; }
+  .stepcard button[disabled] { opacity: 0.5; cursor: default; }
+  .demo-note { margin: 12px 2px 0; font-size: 13px; color: var(--ink-3); }
+
+  /* ---------- The buddy (Pip), on the page and in the cards ---------- */
+  .bud .fill { fill: #f0544f; stroke: #fff; stroke-width: 2; stroke-linejoin: round; }
+  .bud .eyes ellipse, .bud .mouth { fill: #1b2030; }
+  .bud .eyes, .bud .mouth, .bud .ring, .bud .dots circle, .bud .body { transform-box: fill-box; transform-origin: center; }
+  .bud .mouth { opacity: 0; }
+  .bud .ring { fill: none; stroke: #f0544f; stroke-width: 2.5; opacity: 0; }
+  .bud .dots circle { fill: #f0544f; stroke: #fff; stroke-width: 1; opacity: 0; }
+  .bud .eyes { animation: blink 5s infinite; transition: transform 0.2s; }
+  .bud[data-state="listening"] .ring { opacity: 0.7; animation: pulse 1.3s ease-out infinite; }
+  .bud[data-state="listening"] .eyes { transform: scale(1.15); animation: none; }
+  .bud[data-state="thinking"] .eyes { transform: translate(2px, -2px); animation: none; }
+  .bud[data-state="thinking"] .dots circle { animation: think 1.2s ease-in-out infinite; }
+  .bud[data-state="thinking"] .dots circle:nth-child(2) { animation-delay: 0.15s; }
+  .bud[data-state="thinking"] .dots circle:nth-child(3) { animation-delay: 0.3s; }
+  .bud[data-state="speaking"] .mouth { opacity: 1; animation: talk 0.3s ease-in-out infinite alternate; }
+  @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(0.1); } }
+  @keyframes pulse { from { transform: scale(0.85); opacity: 0.7; } to { transform: scale(1.35); opacity: 0; } }
+  @keyframes think { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+  @keyframes talk { from { transform: scaleY(0.6); } to { transform: scaleY(2); } }
+
+  .pip { position: fixed; left: 0; top: 0; width: 34px; height: 34px; z-index: 1000; pointer-events: none; will-change: transform; transition: opacity 0.25s; }
+  .pip svg, .pip-copy svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 3px rgba(10, 12, 20, 0.35)); }
+  .pip.is-pop svg { animation: pop 0.45s ease-out; }
+  @keyframes pop { 40% { transform: scale(1.25); } }
+  .pip-copy { position: fixed; left: 0; top: 0; width: 34px; height: 34px; z-index: 1001; pointer-events: none; }
+  .pip-copy .fill { fill: #5b93ff; }
+  .pip-copy svg { filter: drop-shadow(0 0 8px #5b93ff) drop-shadow(0 0 18px rgba(91, 147, 255, 0.55)); }
+
+  .vpill { position: fixed; left: 0; top: 0; z-index: 999; display: flex; align-items: center; gap: 10px; max-width: min(300px, calc(100vw - 24px)); padding: 8px 14px 8px 10px; border-radius: 16px; background: rgba(20, 23, 33, 0.94); color: #eef0f5; font: 500 13px/1.35 var(--body); box-shadow: 0 14px 30px -12px rgba(0, 0, 0, 0.6); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .vpill.is-on { opacity: 1; }
+  .wave { display: none; gap: 2px; align-items: center; height: 18px; flex: none; }
+  .wave i { width: 3px; height: 6px; border-radius: 2px; background: #6ea2ff; animation: wave 0.55s ease-in-out infinite alternate; }
+  .wave i:nth-child(2) { animation-delay: 0.12s; } .wave i:nth-child(3) { animation-delay: 0.24s; } .wave i:nth-child(4) { animation-delay: 0.08s; } .wave i:nth-child(5) { animation-delay: 0.2s; }
+  .vpill[data-mode="listening"] .wave { display: flex; }
+  .vpill[data-mode="thinking"] .vpill__text::after { content: "…"; }
+  @keyframes wave { to { height: 18px; } }
+
+  /* ---------- Sections ---------- */
+  section.band { padding: 96px 0; border-top: 1px solid var(--line); }
+  h2 { font: 800 clamp(32px, 3.8vw, 48px)/1.06 var(--display); letter-spacing: -0.02em; margin: 12px 0 16px; }
+  .intro { color: var(--ink-2); font-size: 18px; max-width: 60ch; margin: 0 0 40px; }
+
+  .states { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .state { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 18px 18px 20px; transition: transform 0.2s, border-color 0.2s; }
+  .state:hover { transform: translateY(-3px); border-color: var(--coral); }
+  .state__stage { position: relative; height: 112px; border-radius: 14px; background: var(--bg-2); display: grid; place-items: center; margin-bottom: 14px; }
+  .state__stage .pointer { position: absolute; left: calc(50% - 30px); top: 26px; width: 22px; height: 28px; }
+  .state__stage .bud { width: 50px; height: 50px; margin: 22px 0 0 26px; overflow: visible; }
+  .state h3 { font: 700 17px var(--display); margin: 0 0 4px; }
+  .state p { font-size: 14px; color: var(--ink-2); margin: 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .fact { font-size: 14px; color: var(--ink-2); padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); }
+
+  .more { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .feat { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 26px; }
+  .feat__icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: rgba(240, 84, 79, 0.12); color: var(--coral-ink); margin-bottom: 16px; }
+  .feat__icon svg { width: 22px; height: 22px; }
+  .feat h3 { font: 700 20px var(--display); margin: 0 0 8px; }
+  .feat p { margin: 0; color: var(--ink-2); font-size: 15.5px; }
+  .feat p + p { margin-top: 10px; }
+
+  .agents { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px; align-items: center; }
+  .flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; counter-reset: s; }
+  .flow li { display: grid; grid-template-columns: 34px 1fr; gap: 14px; }
+  .flow li::before { counter-increment: s; content: counter(s); width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 700 15px var(--display); background: var(--ink); color: var(--bg); }
+  .flow b { display: block; font: 700 17px var(--display); }
+  .flow span { color: var(--ink-2); font-size: 15.5px; }
+  .astage { position: relative; border-radius: 24px; padding: 26px; background: var(--wall); box-shadow: var(--shadow); display: grid; grid-template-columns: minmax(0, 1fr) 64px; gap: 20px; }
+  .plan { background: #141821; color: #eef1f6; border-radius: 18px; padding: 18px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.7); }
+  .plan h4 { margin: 0; font: 700 18px var(--display); }
+  .plan .req { margin: 2px 0 14px; color: #aab2c0; font-size: 14px; }
+  .plan ol { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+  .plan li { border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 12px; display: grid; grid-template-columns: 10px 1fr; gap: 10px; align-items: start; }
+  .plan li::before { content: ""; width: 9px; height: 9px; border-radius: 50%; margin-top: 7px; background: var(--c, #8a92a3); box-shadow: 0 0 8px var(--c, transparent); transition: background 0.3s, box-shadow 0.3s; }
+  .plan li b { font-size: 14px; }
+  .plan li span { display: block; font-size: 13px; color: #aab2c0; }
+  .plan .tools { display: flex; gap: 5px; margin-top: 6px; }
+  .plan .tools i { font-style: normal; font-size: 11px; padding: 1px 7px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); color: #c9cfdb; }
+  .plan .foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .plan .foot small { color: #8a92a3; font-size: 12px; }
+  .plan .start { min-height: 38px; padding: 0 18px; border-radius: 10px; border: 0; background: #f0544f; color: #fff; font: 700 14px var(--body); cursor: pointer; box-shadow: 0 0 0 3px rgba(240, 84, 79, 0.25); }
+  .plan .start[disabled] { opacity: 0.55; cursor: default; box-shadow: none; }
+  .dock { display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; padding: 12px 0; border-radius: 18px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.08); }
+  .dock__hint { writing-mode: vertical-rl; transform: rotate(180deg); font: 600 11px var(--mono); letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; }
+  .chip { --c: #8a92a3; position: relative; width: 44px; height: 44px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.12); background: linear-gradient(160deg, #262a35, #14171e); display: grid; place-items: center; color: var(--c); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 0 14px -2px var(--c), 0 6px 14px -6px rgba(0, 0, 0, 0.7); visibility: hidden; transition: color 0.3s, box-shadow 0.3s; }
+  .chip svg { width: 24px; height: 24px; fill: currentColor; filter: drop-shadow(0 0 4px var(--c)); }
+  .chip.is-in { visibility: visible; animation: drop 0.72s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .chip[data-tone="work"] { --c: #5b93ff; }
+  .chip[data-tone="done"] { --c: #3ee08e; }
+  .chip[data-tone="question"] { --c: #f5c542; }
+  .chip[data-tone="question"]::after { content: ""; position: absolute; top: -3px; right: -3px; width: 11px; height: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px #14171e; }
+  .chip.is-in[data-tone="work"] { animation: drop 0.72s cubic-bezier(0.22, 1, 0.36, 1) both, glow 1.8s ease-in-out 0.72s infinite; }
+  @keyframes drop { 0% { opacity: 0; transform: translateY(-30px) scale(0.55, 1.3); } 45% { opacity: 1; transform: translateY(0) scale(1.2, 0.8); } 65% { transform: translateY(-4px) scale(0.94, 1.06); } 100% { transform: none; } }
+  @keyframes glow { 50% { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 0 24px 1px var(--c), 0 6px 14px -6px rgba(0, 0, 0, 0.7); } }
+
+  .shots { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 16px; align-items: start; }
+  .shot { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 10px; }
+  .shot img { width: 100%; height: auto; border-radius: 10px; }
+  .shot figcaption { font-size: 14px; color: var(--ink-2); padding: 10px 6px 4px; }
+
+  .trust { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  .trust div { border-top: 2px solid var(--ink); padding-top: 14px; }
+  .trust b { display: block; font: 700 18px var(--display); margin-bottom: 4px; }
+  .trust span { color: var(--ink-2); font-size: 15px; }
+  .models { margin-top: 56px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
+  .models h3 { font: 700 22px var(--display); margin: 0 0 14px; }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pills span { font-size: 14px; padding: 6px 13px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+  .os { display: flex; gap: 10px; flex-wrap: wrap; }
+  .os div { padding: 12px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); font: 700 16px var(--display); }
+  .os small { display: block; font: 500 12px var(--body); color: var(--ink-3); }
+
+  .tour video { width: 100%; height: auto; border-radius: 18px; background: #111; box-shadow: var(--shadow); }
+  .tour figcaption { margin-top: 12px; font-size: 14px; color: var(--ink-3); }
+
+  footer { border-top: 1px solid var(--line); padding: 56px 0 72px; }
+  .foot { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr)); gap: 32px; }
+  .foot p { margin: 0; color: var(--ink-2); font-size: 15px; }
+  .foot .k { font: 600 12px var(--mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+
+  /* ---------- Narrow screens ---------- */
+  @media (max-width: 1060px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; }
+    .agents { grid-template-columns: 1fr; }
+    .states { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .trust { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .foot { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 760px) {
+    .links .opt { display: none; }
+    .more, .shots { grid-template-columns: 1fr; }
+    .models { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 620px) {
+    .wrap { padding: 0 16px; }
+    .hero { padding: 16px 0 64px; }
+    section.band { padding: 64px 0; }
+    .desk { padding: 18px 12px 14px; border-radius: 18px; }
+    .win__body { grid-template-columns: 1fr; padding: 16px; }
+    .astage { padding: 16px; gap: 12px; grid-template-columns: minmax(0, 1fr) 54px; }
+    .states { gap: 10px; }
+    .state { padding: 12px 12px 14px; }
+    .state__stage { height: 96px; }
+    .trust, .foot { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#top" aria-label="Helpy, back to top">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z" fill="#f0544f" stroke="#fff" stroke-width="2"/><ellipse cx="29" cy="33" rx="2.9" ry="4" fill="#1b2030"/><ellipse cx="40" cy="33" rx="2.9" ry="4" fill="#1b2030"/></svg>
+      Helpy
+    </a>
+    <nav class="links" aria-label="Sections">
+      <a href="#try">Try it</a>
+      <a class="opt" href="#rides">How it rides</a>
+      <a class="opt" href="#agents">Agents</a>
+      <a class="opt" href="#tour">Tour</a>
+      <a href="https://github.com/AbyAbyss/helpy" target="_blank" rel="noopener">GitHub</a>
+      <a class="opt" href="../">Portfolio</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="top">
+    <div>
+      <p class="kicker">Open source · macOS, Windows, Linux</p>
+      <h1>Help that lives next to your <span class="cur">cursor<svg class="glyph" id="pip-home" viewBox="0 0 22 28" aria-hidden="true"><path d="M2 2 L2 22 L7.5 17 L11 25 L14.5 23.5 L11 15.6 L18.5 15.6 Z" fill="#fff" stroke="#151924" stroke-width="1.6" stroke-linejoin="round"/></svg></span></h1>
+      <p class="lede">Ask out loud and Helpy looks at the app in front of you, points at the answer, and walks you through it a step at a time. Say a task and agents do it in the background while you keep working.</p>
+      <div class="cta">
+        <a class="btn btn--ink" href="#try">Try it right here</a>
+        <a class="btn" href="#tour">Watch the tour</a>
+        <a class="btn" href="https://github.com/AbyAbyss/helpy" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="keys">
+        <span><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd></span><span>Hold and talk. Let go and Helpy answers.</span>
+        <span><kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd></span><span>Type a question instead.</span>
+      </div>
+    </div>
+
+    <div id="try">
+      <div class="asks" role="group" aria-label="Ask Helpy about this app">
+        <span class="asks__label">Ask Helpy:</span>
+        <button class="ask" type="button" data-ask="save"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="#f0544f"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="#f0544f" stroke-width="2" stroke-linecap="round"/></svg>Where's save?</button>
+        <button class="ask" type="button" data-ask="twofa"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="#f0544f"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="#f0544f" stroke-width="2" stroke-linecap="round"/></svg>Turn on two-step</button>
+        <button class="ask" type="button" data-ask="chart"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="#f0544f"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="#f0544f" stroke-width="2" stroke-linecap="round"/></svg>Explain this chart</button>
+      </div>
+      <div class="desk" id="desk">
+        <div class="win">
+          <div class="win__bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>Account settings</span></div>
+          <div class="win__body">
+            <div class="form">
+              <h3>Your account</h3>
+              <label>Name</label><div class="field">Sam Carter</div>
+              <label>Email</label><div class="field">sam@example.com</div>
+              <div class="row"><span id="twofa-label">Two-step verification</span><button class="switch" id="t-twofa" type="button" role="switch" aria-checked="false" aria-labelledby="twofa-label"></button></div>
+              <div class="btns"><button class="wbtn" type="button">Cancel</button><button class="wbtn wbtn--primary" id="t-save" type="button">Save settings</button></div>
+            </div>
+            <div class="chart" id="t-chart">
+              <h4>Storage</h4>
+              <p>62% of 200 GB used</p>
+              <div class="bars" id="t-bars"><b style="height:40%"></b><b style="height:55%"></b><b style="height:48%"></b><b style="height:70%"></b><b style="height:96%"></b><b style="height:62%"></b></div>
+              <div class="legend"><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="overlay" id="overlay"><svg class="marks" id="marks" aria-hidden="true"></svg><div id="tags"></div></div>
+      </div>
+      <p class="demo-note">A pretend app, so you can see it work. In Helpy this happens on your real apps, with a fresh screenshot of the screen under your cursor.</p>
+      <p class="sr" id="live" aria-live="polite"></p>
+    </div>
+  </section>
+</div>
+
+<section class="band" id="rides">
+  <div class="wrap">
+    <p class="eyebrow">The cursor buddy</p>
+    <h2>Always right where you're looking</h2>
+    <p class="intro">Pip rides beside your pointer on every monitor and never blocks a click. Its face tells you what Helpy is doing, so you never have to switch to a chat window to find out. Hover a card to see your Pip do it too.</p>
+    <div class="states">
+      <article class="state" data-pip-state="idle">
+        <div class="state__stage"><svg class="pointer" viewBox="0 0 22 28" aria-hidden="true"><path d="M2 2 L2 22 L7.5 17 L11 25 L14.5 23.5 L11 15.6 L18.5 15.6 Z" fill="#fff" stroke="#151924" stroke-width="1.6" stroke-linejoin="round"/></svg><svg class="bud" data-state="idle" viewBox="0 0 64 64" aria-hidden="true"></svg></div>
+        <h3>Riding along</h3>
+        <p>Follows your pointer, blinks now and then, and steps aside for fullscreen apps.</p>
+      </article>
+      <article class="state" data-pip-state="listening">
+        <div class="state__stage"><svg class="pointer" viewBox="0 0 22 28" aria-hidden="true"><path d="M2 2 L2 22 L7.5 17 L11 25 L14.5 23.5 L11 15.6 L18.5 15.6 Z" fill="#fff" stroke="#151924" stroke-width="1.6" stroke-linejoin="round"/></svg><svg class="bud" data-state="listening" viewBox="0 0 64 64" aria-hidden="true"></svg></div>
+        <h3>Listening</h3>
+        <p>A ring pulses while you hold the hotkey and talk, with your words beside it.</p>
+      </article>
+      <article class="state" data-pip-state="thinking">
+        <div class="state__stage"><svg class="pointer" viewBox="0 0 22 28" aria-hidden="true"><path d="M2 2 L2 22 L7.5 17 L11 25 L14.5 23.5 L11 15.6 L18.5 15.6 Z" fill="#fff" stroke="#151924" stroke-width="1.6" stroke-linejoin="round"/></svg><svg class="bud" data-state="thinking" viewBox="0 0 64 64" aria-hidden="true"></svg></div>
+        <h3>Thinking</h3>
+        <p>Dots while it reads your screen and works out the answer.</p>
+      </article>
+      <article class="state" data-pip-state="speaking">
+        <div class="state__stage"><svg class="pointer" viewBox="0 0 22 28" aria-hidden="true"><path d="M2 2 L2 22 L7.5 17 L11 25 L14.5 23.5 L11 15.6 L18.5 15.6 Z" fill="#fff" stroke="#151924" stroke-width="1.6" stroke-linejoin="round"/></svg><svg class="bud" data-state="speaking" viewBox="0 0 64 64" aria-hidden="true"></svg></div>
+        <h3>Answering</h3>
+        <p>Its mouth moves as it reads the answer aloud, starting before the answer is even finished.</p>
+      </article>
+    </div>
+    <div class="facts">
+      <span class="fact">Pip, Spark and Dot, or your own SVG or PNG</span>
+      <span class="fact">Size, opacity, offset and smoothness are yours to set</span>
+      <span class="fact">Optionally hides when your mouse rests</span>
+      <span class="fact">Per-monitor DPI handled in Rust</span>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="more">
+  <div class="wrap">
+    <p class="eyebrow">What it does</p>
+    <h2>It shows you, on the app you're using</h2>
+    <p class="intro">Most AI help lives in a chat window you have to switch to. Helpy answers on top of the app in front of you, with marks you can follow.</p>
+    <div class="more">
+      <article class="feat">
+        <div class="feat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="13" height="9" rx="2.5"/><path d="M14 13l6 6M17.5 19.5H20V17"/></svg></div>
+        <h3>Walkthroughs</h3>
+        <p>Ask "how do I turn on dark mode?" and Helpy highlights the real control, one step at a time. Click it, or press Next, and it takes a fresh screenshot to check before showing the next step.</p>
+        <p>Highlights snap onto the actual button through your computer's accessibility layer. "Do it" clicks it for you after you confirm.</p>
+      </article>
+      <article class="feat">
+        <div class="feat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19L20 5M4 19h16M20 5v14"/></svg></div>
+        <h3>Draws to explain</h3>
+        <p>Stuck on a diagram, a chart or a maths question? Helpy draws lines, shapes and curves in any size and direction, writes short labels, drops in a reference picture or a chart, and Pip traces along as it draws, all on a click-through layer.</p>
+      </article>
+      <article class="feat">
+        <div class="feat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 6c-3 1.5-4 5-2 8.5 2.5 4 10 5 13 1.5 2.5-3 1.5-9-3-10.5-3-1-6 0-7.5 1"/></svg></div>
+        <h3>Circle to explain</h3>
+        <p>Press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> and the screen freezes. Draw around anything to explain it, label its parts, copy its text, translate it, or hand it to an agent.</p>
+      </article>
+      <article class="feat">
+        <div class="feat__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></div>
+        <h3>Voice in, voice out</h3>
+        <p>Hold to talk or press to start and stop. Speech recognition can run on your computer with Whisper, or through OpenAI or Deepgram. Answers are read aloud as they stream, in a system, Piper or OpenAI voice. Esc stops it all.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="agents">
+  <div class="wrap agents">
+    <div>
+      <p class="eyebrow">Background agents</p>
+      <h2>Say a task. A copy of Pip takes it.</h2>
+      <p class="intro" style="margin-bottom:28px">"Research standing desks under £400." Helpy plans one to five agents and shows you a plan card first. Press Start and a copy of the buddy peels off your cursor and flies to the screen edge, where it becomes the agent's chip.</p>
+      <ol class="flow">
+        <li><div><b>Check the plan</b><span>Each agent's goal, its tools, and what it will ask before acting. Press Enter, click Start, or say "yes, go".</span></div></li>
+        <li><div><b>Watch the dock</b><span>Blue is working, green done, yellow a question, red needs your OK. Hover a chip for its card.</span></div></li>
+        <li><div><b>Keep it or undo it</b><span>Read the result, ask a follow-up by text or voice, or roll back every file change at once.</span></div></li>
+      </ol>
+    </div>
+    <div class="astage" id="astage">
+      <div class="plan" id="plan">
+        <h4 id="plan-title">2 agents ready to start</h4>
+        <p class="req">“Research standing desks under £400 and compare them”</p>
+        <ol>
+          <li id="run-0"><div><b>Research</b><span class="what">Find three well-reviewed standing desks under £400.</span><div class="tools"><i>Search</i><i>Web</i></div></div></li>
+          <li id="run-1"><div><b>Compare</b><span class="what">After Research: compare height range, size and price, and pick one.</span><div class="tools"><i>Web</i></div></div></li>
+        </ol>
+        <div class="foot"><small>Or say “yes, go”</small><button class="start" id="plan-start" type="button">Start</button></div>
+      </div>
+      <div class="dock" id="dock" aria-label="Agent dock"><span class="dock__hint" id="dock-hint">Dock</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="real">
+  <div class="wrap">
+    <p class="eyebrow">From the real app</p>
+    <h2>The same thing, on a real desktop</h2>
+    <p class="intro">Screenshots from the Linux build with a test model. On macOS and Windows 11 the cards also blur what's behind them.</p>
+    <div class="shots">
+      <figure class="shot"><img src="../shots/helpy/walkthrough.png" width="780" height="400" loading="lazy" alt="A Helpy walkthrough step: the Save settings button is outlined in glowing red, and a step card says Click Save settings, with Stop, Do it and Next buttons."><figcaption>A walkthrough step, snapped onto the real Save button.</figcaption></figure>
+      <figure class="shot"><img src="../shots/helpy/plan-card-skill.png" width="940" height="680" loading="lazy" alt="A plan card: 1 agent ready to start, a Briefing agent that summarises new GitHub issues into Notion, a skill tag, and a note that it runs now and then on weekdays at 08:00."><figcaption>A plan card, before anything starts.</figcaption></figure>
+      <figure class="shot"><img src="../shots/helpy/card-dark.png" width="515" height="400" loading="lazy" alt="A finished agent card: Desktop tidy, done in 7 seconds, sorted 2 files and deleted 1 temporary file, with an undo link and a follow-up field."><figcaption>A finished agent, with undo and a follow-up bar.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="safe">
+  <div class="wrap">
+    <p class="eyebrow">You stay in charge</p>
+    <h2>Helpful, not hands-off</h2>
+    <p class="intro">Helpy acts on your computer, so the guard rails are built in rather than asked for nicely.</p>
+    <div class="trust">
+      <div><b>Asks first</b><span>Deletes, sends and commands wait for your OK, and you can edit them before you approve.</span></div>
+      <div><b>One-click undo</b><span>Every file change is backed up, and a whole run can be rolled back at once.</span></div>
+      <div><b>Limits in Rust</b><span>Steps, time and token budgets are enforced in code and can't be talked around.</span></div>
+      <div><b>Your screen stays yours</b><span>Screenshots go only to the model you choose and never include Helpy's own windows.</span></div>
+    </div>
+    <div class="models">
+      <div>
+        <h3>Bring your own model, or run one on your computer</h3>
+        <div class="pills"><span>Nebius Token Factory · NVIDIA Nemotron</span><span>Anthropic</span><span>OpenAI</span><span>Google Gemini</span><span>Ollama</span><span>LM Studio</span><span>llama.cpp</span><span>Any OpenAI-compatible endpoint</span></div>
+      </div>
+      <div class="os" aria-label="Platforms">
+        <div>macOS<small>first class</small></div>
+        <div>Windows<small>first class</small></div>
+        <div>Linux<small>X11 · Wayland best effort</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="tour">
+  <div class="wrap">
+    <p class="eyebrow">The tour</p>
+    <h2>Watch it work on real apps</h2>
+    <figure class="tour" style="margin:28px 0 0">
+      <video controls playsinline preload="metadata" poster="../shots/helpy/tour-poster-cursor.jpg" src="../clips/helpy.mp4" width="1920" height="1080">
+        <a href="../clips/helpy.mp4">Watch the Helpy tour (MP4, 3 minutes)</a>
+      </video>
+      <figcaption>Three minutes: walkthroughs, drawing on screen, circle to explain, a plan card, agents at work and settings.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div><p class="k">Open source</p><p>Helpy is MIT licensed. There are no prebuilt installers yet, so you build it from source with your own model key. The <a href="https://github.com/AbyAbyss/helpy" target="_blank" rel="noopener">README</a> has the steps.</p></div>
+    <div><p class="k">Built with</p><p>Tauri 2 and Rust, with React and TypeScript.</p></div>
+    <div><p class="k">Set in</p><p>Bricolage Grotesque, Inter and JetBrains Mono.</p></div>
+    <div><p class="k">More</p><p><a href="../">See more of my work</a></p></div>
+  </div>
+</footer>
+
+<!-- Pip, on the page: follows your mouse, and shows how Helpy answers. -->
+<div class="pip" id="pip" aria-hidden="true"><svg class="bud" data-state="idle" viewBox="0 0 64 64"></svg></div>
+<div class="vpill" id="vpill" aria-hidden="true"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span><span class="vpill__text" id="vpill-text"></span></div>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const NS = "http://www.w3.org/2000/svg";
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduced ? Math.min(ms, 80) : ms));
+  const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+  // The buddy's drawing, shared by the page's Pip, the cards and the copies.
+  const BUD = '<circle class="ring" cx="34" cy="34" r="24"/><g class="body"><path class="fill" d="M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z"/><g class="eyes"><ellipse cx="29" cy="33" rx="2.9" ry="4"/><ellipse cx="40" cy="33" rx="2.9" ry="4"/></g><rect class="mouth" x="31" y="42" width="6" height="3" rx="1.5"/></g><g class="dots"><circle cx="52" cy="14" r="2.6"/><circle cx="58" cy="8" r="2"/><circle cx="62" cy="3" r="1.4"/></g>';
+  document.querySelectorAll("svg.bud").forEach((s) => (s.innerHTML = BUD));
+
+  const SIZE = 34, TIP = (SIZE * 6) / 64, OFF = { x: 16, y: 18 };
+  const pip = $("#pip"), bud = pip.querySelector(".bud");
+  const pill = $("#vpill"), pillText = $("#vpill-text"), live = $("#live");
+
+  /* ---------- Where Pip is ---------- */
+  let mouse = null, inside = false, anchor = $("#pip-home");
+  const pos = { x: -200, y: -200 };
+  let placed = false, pilot = null, state = "idle", hoverState = null, pillOn = false;
+
+  function home() {
+    if (fine && mouse) return { x: mouse.x + OFF.x, y: mouse.y + OFF.y };
+    const r = anchor.getBoundingClientRect();
+    return { x: r.right + 2, y: r.top + r.height * 0.35 };
+  }
+  function setState(s) { state = s; bud.dataset.state = s === "idle" && hoverState ? hoverState : s; }
+  const release = () => (pilot = null);
+
+  addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse") return;
+    const first = !mouse;
+    mouse = { x: e.clientX, y: e.clientY };
+    inside = true;
+    if (first) greet();
+  }, { passive: true });
+  document.documentElement.addEventListener("mouseleave", () => (inside = false));
+  addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "mouse") return;
+    const t = e.target.closest("button, a, .state, .win");
+    if (t) anchor = t;
+  }, { passive: true });
+
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(64, now - last);
+    last = now;
+    const target = pilot ? pilot(now) : home();
+    if (pilot || reduced || !placed) { pos.x = target.x; pos.y = target.y; placed = true; }
+    else { const k = 1 - Math.exp(-dt / 75); pos.x += (target.x - pos.x) * k; pos.y += (target.y - pos.y) * k; }
+    pip.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+    pip.style.opacity = pilot || !fine || !mouse || inside ? 1 : 0;
+    if (pillOn) {
+      // Beside Pip, on whichever side has room, or under it on a narrow
+      // screen; hidden while Pip is scrolled out of view.
+      const w = pill.offsetWidth, h = pill.offsetHeight;
+      let x = pos.x + SIZE + 8, y = pos.y + 2;
+      if (x + w > innerWidth - 8) {
+        x = pos.x - w - 8;
+        if (x < 8) { x = Math.min(Math.max(8, pos.x + SIZE / 2 - w / 2), innerWidth - w - 8); y = pos.y + SIZE + 6; }
+      }
+      pill.style.transform = `translate3d(${x}px, ${Math.min(Math.max(8, y), innerHeight - h - 8)}px, 0)`;
+      pill.style.visibility = pos.y > -SIZE && pos.y < innerHeight ? "visible" : "hidden";
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* ---------- The voice pill beside Pip ---------- */
+  let pillToken = 0;
+  function showPill(mode, text) { pill.dataset.mode = mode; pillText.textContent = text; pill.classList.add("is-on"); pillOn = true; pillToken++; }
+  function hidePillLater(ms) {
+    const t = ++pillToken;
+    setTimeout(() => { if (t === pillToken) { pill.classList.remove("is-on"); setTimeout(() => { if (t === pillToken) pillOn = false; }, 250); } }, ms);
+  }
+  let greeted = false;
+  function greet() {
+    if (greeted || busy) return;
+    greeted = true;
+    setTimeout(() => { if (busy) return; showPill("speaking", "Hi, I'm Pip. I ride along with your cursor."); hidePillLater(3400); }, 500);
+  }
+  if (!fine) setTimeout(() => { if (busy || greeted) return; greeted = true; showPill("speaking", "Tap a question and I'll show you."); hidePillLater(4200); }, 1200);
+
+  /* ---------- Flying and tracing ---------- */
+  // Flies Pip's tip to a point (re-read every frame, so scrolling is fine).
+  function flyTo(getTip, ms = 650) {
+    const from = { x: pos.x + TIP, y: pos.y + TIP };
+    if (reduced) { pilot = () => { const p = getTip(); return { x: p.x - TIP, y: p.y - TIP }; }; return Promise.resolve(); }
+    return new Promise((done) => {
+      const t0 = performance.now();
+      let fin = false;
+      pilot = (now) => {
+        const t = Math.min(1, (now - t0) / ms), e = ease(t), to = getTip();
+        const dx = to.x - from.x, dy = to.y - from.y, lift = Math.min(70, Math.hypot(dx, dy) * 0.18);
+        if (t >= 1 && !fin) { fin = true; setTimeout(done); }
+        return { x: from.x + dx * e - TIP, y: from.y + dy * e - Math.sin(Math.PI * e) * lift - TIP };
+      };
+    });
+  }
+  const marks = $("#marks"), overlay = $("#overlay"), tags = $("#tags");
+  function fitMarks() { marks.setAttribute("viewBox", `0 0 ${overlay.clientWidth} ${overlay.clientHeight}`); }
+  function svgPoint(path, l) {
+    const p = path.getPointAtLength(l), r = marks.getBoundingClientRect();
+    return { x: r.left + p.x, y: r.top + p.y };
+  }
+  // Draws a path in while Pip's tip rides its pen.
+  function trace(path, ms = 900) {
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = `${len} ${len}`;
+    if (reduced) { path.style.strokeDashoffset = 0; pilot = () => { const p = svgPoint(path, len); return { x: p.x - TIP, y: p.y - TIP }; }; return Promise.resolve(); }
+    path.style.strokeDashoffset = len;
+    return new Promise((done) => {
+      const t0 = performance.now();
+      let fin = false;
+      pilot = (now) => {
+        const t = Math.min(1, (now - t0) / ms), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+        path.style.strokeDashoffset = len * (1 - e);
+        const p = svgPoint(path, len * e);
+        if (t >= 1 && !fin) { fin = true; setTimeout(done); }
+        return { x: p.x - TIP, y: p.y - TIP };
+      };
+    });
+  }
+
+  /* ---------- Marks on the pretend app ---------- */
+  function rel(el, pad = 0) {
+    const a = overlay.getBoundingClientRect(), b = el.getBoundingClientRect();
+    return { x: b.left - a.left - pad, y: b.top - a.top - pad, w: b.width + 2 * pad, h: b.height + 2 * pad };
+  }
+  function addPath(d, cls = "mark") {
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", cls);
+    marks.appendChild(p);
+    return p;
+  }
+  function roundRect({ x, y, w, h }, r = 10) {
+    return `M${x + r} ${y} H${x + w - r} Q${x + w} ${y} ${x + w} ${y + r} V${y + h - r} Q${x + w} ${y + h} ${x + w - r} ${y + h} H${x + r} Q${x} ${y + h} ${x} ${y + h - r} V${y + r} Q${x} ${y} ${x + r} ${y} Z`;
+  }
+  // A hand-drawn loop: an ellipse that overshoots where it started.
+  function loop(cx, cy, rx, ry) {
+    const k = 0.5523;
+    return `M${cx} ${cy - ry} C${cx + k * rx} ${cy - ry} ${cx + rx} ${cy - k * ry} ${cx + rx} ${cy} C${cx + rx} ${cy + k * ry} ${cx + k * rx} ${cy + ry} ${cx} ${cy + ry} C${cx - k * rx} ${cy + ry} ${cx - rx} ${cy + k * ry} ${cx - rx} ${cy} C${cx - rx} ${cy - k * ry} ${cx - k * rx} ${cy - ry * 1.08} ${cx + rx * 0.3} ${cy - ry * 1.02}`;
+  }
+  function addTag(text, x, y, dark = false) {
+    const t = document.createElement("span");
+    t.className = `tag${dark ? " tag--dark" : ""}`;
+    t.textContent = text;
+    tags.appendChild(t);
+    const W = overlay.clientWidth;
+    t.style.left = `${Math.max(4, Math.min(W - t.offsetWidth - 4, x))}px`;
+    t.style.top = `${y}px`;
+    requestAnimationFrame(() => t.classList.add("is-on"));
+    return t;
+  }
+  let fadeTimer = 0;
+  function clearMarks() {
+    clearTimeout(fadeTimer);
+    marks.classList.remove("is-fading");
+    marks.replaceChildren();
+    tags.replaceChildren();
+  }
+  function fadeMarksLater(ms) {
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => { marks.classList.add("is-fading"); tags.replaceChildren(); setTimeout(clearMarks, 500); }, ms);
+  }
+  addEventListener("resize", () => { if (!busy && !doing) clearMarks(); fitMarks(); });
+
+  /* ---------- A walkthrough step, with "Do it" ---------- */
+  let doing = false;
+  function stepCard(text, t, onDo) {
+    const c = document.createElement("div");
+    c.className = "stepcard";
+    c.innerHTML = '<div class="k">Step 1 of 1</div><p></p><div class="acts"><button type="button" class="next">Done</button><button type="button" class="go">Do it</button></div>';
+    c.querySelector("p").textContent = text;
+    tags.appendChild(c);
+    const W = overlay.clientWidth, cw = Math.min(236, W - 16);
+    c.style.width = `${cw}px`;
+    let x = t.x + t.w + 14, y = t.y - 10;
+    if (x + cw > W - 8) { x = Math.max(8, Math.min(W - cw - 8, t.x + t.w / 2 - cw / 2)); y = t.y + t.h + 12; }
+    c.style.left = `${x}px`;
+    c.style.top = `${y}px`;
+    requestAnimationFrame(() => c.classList.add("is-on"));
+    c.querySelector(".go").addEventListener("click", () => onDo(c));
+    c.querySelector(".next").addEventListener("click", () => { if (!doing) { clearMarks(); release(); } });
+  }
+  async function doIt(target, apply, card) {
+    if (doing) return;
+    doing = true;
+    chips.forEach((c) => (c.disabled = true));
+    card.querySelectorAll("button").forEach((b) => (b.disabled = true));
+    const tip = () => { const r = target.getBoundingClientRect(); return { x: r.left + r.width * 0.55, y: r.top + r.height * 0.55 }; };
+    await flyTo(tip, 520);
+    target.classList.add("is-pressed");
+    await wait(150);
+    target.classList.remove("is-pressed");
+    apply();
+    card.querySelector("p").textContent = "Done.";
+    await wait(650);
+    release();
+    await wait(900);
+    clearMarks();
+    doing = false;
+    chips.forEach((c) => (c.disabled = false));
+  }
+
+  /* ---------- The three questions ---------- */
+  const save = $("#t-save"), twofa = $("#t-twofa"), bars = [...document.querySelectorAll("#t-bars b")];
+  const chips = [...document.querySelectorAll("[data-ask]")];
+  const ASKS = {
+    save: {
+      q: "Where's the save button?",
+      a: "Bottom right of the form. Here it is.",
+      reset: () => { save.textContent = "Save settings"; save.classList.remove("is-done"); },
+      async show() {
+        const t = rel(save, 6), p = addPath(roundRect(t, 10));
+        await flyTo(() => svgPoint(p, 0));
+        await trace(p, 950);
+        addTag("Save", t.x, t.y - 30);
+        stepCard("Click Save settings.", t, (c) => doIt(save, () => { save.textContent = "Saved ✓"; save.classList.add("is-done"); }, c));
+        await wait(450);
+      },
+    },
+    twofa: {
+      q: "How do I turn on two-step verification?",
+      a: "It's the switch next to Two-step verification.",
+      reset: () => twofa.setAttribute("aria-checked", "false"),
+      async show() {
+        const t = rel(twofa, 6), p = addPath(roundRect(t, 17));
+        await flyTo(() => svgPoint(p, 0));
+        await trace(p, 900);
+        addTag("Two-step", t.x - 20, t.y - 30);
+        stepCard("Click the switch next to Two-step verification.", t, (c) => doIt(twofa, () => twofa.setAttribute("aria-checked", "true"), c));
+        await wait(450);
+      },
+    },
+    chart: {
+      q: "What does this chart mean?",
+      a: "Storage peaked in September at about 190 GB. It's 124 GB now, 62% of your plan.",
+      async show() {
+        const b = rel(bars[4]), cx = b.x + b.w / 2, cy = b.y + 12, rx = Math.max(b.w * 0.95, 18), ry = 22;
+        const l = addPath(loop(cx, cy, rx, ry));
+        await flyTo(() => svgPoint(l, 0));
+        await trace(l, 900);
+        addTag("Peak · about 190 GB", cx - rx - 150 < 4 ? cx - 70 : cx - rx - 150, cx - rx - 150 < 4 ? cy - ry - 32 : cy - 12);
+        const area = rel($("#t-bars")), o = rel(bars[5]);
+        const line = addPath(`M${area.x} ${o.y} H${area.x + area.w}`, "mark mark--thin");
+        await flyTo(() => svgPoint(line, 0), 450);
+        await trace(line, 700);
+        addTag("Now 124 GB · 62%", area.x + 4, o.y + 6, true);
+        await wait(450);
+        fadeMarksLater(7000);
+      },
+    },
+  };
+
+  let busy = false;
+  async function ask(key) {
+    if (busy || doing) return;
+    busy = true;
+    chips.forEach((c) => (c.disabled = true));
+    const a = ASKS[key];
+    clearMarks();
+    release();
+    const d = $("#desk").getBoundingClientRect();
+    if (d.top < 0 || d.bottom > innerHeight) {
+      $("#desk").scrollIntoView({ block: "center", behavior: reduced ? "auto" : "smooth" });
+      await wait(450);
+    }
+    fitMarks();
+    if (a.reset) a.reset();
+    setState("listening");
+    showPill("listening", "");
+    const words = a.q.split(" ");
+    for (let i = 1; i <= words.length; i++) { pillText.textContent = words.slice(0, i).join(" "); await wait(160); }
+    await wait(250);
+    setState("thinking");
+    showPill("thinking", "Thinking");
+    await wait(900);
+    setState("speaking");
+    showPill("speaking", a.a);
+    live.textContent = a.a;
+    await a.show();
+    release();
+    setState("idle");
+    hidePillLater(2600);
+    busy = false;
+    chips.forEach((c) => (c.disabled = false));
+  }
+  chips.forEach((c) => c.addEventListener("click", () => ask(c.dataset.ask)));
+
+  /* ---------- Hovering a state card ---------- */
+  document.querySelectorAll("[data-pip-state]").forEach((el) => {
+    el.addEventListener("mouseenter", () => { hoverState = el.dataset.pipState === "idle" ? null : el.dataset.pipState; setState(state); });
+    el.addEventListener("mouseleave", () => { hoverState = null; setState(state); });
+  });
+
+  /* ---------- Agents: copies fly to the dock ---------- */
+  const start = $("#plan-start"), dock = $("#dock"), dockHint = $("#dock-hint"), planTitle = $("#plan-title");
+  const runs = [$("#run-0"), $("#run-1")];
+  const MARK = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M8 8 L27 15 A21 21 0 1 1 15 27 Z"/></svg>';
+  const TONES = { queued: "#8a92a3", work: "#5b93ff", done: "#3ee08e", question: "#f5c542" };
+  const WHAT = [
+    "Find three well-reviewed standing desks under £400.",
+    "After Research: compare height range, size and price, and pick one.",
+  ];
+  function setRun(i, tone, what, chip) {
+    runs[i].style.setProperty("--c", TONES[tone]);
+    runs[i].querySelector(".what").textContent = what;
+    if (chip) chip.dataset.tone = tone;
+  }
+  function flyCopy(from, to, delay) {
+    const el = document.createElement("div");
+    el.className = "pip-copy";
+    el.innerHTML = `<svg class="bud" data-state="idle" viewBox="0 0 64 64">${BUD}</svg>`;
+    document.body.appendChild(el);
+    const mid = { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - 90 };
+    const frames = [];
+    for (let i = 0; i <= 16; i++) {
+      const t = i / 16, u = 1 - t;
+      const x = u * u * from.x + 2 * u * t * mid.x + t * t * to.x, y = u * u * from.y + 2 * u * t * mid.y + t * t * to.y;
+      frames.push({ transform: `translate(${x - SIZE / 2}px, ${y - SIZE / 2}px) scale(${1 - 0.3 * t})`, opacity: t > 0.88 ? Math.max(0, 1 - (t - 0.88) * 8) : 1 });
+    }
+    const anim = el.animate(frames, { duration: reduced ? 1 : 820, delay: reduced ? 0 : delay, easing: "cubic-bezier(.45,0,.25,1)", fill: "forwards" });
+    return anim.finished.then(() => el.remove());
+  }
+  let running = false;
+  start.addEventListener("click", async () => {
+    if (running) return;
+    running = true;
+    start.disabled = true;
+    start.textContent = "Started";
+    planTitle.textContent = "Started: watch the dock";
+    dock.querySelectorAll(".chip").forEach((c) => c.remove());
+    dockHint.style.display = "none";
+    const made = [0, 1].map(() => {
+      const c = document.createElement("span");
+      c.className = "chip";
+      c.innerHTML = MARK;
+      dock.appendChild(c);
+      return c;
+    });
+    setRun(0, "work", "Searching for standing desks under £400…", made[0]);
+    setRun(1, "queued", "Waiting for Research.", made[1]);
+    const s = start.getBoundingClientRect();
+    const from = fine && mouse && inside ? { x: pos.x + SIZE / 2, y: pos.y + SIZE / 2 } : { x: s.left + s.width / 2, y: s.top };
+    pip.classList.remove("is-pop");
+    void pip.offsetWidth;
+    pip.classList.add("is-pop");
+    await Promise.all(made.map((c, i) => {
+      const r = c.getBoundingClientRect();
+      return flyCopy(from, { x: r.left + r.width / 2, y: r.top + r.height / 2 }, i * 220).then(() => c.classList.add("is-in"));
+    }));
+    await wait(1500);
+    setRun(0, "work", "Reading reviews on six product pages…", made[0]);
+    await wait(1700);
+    setRun(0, "done", "Done: three desks, with prices and links.", made[0]);
+    setRun(1, "work", "Comparing height range and desktop size…", made[1]);
+    await wait(2000);
+    setRun(1, "question", "Has a question: is a 120 cm desktop wide enough?", made[1]);
+    planTitle.textContent = "1 done, 1 has a question";
+    await wait(1200);
+    start.disabled = false;
+    start.textContent = "Run it again";
+    running = false;
+  });
+  setRun(0, "queued", WHAT[0]);
+  setRun(1, "queued", WHAT[1]);
+  fitMarks();
+})();
+</script>
+</body>
+</html>
