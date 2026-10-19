@@ -684,36 +684,6 @@
                         }),
                     },
                     {
-                        name: "ApplyJobBot",
-                        meta: "AI Job Platform \u00b7 FastAPI + Next.js",
-                        priv: true,
-                        desc:
-                            "An AI job-discovery and assisted-application platform that finds and scores roles across major " +
-                            "job sites, then applies only on explicit approval. Five deployable apps, an encrypted credential " +
-                            "vault, self-healing browser selectors, and a safety invariant enforced server-side, so nothing " +
-                            "is ever auto-submitted. 436 tests.",
-                        tech: [
-                            "Python",
-                            "FastAPI",
-                            "Next.js",
-                            "PostgreSQL",
-                            "Celery",
-                            "Playwright",
-                        ],
-                        shots: [
-                            "dashboard",
-                            "discover",
-                            "pipeline",
-                            "run-log",
-                            "application-kit",
-                            "landing_page",
-                            "job-site",
-                            "event-log",
-                        ].map(function (s) {
-                            return "shots/applyjobbot/" + s + ".png";
-                        }),
-                    },
-                    {
                         name: "ffmpeg-mcp",
                         meta: "MCP Video Editor \u00b7 Python",
                         repo: "https://github.com/AbyAbyss/ffmpeg-mcp-video-editor",
@@ -1167,7 +1137,7 @@
   var byName = function (n) { return OSS.filter(function (p) { return p.name === n; })[0]; };
 
   /* ---------- Content that comes from data ---------- */
-  var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "term-rest-client", "ApplyJobBot", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
+  var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "term-rest-client", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
   var SITES = [
     ["redis_gui", "assets/redis_gui/keyspace.webp", "A Redis GUI in one static Go binary. Browse the keyspace, run commands, watch live metrics and the MONITOR stream."],
     ["dockman", "assets/dockman/dashboard.webp", "Docker and Podman side by side in one native window, with a shell into any container and a build layer waterfall."],
