@@ -249,6 +249,108 @@
   .foot p { margin: 0; color: var(--ink-2); font-size: 15px; }
   .foot .k { font: 600 12px var(--mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
 
+  /* ---------- The notch ---------- */
+  .homes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; max-width: 780px; }
+  .home { display: grid; grid-template-columns: 104px 1fr; gap: 16px; align-items: center; text-align: left; padding: 14px; border-radius: 18px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; font: inherit; transition: border-color 0.2s, box-shadow 0.2s; }
+  .home:hover { border-color: var(--ink-3); }
+  .home[aria-checked="true"] { border-color: var(--coral); box-shadow: 0 0 0 4px rgba(240, 84, 79, 0.14); }
+  .home:focus-visible, .scene:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+  .home strong { display: block; font: 700 17px/1.3 var(--display); }
+  .home .t { display: block; font-size: 14px; color: var(--ink-2); line-height: 1.4; margin-top: 2px; }
+  .home__art { position: relative; height: 68px; border-radius: 12px; background: var(--bg-2); overflow: hidden; }
+  .home__art .pointer { position: absolute; left: 34px; top: 14px; width: 17px; height: 22px; }
+  .home__art .bud { position: absolute; left: 46px; top: 28px; width: 26px; height: 26px; overflow: visible; }
+  .home__bar { position: absolute; left: 0; right: 0; top: 0; height: 12px; background: #262a36; }
+  .home__notch { position: absolute; left: 50%; top: 0; width: 38px; height: 12px; margin-left: -19px; background: #000; border-radius: 0 0 6px 6px; }
+  .home__strip { position: absolute; left: 50%; top: 0; width: 54px; height: 32px; margin-left: -27px; background: #000; border-radius: 0 0 12px 12px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px; }
+  .homes__note { font-size: 14px; color: var(--ink-3); margin: 12px 2px 26px; }
+
+  .nwrap { position: relative; width: 100%; height: 330px; }
+  .nstage { position: absolute; left: 50%; top: 0; width: 960px; height: 330px; transform-origin: top center; transform: translateX(-50%); border-radius: 22px; overflow: hidden; background: var(--wall); box-shadow: var(--shadow); }
+  .nbar { position: absolute; left: 0; right: 0; top: 0; height: 32px; display: flex; align-items: center; gap: 20px; padding: 0 18px; background: rgba(20, 22, 32, 0.6); color: rgba(255, 255, 255, 0.88); font: 500 13px var(--body); }
+  .nbar .apple { width: 12px; height: 14px; border-radius: 4px 4px 6px 6px; background: rgba(255, 255, 255, 0.9); }
+  .nbar .app { font-weight: 700; }
+  .nbar .right { margin-left: auto; }
+  .nstage--narrow .nbar .opt { display: none; }
+  .nnotch { position: absolute; left: 50%; top: 0; width: 185px; height: 32px; margin-left: -92.5px; background: #000; border-radius: 0 0 12px 12px; z-index: 4; cursor: pointer; }
+  .nwin { position: absolute; border-radius: 12px; background: rgba(247, 247, 250, 0.9); box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.6); overflow: hidden; }
+  .nwin::before { content: ""; display: block; height: 22px; background: #e6e6ec; }
+  .nwin i { display: block; height: 8px; margin: 12px 16px 0; border-radius: 4px; background: #d9dbe3; }
+  .nhint { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); font: 500 13px var(--body); color: #fff; background: rgba(10, 12, 20, 0.6); padding: 6px 12px; border-radius: 999px; white-space: nowrap; z-index: 5; }
+  .scenes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .scene { min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); font: 500 14px var(--body); cursor: pointer; }
+  .scene[aria-checked="true"] { background: var(--ink); color: var(--bg); border-color: transparent; }
+
+  /* The island, as it looks in the app: a black shell that merges with the
+     notch, a strip with the face, or the open panel with two cards. */
+  .isl { --out: cubic-bezier(0.22, 1, 0.36, 1); position: absolute; left: 50%; top: 0; transform: translateX(-50%); padding: 0 14px 14px; color: #f4f5f9; font: 500 13px/1.3 var(--body); white-space: nowrap; z-index: 3; cursor: pointer; }
+  .isl__shell { position: relative; display: flex; flex-direction: column; width: 185px; height: 32px; background: #000; border-radius: 0 0 20px 20px; overflow: hidden; transition: width 340ms var(--out), height 340ms var(--out), box-shadow 300ms ease; }
+  .isl.is-strip .isl__shell { height: 66px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
+  .isl.is-open .isl__shell { width: 468px; height: 168px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45); }
+  .isl.is-open.is-busy .isl__shell { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(110, 162, 255, 0.22), 0 0 28px rgba(110, 162, 255, 0.22); }
+  .isl__ear { position: absolute; top: 0; width: 14px; height: 14px; opacity: 0; transition: opacity 160ms ease; }
+  .isl__ear--l { left: 0; background: radial-gradient(circle at 0 100%, transparent 13.4px, #000 14px); }
+  .isl__ear--r { right: 0; background: radial-gradient(circle at 100% 100%, transparent 13.4px, #000 14px); }
+  .isl.is-open .isl__ear { opacity: 1; transition-delay: 180ms; }
+  .isl__rest { display: flex; align-items: center; justify-content: center; margin-top: 32px; height: 34px; }
+  .isl__row { display: grid; grid-template-columns: 1fr 185px 1fr; align-items: center; height: 36px; padding: 0 10px; animation: isl-fade 220ms 100ms both; }
+  .isl__acts { display: flex; gap: 2px; }
+  .isl__acts--end { justify-content: flex-end; }
+  .isl__btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 26px; border-radius: 9px; color: rgba(255, 255, 255, 0.72); }
+  .isl__btn.is-on { background: rgba(255, 255, 255, 0.08); color: #fff; }
+  .isl__count { position: absolute; top: -3px; right: -3px; min-width: 14px; height: 14px; padding: 0 4px; border-radius: 7px; background: #6ea2ff; color: #0b0d14; font: 700 9.5px/14px var(--body); text-align: center; box-shadow: 0 0 0 2px #000; }
+  .isl__body { display: grid; grid-template-columns: 1fr 198px; gap: 10px; height: 120px; padding: 0 12px; animation: isl-fade 220ms 140ms both; }
+  @keyframes isl-fade { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+  .isl__card { min-width: 0; border-radius: 18px; background: #15151b; overflow: hidden; }
+  .isl__hero { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 8px 14px 10px; text-align: center; }
+  .isl__face { display: inline-flex; line-height: 0; margin-bottom: 2px; filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.16)); }
+  .isl__hero--listening .isl__face { filter: drop-shadow(0 0 16px rgba(110, 162, 255, 0.6)); }
+  .isl__hero--speaking .isl__face { filter: drop-shadow(0 0 16px rgba(143, 182, 255, 0.5)); }
+  .isl__hero--working .isl__face { filter: drop-shadow(0 0 14px rgba(110, 162, 255, 0.4)); }
+  .isl__hero--excited .isl__face { filter: drop-shadow(0 0 16px rgba(255, 209, 102, 0.55)); }
+  .isl__title { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font: 600 13.5px/1.35 var(--body); }
+  .isl__line { max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 12px; color: rgba(255, 255, 255, 0.58); }
+  .isl__line.is-pulsing { animation: isl-pulse 1.6s ease-in-out infinite; }
+  @keyframes isl-pulse { 50% { opacity: 0.45; } }
+  .isl__waves { display: flex; align-items: center; gap: 3px; height: 22px; margin: 1px 0; }
+  .isl__waves i { display: block; width: 3px; border-radius: 2px; background: #8fb6ff; animation: isl-wave 900ms ease-in-out infinite alternate; }
+  @keyframes isl-wave { from { transform: scaleY(0.55); opacity: 0.7; } to { transform: scaleY(1); opacity: 1; } }
+  .isl__side { display: flex; flex-direction: column; justify-content: center; gap: 1px; padding: 6px; }
+  .isl__agent { --tone: #8a92a3; display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: "dot name steps" "dot what steps"; column-gap: 8px; align-items: center; padding: 4px 8px; border-radius: 12px; }
+  .isl__agent.tone-work { --tone: #6ea2ff; } .isl__agent.tone-done { --tone: #4ade99; } .isl__agent.tone-question { --tone: #f5c542; }
+  .isl__dot { grid-area: dot; width: 7px; height: 7px; border-radius: 50%; background: var(--tone); box-shadow: 0 0 8px var(--tone); }
+  .tone-work .isl__dot { animation: isl-pulse 1.4s ease-in-out infinite; }
+  .isl__name { grid-area: name; overflow: hidden; text-overflow: ellipsis; font: 600 12px/1.2 var(--body); }
+  .isl__what { grid-area: what; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; line-height: 1.2; color: rgba(255, 255, 255, 0.58); }
+  .tone-question .isl__what { color: var(--tone); }
+  .isl__steps { grid-area: steps; font: 600 11px var(--mono); color: rgba(255, 255, 255, 0.38); }
+  .isl__more { padding: 3px 8px 2px 23px; color: rgba(255, 255, 255, 0.38); font-size: 11.5px; }
+  .isl__tips { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: 4px 5px 3px; }
+  .isl__tip { display: flex; align-items: center; gap: 8px; font-size: 12px; color: rgba(255, 255, 255, 0.58); }
+  .isl__tip kbd { min-width: 54px; padding: 2px 6px; border-radius: 6px; background: rgba(255, 255, 255, 0.08); border: 0; box-shadow: none; color: #f4f5f9; font: 600 11px/1.3 var(--body); text-align: center; }
+  .isl__usage { margin-top: auto; padding-left: 1px; font-size: 11px; color: rgba(255, 255, 255, 0.38); }
+
+  /* The face: white eyes, a mouth, hands on the rim. */
+  .pf { overflow: visible; display: block; }
+  .pf__eye, .pf__closed, .pf__eyes, .pf__mouth { transform-box: fill-box; transform-origin: center; }
+  .pf__eyes { animation: pf-glance 8s ease-in-out infinite; }
+  .pf--speaking .pf__mouth { animation: pf-talk 0.3s ease-in-out infinite alternate; }
+  .pf--excited .pf__mouth { animation: pf-talk 0.5s ease-in-out infinite alternate; }
+  .pf__q { fill: #a7c8ff; font: 700 11px var(--body); animation: pf-float 1.8s ease-in-out infinite; }
+  .pf__zzz text { fill: #a7c8ff; font: 700 8px var(--body); animation: pf-zzz 2.4s ease-in-out infinite; transform-box: fill-box; }
+  .pf__sparks path { transform-box: fill-box; transform-origin: center; animation: pf-spark 0.9s ease-out infinite; }
+  .pf__sparks path:nth-child(even) { animation-delay: 0.3s; }
+  .pf__waves path { animation: pf-wave 1.1s ease-in-out infinite; }
+  .pf__waves path:nth-child(even) { animation-delay: 0.25s; }
+  .pf__bar { animation: pf-bar 1.4s linear infinite; }
+  @keyframes pf-glance { 0%, 28%, 100% { transform: translateX(0) scaleY(1); } 12%, 20% { transform: translateX(-2px); } 44%, 52% { transform: translateX(2px); } 60% { transform: scaleY(0.1); } 64% { transform: scaleY(1); } }
+  @keyframes pf-talk { from { transform: scaleY(0.6); } to { transform: scaleY(1.25); } }
+  @keyframes pf-float { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+  @keyframes pf-zzz { 0% { transform: translate(0, 2px); opacity: 0; } 30%, 70% { opacity: 1; } 100% { transform: translate(3px, -5px); opacity: 0; } }
+  @keyframes pf-spark { 0% { transform: scale(0.4); opacity: 0; } 40% { opacity: 1; } 100% { transform: scale(1.2); opacity: 0; } }
+  @keyframes pf-wave { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+  @keyframes pf-bar { from { transform: translateX(-14px); } to { transform: translateX(32px); } }
+
   /* ---------- Narrow screens ---------- */
   @media (max-width: 1060px) {
     .hero { grid-template-columns: 1fr; gap: 40px; }
@@ -263,6 +365,7 @@
     .models { grid-template-columns: 1fr; }
   }
   @media (max-width: 620px) {
+    .homes { grid-template-columns: 1fr; }
     .wrap { padding: 0 16px; }
     .hero { padding: 16px 0 64px; }
     section.band { padding: 64px 0; }
@@ -291,6 +394,7 @@
     <nav class="links" aria-label="Sections">
       <a href="#try">Try it</a>
       <a class="opt" href="#rides">How it rides</a>
+      <a class="opt" href="#notch">The notch</a>
       <a class="opt" href="#agents">Agents</a>
       <a class="opt" href="#tour">Tour</a>
       <a href="https://github.com/AbyAbyss/helpy" target="_blank" rel="noopener">GitHub</a>
@@ -303,6 +407,7 @@
       <p class="kicker">Open source · macOS, Windows, Linux</p>
       <h1>Help that lives next to your <span class="cur">cursor<svg class="glyph" id="pip-home" viewBox="0 0 22 28" aria-hidden="true"><path d="M2 2 L2 22 L7.5 17 L11 25 L14.5 23.5 L11 15.6 L18.5 15.6 Z" fill="#fff" stroke="#151924" stroke-width="1.6" stroke-linejoin="round"/></svg></span></h1>
       <p class="lede">Ask out loud and Helpy looks at the app in front of you, points at the answer, and walks you through it a step at a time. Say a task and agents do it in the background while you keep working.</p>
+      <p class="lede" style="font-size:16px;margin-top:12px"><a href="#notch">Rather keep it out of the way? It can live in the notch.</a></p>
       <div class="cta">
         <a class="btn btn--ink" href="#try">Try it right here</a>
         <a class="btn" href="#tour">Watch the tour</a>
@@ -380,6 +485,44 @@
       <span class="fact">Size, opacity, offset and smoothness are yours to set</span>
       <span class="fact">Optionally hides when your mouse rests</span>
       <span class="fact">Per-monitor DPI handled in Rust</span>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="notch">
+  <div class="wrap">
+    <p class="eyebrow">Or in the notch</p>
+    <h2>Two homes. You pick one in Settings.</h2>
+    <p class="intro">Beside the cursor, Pip rides along everywhere. In the notch, Helpy hides behind the top of your MacBook's screen until you hover it or it has something to show: it listens, answers and tells you what its agents are doing. On a screen without a notch it's a slim black strip, on any edge and any spot along it you choose.</p>
+    <div class="homes" role="radiogroup" aria-label="Where Pip lives on this page">
+      <button class="home" type="button" role="radio" aria-checked="true" data-home="cursor">
+        <span class="home__art" aria-hidden="true"><svg class="pointer" viewBox="0 0 22 28"><path d="M2 2 L2 22 L7.5 17 L11 25 L14.5 23.5 L11 15.6 L18.5 15.6 Z" fill="#fff" stroke="#151924" stroke-width="1.6" stroke-linejoin="round"/></svg><svg class="bud" data-state="idle" viewBox="0 0 64 64"></svg></span>
+        <span><strong>Beside the cursor</strong><span class="t">Rides along with your pointer on every screen, and shows what Helpy is doing right there.</span></span>
+      </button>
+      <button class="home" type="button" role="radio" aria-checked="false" data-home="notch">
+        <span class="home__art" aria-hidden="true"><i class="home__bar"></i><span class="home__strip" id="home-face"></span><i class="home__notch"></i></span>
+        <span><strong>In the notch</strong><span class="t">Hidden until you hover it or it has something to show.</span></span>
+      </button>
+    </div>
+    <p class="homes__note">Go on, switch it: Pip moves home on this page too.</p>
+    <div class="nwrap" id="nwrap">
+      <div class="nstage" id="nstage">
+        <div class="nbar" aria-hidden="true"><span class="apple"></span><span class="app">Finder</span><span>File</span><span>Edit</span><span class="opt">View</span><span class="opt">Go</span><span class="opt">Window</span><span class="opt">Help</span><span class="right">Sat 9:41</span></div>
+        <div class="nwin" style="left:9%;top:96px;width:38%;height:190px" aria-hidden="true"><i style="width:40%"></i><i style="width:75%"></i><i style="width:62%"></i><i style="width:80%"></i><i style="width:48%"></i></div>
+        <div class="nwin" style="left:54%;top:122px;width:34%;height:160px;opacity:0.75" aria-hidden="true"><i style="width:55%"></i><i style="width:70%"></i><i style="width:38%"></i></div>
+        <div class="isl" id="isl" role="img" aria-label="Helpy's island under the notch"><span class="isl__ear isl__ear--l"></span><span class="isl__ear isl__ear--r"></span><div class="isl__shell" id="isl-shell"></div></div>
+        <i class="nnotch" id="nnotch" aria-hidden="true"></i>
+        <span class="nhint" id="nhint"></span>
+      </div>
+    </div>
+    <div class="scenes" id="scenes" role="radiogroup" aria-label="Island scene">
+      <button class="scene" type="button" role="radio" data-scene="idle">Idle</button>
+      <button class="scene" type="button" role="radio" data-scene="listening">Listening</button>
+      <button class="scene" type="button" role="radio" data-scene="thinking">Thinking</button>
+      <button class="scene" type="button" role="radio" data-scene="speaking">Answering</button>
+      <button class="scene" type="button" role="radio" data-scene="working">Agents working</button>
+      <button class="scene" type="button" role="radio" data-scene="approval">Needs you</button>
+      <button class="scene" type="button" role="radio" data-scene="done">All done</button>
     </div>
   </div>
 </section>
@@ -488,7 +631,7 @@
       <video controls playsinline preload="metadata" poster="../shots/helpy/tour-poster-cursor.jpg" src="../clips/helpy.mp4" width="1920" height="1080">
         <a href="../clips/helpy.mp4">Watch the Helpy tour (MP4, 3 minutes)</a>
       </video>
-      <figcaption>Three minutes: walkthroughs, drawing on screen, circle to explain, a plan card, agents at work and settings.</figcaption>
+      <figcaption>Three minutes: walkthroughs, the notch, drawing on screen, circle to explain, a plan card, agents at work and settings.</figcaption>
     </figure>
   </div>
 </section>
@@ -502,6 +645,7 @@
   </div>
 </footer>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><clipPath id="pf-track"><rect x="14" y="22" width="32" height="3.6" rx="1.8"/></clipPath><linearGradient id="pf-bar" x1="0" x2="1"><stop offset="0" stop-color="#2f6bff"/><stop offset="0.5" stop-color="#8fb6ff"/><stop offset="1" stop-color="#2f6bff"/></linearGradient></defs></svg>
 <!-- Pip, on the page: follows your mouse, and shows how Helpy answers. -->
 <div class="pip" id="pip" aria-hidden="true"><svg class="bud" data-state="idle" viewBox="0 0 64 64"></svg></div>
 <div class="vpill" id="vpill" aria-hidden="true"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span><span class="vpill__text" id="vpill-text"></span></div>
@@ -528,7 +672,11 @@
   const pos = { x: -200, y: -200 };
   let placed = false, pilot = null, state = "idle", hoverState = null, pillOn = false;
 
+  // Tucked away in the notch section's notch when that's Pip's home.
+  let tucked = false;
+  const notchTip = () => { const r = $("#nnotch").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height * 0.6 }; };
   function home() {
+    if (tucked) { const p = notchTip(); return { x: p.x - TIP, y: p.y - TIP }; }
     if (fine && mouse) return { x: mouse.x + OFF.x, y: mouse.y + OFF.y };
     const r = anchor.getBoundingClientRect();
     return { x: r.right + 2, y: r.top + r.height * 0.35 };
@@ -558,7 +706,7 @@
     if (pilot || reduced || !placed) { pos.x = target.x; pos.y = target.y; placed = true; }
     else { const k = 1 - Math.exp(-dt / 75); pos.x += (target.x - pos.x) * k; pos.y += (target.y - pos.y) * k; }
     pip.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
-    pip.style.opacity = pilot || !fine || !mouse || inside ? 1 : 0;
+    pip.style.opacity = tucked && !pilot ? 0 : pilot || !fine || !mouse || inside ? 1 : 0;
     if (pillOn) {
       // Beside Pip, on whichever side has room, or under it on a narrow
       // screen; hidden while Pip is scrolled out of view.
@@ -584,11 +732,11 @@
   }
   let greeted = false;
   function greet() {
-    if (greeted || busy) return;
+    if (greeted || busy || tucked) return;
     greeted = true;
     setTimeout(() => { if (busy) return; showPill("speaking", "Hi, I'm Pip. I ride along with your cursor."); hidePillLater(3400); }, 500);
   }
-  if (!fine) setTimeout(() => { if (busy || greeted) return; greeted = true; showPill("speaking", "Tap a question and I'll show you."); hidePillLater(4200); }, 1200);
+  if (!fine) setTimeout(() => { if (busy || greeted || scrollY > 200) return; greeted = true; showPill("speaking", "Tap a question and I'll show you."); hidePillLater(4200); }, 1200);
 
   /* ---------- Flying and tracing ---------- */
   // Flies Pip's tip to a point (re-read every frame, so scrolling is fine).
@@ -769,6 +917,7 @@
     busy = true;
     chips.forEach((c) => (c.disabled = true));
     const a = ASKS[key];
+    if (tucked) setHome("cursor");
     clearMarks();
     release();
     const d = $("#desk").getBoundingClientRect();
@@ -852,7 +1001,7 @@
     setRun(0, "work", "Searching for standing desks under £400…", made[0]);
     setRun(1, "queued", "Waiting for Research.", made[1]);
     const s = start.getBoundingClientRect();
-    const from = fine && mouse && inside ? { x: pos.x + SIZE / 2, y: pos.y + SIZE / 2 } : { x: s.left + s.width / 2, y: s.top };
+    const from = tucked ? notchTip() : fine && mouse && inside ? { x: pos.x + SIZE / 2, y: pos.y + SIZE / 2 } : { x: s.left + s.width / 2, y: s.top };
     pip.classList.remove("is-pop");
     void pip.offsetWidth;
     pip.classList.add("is-pop");
@@ -873,6 +1022,131 @@
     start.textContent = "Run it again";
     running = false;
   });
+  /* ---------- The notch: the island and where Pip lives ---------- */
+  function face(expr, hands = true, w = 60) {
+    const closed = expr === "excited" || expr === "sleepy", L = expr === "listening", T = expr === "thinking";
+    const eye = (cx, squint) => `<g class="pf__eye"${squint ? ' style="transform:scaleY(0.55)"' : ""}><ellipse cx="${cx}" cy="13" rx="${L ? 7 : 6.2}" ry="${L ? 8.2 : 7.4}" fill="#fff"/><ellipse cx="${cx + (T ? 1.6 : 0)}" cy="${13 + (T ? -1.8 : 0.6)}" rx="${L ? 3.8 : 3.3}" ry="${L ? 4.6 : 4.1}" fill="#0b0d14"/><circle cx="${cx - 1.4 + (T ? 1.6 : 0)}" cy="${10.6 + (T ? -1.8 : 0)}" r="1.25" fill="#fff"/></g>`;
+    const line = (d, c = "#fff", sw = 1.8) => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${sw}" stroke-linecap="round"/>`;
+    let s = `<svg class="pf pf--${expr}" viewBox="0 0 60 30" width="${w}" height="${w / 2}" aria-hidden="true">`;
+    if (hands) s += '<circle cx="9" cy="27.5" r="4" fill="#1c2030"/><circle cx="51" cy="27.5" r="4" fill="#1c2030"/><circle cx="9" cy="26.5" r="3" fill="#262b3b"/><circle cx="51" cy="26.5" r="3" fill="#262b3b"/>';
+    if (closed) s += `<g class="pf__closed">${expr === "excited" ? line("M12 15 q6 -8 12 0", "#fff", 2.6) + line("M36 15 q6 -8 12 0", "#fff", 2.6) : line("M12 12 q6 6 12 0", "#8fc6ff", 2.4) + line("M36 12 q6 6 12 0", "#8fc6ff", 2.4)}</g>`;
+    else s += `<g class="pf__eyes">${eye(18, T)}${eye(42, false)}</g>`;
+    if (expr === "working") s += line("M11 4.5 l10 2.5") + line("M49 4.5 l-10 2.5");
+    if (T) s += line("M36 4 l11 -1.5", "#8fc6ff");
+    if (expr === "excited") s += '<ellipse class="pf__mouth" cx="30" cy="22.5" rx="4.2" ry="3.4" fill="#ff6f91"/>';
+    else if (T) s += line("M27 23 l6 -1.5", "#8fc6ff");
+    else if (expr === "sleepy") s += line("M27.5 21.5 q2.5 2.4 5 0", "#8fc6ff", 1.6);
+    else if (expr === "working") s += '<g clip-path="url(#pf-track)"><rect x="14" y="22" width="32" height="3.6" rx="1.8" fill="#223058"/><rect class="pf__bar" x="14" y="22" width="14" height="3.6" rx="1.8" fill="url(#pf-bar)"/></g>';
+    else s += '<path class="pf__mouth" d="M26.5 20.5 q3.5 4.5 7 0 z" fill="#ff6f91"/>';
+    if (T) s += '<text class="pf__q" x="52" y="9">?</text>';
+    if (expr === "sleepy") s += '<g class="pf__zzz"><text x="50" y="10">z</text><text x="54" y="6">z</text></g>';
+    if (expr === "excited") s += '<g class="pf__sparks" stroke="#ffd166" stroke-width="1.8" stroke-linecap="round"><path d="M3 7 l2 4"/><path d="M8 5 l0.5 4"/><path d="M57 7 l-2 4"/><path d="M52 5 l-0.5 4"/></g>';
+    if (L) s += '<g class="pf__waves" fill="none" stroke="#7fb3ff" stroke-width="1.6" stroke-linecap="round"><path d="M4 9 q-3 4 0 8"/><path d="M1 7 q-5 6 0 12"/><path d="M56 9 q3 4 0 8"/><path d="M59 7 q5 6 0 12"/></g>';
+    return s + "</svg>";
+  }
+  $("#home-face").innerHTML = face("happy", true, 40);
+  document.querySelectorAll(".home svg.bud").forEach((s) => (s.innerHTML = BUD));
+
+  const ICONS = {
+    chat: '<svg viewBox="0 0 20 20" width="16" height="16"><path d="M4 4.5h12a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5H9l-3.6 2.8a.6.6 0 0 1-1-.5V13.5H4A1.5 1.5 0 0 1 2.5 12V6A1.5 1.5 0 0 1 4 4.5z" fill="currentColor"/></svg>',
+    agents: '<svg viewBox="0 0 20 20" width="16" height="16" fill="currentColor"><circle cx="10" cy="4.5" r="2.5"/><circle cx="4.5" cy="14" r="2.5"/><circle cx="15.5" cy="14" r="2.5"/><path d="M10 7v3M8.3 10.8 5.8 12m5.9-1.2 2.5 1.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>',
+    gear: '<svg viewBox="0 0 20 20" width="16" height="16"><path d="M8.6 2.5h2.8l.5 2.1 1.5.8 2-.8 1.4 2.4-1.6 1.4v1.7l1.6 1.4-1.4 2.4-2-.8-1.5.8-.5 2.1H8.6l-.5-2.1-1.5-.8-2 .8-1.4-2.4 1.6-1.4V8.4L3.2 7l1.4-2.4 2 .8 1.5-.8z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="10" cy="10" r="2.4" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  };
+  const WAVES = `<span class="isl__waves">${[0.35, 0.6, 0.85, 0.5, 1, 0.7, 0.45, 0.9, 0.55, 0.8, 0.4, 0.65].map((w, i) => `<i style="height:${4 + w * 16}px;animation-delay:${i * 70}ms"></i>`).join("")}</span>`;
+  const mac = /Mac/i.test(navigator.platform);
+  const keys = (c) => (mac ? c.replace("Alt+", "⌥").replace("Shift+", "⇧") : c.replace(/\+/g, " "));
+  const ROW = {
+    laptops: ["Laptops", "Reading three reviews", "work", "2/5"],
+    inbox: ["Inbox", "Sorting 38 emails", "work", "1/3"],
+    report: ["Report", "Done", "done", ""],
+    expenses: ["Expenses", "Needs your OK", "question", "2/4"],
+  };
+  // The same example scenes as the app's own settings preview.
+  const SCENES = {
+    idle: { expr: "happy", title: "Hi there", line: "Ask me anything", rows: [], working: 0 },
+    listening: { expr: "listening", title: "Listening", waves: true, rows: [], working: 0, busy: true },
+    thinking: { expr: "thinking", title: "“Which laptop is best for video editing?”", line: "Thinking…", pulse: true, rows: [], working: 0, busy: true },
+    speaking: { expr: "speaking", title: "Answering", waves: true, rows: [], working: 0, busy: true },
+    working: { expr: "working", title: "2 agents working", line: "Laptops · Reading three reviews", rows: ["laptops", "inbox", "report"], working: 2 },
+    approval: { expr: "working", title: "1 agent needs you", line: "Laptops · Reading three reviews", rows: ["expenses", "laptops"], more: 1, working: 3 },
+    done: { expr: "excited", title: "All done!", line: "Report finished", rows: ["report"], working: 0, cheer: true },
+  };
+  const isl = $("#isl"), shell = $("#isl-shell"), nhint = $("#nhint");
+  const canHover = matchMedia("(hover: hover)").matches;
+  const sceneBtns = [...document.querySelectorAll("[data-scene]")];
+  let scene = "idle", overIsland = false, hello = false, shown = "";
+  function renderIsland() {
+    const v = SCENES[scene];
+    const open = overIsland || !!v.busy || !!v.cheer || hello;
+    const hidden = !open && v.working === 0;
+    const key = `${scene}|${open}|${hidden}`;
+    sceneBtns.forEach((b) => b.setAttribute("aria-checked", String(b.dataset.scene === scene)));
+    nhint.textContent = hidden ? (canHover ? "Hidden in the notch. Move your mouse onto the notch" : "Hidden in the notch. Tap the notch") : open ? (overIsland ? (canHover ? "Open. It closes when you move away" : "Open. Tap it again to close") : hello ? "Pip moved in. Hi!" : "Open while it listens, thinks, answers or cheers") : "Agents are working, so the face peeks out";
+    if (key === shown) return;
+    shown = key;
+    isl.className = `isl${open ? " is-open" : ""}${v.busy ? " is-busy" : ""}${!open && !hidden ? " is-strip" : ""}`;
+    if (hidden) { shell.innerHTML = ""; return; }
+    if (!open) { shell.innerHTML = `<div class="isl__rest">${face(v.expr)}</div>`; return; }
+    const side = v.rows.length
+      ? v.rows.map((k) => { const [n, w, t, st] = ROW[k]; return `<div class="isl__agent tone-${t}"><i class="isl__dot"></i><span class="isl__name">${n}</span><span class="isl__what">${w}</span>${st ? `<span class="isl__steps">${st}</span>` : ""}</div>`; }).join("") + (v.more ? `<div class="isl__more">${v.more} more…</div>` : "")
+      : `<div class="isl__tips"><span class="isl__tip"><kbd>${keys("Alt+Shift+Space")}</kbd>Talk to Helpy</span><span class="isl__tip"><kbd>${keys("Alt+Shift+T")}</kbd>Type a question</span><span class="isl__tip"><kbd>${keys("Alt+Shift+C")}</kbd>Circle to explain</span><span class="isl__usage">Today · 14 calls · 8.3¢</span></div>`;
+    shell.innerHTML = `<div class="isl__row"><div class="isl__acts"><span class="isl__btn is-on">${ICONS.chat}</span><span class="isl__btn">${ICONS.agents}${v.working ? `<b class="isl__count">${v.working}</b>` : ""}</span></div><div></div><div class="isl__acts isl__acts--end"><span class="isl__btn">${ICONS.gear}</span></div></div><div class="isl__body"><div class="isl__card isl__hero isl__hero--${v.expr}"><span class="isl__face">${face(v.expr, false, 87)}</span><span class="isl__title">${v.title}</span>${v.waves ? WAVES : `<span class="isl__line${v.pulse ? " is-pulsing" : ""}">${v.line}</span>`}</div><div class="isl__card isl__side">${side}</div></div>`;
+  }
+  // Hovering the notch or the island opens it; a tap toggles it.
+  // (Touch screens also fire a pretend hover on tap, so they only toggle.)
+  let leaveTimer = 0;
+  const enter = () => { if (!canHover) return; clearTimeout(leaveTimer); stopAuto(); if (!overIsland) { overIsland = true; renderIsland(); } };
+  const leave = () => { if (!canHover) return; clearTimeout(leaveTimer); leaveTimer = setTimeout(() => { overIsland = false; renderIsland(); }, 140); };
+  [isl, $("#nnotch")].forEach((el) => { el.addEventListener("mouseenter", enter); el.addEventListener("mouseleave", leave); });
+  [isl, $("#nnotch")].forEach((el) => el.addEventListener("click", () => { if (canHover) return; stopAuto(); overIsland = !overIsland; renderIsland(); }));
+  sceneBtns.forEach((b) => b.addEventListener("click", () => { stopAuto(); scene = b.dataset.scene; renderIsland(); }));
+
+  // Plays the scenes by itself while it's on screen, until you take over.
+  const ORDER = ["idle", "listening", "thinking", "speaking", "working", "approval", "done"];
+  const HOLD = { idle: 2600, listening: 2600, thinking: 2200, speaking: 2400, working: 3200, approval: 3000, done: 2800 };
+  let auto = !reduced, autoTimer = 0;
+  function stopAuto() { auto = false; clearTimeout(autoTimer); }
+  function play() {
+    clearTimeout(autoTimer);
+    const step = () => { if (!auto) return; scene = ORDER[(ORDER.indexOf(scene) + 1) % ORDER.length]; renderIsland(); autoTimer = setTimeout(step, HOLD[scene]); };
+    autoTimer = setTimeout(step, HOLD[scene]);
+  }
+  new IntersectionObserver((es) => { if (es[0].isIntersecting && auto) play(); else clearTimeout(autoTimer); }, { threshold: 0.5 }).observe($("#nstage"));
+
+  // The stage is drawn at 960 points wide (500 on a phone) and scaled to fit.
+  const nwrap = $("#nwrap"), nstage = $("#nstage");
+  function fitStage() {
+    const narrow = nwrap.clientWidth < 620, W = narrow ? 500 : 960, k = Math.min(1, nwrap.clientWidth / W);
+    nstage.style.width = `${W}px`;
+    nstage.classList.toggle("nstage--narrow", narrow);
+    nstage.style.transform = `translateX(-50%) scale(${k})`;
+    nwrap.style.height = `${330 * k}px`;
+  }
+  new ResizeObserver(fitStage).observe(nwrap);
+  fitStage();
+
+  // Where Pip lives on this page: beside your cursor, or in the notch.
+  const homeBtns = [...document.querySelectorAll("[data-home]")];
+  async function setHome(mode) {
+    homeBtns.forEach((b) => b.setAttribute("aria-checked", String(b.dataset.home === mode)));
+    if (mode === "notch" && !tucked) {
+      pill.classList.remove("is-on");
+      await flyTo(notchTip, 800);
+      tucked = true;
+      release();
+      hello = true;
+      renderIsland();
+      setTimeout(() => { hello = false; renderIsland(); }, 2600);
+    } else if (mode === "cursor" && tucked) {
+      const p = notchTip();
+      pos.x = p.x - TIP;
+      pos.y = p.y - TIP;
+      tucked = false;
+    }
+  }
+  homeBtns.forEach((b) => b.addEventListener("click", () => { if (!busy && !doing) setHome(b.dataset.home); }));
+  renderIsland();
+
   setRun(0, "queued", WHAT[0]);
   setRun(1, "queued", WHAT[1]);
   fitMarks();
