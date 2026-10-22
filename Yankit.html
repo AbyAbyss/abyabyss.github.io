@@ -157,7 +157,8 @@ kbd{display:inline-block;background:var(--ink3);border:1px solid rgba(255,255,25
 .search input{flex:1;min-width:0;background:none;border:0;outline:0;color:#edeef6;font:inherit;font-size:15px;padding:4px 0;min-height:30px}
 .search input::placeholder{color:#6a7099}
 .list{list-style:none;max-height:316px;overflow-y:auto;padding:8px;scrollbar-width:thin;scrollbar-color:#3a3f6a transparent}
-.row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;cursor:default;position:relative}
+.row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;cursor:pointer;position:relative}
+.row:hover{background:rgba(91,127,240,.12)}
 .row[aria-selected="true"]{background:rgba(91,127,240,.22)}
 .row.landed{animation:land .9s ease}
 @keyframes land{0%{background:rgba(228,243,90,.55);transform:translateY(-8px)}100%{transform:none}}
@@ -187,16 +188,22 @@ kbd{display:inline-block;background:var(--ink3);border:1px solid rgba(255,255,25
 .status{font-family:var(--mono);font-size:12px;color:var(--muted);min-height:1.6em;flex:1;min-width:200px}
 
 .doc{position:relative;z-index:1;margin:30px 0 0 -26px;transform:rotate(1.8deg);min-height:430px}
-.doc .sheet{padding:38px 28px 40px 44px;background-image:var(--grain),repeating-linear-gradient(transparent 0 25px,rgba(93,83,104,.22) 25px 26px);background-position:0 0,0 14px;clip-path:var(--torn4);min-height:430px}
+.doc .sheet{padding:38px 28px 40px 44px;clip-path:var(--torn4);min-height:430px}
 .doc .sheet::before{content:"";position:absolute;left:30px;top:0;bottom:0;width:1px;background:rgba(220,70,90,.4)}
 .doc .fn{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--ptm);text-transform:uppercase;margin-bottom:14px;display:flex;justify-content:space-between;gap:8px}
-.docbody{font-family:var(--mono);font-size:13px;line-height:26px;color:var(--pt);max-height:318px;overflow:hidden;overflow-wrap:anywhere}
+.docbody{font-family:var(--mono);font-size:13px;line-height:26px;color:var(--pt);height:318px;overflow-y:auto;overflow-wrap:anywhere;overscroll-behavior:contain;padding-right:6px;
+  background:repeating-linear-gradient(transparent 0 25px,rgba(93,83,104,.22) 25px 26px);background-attachment:local;scrollbar-width:thin;scrollbar-color:rgba(93,83,104,.45) transparent}
 .docbody p{min-height:26px}
-.docbody h4{font-family:var(--serif);font-size:30px;font-weight:400;line-height:34px;letter-spacing:-.02em}
+.docbody p.code{white-space:pre-wrap}
+.docbody h4{font-family:var(--serif);font-size:30px;font-weight:400;line-height:26px;letter-spacing:-.02em}
+.doc .clr{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ptm);text-decoration:underline dotted;text-underline-offset:3px;padding:2px 0}
+.doc .clr:hover{color:var(--pt)}
 .docbody .pasted{background:linear-gradient(transparent 8%,rgba(192,132,252,.38) 8% 94%,transparent 94%);animation:flash 1.2s ease-out}
 @keyframes flash{from{background-color:rgba(228,243,90,.9)}to{background-color:transparent}}
 .docbody .pfile{display:inline-flex;align-items:center;gap:8px;background:var(--acid);padding:0 12px;border-radius:6px;font-weight:500}
-.docbody .pimg{display:block;width:120px;margin:6px 0;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.docbody p.imgline{height:104px}
+.docbody .pimg{display:block;width:128px;height:96px;aspect-ratio:auto;margin-top:4px;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+.docbody .pasted.pimg{background:linear-gradient(135deg,#3c7cc8,#6e5bd0)}
 .caret{display:inline-block;width:8px;height:16px;background:var(--pt);vertical-align:-3px;animation:blink 1s step-end infinite}
 @keyframes blink{50%{opacity:0}}
 .flyer{position:fixed;z-index:200;pointer-events:none;background:var(--cream);color:var(--pt);font-family:var(--mono);font-size:12px;padding:6px 10px;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis;box-shadow:0 10px 24px rgba(0,0,0,.5);border-left:4px solid var(--violet);will-change:transform}
@@ -518,14 +525,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
                   <input id="q" type="text" placeholder="Search clipboard history" autocomplete="off" spellcheck="false" aria-label="Search clipboard history" role="combobox" aria-expanded="true" aria-controls="list" />
                 </div>
                 <ul class="list" id="list" role="listbox" aria-label="Clipboard history"></ul>
-                <div class="pfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Return</kbd> paste</span><span><kbd>⌘⌫</kbd> delete</span><span><kbd>Esc</kbd> close</span></div>
+                <div class="pfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Return</kbd>/click paste</span><span><kbd>⌘⌫</kbd> delete</span><span><kbd>Esc</kbd> close</span></div>
               </div>
             </div>
           </div>
           <div class="clip doc" aria-label="Sample document">
             <span class="tape" style="--tr:-5deg"></span>
             <div class="sheet">
-              <div class="fn"><span>friday-notes.md</span><span>sample doc</span></div>
+              <div class="fn"><span>friday-notes.md</span><button class="clr" id="clr" type="button">clear page</button></div>
               <div class="docbody" id="docbody" aria-live="polite">
                 <h4>Friday standup</h4>
                 <p>- ship the build</p>
@@ -537,7 +544,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
         </div>
         <div class="deskctl">
           <button class="tgl" id="tgl" type="button" aria-expanded="true" aria-controls="panel"><span id="tgltxt">Close panel</span> <kbd>⌘⇧V</kbd></button>
-          <p class="status" id="status" role="status" aria-live="polite">The panel opens on its own sample clippings. Return pastes into the sample doc.</p>
+          <p class="status" id="status" role="status" aria-live="polite">Click any clipping (or press Return) to paste it into the sample doc. The doc scrolls, so keep pasting.</p>
         </div>
       </div>
     </div>
@@ -885,7 +892,8 @@ $$('[data-drag]').forEach(el => {
 
 /* ---------- the live panel ---------- */
 const panel = $('#panel'), listEl = $('#list'), q = $('#q'), tgl = $('#tgl'), tgltxt = $('#tgltxt');
-const statusEl = $('#status'), docbody = $('#docbody'), caretline = $('#caretline');
+const statusEl = $('#status'), docbody = $('#docbody');
+let caretline = $('#caretline');
 const MAX = 30;
 let uid = 0, selId = null, isOpen = true, query = '';
 const items = [
@@ -940,20 +948,37 @@ function move(d) { const v = visible(); if (!v.length) return; let k = v.findInd
 function del(id) { const v = visible(); const k = v.findIndex(i => i.id === id); const i = items.findIndex(i => i.id === id); if (i < 0) return; items.splice(i, 1); const nv = visible(); selId = nv.length ? nv[Math.min(k, nv.length - 1)].id : null; render(); say('Deleted from history.'); }
 function pin(id) { const it = items.find(i => i.id === id); if (!it) return; it.pinned = !it.pinned; render(); say(it.pinned ? 'Pinned. It stays above the rest and is never trimmed.' : 'Unpinned.'); }
 
-function paste() {
+const docStart = docbody.innerHTML;
+function paste(fromEl) {
   const it = items.find(i => i.id === selId); if (!it) return;
   const p = mk('p');
-  const span = mk('span', 'pasted');
-  if (it.kind === 'image') { const d = mk('span', 'pic pimg'); span.appendChild(d); }
-  else if (it.kind === 'file') { span.className = 'pasted pfile'; span.textContent = it.text; }
-  else span.textContent = it.text.length > 220 ? it.text.slice(0, 220) + '…' : it.text;
+  let span;
+  if (it.kind === 'image') { p.className = 'imgline'; span = mk('span', 'pasted pic pimg'); }
+  else if (it.kind === 'file') span = mk('span', 'pasted pfile', it.text);
+  else { if (it.kind === 'code') p.className = 'code'; span = mk('span', 'pasted', it.text.length > 600 ? it.text.slice(0, 600) + '…' : it.text); }
   p.appendChild(span);
-  caretline.before(p);
-  const pasted = $$('p', docbody).filter(n => n !== caretline);
-  while (docbody.scrollHeight > docbody.clientHeight + 4 && pasted.length > 3) { pasted.shift().remove(); }
+  const land = () => { caretline.before(p); docbody.scrollTo({ top: docbody.scrollHeight, behavior: reduce ? 'auto' : 'smooth' }); };
+  if (fromEl && !reduce) {
+    docbody.scrollTop = docbody.scrollHeight;
+    const fr = fromEl.getBoundingClientRect(), cr = caretline.getBoundingClientRect();
+    const g = mk('div', 'flyer', it.kind === 'image' ? '🖼 ' + it.text : it.text.replace(/\s+/g, ' ').trim().slice(0, 60));
+    g.style.left = fr.left + 60 + 'px'; g.style.top = fr.top + fr.height / 2 - 14 + 'px';
+    document.body.appendChild(g);
+    const tx = cr.left - (fr.left + 60), ty = cr.top - (fr.top + fr.height / 2 - 14);
+    const a = g.animate([
+      { transform: 'translate(0,0) rotate(0deg) scale(1)', opacity: 1 },
+      { transform: `translate(${tx * .5}px,${ty * .5 - 60}px) rotate(5deg) scale(1.05)`, opacity: 1, offset: .5 },
+      { transform: `translate(${tx}px,${ty}px) rotate(1.8deg) scale(.9)`, opacity: .6 }
+    ], { duration: 560, easing: 'cubic-bezier(.45,0,.2,1)' });
+    a.onfinish = a.oncancel = () => { g.remove(); land(); };
+    say('Pasted into the sample doc. Keep clicking clippings to add more, the page scrolls.');
+    return;
+  }
+  land();
   setOpen(false);
-  say('Pasted into the sample doc. Yankit closes after a paste, just like the real one.');
+  say('Pasted into the sample doc. Yankit closes after a Return paste, just like the real one. Clicking keeps it open.');
 }
+$('#clr').addEventListener('click', () => { docbody.innerHTML = docStart; caretline = $('#caretline'); docbody.scrollTop = 0; say('Fresh page.'); });
 
 function setOpen(v, focus) {
   isOpen = v;
@@ -980,8 +1005,8 @@ listEl.addEventListener('click', e => {
   const id = +row.dataset.id; const b = e.target.closest('button');
   if (b) { b.dataset.act === 'pin' ? pin(id) : del(id); if (!coarse) q.focus({ preventScroll: true }); return; }
   selId = id; render(); if (!coarse) q.focus({ preventScroll: true });
+  paste($('#r' + id, listEl));
 });
-listEl.addEventListener('dblclick', e => { if (e.target.closest('.row') && !e.target.closest('button')) paste(); });
 
 document.addEventListener('keydown', e => {
   const mod = e.metaKey || e.ctrlKey;
