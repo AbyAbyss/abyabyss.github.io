@@ -147,7 +147,7 @@ kbd{display:inline-block;background:var(--ink3);border:1px solid rgba(255,255,25
 .slotwrap{position:relative;z-index:2}
 .slot{position:relative;min-height:470px}
 .slot::before{content:"Panel closed.\A Press ⌘⇧V or the button below.";white-space:pre;position:absolute;inset:0;border:1.5px dashed rgba(192,132,252,.45);border-radius:20px;display:grid;place-items:center;text-align:center;font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.8}
-.panel{position:absolute;inset:0 0 auto 0;background:#1c1f39;border-radius:20px;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 0 1px rgba(192,132,252,.0);transition:opacity .25s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .2s,border-color .2s;transform-origin:50% 0}
+.panel{position:absolute;inset:0 0 auto 0;background:#1e1e23;border-radius:20px;border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 0 1px rgba(192,132,252,.0);transition:opacity .25s,transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .2s,border-color .2s;transform-origin:50% 0}
 .panel.closed{opacity:0;transform:translateY(-10px) scale(.97);pointer-events:none;visibility:hidden;transition:opacity .2s,transform .2s,visibility 0s .2s}
 .panel.blurred{border-color:rgba(255,255,255,.05)}
 .panel:not(.blurred):not(.closed){border-color:rgba(192,132,252,.55);box-shadow:0 30px 60px rgba(0,0,0,.6),0 0 0 3px rgba(192,132,252,.18)}
@@ -155,37 +155,76 @@ kbd{display:inline-block;background:var(--ink3);border:1px solid rgba(255,255,25
 .search{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
 .search svg{flex:none}
 .search input{flex:1;min-width:0;background:none;border:0;outline:0;color:#edeef6;font:inherit;font-size:15px;padding:4px 0;min-height:30px}
-.search input::placeholder{color:#6a7099}
-.chips{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px 0}
-.chips button{display:inline-flex;align-items:center;gap:5px;min-height:26px;padding:3px 11px;border-radius:99px;font-family:var(--mono);font-size:11.5px;color:#cfd3ee;background:rgba(255,255,255,.07)}
-.chips button:hover{background:rgba(255,255,255,.12)}
-.chips button[aria-pressed="true"]{background:rgba(91,127,240,.32);color:#fff}
+.search input::placeholder{color:#7d7f8c}
+.kcap{flex:none;display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:6px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);font-family:var(--mono);font-size:10.5px;color:#d6d7de}
+.chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07)}
+.chips button{display:inline-flex;align-items:center;gap:6px;min-height:28px;padding:3px 11px;border-radius:99px;font-size:12.5px;font-weight:600;color:#ececf1;background:rgba(255,255,255,.06)}
+.chips button:hover{background:rgba(255,255,255,.11)}
+.chips button[aria-pressed="true"]{background:#D4FF4F;color:#111}
+.chips .n{font-weight:500;opacity:.65}
+.chips .sep{width:1px;height:18px;background:rgba(255,255,255,.12);margin:0 3px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none}
 .list{list-style:none;height:286px;overflow-y:auto;padding:8px;scrollbar-width:thin;scrollbar-color:#3a3f6a transparent}
 .row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:12px;cursor:pointer;position:relative}
-.row:hover{background:rgba(91,127,240,.12)}
-.row[aria-selected="true"]{background:rgba(91,127,240,.22)}
+.row:hover{background:rgba(255,255,255,.04)}
+.row[aria-selected="true"]{background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .row.landed{animation:land .9s ease}
 @keyframes land{0%{background:rgba(228,243,90,.55);transform:translateY(-8px)}100%{transform:none}}
-.th{flex:none;width:44px;height:44px;border-radius:11px;display:grid;place-items:center;overflow:hidden;position:relative}
-.th.text{background:#5b6fe0}.th.code{background:#1f9e83}.th.file{background:#e0a23e}
-.th.image{background:linear-gradient(135deg,#3c7cc8,#6e5bd0)}
-.th.image::before{content:"";position:absolute;width:11px;height:11px;border-radius:50%;background:#ffe08a;right:8px;top:7px}
-.th.image::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:#26335c;clip-path:polygon(0 100%,35% 10%,55% 60%,72% 25%,100% 100%)}
+.th{flex:none;width:44px;height:44px;border-radius:11px;display:grid;place-items:center;overflow:hidden;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
+.th.url{background:#10141c}.th.code{background:#0d0f14}.th.secret{background:#2b2214}.th.file{background:#e0a33d}.th.pdf{background:#2a2620}
+.th.term{background:#07090a;color:#7cf29a;font-family:var(--mono);font-weight:600;font-size:15px}
+.th.text{background:#14261f;color:#8fe3c6;font-family:Georgia,'New York',serif;font-style:italic;font-size:19px}
+.th.color{background:var(--c)}
+.th.color::after{content:"";position:absolute;right:0;bottom:0;width:16px;height:16px;background:#16161d;clip-path:polygon(100% 0,100% 100%,0 100%)}
+.th.image{background:linear-gradient(#3b2a6b,#c05a8a)}
+.th.image::before{content:"";position:absolute;width:11px;height:11px;border-radius:50%;background:#fff1b8;right:9px;top:9px}
+.th.image::after{content:"";position:absolute;left:0;right:0;bottom:0;height:20px;background:#2a1e3f;clip-path:polygon(0 100%,0 45%,30% 0,50% 40%,72% 0,100% 50%,100% 100%)}
 .th .tl{display:grid;gap:3px}
 .th .tl i{display:block;height:3px;border-radius:2px;background:rgba(255,255,255,.92)}
 .tx{min-width:0;flex:1}
 .tx .t{font-size:14px;font-weight:600;color:#edeef6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
 .tx .t.mono{font-family:var(--mono);font-weight:500;font-size:13px}
-.tx .m{font-size:12px;color:#8f96b8;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .m{font-size:12px;color:#9a9ca8;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx .m .dot{width:6px;height:6px;margin-right:5px;vertical-align:1px}
+.tx .m .lbl{color:#ffc062;font-weight:600}
 .acts{display:flex;gap:2px;flex:none}
 .acts button{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#8f96b8;opacity:0}
 .row:hover .acts button,.row[aria-selected="true"] .acts button,.acts button:focus-visible,.acts .pin.on{opacity:1}
 .acts button:hover{background:rgba(255,255,255,.1);color:#fff}
-.acts .pin.on{color:#8ea0ff}
+.acts .pin.on{color:#d4ff4f}
 .acts .pin.on svg{fill:currentColor}
+.pbody{display:flex;min-height:0}
+.pbody .list{flex:1;min-width:0}
+.pv{display:none;flex:1;min-width:0;flex-direction:column;gap:9px;padding:12px 14px;height:286px;box-sizing:border-box;overflow:hidden;border-left:1px solid rgba(255,255,255,.07)}
+.desk.wide{grid-template-columns:minmax(0,1fr)}
+.desk.wide .pv{display:flex}
+.desk.wide .pbody .list{flex:0 0 50%}
+.desk.wide .doc{margin:36px 0 0;transform:rotate(1deg)}
+.pvcard{flex:none;height:118px;border-radius:12px;overflow:hidden;position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);display:flex;flex-direction:column;justify-content:flex-end;gap:3px;padding:12px;box-sizing:border-box;color:#fff;overflow-wrap:anywhere}
+.pvcard.top{justify-content:flex-start}
+.pvcard .dots{position:absolute;left:12px;top:11px;display:flex;gap:4px}.pvcard .dots i{width:7px;height:7px;border-radius:50%}
+.pvcard .big{font-size:18px;font-weight:600;line-height:1.2}
+.pvcard .sm{font-family:var(--mono);font-size:10.5px;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvcard .tints{display:flex;gap:4px;height:12px}.pvcard .tints i{flex:1;border-radius:3px}
+.pvcard.image{background:linear-gradient(#3b2a6b,#c05a8a)}
+.pvcard.image::before{content:"";position:absolute;width:24px;height:24px;border-radius:50%;background:#fff1b8;right:26px;top:18px}
+.pvcard.image::after{content:"";position:absolute;left:0;right:0;bottom:0;height:50px;background:#2a1e3f;clip-path:polygon(0 100%,0 45%,30% 0,50% 40%,72% 0,100% 50%,100% 100%)}
+.pvcard .lab{font-size:10px;font-weight:700;letter-spacing:.08em;color:#ffc062}
+.pvcard .val{font-family:var(--mono);font-size:13.5px;font-weight:600;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,192,98,.3)}
+.pvcard .peek{align-self:flex-start;margin-top:auto;height:26px;padding:0 10px;border-radius:7px;background:rgba(255,192,98,.16);color:#ffc062;font-size:11.5px;font-weight:600}
+.pvt{font-size:14px;font-weight:600;color:#ececf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvt.mono{font-family:var(--mono);font-size:13px}
+.pvlbl{font-size:11.5px;font-weight:600;color:#ffc062;margin-top:-6px}
+.pvmeta{display:grid;grid-template-columns:1fr 1fr;gap:3px 14px;font-size:11px;color:#ececf1}
+.pvmeta span{display:flex;justify-content:space-between;gap:6px;white-space:nowrap}.pvmeta b{font-weight:400;color:#9a9ca8}
+.pvacts{display:flex;gap:6px;margin-top:auto}
+.pvacts button{height:30px;border-radius:9px;padding:0 12px;font-size:12px;font-weight:600;background:rgba(255,255,255,.08);color:#ececf1}
+.pvacts .paste{flex:1;background:#d4ff4f;color:#111;font-weight:700}
+.beta{font-size:9.5px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:99px;background:var(--acid);color:var(--ink)}
+.tgl[aria-pressed="true"]{background:rgba(192,132,252,.22)}
 .empty{padding:34px 16px;text-align:center;color:#8f96b8;font-size:13px;font-family:var(--mono)}
-.pfoot{display:flex;gap:6px 14px;flex-wrap:wrap;padding:10px 16px 12px;border-top:1px solid rgba(255,255,255,.07);font-family:var(--mono);font-size:10.5px;color:#8f96b8}
-.pfoot kbd{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12);color:#cfd3ee;font-size:10.5px;padding:0 5px}
+.pfoot{display:flex;gap:6px 14px;flex-wrap:wrap;padding:10px 16px 12px;border-top:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.03);font-size:11.5px;color:#9a9ca8}
+.pfoot kbd{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;margin-right:3px;border-radius:6px;background:rgba(255,255,255,.08);border:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);color:#d6d7de;font-size:10.5px}
 .deskctl{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:18px}
 .tgl{min-height:44px;padding:10px 18px;font-family:var(--mono);font-size:12.5px;font-weight:500;color:var(--text);border:1.5px solid var(--violet);border-radius:99px;display:inline-flex;gap:8px;align-items:center}
 .tgl:hover{background:rgba(192,132,252,.16)}
@@ -416,6 +455,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
   .dc1,.dc2,.dc3{display:none}
 }
 @media (max-width:640px){
+  .desk.wide .pbody{flex-direction:column}.desk.wide .pbody .list{flex:none}
+  .desk.wide .pv{height:auto;border-left:0;border-top:1px solid rgba(255,255,255,.07)}
   .wrap{padding:0 16px}
   .hero{padding-top:92px}
   .sec{padding-top:90px}
@@ -475,7 +516,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
   <div class="wrap">
     <div class="status-row">
       <span class="chip solid">Feature complete</span>
-      <span class="chip">v1.1.0</span>
+      <span class="chip">v1.3.0</span>
       <span class="chip">macOS 14+</span>
       <span class="chip">Free · MIT</span>
     </div>
@@ -526,11 +567,15 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
                 <span class="sample-tag">SAMPLE DATA · LIVE DEMO</span>
                 <div class="search">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" stroke="#5e66a0" stroke-width="2.2"/><path d="M13 13l5 5" stroke="#5e66a0" stroke-width="2.2" stroke-linecap="round"/></svg>
-                  <input id="q" type="text" placeholder="Search clipboard history" autocomplete="off" spellcheck="false" aria-label="Search clipboard history" role="combobox" aria-expanded="true" aria-controls="list" />
+                  <input id="q" type="text" placeholder="Search clipboard, or type a category" autocomplete="off" spellcheck="false" aria-label="Search clipboard history" role="combobox" aria-expanded="true" aria-controls="list" />
+                  <span class="kcap" aria-hidden="true">⌘K</span>
                 </div>
-                <div class="chips" id="chips" role="group" aria-label="Filter history"><button type="button" data-chip="recent" aria-pressed="true">Recent</button><button type="button" data-chip="pinned" aria-pressed="false">Pinned</button><button type="button" data-chip="keys" aria-pressed="false"><svg width="10" height="11" viewBox="0 0 10 11" fill="none" aria-hidden="true"><rect x="1" y="5" width="8" height="5.5" rx="1.2" fill="currentColor"/><path d="M3 5V3.5a2 2 0 0 1 4 0V5" stroke="currentColor" stroke-width="1.4"/></svg>Keys</button></div>
-                <ul class="list" id="list" role="listbox" aria-label="Clipboard history"></ul>
-                <div class="pfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>Return</kbd>/click paste</span><span><kbd>⌘⌫</kbd> delete</span><span><kbd>Esc</kbd> close</span></div>
+                <div class="chips" id="chips" role="group" aria-label="Filter history"></div>
+                <div class="pbody">
+                  <ul class="list" id="list" role="listbox" aria-label="Clipboard history"></ul>
+                  <div class="pv" id="pv" aria-live="polite" aria-label="Preview of the selected clipping"></div>
+                </div>
+                <div class="pfoot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>⏎</kbd> paste</span><span><kbd>⌘P</kbd> pin</span><span><kbd>⌘⌫</kbd> delete</span></div>
               </div>
             </div>
           </div>
@@ -549,6 +594,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
         </div>
         <div class="deskctl">
           <button class="tgl" id="tgl" type="button" aria-expanded="true" aria-controls="panel"><span id="tgltxt">Close panel</span> <kbd>⌘⇧V</kbd></button>
+          <button class="tgl" id="pvbtn" type="button" aria-pressed="false">Preview <span class="beta">BETA</span></button>
           <p class="status" id="status" role="status" aria-live="polite">Click any clipping (or press Return) to paste it into the sample doc. The doc scrolls, so keep pasting.</p>
         </div>
       </div>
@@ -562,7 +608,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
   <div class="wrap">
     <div class="rv"><p class="kick"><b>01</b> What it keeps</p>
     <h2 class="h2" id="fh">Everything you copy,<br /><em>nothing</em> you'll lose.</h2>
-    <p class="lede">Thirteen small behaviours, each one real. Pinned to the board in no particular order.</p></div>
+    <p class="lede">Fifteen small behaviours, each one real. Pinned to the board in no particular order.</p></div>
 
     <div class="pile">
       <article class="clip f s7 rv" style="--r:-1deg">
@@ -590,7 +636,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
 
       <article class="clip f s3 rv" style="--r:-1.5deg">
         <span class="tape r" style="--tr:5deg"></span>
-        <div class="sheet" style="background-color:var(--lilac);clip-path:var(--torn1)"><span class="mono">Prune</span><h3>Prune on the fly</h3><p>Delete any single item with the row's × button or ⌘⌫.</p></div>
+        <div class="sheet" style="background-color:var(--lilac);clip-path:var(--torn1)"><span class="mono">Prune</span><h3>Prune on the fly</h3><p>Delete any single item with ⌘⌫, or right-click it and choose Delete.</p></div>
       </article>
       <article class="clip f s4 rv" style="--r:1deg;--d:.1s">
         <span class="tape"></span>
@@ -620,7 +666,16 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
       </article>
       <article class="clip f s3 rv" style="--r:-1.4deg;--d:.2s">
         <span class="tape r" style="--tr:4deg"></span>
-        <div class="sheet" style="clip-path:var(--torn4)"><span class="mono">Look</span><h3>Glass or not</h3><p>Liquid Glass on macOS 26, classic translucency everywhere, plus an opacity slider.</p></div>
+        <div class="sheet" style="clip-path:var(--torn4)"><span class="mono">Look</span><h3>Glass or not</h3><p>Liquid or Frosted Glass on macOS 26, Translucent or Solid everywhere, an opacity slider, and your pick of accent.</p></div>
+      </article>
+
+      <article class="clip f s7 rv x3" style="--r:1.1deg">
+        <span class="pinhead"></span>
+        <div class="sheet" style="background-color:var(--acid);clip-path:var(--torn1)"><span class="mono">Preview · beta</span><h3>See it before you paste</h3><p>Turn on the preview pane and the panel widens to show the selected item large: the full text, the image, a color with its tints, or a file's first page. Sensitive items stay hidden until you peek. Try it with the Preview button on the demo above.</p><div class="row2"><span>text</span><span>image</span><span>#FF6B4A</span><span>PDF</span></div></div>
+      </article>
+      <article class="clip f s5 rv" style="--r:-1.3deg;--d:.1s">
+        <span class="tape r" style="--tr:-4deg"></span>
+        <div class="sheet" style="background-color:var(--lilac);clip-path:var(--torn4)"><span class="mono">Keys</span><h3>Built for the keyboard</h3><p>⇥ switches tabs, ⌘1–9 pastes an item straight away, ⌘P pins, ⌘L labels, and holding ⌥ peeks at a hidden key.</p></div>
       </article>
     </div>
   </div>
@@ -749,6 +804,11 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
       <div class="ks" style="--r:1.8deg"><div class="in"><div class="kc"><span class="kk w">Return</span></div><p><span class="nm">Paste</span>the selected item into the app you were in</p></div></div>
       <div class="ks" style="--r:-1.8deg"><div class="in"><div class="kc"><span class="kk">⌘</span><span class="kk">⌫</span></div><p><span class="nm">Delete</span>the selected item from history</p></div></div>
       <div class="ks" style="--r:1.5deg"><div class="in"><div class="kc"><span class="kk">⌘</span><span class="kk">M</span></div><p><span class="nm">Move</span>the selected item into a category</p></div></div>
+      <div class="ks" style="--r:-1.2deg"><div class="in"><div class="kc"><span class="kk">⌘</span><span class="kk w">1–9</span></div><p><span class="nm">Quick paste</span>the first nine items, no arrowing needed</p></div></div>
+      <div class="ks" style="--r:1.6deg"><div class="in"><div class="kc"><span class="kk">⇥</span></div><p><span class="nm">Switch tabs</span>Recent, Pinned and your categories (⇧⇥ goes back)</p></div></div>
+      <div class="ks" style="--r:-1.4deg"><div class="in"><div class="kc"><span class="kk">⌘</span><span class="kk">P</span></div><p><span class="nm">Pin</span>or unpin the selected item</p></div></div>
+      <div class="ks" style="--r:1.2deg"><div class="in"><div class="kc"><span class="kk">⌘</span><span class="kk">L</span></div><p><span class="nm">Label</span>an item, e.g. which key this is</p></div></div>
+      <div class="ks" style="--r:-1.7deg"><div class="in"><div class="kc"><span class="kk w">hold ⌥</span></div><p><span class="nm">Peek</span>at a sensitive item in the preview pane</p></div></div>
       <div class="ks" style="--r:1.1deg"><div class="in"><div class="kc"><span class="kk w">Esc</span></div><p><span class="nm">Dismiss</span>the panel and carry on</p></div></div>
     </div>
     <div class="rebind rv"><span class="hand">⌘⇧V is rebindable in Settings → General</span></div>
@@ -769,7 +829,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
           <h3>Yankit for macOS</h3>
           <p>The latest build is on the Releases page as <code class="mono" style="background:rgba(42,34,48,.1);padding:1px 6px;border-radius:4px;font-size:13px">Yankit-&lt;version&gt;.dmg</code>. Open it and drag Yankit into Applications.</p>
           <a class="btn" href="https://github.com/AbyAbyss/Yankit/releases/latest">Download latest DMG</a>
-          <p class="meta">Needs macOS 14 (Sonoma) or later.<br />Latest release: v1.1.0 · MIT license<br /><a href="#build" style="color:var(--pt)">or build it from source ↓</a></p>
+          <p class="meta">Needs macOS 14 (Sonoma) or later.<br />Latest release: v1.3.0 · MIT license<br /><a href="#build" style="color:var(--pt)">or build it from source ↓</a></p>
         </div>
       </div>
 
@@ -915,10 +975,14 @@ const statusEl = $('#status'), docbody = $('#docbody'), chipsEl = $('#chips');
 let caretline = $('#caretline');
 const MAX = 30;
 let uid = 0, selId = null, isOpen = true, query = '', chip = 'recent';
-const CATS = [{ id: 'keys', name: 'Keys', sensitive: true }];
+/* the preview pane (beta), off by default like in the app */
+let wide = false, peekId = null;
+const desk = $('#desk'), pvEl = $('#pv'), pvbtn = $('#pvbtn');
+const CATS = [{ id: 'work', name: 'Work', color: '#7AB0FF' }, { id: 'keys', name: 'Keys', color: '#FFC062', sensitive: true }];
 const items = [
   { kind: 'text', text: 'https://github.com/AbyAbyss/Yankit', src: 'Safari', meta: 'just now' },
-  { kind: 'code', text: 'SELECT * FROM clipboard_item WHERE pinned = 1;', src: 'Terminal', meta: '3 minutes ago' },
+  { kind: 'text', text: '#FF6B4A', src: 'Figma', meta: '2 minutes ago' },
+  { kind: 'code', text: 'SELECT * FROM clipboard_item WHERE pinned = 1;', src: 'Terminal', meta: '3 minutes ago', cat: 'work' },
   { kind: 'image', text: 'Image · 2048 × 1280', src: 'Figma', meta: '4 minutes ago' },
   { kind: 'code', text: 'git push origin main', src: 'Terminal', meta: '12 minutes ago' },
   { kind: 'file', text: 'Q3-roadmap.pdf', src: 'Finder', meta: '1 hour ago', pinned: true },
@@ -930,27 +994,57 @@ const rel = ts => { const s = (Date.now() - ts) / 1000; if (s < 45) return 'just
 const mk = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
 const svg = (d, w = 16) => { const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 16 16'); s.setAttribute('width', w); s.setAttribute('height', w); s.setAttribute('fill', 'none'); s.setAttribute('aria-hidden', 'true'); const p = document.createElementNS('http://www.w3.org/2000/svg', 'path'); p.setAttribute('d', d); p.setAttribute('stroke', 'currentColor'); p.setAttribute('stroke-width', '1.6'); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round'); s.appendChild(p); return s; };
 
-function thumb(kind) {
-  const t = mk('span', 'th ' + kind);
-  if (kind === 'text') { const l = mk('span', 'tl'); l.append(mk('i'), mk('i'), mk('i')); l.children[0].style.width = '20px'; l.children[1].style.width = '13px'; l.children[2].style.width = '17px'; t.appendChild(l); }
-  else if (kind === 'code') { t.innerHTML = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M8 4l-6 7 6 7M14 4l6 7-6 7" stroke="#fff" stroke-opacity=".92" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'; }
-  else if (kind === 'file') { t.innerHTML = '<svg width="22" height="24" viewBox="0 0 22 24" fill="none" aria-hidden="true"><path d="M2 1h12l6 6v16H2z" fill="#fff" fill-opacity=".94"/><path d="M14 1v6h6z" fill="#e0a23e"/></svg>'; }
+/* the icon tiles, drawn like the app's: one per kind of item */
+const TILES = {
+  url: '<svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><circle cx="8" cy="8" r="2" fill="#ff5f57"/><circle cx="13.5" cy="8" r="2" fill="#febc2e"/><circle cx="19" cy="8" r="2" fill="#28c840"/><rect x="6" y="13" width="24" height="3" rx="1.5" fill="#7ab0ff"/><rect x="6" y="19" width="30" height="2" rx="1" fill="#fff" fill-opacity=".25"/><rect x="6" y="30" width="15" height="7" rx="2" fill="#2a3448"/><rect x="23" y="30" width="15" height="7" rx="2" fill="#fff" fill-opacity=".1"/></svg>',
+  code: '<svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="9" y="14" width="10" height="3" rx="1.5" fill="#c792ea"/><rect x="21" y="14" width="4" height="3" rx="1.5" fill="#eee"/><rect x="27" y="14" width="8" height="3" rx="1.5" fill="#82aaff"/><rect x="13" y="20.5" width="6" height="3" rx="1.5" fill="#82aaff"/><rect x="21" y="20.5" width="12" height="3" rx="1.5" fill="#c792ea"/><rect x="9" y="27" width="8" height="3" rx="1.5" fill="#c3e88d"/><rect x="19" y="27" width="9" height="3" rx="1.5" fill="#c792ea"/></svg>',
+  secret: '<svg width="44" height="44" viewBox="0 0 44 44" fill="none" aria-hidden="true"><circle cx="17" cy="17" r="6" stroke="#ffc062" stroke-width="2.6"/><path d="M21.5 21.5L32 32M27 27l3-3M30 30l2.5-2.5" stroke="#ffc062" stroke-width="2.6" stroke-linecap="round"/></svg>',
+  pdf: '<svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect x="10" y="6" width="25" height="32" rx="3" fill="#f5f1e8"/><rect x="14" y="12" width="13" height="2" rx="1" fill="#2b2b2b"/><rect x="14" y="17" width="17" height="2" rx="1" fill="#bdb6a8"/><rect x="14" y="22" width="14" height="2" rx="1" fill="#bdb6a8"/><rect x="6" y="28" width="18" height="8" rx="2" fill="#e5484d"/><text x="15" y="34.3" font-size="6.5" font-weight="800" fill="#fff" text-anchor="middle" font-family="system-ui,sans-serif">PDF</text></svg>',
+  file: '<svg width="22" height="24" viewBox="0 0 22 24" fill="none" aria-hidden="true"><path d="M2 1h12l6 6v16H2z" fill="#fff" fill-opacity=".94"/><path d="M14 1v6h6z" fill="#e0a33d"/></svg>'
+};
+const isHex = t => /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(t);
+/* which tile an item gets, detected from its content like the app does */
+function look(i) {
+  const t = i.text.trim();
+  if (sensitive(i)) return 'secret';
+  if (i.kind === 'image') return 'image';
+  if (i.kind === 'file') return /\.pdf$/i.test(t) ? 'pdf' : 'file';
+  if (/^https?:\/\/\S+$/.test(t)) return 'url';
+  if (isHex(t)) return 'color';
+  if (!t.includes('\n') && /^(\$ |git |npm |brew |cd |xattr )/.test(t)) return 'term';
+  return i.kind === 'code' ? 'code' : 'text';
+}
+function thumb(i) {
+  const kind = look(i), t = mk('span', 'th ' + kind);
+  if (TILES[kind]) t.innerHTML = TILES[kind];
+  else if (kind === 'term') t.textContent = '$_';
+  else if (kind === 'text') t.textContent = 'Aa';
+  else if (kind === 'color') t.style.setProperty('--c', i.text.trim());
   return t;
 }
 const sensitive = i => CATS.some(c => c.id === i.cat && c.sensitive);
 const redact = t => t.slice(0, Math.min(4, t.length >> 1)) + '••••••••';
 /* like the app: newest first in every tab; sensitive content is never searched */
+const catOf = i => CATS.find(c => c.id === i.cat);
 function visible() {
   const f = query.trim().toLowerCase();
   return items
     .filter(i => chip === 'recent' || (chip === 'pinned' ? i.pinned : i.cat === chip))
-    .filter(i => !f || ((i.label || '') + ' ' + (sensitive(i) ? '' : i.text) + ' ' + i.src).toLowerCase().includes(f));
+    .filter(i => !f || ((i.label || '') + ' ' + (sensitive(i) ? '' : i.text) + ' ' + i.src + ' ' + (catOf(i) ? catOf(i).name : '')).toLowerCase().includes(f));
 }
-function setChip(c) {
-  chip = c;
-  $$('button', chipsEl).forEach(b => b.setAttribute('aria-pressed', b.dataset.chip === c));
+const PIN_ICON = '<svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.5 1.5l4 4-2 1-2.5 2.5.5 3.5-1 1-3-3-4.5 4.5-.5-.5L6 9 3 6l1-1 3.5.5L10 3z"/></svg>';
+const LOCK_ICON = '<svg width="9" height="10" viewBox="0 0 10 11" fill="none" aria-hidden="true"><rect x="1" y="5" width="8" height="5.5" rx="1.2" fill="currentColor"/><path d="M3 5V3.5a2 2 0 0 1 4 0V5" stroke="currentColor" stroke-width="1.4"/></svg>';
+/* the chip bar, rebuilt so the counts stay current; only fixed sample data goes in */
+function renderChips() {
+  const btn = (id, inner) => '<button type="button" data-chip="' + id + '" aria-pressed="' + (chip === id) + '">' + inner + '</button>';
+  const count = f => '<span class="n">' + items.filter(f).length + '</span>';
+  chipsEl.innerHTML = btn('recent', 'Recent') + btn('pinned', PIN_ICON + 'Pinned ' + count(i => i.pinned))
+    + '<span class="sep" aria-hidden="true"></span>'
+    + CATS.map(c => btn(c.id, '<i class="dot" style="background:' + c.color + '"></i>' + c.name + (c.sensitive ? LOCK_ICON : '') + ' ' + count(i => i.cat === c.id))).join('');
 }
+function setChip(c) { chip = c; renderChips(); }
 function render(landedId) {
+  renderChips();
   const v = visible();
   if (!v.some(i => i.id === selId)) selId = v[0] ? v[0].id : null;
   listEl.replaceChildren();
@@ -960,21 +1054,87 @@ function render(landedId) {
     li.id = 'r' + i.id; li.dataset.id = i.id; li.setAttribute('role', 'option'); li.setAttribute('aria-selected', i.id === selId);
     const tx = mk('div', 'tx');
     const first = (i.text.split('\n').find(s => s.trim()) || i.text).trim();
-    const shown = sensitive(i) ? redact(first) : first.slice(0, 80);
-    const title = i.label || shown;
-    const meta = i.src + ' · ' + (i.ts ? rel(i.ts) : i.meta) + (i.sample ? ' · sample' : '');
-    tx.append(mk('div', 't' + (i.kind === 'code' && !i.label ? ' mono' : ''), title), mk('div', 'm', i.label ? shown + ' · ' + meta : meta));
+    const title = sensitive(i) ? redact(first) : first.slice(0, 80);
+    const kind = look(i), cat = catOf(i);
+    /* like the app: the content is the title; category, label, source and time below */
+    const m = mk('div', 'm');
+    if (cat) { const d = mk('i', 'dot'); d.style.background = cat.color; m.append(d); }
+    if (i.label) m.append(mk('b', 'lbl', i.label), ' · ');
+    m.append((cat ? cat.name + ' · ' : '') + i.src + ' · ' + (i.ts ? rel(i.ts) : i.meta) + (i.sample ? ' · sample' : ''));
+    tx.append(mk('div', 't' + (['code', 'term', 'color', 'secret'].includes(kind) ? ' mono' : ''), title), m);
     const acts = mk('div', 'acts');
-    const pin = mk('button', 'pin' + (i.pinned ? ' on' : '')); pin.type = 'button'; pin.dataset.act = 'pin'; pin.setAttribute('aria-label', (i.pinned ? 'Unpin ' : 'Pin ') + title.slice(0, 30)); pin.setAttribute('aria-pressed', !!i.pinned); pin.appendChild(svg('M10.5 1.5l4 4-2 1-2.5 2.5.5 3.5-1 1-3-3-4.5 4.5M7 4.5l4.5 4.5'));
-    const del = mk('button', 'del'); del.type = 'button'; del.dataset.act = 'del'; del.setAttribute('aria-label', 'Delete ' + title.slice(0, 30)); del.appendChild(svg('M3.5 3.5l9 9M12.5 3.5l-9 9'));
-    acts.append(pin, del);
-    li.append(thumb(i.kind), tx, acts);
+    const pin = mk('button', 'pin' + (i.pinned ? ' on' : '')); pin.type = 'button'; pin.dataset.act = 'pin'; pin.setAttribute('aria-label', (i.pinned ? 'Unpin ' : 'Pin ') + (i.label || title).slice(0, 30)); pin.setAttribute('aria-pressed', !!i.pinned); pin.appendChild(svg('M10.5 1.5l4 4-2 1-2.5 2.5.5 3.5-1 1-3-3-4.5 4.5M7 4.5l4.5 4.5'));
+    acts.append(pin);
+    li.append(thumb(i), tx, acts);
     listEl.appendChild(li);
   });
   q.setAttribute('aria-activedescendant', selId ? 'r' + selId : '');
+  renderPreview();
   const s = $('[aria-selected="true"]', listEl);
   if (s) { const t = s.offsetTop - listEl.offsetTop, b = t + s.offsetHeight; if (t < listEl.scrollTop) listEl.scrollTop = t - 8; else if (b > listEl.scrollTop + listEl.clientHeight) listEl.scrollTop = b - listEl.clientHeight + 8; }
 }
+/* the preview pane: the selected clipping large, like the app's beta pane */
+function renderPreview() {
+  pvEl.replaceChildren();
+  const it = wide && items.find(i => i.id === selId); if (!it) return;
+  const kind = look(it), cat = catOf(it), text = it.text.trim(), shown = peekId === it.id;
+  const card = mk('div', 'pvcard');
+  if (kind === 'url') {
+    card.style.background = '#10141c';
+    const d = mk('span', 'dots'); ['#ff5f57', '#febc2e', '#28c840'].forEach(c => { const i = mk('i'); i.style.background = c; d.append(i); });
+    let host = text; try { host = new URL(text).host; } catch (_) {}
+    card.append(d, mk('div', 'big', host), mk('div', 'sm', text));
+  } else if (kind === 'color') {
+    card.style.background = text;
+    const tints = mk('span', 'tints');
+    [.6, .3, -.25, -.55].forEach(f => { const i = mk('i'); i.style.background = `color-mix(in srgb, ${text}, ${f > 0 ? 'white' : 'black'} ${Math.abs(f) * 100}%)`; tints.append(i); });
+    card.append(mk('div', 'big', text.toUpperCase()), tints);
+  } else if (kind === 'secret') {
+    card.classList.add('top'); card.style.background = 'rgba(255,255,255,.04)';
+    const peek = mk('button', 'peek', shown ? 'Hide' : 'Peek'); peek.type = 'button'; peek.dataset.act = 'peek';
+    card.append(mk('div', 'lab', 'SENSITIVE · ' + (cat ? cat.name.toUpperCase() : '')), mk('div', 'val', shown ? text : redact(text)), peek);
+  } else if (kind === 'image') {
+    card.classList.add('image');
+  } else if (kind === 'pdf' || kind === 'file') {
+    card.style.background = '#2a2620'; card.style.alignItems = 'center'; card.style.justifyContent = 'center';
+    const g = mk('span'); g.innerHTML = TILES.pdf; g.style.transform = 'scale(2)'; card.append(g);
+  } else {
+    card.classList.add('top');
+    const body = mk('div', '', kind === 'term' ? '➜ ' + text : text);
+    if (kind === 'text') { card.style.background = '#0f1d1a'; body.style.cssText = "font-family:Georgia,'New York',serif;font-size:15px;line-height:1.35;color:#e8fff7"; }
+    else { card.style.background = kind === 'term' ? '#060807' : '#0d0f14'; body.style.cssText = 'font-family:var(--mono);font-size:11.5px;line-height:1.5;white-space:pre-wrap;color:' + (kind === 'term' ? '#7cf29a' : '#e6e6e6'); }
+    card.append(body);
+  }
+  const first = (it.text.split('\n').find(t => t.trim()) || it.text).trim();
+  const title = mk('div', 'pvt' + (['code', 'term', 'color', 'secret'].includes(kind) ? ' mono' : ''), sensitive(it) && !shown ? redact(first) : first);
+  const meta = mk('div', 'pvmeta');
+  const row = (k, v) => { const r = mk('span'); r.append(mk('b', '', k), v); meta.append(r); };
+  row('Source', it.src); row('Copied', it.ts ? rel(it.ts) : it.meta);
+  row('Category', cat ? cat.name : 'None');
+  row('Details', kind === 'image' ? '2048 × 1280' : kind === 'pdf' || kind === 'file' ? 'File' : text.length + ' chars');
+  const acts = mk('div', 'pvacts');
+  const pasteBtn = mk('button', 'paste', 'Paste ⏎'); pasteBtn.type = 'button'; pasteBtn.dataset.act = 'paste';
+  const pinb = mk('button', '', it.pinned ? 'Unpin' : 'Pin'); pinb.type = 'button'; pinb.dataset.act = 'pin';
+  acts.append(pasteBtn, pinb);
+  pvEl.append(card, title);
+  if (it.label) pvEl.append(mk('div', 'pvlbl', it.label));
+  pvEl.append(meta, acts);
+}
+pvEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || selId == null) return;
+  if (b.dataset.act === 'paste') paste($('#r' + selId, listEl));
+  else if (b.dataset.act === 'pin') pin(selId);
+  else if (b.dataset.act === 'peek') { peekId = peekId === selId ? null : selId; renderPreview(); }
+  if (!coarse) q.focus({ preventScroll: true });
+});
+pvbtn.addEventListener('click', () => {
+  wide = !wide;
+  desk.classList.toggle('wide', wide);
+  pvbtn.setAttribute('aria-pressed', wide);
+  render();
+  if (!coarse) q.focus({ preventScroll: true });
+  say(wide ? 'Preview on (beta). A click now selects a clipping so you can look at it first; double-click or press Return to paste.' : 'Preview off, the default. A click pastes straight away.');
+});
 const say = t => { statusEl.textContent = t; };
 function move(d) { const v = visible(); if (!v.length) return; let k = v.findIndex(i => i.id === selId); k = clamp(k + d, 0, v.length - 1); selId = v[k].id; render(); }
 function del(id) { const v = visible(); const k = v.findIndex(i => i.id === id); const i = items.findIndex(i => i.id === id); if (i < 0) return; items.splice(i, 1); const nv = visible(); selId = nv.length ? nv[Math.min(k, nv.length - 1)].id : null; render(); say('Deleted from history.'); }
@@ -1007,8 +1167,7 @@ function paste(fromEl) {
     return;
   }
   land();
-  setOpen(false);
-  say('Pasted into the sample doc. Yankit closes after a Return paste, just like the real one. Clicking keeps it open.');
+  say('Pasted into the sample doc. The demo panel stays open; use Close panel to hide it.');
 }
 $('#clr').addEventListener('click', () => { docbody.innerHTML = docStart; caretline = $('#caretline'); docbody.scrollTop = 0; say('Fresh page.'); });
 
@@ -1036,8 +1195,23 @@ listEl.addEventListener('click', e => {
   const row = e.target.closest('.row'); if (!row) return;
   const id = +row.dataset.id; const b = e.target.closest('button');
   if (b) { b.dataset.act === 'pin' ? pin(id) : del(id); if (!coarse) q.focus({ preventScroll: true }); return; }
+  /* with the preview on, a click only selects (rows stay in place so a
+     double-click lands on the same row); without it, a click pastes */
+  if (wide) {
+    selId = id;
+    $$('.row', listEl).forEach(r => r.setAttribute('aria-selected', +r.dataset.id === id));
+    q.setAttribute('aria-activedescendant', 'r' + id);
+    renderPreview();
+    if (!coarse) q.focus({ preventScroll: true });
+    return;
+  }
   selId = id; render(); if (!coarse) q.focus({ preventScroll: true });
   paste($('#r' + id, listEl));
+});
+listEl.addEventListener('dblclick', e => {
+  const row = e.target.closest('.row');
+  if (!wide || !row || e.target.closest('button')) return;
+  paste($('#r' + row.dataset.id, listEl));
 });
 chipsEl.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -1052,8 +1226,9 @@ document.addEventListener('keydown', e => {
   if (!isOpen || !panel.contains(document.activeElement)) return;
   if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
   else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
-  else if (e.key === 'Enter') { if (document.activeElement.tagName === 'BUTTON') return; e.preventDefault(); paste(); }
-  else if (e.key === 'Escape') { e.preventDefault(); setOpen(false); }
+  else if (e.key === 'Enter') { if (document.activeElement.tagName === 'BUTTON') return; e.preventDefault(); paste($('#r' + selId, listEl)); }
+  else if (mod && e.key.toLowerCase() === 'p') { e.preventDefault(); if (selId != null) pin(selId); }
+  else if (mod && e.key.toLowerCase() === 'k') { e.preventDefault(); q.focus({ preventScroll: true }); q.select(); }
   else if ((e.key === 'Backspace' || e.key === 'Delete') && (mod || (q.value === '' && Date.now() - lastEdit > 700))) { e.preventDefault(); if (selId != null) del(selId); }
 });
 
