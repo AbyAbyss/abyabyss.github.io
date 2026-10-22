@@ -76,6 +76,8 @@ code,kbd,.mono{font-family:var(--mono)}
 .h2{font-family:var(--serif);font-weight:400;font-size:clamp(42px,6.2vw,92px);line-height:.95;letter-spacing:-.03em;margin:18px 0 20px}
 .h2 em{color:var(--violet)}
 .lede{color:var(--muted);max-width:560px;font-size:17px}
+.vid{margin-top:44px;border-radius:18px;overflow:hidden;background:#0b0a12;box-shadow:0 30px 70px rgba(0,0,0,.55),0 0 0 1px rgba(192,132,252,.25);aspect-ratio:16/9}
+.vid video{display:block;width:100%;height:100%}
 .hand{font-family:var(--hand);font-weight:700;color:var(--acid);font-size:24px;line-height:1.05;transform:rotate(-3deg);display:inline-block}
 
 /* reveal */
@@ -498,6 +500,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
     </a>
     <nav aria-label="Primary">
       <ul>
+        <li><a href="#video">Video</a></li>
         <li><a href="#features">Features</a></li>
         <li><a href="#kinds">Kinds</a></li>
         <li><a href="#how">How it works</a></li>
@@ -516,7 +519,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
   <div class="wrap">
     <div class="status-row">
       <span class="chip solid">Feature complete</span>
-      <span class="chip">v1.3.0</span>
+      <span class="chip">v1.3.1</span>
       <span class="chip">macOS 14+</span>
       <span class="chip">Free · MIT</span>
     </div>
@@ -600,6 +603,20 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section class="sec" id="video" aria-labelledby="vh" style="padding-bottom:0">
+  <div class="wrap">
+    <div class="rv"><p class="kick"><b>▶</b> Watch</p>
+    <h2 class="h2" id="vh">Yankit 1.3<br />in <em>46 seconds.</em></h2>
+    <p class="lede">Every feature in the default panel, then the new preview pane (beta): how to turn it on, and what it looks like once it is.</p></div>
+    <div class="vid rv">
+      <video controls playsinline preload="none" poster="clips/yankit-1.3.jpg" width="1920" height="1080" aria-label="Yankit 1.3 walkthrough: the clipboard panel, search and tabs, sensitive categories, keyboard shortcuts, appearance options, and the beta preview pane">
+        <source src="clips/yankit-1.3.mp4" type="video/mp4" />
+      </video>
+    </div>
   </div>
 </section>
 
@@ -829,7 +846,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
           <h3>Yankit for macOS</h3>
           <p>The latest build is on the Releases page as <code class="mono" style="background:rgba(42,34,48,.1);padding:1px 6px;border-radius:4px;font-size:13px">Yankit-&lt;version&gt;.dmg</code>. Open it and drag Yankit into Applications.</p>
           <a class="btn" href="https://github.com/AbyAbyss/Yankit/releases/latest">Download latest DMG</a>
-          <p class="meta">Needs macOS 14 (Sonoma) or later.<br />Latest release: v1.3.0 · MIT license<br /><a href="#build" style="color:var(--pt)">or build it from source ↓</a></p>
+          <p class="meta">Needs macOS 14 (Sonoma) or later.<br />Latest release: v1.3.1 · MIT license<br /><a href="#build" style="color:var(--pt)">or build it from source ↓</a></p>
         </div>
       </div>
 
