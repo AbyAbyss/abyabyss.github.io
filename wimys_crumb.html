@@ -264,8 +264,13 @@ p{margin:0}
 .stale{display:inline-block;font:600 9.5px/1 var(--f-mono);letter-spacing:.06em;background:var(--a-honey-soft);color:#8a5a10;padding:2px 5px;border-radius:4px;margin-left:6px;vertical-align:1px}
 .inst{display:none;list-style:none;margin:0 0 8px 28px;padding:0}
 .glist li.open .inst{display:block}
-.inst li{display:flex;justify-content:space-between;gap:10px;font-family:var(--f-mono);font-size:11.5px;color:var(--a-ink2);padding:3px 0;min-width:0}
-.inst li span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inst li label{display:grid;grid-template-columns:15px minmax(0,1fr) auto;gap:10px;align-items:center;font-family:var(--f-mono);font-size:11.5px;color:var(--a-ink2);padding:4px 6px;margin-left:-6px;border-radius:7px;cursor:pointer;min-width:0}
+.inst li label:hover{background:var(--a-bg);color:var(--a-ink)}
+.inst li span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.inst .cb{width:15px;height:15px;border-radius:5px}
+.inst .cb:checked::after{width:7px;height:4px}
+.cb:indeterminate{background:var(--a-coral);border-color:var(--a-coral)}
+.cb:indeterminate::after{content:"";width:8px;height:2px;background:#fff;border-radius:1px}
 .gfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--a-line);font-size:12.5px;color:var(--a-ink2);flex-wrap:wrap}
 
 /* types */
@@ -679,7 +684,7 @@ footer a:hover{color:var(--fg)}
                 <div class="card">
                   <div class="clab">GROUPS <span id="gSum">7 groups · 136 GB</span></div>
                   <ul class="glist" id="glist"></ul>
-                  <div class="gfoot"><span id="gSel">0 of 7 selected</span><button class="abtn pri" type="button" id="gFree" disabled>Free 0 GB →</button></div>
+                  <div class="gfoot"><span id="gSel">0 folders selected</span><button class="abtn pri" type="button" id="gFree" disabled>Free 0 GB →</button></div>
                 </div>
               </div>
             </div>
@@ -1227,8 +1232,12 @@ function buildGList(){
   var shown=G.filter(function(g){return gFilter==='all'||g.stale});
   shown.forEach(function(g){
     var li=document.createElement('li');li.style.setProperty('--c',g.c);if(gOpen===g)li.classList.add('open');
-    li.innerHTML='<div class="grow"><input class="cb" type="checkbox" aria-label="Select '+g.n+'"'+(gSel[g.n]?' checked':'')+'><div class="nm"><b>'+g.n+'</b>'+(g.stale?'<span class="stale">STALE</span>':'')+'<small>'+g.f+' folders · '+g.age+'</small><div class="meter"><i style="width:'+(g.v/61*100)+'%"></i></div></div><span class="sz">'+g.v+' GB</span><button class="exp" type="button" aria-label="Show folders" aria-expanded="'+(gOpen===g)+'"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></div><ul class="inst">'+g.inst.map(function(i){return '<li><span>'+i[0]+'</span><span>'+gb(i[1])+'</span></li>'}).join('')+'</ul>';
-    li.querySelector('.cb').addEventListener('change',function(e){if(e.target.checked)gSel[g.n]=g;else delete gSel[g.n];gFoot()});
+    li.innerHTML='<div class="grow"><input class="cb" type="checkbox" aria-label="Select every '+g.n+' folder"><div class="nm"><b>'+g.n+'</b>'+(g.stale?'<span class="stale">STALE</span>':'')+'<small>'+g.f+' folders · '+g.age+'</small><div class="meter"><i style="width:'+(g.v/61*100)+'%"></i></div></div><span class="sz">'+g.v+' GB</span><button class="exp" type="button" aria-label="Show folders" aria-expanded="'+(gOpen===g)+'"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></div><ul class="inst">'+g.inst.map(function(i,k){return '<li><label><input class="cb" type="checkbox" data-k="'+k+'"'+(gSel[g.n]&&gSel[g.n][k]?' checked':'')+'><span>'+i[0]+'</span><span>'+gb(i[1])+'</span></label></li>'}).join('')+'</ul>';
+    var all=li.querySelector('.grow .cb'),subs=$$('.inst .cb',li);
+    function sync(){var n=subs.filter(function(c){return c.checked}).length;all.checked=n===subs.length;all.indeterminate=n>0&&n<subs.length}
+    all.addEventListener('change',function(){subs.forEach(function(c){c.checked=all.checked});if(all.checked){gSel[g.n]={};subs.forEach(function(c,k){gSel[g.n][k]=1})}else delete gSel[g.n];sync();gFoot()});
+    subs.forEach(function(c){c.addEventListener('change',function(){var k=+c.dataset.k;gSel[g.n]=gSel[g.n]||{};if(c.checked)gSel[g.n][k]=1;else delete gSel[g.n][k];if(!Object.keys(gSel[g.n]).length)delete gSel[g.n];sync();gFoot()})});
+    sync();
     li.querySelector('.exp').addEventListener('click',function(){openG(gOpen===g?null:g)});
     ul.appendChild(li);g.li=li;
   });
@@ -1236,12 +1245,14 @@ function buildGList(){
   gFoot();
 }
 function openG(g){gOpen=g;G.forEach(function(x){if(x.li){x.li.classList.toggle('open',x===g);x.li.querySelector('.exp').setAttribute('aria-expanded',x===g)}if(x.el)x.el.classList.toggle('on',x===g)});if(g&&g.li&&cur==='groups'){var ul=$('#glist');}}
-function gFoot(){var ks=Object.keys(gSel),t=ks.reduce(function(a,k){return a+gSel[k].v},0);$('#gSel').textContent=ks.length+' of '+G.length+' selected';var b=$('#gFree');b.textContent='Free '+gb(t)+' →';b.disabled=!t}
+function instCount(i){var m=/^(\d+) more/.exec(i[0]);return m?+m[1]:1}
+function gPicked(){var out=[];G.forEach(function(g){var sel=gSel[g.n];if(!sel)return;var ks=Object.keys(sel).map(Number);if(ks.length===g.inst.length)out.push([g.n+' ×'+g.f,g.v,g.f]);else ks.forEach(function(k){var i=g.inst[k];out.push([/^\d+ more/.test(i[0])?i[0]+' named '+g.n:i[0],i[1],instCount(i)])})});return out}
+function gFoot(){var it=gPicked(),t=it.reduce(function(a,b){return a+b[1]},0),n=it.reduce(function(a,b){return a+b[2]},0);$('#gSel').textContent=n+' folder'+(n===1?'':'s')+' selected';var b=$('#gFree');b.textContent='Free '+gb(t)+' →';b.disabled=!t}
 $('#gAll').addEventListener('click',function(){gFilter='all';this.setAttribute('aria-pressed','true');$('#gStale').setAttribute('aria-pressed','false');buildGList();buildBubbles()});
 $('#gStale').addEventListener('click',function(){gFilter='stale';this.setAttribute('aria-pressed','true');$('#gAll').setAttribute('aria-pressed','false');buildGList();buildBubbles()});
 $('#gFree').addEventListener('click',function(){
-  var ks=Object.keys(gSel),items=ks.map(function(k){return [k+' ×'+gSel[k].f,gSel[k].v]}),t=items.reduce(function(a,b){return a+b[1]},0);
-  sheet('Move '+gb(t)+' to the Trash?','Every folder in these groups goes to the Trash. Simulation, nothing is touched.',items,function(){
+  var items=gPicked(),t=items.reduce(function(a,b){return a+b[1]},0);
+  sheet('Move '+gb(t)+' to the Trash?','The selected folders go to the Trash. Simulation, nothing is touched.',items,function(){
     var prev=gSel;gSel={};buildGList();toast('Moved '+gb(t)+' to the Trash.',function(){gSel=prev;buildGList();toast('Put back.')});
   });
 });
