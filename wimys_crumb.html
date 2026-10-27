@@ -2,791 +2,965 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>wimys_crumb: find where your disk space went</title>
 <meta name="description" content="wimys_crumb is a friendly disk-space scanner for macOS. It finds where your space went, groups the same folder names across the whole drive, and lets you reclaim the dead weight safely.">
-<meta name="color-scheme" content="light">
+<meta name="color-scheme" content="dark light">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,400;1,9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script>document.documentElement.className='js'</script>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+/* Layout: a night desk. The page is quiet ink; the one loud object is a working copy of the app window, in the app's own Honey palette. */
 :root{
-  --paper:#F4ECDC; --paper2:#EBE0CA; --paper3:#E2D5BB;
-  --ink:#17120d; --ink2:#4a4036; --ink3:#6f6454;
-  --hair:rgba(23,18,13,.26); --rule:#17120d;
-  --coral:#E55934; --coral-ink:#B63715;
-  --mustard:#E4AC3F; --sage:#86B79B; --violet:#B0A2D9; --blue:#8FB8D4; --rose:#E4A0B3; --clay:#DDA98C; --slate:#A4AEA6; --stone:#D6CBB6;
-  --serif:Fraunces,"Iowan Old Style","Palatino Linotype",Georgia,"Times New Roman",serif;
-  --sans:Inter,system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  --ease:cubic-bezier(.2,.8,.2,1);
-  --gut:clamp(16px,3.2vw,44px);
+  --bg:#101219;--bg2:#161923;--bg3:#1d2130;--line:#272b3a;--line2:#363b4e;
+  --fg:#efe9dd;--fg2:#a6a3ab;--fg3:#71727f;
+  --accent:#f2704a;--accent-ink:#1a0d07;--honey:#f3b95f;--sage:#7fc29b;--red:#ff7a66;
+  --glow:rgba(243,185,95,.10);--shadow:0 40px 120px -30px rgba(0,0,0,.75),0 0 0 1px rgba(255,255,255,.06);
+  --f-display:"Bricolage Grotesque","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --f-body:"Geist",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  color-scheme:dark;
+  /* app window: the app's Honey tokens, fixed in both themes */
+  --a-bg:#FBF6EC;--a-paper:#FFFFFF;--a-panel:#F4ECDA;--a-ink:#2A2118;--a-ink2:#7C6F5F;--a-ink3:#B5A48E;
+  --a-line:#E8DFCC;--a-line2:#D7C9AA;--a-coral:#E55934;--a-coral-soft:#FDE3DA;--a-honey:#F3B95F;--a-honey-soft:#FBE9C6;
+  --a-sage:#5FA37C;--a-sage-soft:#D8ECDD;--a-lilac:#9E8FCF;--a-lilac-soft:#E8E2F5;--a-navy:#2C3E66;--a-navy-soft:#D9DFEB;
+  --a-red:#C9412A;--a-red-soft:#F6D9D2;--a-pink:#D86A8A;--a-sky:#7BAFD4;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scroll-padding-top:70px;-webkit-text-size-adjust:100%}
-body{
-  font-family:var(--sans);font-size:17px;line-height:1.62;color:var(--ink);background-color:var(--paper);
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .25 0 0 0 0 .16 0 0 0 0 .06 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>");
-  -webkit-font-smoothing:antialiased;overflow-x:hidden;
-}
-a{color:inherit}
-button{font:inherit;color:inherit;cursor:pointer}
-:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
-.page{max-width:1280px;margin:0 auto;padding:0 var(--gut)}
-.mono{font-family:var(--mono)}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-.kicker{font:500 12px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--coral-ink)}
-.cap-mono{font:400 12.5px/1.5 var(--mono);color:var(--ink2)}
-h1,h2,h3,.serif{font-family:var(--serif);font-weight:600;letter-spacing:-.02em}
-sup a{font:500 11px var(--mono);color:var(--coral-ink);text-decoration:none;padding:0 1px}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#e7e9ef;--bg2:#f3f4f8;--bg3:#dde0e8;--line:#cfd3dd;--line2:#b9bfcc;
+  --fg:#161822;--fg2:#4c5061;--fg3:#7a7e8e;
+  --accent:#c4441d;--accent-ink:#fff;--honey:#93600d;--sage:#2f7a51;--red:#b5321e;
+  --glow:rgba(229,89,52,.07);--shadow:0 40px 100px -40px rgba(30,34,60,.45),0 0 0 1px rgba(20,24,40,.08);
+  color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#e7e9ef;--bg2:#f3f4f8;--bg3:#dde0e8;--line:#cfd3dd;--line2:#b9bfcc;
+  --fg:#161822;--fg2:#4c5061;--fg3:#7a7e8e;
+  --accent:#c4441d;--accent-ink:#fff;--honey:#93600d;--sage:#2f7a51;--red:#b5321e;
+  --glow:rgba(229,89,52,.07);--shadow:0 40px 100px -40px rgba(30,34,60,.45),0 0 0 1px rgba(20,24,40,.08);
+  color-scheme:light}
 
-/* rules */
-.dbl{border-top:3px solid var(--rule);position:relative;padding-top:7px}
-.dbl::before{content:"";position:absolute;left:0;right:0;top:0;height:0}
-.dbl::after{content:"";position:absolute;left:0;right:0;top:3px;border-top:1px solid var(--rule);margin-top:3px}
-.dbl{padding-top:14px}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--honey);outline-offset:2px;border-radius:6px}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+.wrap{max-width:1240px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.02em}
+p{margin:0}
+.eyebrow{font:500 12px/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
+.mark{display:inline-block;width:28px;height:28px;flex:none}
 
 /* nav */
-.top{position:sticky;top:0;z-index:60;background:rgba(244,236,220,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule)}
-.top .page{display:flex;align-items:center;gap:24px;height:56px}
-.plate{font:800 21px var(--serif);letter-spacing:-.02em;text-decoration:none;display:flex;align-items:center;gap:10px;white-space:nowrap}
-.plate i{width:20px;height:20px;border-radius:50%;background:var(--coral);position:relative;display:block;flex:none}
-.plate i::after{content:"";position:absolute;right:3px;bottom:3px;width:7px;height:7px;border-radius:50%;background:var(--paper)}
-.top nav{margin-left:auto;display:flex;gap:22px;font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase}
-.top nav a{text-decoration:none;color:var(--ink2);padding:6px 0;border-bottom:2px solid transparent}
-.top nav a:hover{color:var(--ink);border-color:var(--coral)}
-.top nav a.btn{color:var(--paper);border:2px solid var(--ink)}
-.top nav a.btn:hover{color:var(--paper)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 24px;background:var(--ink);color:var(--paper);font:600 15px var(--sans);text-decoration:none;border:2px solid var(--ink);transition:transform .2s var(--ease),background .2s,color .2s;box-shadow:4px 4px 0 var(--coral)}
-.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--coral)}
-.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--coral)}
-.btn.alt{background:transparent;color:var(--ink);box-shadow:none}
-.btn.alt:hover{background:var(--paper2);box-shadow:none;transform:none}
-.btn.sm{min-height:40px;padding:0 16px;font-size:13px;box-shadow:3px 3px 0 var(--coral)}
-@media(max-width:860px){.top nav a:not(.btn){display:none}.top nav{gap:0}}
-
-/* strip */
-.strip{border-bottom:1px solid var(--hair);font:400 11.5px/1.4 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
-.strip .page{display:flex;justify-content:space-between;gap:16px;padding-top:9px;padding-bottom:9px;flex-wrap:wrap}
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:20px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:700 17px/1 var(--f-display);letter-spacing:-.01em}
+.nav-links{display:flex;gap:4px;margin-left:12px}
+.nav-links a{text-decoration:none;color:var(--fg2);font-size:14px;padding:6px 10px;border-radius:8px}
+.nav-links a:hover{color:var(--fg);background:var(--bg3)}
+.nav-end{margin-left:auto;display:flex;gap:8px;align-items:center}
+.kbtn{display:flex;align-items:center;gap:10px;border:1px solid var(--line2);background:var(--bg2);border-radius:10px;padding:6px 8px 6px 12px;color:var(--fg2);font-size:13px}
+.kbtn kbd,.kbd{font:500 11px/1 var(--f-mono);border:1px solid var(--line2);border-radius:5px;padding:3px 5px;color:var(--fg2);background:var(--bg)}
+.ibtn{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--line2);background:var(--bg2);border-radius:10px;color:var(--fg2)}
+.ibtn:hover,.kbtn:hover{color:var(--fg);border-color:var(--fg3)}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:12px;padding:12px 18px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid transparent;transition:transform .15s,background .15s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:color-mix(in srgb,var(--accent) 88%,var(--fg))}
+.btn-ghost{border-color:var(--line2);color:var(--fg)}
+.btn-ghost:hover{background:var(--bg3)}
+.btn-sm{padding:8px 13px;font-size:14px;border-radius:10px}
+@media (max-width:900px){.nav-links{display:none}}
+@media (max-width:520px){.kbtn span{display:none}.nav .btn-sm{display:none}}
 
 /* hero */
-.hero{padding:clamp(20px,3vw,40px) 0 clamp(20px,3vw,36px)}
-.hero-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;align-items:start}
-.hero h1{grid-column:1/9;grid-row:2;font-size:clamp(46px,7.6vw,112px);line-height:.93;font-weight:600;margin-top:18px;font-variation-settings:"opsz" 144}
-.hero h1 em{font-style:italic;font-weight:400;color:var(--coral)}
-.hero h1 .w{display:inline-block}
-.hero .deck{grid-column:9/13;grid-row:2/4;padding-top:6px}
-.hero .cta{grid-column:1/9;grid-row:3;margin-top:26px}
-.hero .deck>p:first-child{font-size:18px;line-height:1.55}
-.hero .deck>p:first-child::first-letter{font:600 4.3em/.78 var(--serif);float:left;padding:6px 8px 0 0;color:var(--coral)}
-.badge{display:inline-flex;align-items:center;gap:8px;font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--ink);padding:5px 10px;margin-top:18px;background:var(--paper)}
-.badge b{width:8px;height:8px;border-radius:50%;background:#2f9e63;display:block}
-.cta{display:flex;gap:16px;flex-wrap:wrap;margin-top:22px;align-items:center}
-.fine{font:400 12px/1.5 var(--mono);color:var(--ink2);margin-top:14px}
-.kick-row{grid-column:1/13;display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap}
-@media(max-width:960px){.hero h1,.hero .cta{grid-column:1/13}.hero .deck{grid-column:1/13;grid-row:auto;margin-top:24px}.hero .cta{grid-row:auto}}
-.js .hero h1 .w{opacity:0;transform:translateY(40px) rotate(1.5deg);animation:rise .9s var(--ease) forwards;animation-delay:calc(var(--i)*90ms + 100ms)}
-@keyframes rise{to{opacity:1;transform:none}}
+.hero{position:relative;padding-block:72px 40px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto;height:900px;background:radial-gradient(60% 50% at 50% 30%,var(--glow),transparent 70%);pointer-events:none}
+.hero-top{position:relative;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:40px;align-items:end}
+.hero h1{font-size:clamp(46px,8vw,116px);line-height:.92;font-weight:800;font-variation-settings:"wdth" 92;letter-spacing:-.028em}
+.hero h1 .crumbs{display:inline-flex;gap:.06em;vertical-align:baseline;margin-left:.04em}
+.hero h1 .crumbs i{display:inline-block;width:.16em;height:.16em;border-radius:50%;background:var(--accent)}
+.hero h1 .crumbs i:nth-child(2){background:var(--honey);width:.11em;height:.11em}
+.hero h1 .crumbs i:nth-child(3){background:var(--fg);width:.08em;height:.08em;opacity:.8}
+.hero-side{display:flex;flex-direction:column;gap:22px;padding-bottom:10px}
+.hero-side p{color:var(--fg2);font-size:18px;max-width:42ch}
+.hero-side p b{color:var(--fg);font-weight:500}
+.cta{display:flex;gap:10px;flex-wrap:wrap}
+.meta{display:flex;gap:8px 16px;flex-wrap:wrap;font:400 13px/1.4 var(--f-mono);color:var(--fg3)}
+.meta span{display:inline-flex;align-items:center;gap:6px}
+.meta .dot{width:7px;height:7px;border-radius:50%;background:var(--sage);box-shadow:0 0 0 3px color-mix(in srgb,var(--sage) 25%,transparent)}
+@media (max-width:900px){.hero-top{grid-template-columns:1fr;gap:28px}.hero{padding-block:48px 28px}}
 
-/* figure frame */
-.fig{margin:clamp(20px,3vw,40px) 0 0}
-.fig-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-top:3px solid var(--rule);padding-top:10px}
-.fig-no{font:600 22px var(--serif);font-style:italic}
-.fig-no span{font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;font-style:normal;margin-left:10px;color:var(--ink2)}
-.stamp{font:500 11.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--coral-ink);border:1.5px solid var(--coral-ink);padding:4px 9px;transform:rotate(-1.4deg);white-space:nowrap}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair);margin:10px 0 0}
-.stat{padding:10px 18px 10px 0;border-right:1px solid var(--hair);padding-left:18px}
-.stat:first-child{padding-left:0}
-.stat:last-child{border-right:0}
-.stat .k{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
-.stat .v{font:600 clamp(30px,3.6vw,46px)/1 var(--serif);letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:2px}
-.stat .v small{font-size:.42em;font-weight:400;letter-spacing:0;margin-left:3px;font-family:var(--mono)}
-.stat.sig .v{color:var(--coral)}
-.gauge{height:6px;background:var(--paper3);margin-top:0;position:relative;overflow:hidden}
-.gauge i{position:absolute;left:0;top:0;bottom:0;background:var(--ink);transition:width 1.2s var(--ease)}
-.crumbs{display:flex;align-items:center;gap:0;margin:12px 0 10px;flex-wrap:wrap;font:500 13px var(--mono)}
-.crumbs button{background:none;border:0;padding:8px 6px;min-height:36px;text-decoration:underline;text-decoration-color:var(--hair);text-underline-offset:4px;color:var(--ink)}
-.crumbs button:hover{text-decoration-color:var(--coral);color:var(--coral-ink)}
-.crumbs .sep{color:var(--ink3);padding:0 2px}
-.crumbs .cur{padding:8px 6px;font-weight:500;color:var(--ink)}
-.crumbs .hint{margin-left:auto;color:var(--ink2);font-weight:400;font-size:12px}
-.tm{position:relative;height:clamp(360px,54vh,560px);background:var(--paper2);outline-offset:6px}
-.cell{position:absolute;background:none;border:0;padding:0;text-align:left;overflow:visible;transition:left .7s var(--ease),top .7s var(--ease),width .7s var(--ease),height .7s var(--ease),opacity .45s,transform .45s var(--ease)}
-.nt .cell{transition:none}
-.cell .fill{position:absolute;inset:1.5px;background:var(--c);overflow:hidden;transition:filter .2s,box-shadow .2s}
-.cell.prot .fill{background-image:repeating-linear-gradient(45deg,rgba(23,18,13,.2) 0 1px,transparent 1px 8px)}
-.cell .band{position:absolute;left:0;right:0;bottom:0;height:0;background:var(--coral);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0) 0 7px,rgba(255,255,255,.22) 7px 9px);transition:height .7s var(--ease)}
-.cell .lab{position:absolute;left:10px;top:8px;right:8px;pointer-events:none;color:var(--ink);overflow:hidden}
-.cell .lab b{display:block;font:600 15px/1.15 var(--serif);letter-spacing:-.01em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cell .lab i{display:block;font:400 11.5px/1.5 var(--mono);font-style:normal;opacity:.85}
-.cell:hover .fill{filter:brightness(1.07)}
-.cell:hover,.cell:focus-visible{z-index:3}
-.cell:focus-visible{outline:none}
-.cell:hover .fill,.cell:focus-visible .fill{box-shadow:inset 0 0 0 3px var(--ink)}
-.cell.hl .fill{box-shadow:inset 0 0 0 3px var(--coral)}
-.cell.hl .band{animation:blink 1s ease-in-out infinite alternate}
-@keyframes blink{to{filter:brightness(1.18)}}
-.cell.drillable{cursor:zoom-in}
+/* stage + hint */
+.stage{position:relative;margin-top:52px}
+.hint{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;color:var(--fg3)}
+.hint b{color:var(--fg2);font-weight:500}
+.hint .sample{font-family:var(--f-mono);font-size:12px;border:1px dashed var(--line2);border-radius:999px;padding:3px 10px}
+
+/* ======== APP WINDOW (always Honey) ======== */
+.win{--r:14px;background:var(--a-bg);color:var(--a-ink);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;font:400 13px/1.45 var(--f-body);display:grid;grid-template-rows:auto 1fr;color-scheme:light}
+.win button{color:var(--a-ink)}
+.tbar{display:flex;align-items:center;gap:14px;height:46px;padding:0 14px;background:var(--a-panel);border-bottom:1px solid var(--a-line)}
+.lights{display:flex;gap:8px}
+.lights i{width:12px;height:12px;border-radius:50%;background:#ED6A5E;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+.lights i:nth-child(2){background:#F5BF4F}.lights i:nth-child(3){background:#61C554}
+.tbar .ttl{font-weight:600;font-size:13px;color:var(--a-ink2)}
+.tbar .ttl b{color:var(--a-ink);font-weight:600}
+.tbar .tsp{margin-left:auto;display:flex;gap:8px}
+.abtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--a-line2);background:var(--a-paper);border-radius:9px;padding:5px 11px;font-size:12.5px;font-weight:500}
+.abtn:hover{border-color:var(--a-ink3)}
+.abtn.pri{background:var(--a-coral);border-color:var(--a-coral);color:#fff}
+.abtn.pri:hover{background:#d14c29}
+.abtn[disabled]{opacity:.45;cursor:not-allowed}
+.abody{display:grid;grid-template-columns:200px minmax(0,1fr);min-height:640px}
+.side{background:var(--a-panel);border-right:1px solid var(--a-line);padding:14px 10px;display:flex;flex-direction:column;gap:2px}
+.side .lab{font:600 10.5px/1 var(--f-mono);letter-spacing:.12em;color:var(--a-ink3);padding:14px 10px 8px}
+.side .lab:first-child{padding-top:4px}
+.sitem{display:flex;align-items:center;gap:10px;border:0;background:none;text-align:left;padding:8px 10px;border-radius:9px;font-size:13px;color:var(--a-ink2);width:100%}
+.sitem svg{flex:none;opacity:.85}
+.sitem:hover{background:rgba(42,33,24,.05);color:var(--a-ink)}
+.sitem[aria-current="page"]{background:var(--a-paper);color:var(--a-ink);font-weight:600;box-shadow:0 0 0 1px var(--a-line)}
+.sitem .badge{margin-left:auto;font:500 10.5px/1 var(--f-mono);background:var(--a-coral-soft);color:var(--a-red);padding:3px 6px;border-radius:6px}
+.side .foot{margin-top:auto;padding:12px 10px 4px;font-size:11.5px;color:var(--a-ink3);line-height:1.5}
+.side .vol{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:10px;background:var(--a-paper);box-shadow:0 0 0 1px var(--a-line);margin:6px 0}
+.side .vol b{font-size:12.5px}
+.meter{height:6px;border-radius:99px;background:var(--a-line);overflow:hidden;display:flex}
+.meter i{display:block;height:100%;background:var(--a-ink);transition:width .6s cubic-bezier(.2,.8,.2,1)}
+.meter i.cf{background:var(--a-coral)}
+.side .vol small{color:var(--a-ink2);font-size:11.5px}
+
+.main{position:relative;min-width:0;overflow:hidden}
+.screen{padding:22px 24px 24px;display:none;animation:sIn .35s cubic-bezier(.2,.8,.2,1)}
+.screen.on{display:block}
+@keyframes sIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.shead h3{font:700 24px/1.1 var(--f-display);letter-spacing:-.02em;color:var(--a-ink)}
+.shead p{color:var(--a-ink2);font-size:13px;margin-top:4px}
+.card{background:var(--a-paper);border-radius:16px;box-shadow:0 0 0 1px var(--a-line);padding:16px 18px}
+.clab{font:600 10.5px/1 var(--f-mono);letter-spacing:.12em;color:var(--a-ink3);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.clab span{letter-spacing:0;text-transform:none;font-weight:500}
+
+/* overview */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.stat{padding:14px 16px}
+.stat .k{font-size:12px;color:var(--a-ink2);display:flex;align-items:center;gap:6px}
+.stat .k i{width:8px;height:8px;border-radius:3px;background:var(--a-ink)}
+.stat .v{font:700 26px/1.15 var(--f-display);letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:14px;font-weight:600;color:var(--a-ink2);margin-left:3px}
+.stat.cf{background:var(--a-coral-soft);box-shadow:0 0 0 1px #f6c7b8}
+.stat.cf .k{color:#9a3a1e}.stat.cf .k i{background:var(--a-coral)}
+.stat.cf .v{color:var(--a-red)}
+.ovgrid{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:14px}
+.tmcard{padding:14px 14px 12px;display:flex;flex-direction:column;min-width:0}
+.crumbbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-bottom:10px;min-height:26px}
+.crumbbar button{border:0;background:none;padding:3px 8px;border-radius:7px;font:500 12.5px/1.2 var(--f-body);color:var(--a-ink2)}
+.crumbbar button:hover{background:var(--a-panel);color:var(--a-ink)}
+.crumbbar button:last-child{color:var(--a-ink);font-weight:600;cursor:default;background:var(--a-panel)}
+.crumbbar .sep{width:4px;height:4px;border-radius:50%;background:var(--a-ink3)}
+.crumbbar .esc{margin-left:auto;font-size:11.5px;color:var(--a-ink3)}
+.tm{position:relative;flex:1;min-height:400px;border-radius:10px;overflow:hidden;background:var(--a-panel)}
+.cell{position:absolute;border:0;padding:0;margin:0;text-align:left;background:none;transition:left .55s cubic-bezier(.2,.8,.2,1),top .55s cubic-bezier(.2,.8,.2,1),width .55s cubic-bezier(.2,.8,.2,1),height .55s cubic-bezier(.2,.8,.2,1),opacity .35s}
+.cell .f{position:absolute;inset:1.5px;border-radius:7px;background:var(--c);overflow:hidden;transition:filter .15s,box-shadow .15s}
+.cell.prot .f{background:repeating-linear-gradient(135deg,var(--a-line2) 0 6px,#e2d6bd 6px 12px)}
+.cell .rb{position:absolute;left:0;right:0;bottom:0;height:var(--rp,0%);background:repeating-linear-gradient(135deg,var(--a-coral) 0 5px,#ef7a59 5px 10px);transition:height .5s}
+.cell.q .f{box-shadow:inset 0 0 0 2px var(--a-coral)}
+.cell.q.on .f{background:var(--a-coral)}
+.cell .t{position:absolute;left:9px;top:7px;right:8px;color:var(--tc,#2A2118);font-size:12.5px;line-height:1.2;pointer-events:none;overflow:hidden}
+.cell .t b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .t i{font-style:normal;font-family:var(--f-mono);font-size:11px;opacity:.78}
+.cell:hover .f,.cell:focus-visible .f{filter:brightness(1.07) saturate(1.08);box-shadow:inset 0 0 0 2px rgba(42,33,24,.55)}
+.cell:focus-visible{outline:0}
 .cell.leaf{cursor:default}
-.cap{display:flex;gap:24px;align-items:baseline;justify-content:space-between;flex-wrap:wrap;margin-top:10px;min-height:52px;border-bottom:1px solid var(--hair);padding-bottom:10px}
-.cap .path{font:500 14px var(--mono);word-break:break-all;flex:1 1 320px}
-.cap .path em{font:italic 400 14px var(--serif);color:var(--ink2);display:block;margin-top:2px}
-.cap .sz{font:600 26px var(--serif);letter-spacing:-.02em;white-space:nowrap}
-.cap .sz small{font:400 12px var(--mono);color:var(--ink2);margin-left:6px;letter-spacing:0}
-.srcline{font:400 11.5px/1.5 var(--mono);color:var(--ink3);margin-top:8px;letter-spacing:.02em}
-.legend{display:flex;gap:18px;flex-wrap:wrap;font:400 12px var(--mono);color:var(--ink2);margin-top:6px}
-.legend span::before{content:"";display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-2px;background:var(--coral)}
-.legend span.pr::before{background:var(--paper2);background-image:repeating-linear-gradient(45deg,rgba(23,18,13,.5) 0 1px,transparent 1px 4px);border:1px solid var(--hair)}
+.cell.flash .f{animation:flash .9s ease}
+@keyframes flash{30%{filter:brightness(1.25)}}
+.tmcap{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:10px 4px 0;min-height:44px}
+.tmcap .p{font-family:var(--f-mono);font-size:12px;color:var(--a-ink);word-break:break-all}
+.tmcap .p em{display:block;font-family:var(--f-body);font-style:normal;color:var(--a-ink2);font-size:12px;margin-top:2px;word-break:normal}
+.tmcap .s{font:700 18px/1 var(--f-display);white-space:nowrap;font-variant-numeric:tabular-nums}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--a-ink2);padding:6px 4px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px}
+.rcol{display:flex;flex-direction:column;gap:14px;min-width:0}
+.qw{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.qw li label{display:grid;grid-template-columns:18px 1fr auto;gap:10px;align-items:center;padding:8px;border-radius:10px;cursor:pointer}
+.qw li label:hover{background:var(--a-bg)}
+.qw li.gone{opacity:.45}
+.qw li.gone b{text-decoration:line-through}
+.qw b{display:block;font-weight:600;font-size:13px}
+.qw small{display:block;color:var(--a-ink2);font-size:11.5px}
+.qw .gb{font:600 13px/1 var(--f-mono);font-variant-numeric:tabular-nums}
+.cb{appearance:none;-webkit-appearance:none;width:18px;height:18px;border-radius:6px;border:1.5px solid var(--a-line2);background:var(--a-paper);display:grid;place-items:center;margin:0;cursor:pointer}
+.cb:checked{background:var(--a-coral);border-color:var(--a-coral)}
+.cb:checked::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.cb:focus-visible{outline:2px solid var(--a-navy);outline-offset:2px}
+.reclaim{margin-top:10px;width:100%;justify-content:center;padding:10px;font-size:13.5px;font-weight:600;border-radius:11px}
+.qnote{font-size:11px;color:var(--a-ink3);margin-top:8px;line-height:1.45}
+.bt{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px}
+.bt li{display:grid;grid-template-columns:10px 1fr auto;gap:9px;align-items:center;font-size:12.5px}
+.bt li i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.bt li span{font-family:var(--f-mono);font-size:11.5px;color:var(--a-ink2);font-variant-numeric:tabular-nums}
 
-/* quick wins */
-.qw{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;margin-top:clamp(28px,4vw,48px);border-top:3px solid var(--rule);padding-top:12px}
-.qw .intro{grid-column:1/5}
-.qw .intro h2{font-size:clamp(28px,3.2vw,44px);line-height:1.02;margin:8px 0 12px}
-.qw .intro p{font-size:15.5px;color:var(--ink2)}
-.qw .panel{grid-column:5/13;border:2px solid var(--ink);background:var(--paper);position:relative;padding:6px 20px 20px}
-.qw .panel::before{content:"";position:absolute;inset:4px;border:1px solid var(--hair);pointer-events:none}
-.qw ul{list-style:none}
-.qw li{display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--hair);padding:12px 0;min-height:64px;position:relative}
-.qw li label{display:flex;align-items:center;gap:14px;flex:1;cursor:pointer;min-height:44px}
-.qw input{appearance:none;width:24px;height:24px;border:2px solid var(--ink);background:var(--paper);flex:none;cursor:pointer;display:grid;place-items:center;margin:0}
-.qw input:checked{background:var(--coral);border-color:var(--ink)}
-.qw input:checked::after{content:"";width:11px;height:6px;border-left:2.5px solid var(--ink);border-bottom:2.5px solid var(--ink);transform:rotate(-45deg) translate(1px,-1px)}
-.qw input:disabled{opacity:.5;cursor:default}
-.qw input:focus-visible{outline:2px solid var(--coral);outline-offset:3px}
-.qw li b{display:block;font:600 19px/1.15 var(--serif);letter-spacing:-.01em}
-.qw li small{display:block;font:400 12.5px/1.4 var(--mono);color:var(--ink2);margin-top:2px}
-.qw li .n{font:600 24px var(--serif);letter-spacing:-.02em;white-space:nowrap;font-variant-numeric:tabular-nums}
-.qw li .n small{display:inline;font-size:12px;color:var(--ink2);margin-left:3px}
-.qw li:hover{background:rgba(229,89,52,.07)}
-.qw .act{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:16px;flex-wrap:wrap}
-.qw .act p{font:400 12.5px/1.5 var(--mono);color:var(--ink2);max-width:44ch}
-.reclaim{min-height:56px;font-size:17px;padding:0 28px;background:var(--coral);color:var(--ink);border-color:var(--ink);box-shadow:4px 4px 0 var(--ink)}
-.reclaim:hover{box-shadow:6px 6px 0 var(--ink)}
-.reclaim:disabled{background:var(--paper3);cursor:default;transform:none;box-shadow:none;color:var(--ink2)}
-@media(max-width:960px){.qw .intro,.qw .panel{grid-column:1/13}.qw .panel{margin-top:18px}}
+/* start */
+.start{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start;padding-top:18px}
+.start h4{font:800 46px/.98 var(--f-display);letter-spacing:-.035em;margin:0 0 14px;font-variation-settings:"wdth" 85}
+.start p.lead{color:var(--a-ink2);font-size:14px;max-width:38ch;margin-bottom:22px}
+.vols{display:flex;flex-direction:column;gap:10px}
+.volrow{display:grid;grid-template-columns:40px 1fr auto;gap:14px;align-items:center;padding:14px}
+.volrow .ic{width:40px;height:40px;border-radius:11px;background:var(--a-panel);display:grid;place-items:center}
+.volrow b{font-size:14px}
+.volrow small{display:block;color:var(--a-ink2);font-size:12px;margin:2px 0 8px}
+.volrow .pc{font:700 20px/1 var(--f-display)}
+.lastscans{list-style:none;margin:0;padding:0}
+.lastscans li{display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-top:1px solid var(--a-line);font-size:12.5px}
+.lastscans li:first-child{border-top:0}
+.lastscans li span{color:var(--a-ink2);font-family:var(--f-mono);font-size:11.5px}
 
-.toast{position:fixed;left:12px;right:12px;margin:0 auto;width:fit-content;bottom:22px;transform:translateY(160%);z-index:90;background:var(--ink);color:var(--paper);display:flex;align-items:center;gap:18px;padding:12px 12px 12px 20px;box-shadow:6px 6px 0 var(--coral);transition:transform .5s var(--ease);max-width:calc(100vw - 24px)}
-.toast.on{transform:none}
-.toast p{font:500 14px/1.4 var(--sans)}
-.toast p small{display:block;font:400 11.5px var(--mono);opacity:.75}
-.toast button{min-height:44px;min-width:76px;padding:0 16px;background:var(--paper);color:var(--ink);border:0;font:600 14px var(--sans)}
-.toast button:hover{background:var(--coral)}
-
-/* sections */
-section{padding:clamp(52px,8vw,112px) 0 0}
-.sh{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;border-top:3px solid var(--rule);padding-top:12px;position:relative}
-.sh::after{content:"";position:absolute;left:0;right:0;top:3px;border-top:1px solid var(--rule);margin-top:3px}
-.sh .kicker{grid-column:1/13;margin-top:14px}
-.sh h2{grid-column:1/9;font-size:clamp(34px,5.6vw,80px);line-height:.98;margin-top:8px;font-variation-settings:"opsz" 144}
-.sh h2 em{font-weight:400;font-style:italic;color:var(--coral)}
-.sh .lede{grid-column:9/13;align-self:end;font-size:16px;color:var(--ink2);padding-bottom:6px}
-@media(max-width:960px){.sh h2,.sh .lede{grid-column:1/13}.sh .lede{margin-top:16px}}
-.rv{transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--d,0s)}
-.js .rv{opacity:0;transform:translateY(26px)}
-.js .rv.in{opacity:1;transform:none}
-
-/* numbers */
-.nums{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--hair);border-bottom:3px double var(--rule);margin-top:clamp(40px,6vw,80px)}
-.num{padding:26px 20px 24px;border-right:1px solid var(--hair)}
-.num:first-child{padding-left:0}.num:last-child{border-right:0}
-.num .big{font:600 clamp(54px,8vw,120px)/.9 var(--serif);letter-spacing:-.04em;font-variation-settings:"opsz" 144;font-variant-numeric:lining-nums}
-.num .big small{font-size:.32em;letter-spacing:0;font-weight:400;font-style:italic;margin-left:4px}
-.num p{font-size:14.5px;color:var(--ink2);max-width:24ch;margin-top:10px;line-height:1.45}
-.num:nth-child(1) .big{color:var(--coral)}
-@media(max-width:860px){.nums{grid-template-columns:1fr 1fr}.num{border-bottom:1px solid var(--hair);padding-left:0}.num:nth-child(2n){border-right:0;padding-left:20px}.num:nth-child(n+3){border-bottom:0}}
-
-/* article layout with marginalia */
-.art{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;margin-top:clamp(28px,4vw,48px)}
-.art .margin{grid-column:1/4;font-size:13.5px;color:var(--ink2);line-height:1.5}
-.art .margin .note{border-top:1px solid var(--rule);padding-top:8px;margin-bottom:26px}
-.art .margin .note b{display:block;font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--coral-ink);margin-bottom:4px}
-.art .body{grid-column:4/13}
-@media(max-width:960px){.art .margin,.art .body{grid-column:1/13}.art .margin{display:grid;grid-template-columns:1fr 1fr;gap:0 20px;margin-top:16px}}
-@media(max-width:560px){.art .margin{grid-template-columns:1fr}}
-.cols2{columns:2 300px;column-gap:36px;column-rule:1px solid var(--hair)}
-.cols2 p{margin-bottom:1em;text-align:left;hyphens:auto}
-.dc::first-letter{font:600 5.6em/.78 var(--serif);float:left;padding:8px 12px 0 0;color:var(--coral)}
-.pull{font:400 clamp(26px,3.6vw,46px)/1.12 var(--serif);font-style:italic;letter-spacing:-.02em;border-top:3px solid var(--rule);border-bottom:1px solid var(--rule);padding:18px 0 16px;margin:28px 0;break-inside:avoid;column-span:all}
-.pull cite{display:block;font:500 11.5px var(--mono);font-style:normal;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-top:10px}
-.pull em{color:var(--coral)}
-
-/* pipeline sticky scene */
-.scene{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;margin-top:clamp(36px,5vw,64px);align-items:start}
-.scene .stick{grid-column:1/7;position:sticky;top:84px}
-.scene .steps{grid-column:8/13}
-.step{min-height:46vh;padding:6px 0 40px;transition:opacity .5s}
-.pipejs .step{opacity:.38}
-.pipejs .step.on{opacity:1}
-.step .no{font:italic 600 clamp(44px,5vw,72px)/1 var(--serif);color:var(--coral);letter-spacing:-.03em}
-.step h3{font-size:clamp(24px,2.6vw,34px);line-height:1.08;margin:6px 0 10px}
-.step p{font-size:16px;color:var(--ink2);max-width:46ch}
-.step code{font:400 13px var(--mono);background:var(--paper2);padding:1px 5px}
-.pipe svg{width:100%;height:auto;display:block;overflow:visible}
-.pipe .st rect{fill:var(--paper);stroke:var(--ink);stroke-width:1.6;transition:fill .5s}
-.pipe .st.on rect{fill:var(--coral)}
-.pipe .st text{fill:var(--ink);font-family:var(--mono)}
-.pipe .st .t1{font:italic 600 21px var(--serif)}
-.pipe .st .t2{font-size:12px}
-.pipe .ar{stroke:var(--ink);stroke-width:1.6;fill:none;stroke-dasharray:5 6;animation:flow 1.4s linear infinite}
-@keyframes flow{to{stroke-dashoffset:-22}}
-.pipe .loop{stroke:var(--coral-ink)}
-.pipe .lt{font:400 11px var(--mono);fill:var(--coral-ink)}
-@media(max-width:960px){.scene .stick{grid-column:1/13;position:static}.scene .steps{grid-column:1/13;margin-top:20px}.step{min-height:0;opacity:1!important;padding-bottom:26px;border-top:1px solid var(--hair);padding-top:14px}.pipe .st rect{fill:var(--paper)}}
+/* scanning */
+.scanwrap{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;padding-top:6px}
+.ring{position:relative;width:220px;height:220px;margin:8px auto 0}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .pct{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .pct b{font:800 58px/1 var(--f-display);letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.ring .pct b small{font-size:22px}
+.ring .pct .sub{display:block;font-size:12px;color:var(--a-ink2);margin-top:4px;font-variant-numeric:tabular-nums}
+.nowscan{margin:20px 0 0;text-align:center}
+.nowscan small{display:block;font:600 10.5px/1 var(--f-mono);letter-spacing:.12em;color:var(--a-ink3);margin-bottom:6px}
+.nowscan code{display:block;font-size:12px;color:var(--a-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scanbtns{display:flex;gap:8px;justify-content:center;margin-top:18px}
+.biggest{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.biggest li{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12.5px;animation:sIn .4s}
+.biggest li b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.biggest li span{font-family:var(--f-mono);font-size:11.5px}
+.biggest li .meter{grid-column:1/-1;height:5px}
+.biggest li .meter i{background:var(--c)}
+.biggest .empty{color:var(--a-ink3);font-size:12px}
 
 /* groups */
-.groups{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;margin-top:clamp(28px,4vw,48px)}
-.groups .side{grid-column:1/4}
-.groups .chart{grid-column:4/13}
-.tbl{width:100%;border-collapse:collapse;font:400 13px var(--mono);margin-top:14px}
-.tbl th{font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;text-align:left;color:var(--ink2);border-bottom:1px solid var(--rule);padding:6px 0}
-.tbl td{padding:7px 0;border-bottom:1px solid var(--hair)}
-.tbl td:last-child,.tbl th:last-child{text-align:right}
-.tbl tr.on td{color:var(--coral-ink)}
-.bub{border-top:1px solid var(--rule);background:var(--paper2);position:relative}
-.bub svg{display:block;width:100%;height:auto;touch-action:pan-y}
-.bub g.b{cursor:default;outline:none}
-.bub g.b circle{stroke:var(--ink);stroke-width:1.4;transition:stroke-width .2s}
-.bub g.b:hover circle,.bub g.b:focus-visible circle,.bub g.b.on circle{stroke-width:4}
-.bub text{pointer-events:none;fill:var(--ink)}
-.bub .nm{font:500 14px var(--mono)}
-.bub .vl{font:italic 600 24px var(--serif);letter-spacing:-.02em}
-@media(max-width:960px){.groups .side,.groups .chart{grid-column:1/13}.groups .side{margin-bottom:20px}}
+.ggrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px}
+.bub{position:relative;height:420px}
+.bub svg{width:100%;height:100%;display:block}
+.bub circle{cursor:pointer;transition:transform .25s}
+.bub g.b:hover circle,.bub g.b.on circle{stroke:var(--a-ink);stroke-width:2}
+.bub text{pointer-events:none;font-family:var(--f-body);fill:var(--a-ink)}
+.gfilter{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--a-line2);background:var(--a-paper);border-radius:999px;padding:4px 11px;font-size:12px}
+.chip[aria-pressed="true"]{background:var(--a-ink);border-color:var(--a-ink);color:var(--a-bg)!important}
+.glist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.glist>li{border-top:1px solid var(--a-line)}
+.glist>li:first-child{border-top:0}
+.grow{display:grid;grid-template-columns:18px minmax(0,1fr) auto 18px;gap:10px;align-items:center;padding:9px 4px}
+.grow .nm{min-width:0}
+.grow .nm b{font-family:var(--f-mono);font-size:12.5px;font-weight:500}
+.grow .nm small{display:block;color:var(--a-ink2);font-size:11.5px}
+.grow .nm .meter{margin-top:5px;height:4px}
+.grow .nm .meter i{background:var(--c)}
+.grow .sz{font:600 13px/1 var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.grow .exp{border:0;background:none;padding:0;width:18px;height:18px;display:grid;place-items:center;color:var(--a-ink2);transition:transform .2s}
+.glist li.open .exp{transform:rotate(90deg)}
+.stale{display:inline-block;font:600 9.5px/1 var(--f-mono);letter-spacing:.06em;background:var(--a-honey-soft);color:#8a5a10;padding:2px 5px;border-radius:4px;margin-left:6px;vertical-align:1px}
+.inst{display:none;list-style:none;margin:0 0 8px 28px;padding:0}
+.glist li.open .inst{display:block}
+.inst li{display:flex;justify-content:space-between;gap:10px;font-family:var(--f-mono);font-size:11.5px;color:var(--a-ink2);padding:3px 0;min-width:0}
+.inst li span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gfoot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--a-line);font-size:12.5px;color:var(--a-ink2);flex-wrap:wrap}
 
-/* filetypes */
-.ft{margin-top:clamp(28px,4vw,48px)}
-.bar{display:flex;height:clamp(84px,12vw,150px);border:2px solid var(--ink);clip-path:inset(0 0 0 0);list-style:none;background:var(--paper2)}
-.js .bar{clip-path:inset(0 100% 0 0);transition:clip-path 1.9s cubic-bezier(.6,.1,.2,1)}
-.js .bar.in{clip-path:inset(0 0 0 0)}
-.bar li{flex:var(--v) 1 0;min-width:0;background:var(--c);border-right:1.5px solid var(--ink);padding:10px 12px;font:600 clamp(14px,1.5vw,20px)/1.1 var(--serif);overflow:hidden;white-space:nowrap;cursor:default;transition:filter .2s;position:relative}
-.bar li:last-child{border-right:0}
-.bar li small{display:block;font:400 11.5px var(--mono);margin-top:3px}
-.bar li.tiny{font-size:0;padding:0}
-.bar li.tiny small{display:none}
-.bar li.on,.bar li:hover{filter:brightness(1.08) saturate(1.1)}
-.ftl{display:grid;grid-template-columns:repeat(4,1fr);gap:0 24px;margin-top:20px;list-style:none}
-.ftl li{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--hair);font:400 13.5px var(--mono);cursor:default}
-.ftl li i{width:14px;height:14px;background:var(--c);border:1px solid var(--ink);display:block;transform:translateY(2px)}
-.ftl li b{font:600 18px var(--serif)}
-.ftl li span:last-child{color:var(--ink2)}
-.ftl li.on{background:rgba(229,89,52,.1)}
-@media(max-width:860px){.ftl{grid-template-columns:1fr 1fr}.bar li small,.bar li:nth-child(n+4){font-size:0}.bar li:nth-child(n+4) small{display:none}}
-@media(max-width:520px){.ftl{grid-template-columns:1fr}}
+/* types */
+.tbar2{display:flex;height:74px;border-radius:12px;overflow:hidden;gap:2px;background:var(--a-panel)}
+.tbar2 button{border:0;flex:var(--v) 1 0;min-width:6px;background:var(--c);position:relative;padding:0;transition:flex-grow .45s cubic-bezier(.2,.8,.2,1),filter .2s}
+.tbar2 button span{position:absolute;left:10px;bottom:8px;font-size:12px;font-weight:600;color:var(--tc,#2A2118);white-space:nowrap}
+.tbar2 button:hover{filter:brightness(1.07)}
+.tbar2.focus button{filter:saturate(.25) opacity(.55)}
+.tbar2.focus button.on{filter:none}
+.tcards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+.tcard{border:0;text-align:left;padding:12px 14px;border-radius:14px;background:var(--a-paper);box-shadow:0 0 0 1px var(--a-line);display:flex;flex-direction:column;gap:6px}
+.tcard .tt{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600}
+.tcard .tt i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.tcard .tv{font:700 20px/1 var(--f-display);font-variant-numeric:tabular-nums}
+.tcard .tv small{font-size:12px;color:var(--a-ink2);font-weight:500;margin-left:4px}
+.tcard.on{box-shadow:0 0 0 2px var(--a-ink)}
+.heavy{margin-top:14px}
+.heavy ol{margin:0;padding:0;list-style:none;counter-reset:h}
+.heavy li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;padding:8px 2px;border-top:1px solid var(--a-line);font-size:12.5px;counter-increment:h;align-items:center}
+.heavy li:first-child{border-top:0}
+.heavy li::before{content:counter(h);font:500 11px/1 var(--f-mono);color:var(--a-ink3)}
+.heavy li b{font-weight:500;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heavy li small{display:block;font-family:var(--f-mono);font-size:11px;color:var(--a-ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heavy li span{font:600 12.5px/1 var(--f-mono)}
 
 /* history */
-.hist{margin-top:clamp(28px,4vw,48px);display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;position:relative}
-.hist .plot{grid-column:1/9}
-.hist .calls{grid-column:9/13;padding-left:34px}
-.hist svg.ch{display:block;width:100%;height:auto;overflow:visible}
-.ch .grid line{stroke:var(--hair);stroke-width:1}
-.ch .ax text{font:400 11px var(--mono);fill:var(--ink2)}
-.ch .capline line{stroke:var(--coral-ink);stroke-width:1.2;stroke-dasharray:4 4}
-.ch .capline text{fill:var(--coral-ink);font:500 11px var(--mono)}
-.ch .area{fill:var(--violet);opacity:.55}
-.ch .line{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round}
-.ch .pt{fill:var(--paper);stroke:var(--ink);stroke-width:1.8;transition:opacity .3s}
-.ch .pt.last{fill:var(--coral);r:7}
-.calls h3{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin:0 0 6px}
-.co{border-top:1px solid var(--rule);padding:9px 0 11px;margin-bottom:6px;position:relative}
-.co b{display:block;font:600 21px/1 var(--serif);letter-spacing:-.02em}
-.co.up b{color:var(--coral-ink)}
-.co.dn b{color:#2c6a4a}
-.co span{font:400 12.5px/1.4 var(--mono);color:var(--ink2);word-break:break-all}
-.calls .grp{margin-bottom:18px}
-.calls .net{font:italic 400 17px var(--serif);border-top:3px double var(--rule);padding-top:10px}
-.leaders{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
-.leaders path{fill:none;stroke-width:1.4}
-.leaders circle{stroke:none}
-@media(max-width:960px){.hist .plot,.hist .calls{grid-column:1/13}.hist .calls{padding-left:0;margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.leaders{display:none}.calls .net{grid-column:1/3}}
-@media(max-width:560px){.hist .calls{grid-template-columns:1fr}.calls .net{grid-column:1}}
+.hgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
+.hchart{position:relative;height:330px;touch-action:pan-y}
+.hchart svg{width:100%;height:100%;display:block;overflow:visible}
+.hchart .grid line{stroke:var(--a-line)}
+.hchart .ax text{fill:var(--a-ink3);font:11px var(--f-mono)}
+.hchart .area{fill:url(#hgrad)}
+.hchart .line{fill:none;stroke:var(--a-coral);stroke-width:2.5;stroke-linejoin:round}
+.hchart .cap line{stroke:var(--a-ink2);stroke-dasharray:4 4}
+.hchart .cap text{fill:var(--a-ink2);font:11px var(--f-body)}
+.hchart .pt{fill:var(--a-paper);stroke:var(--a-coral);stroke-width:2}
+.hchart .pt.end{fill:var(--a-coral)}
+.hchart .scrub line{stroke:var(--a-ink);stroke-width:1}
+.hchart .scrub circle{fill:var(--a-ink)}
+.htip{position:absolute;pointer-events:none;background:var(--a-ink);color:var(--a-bg);border-radius:8px;padding:6px 9px;font-size:12px;white-space:nowrap;transform:translate(-50%,-115%);opacity:0;transition:opacity .15s}
+.htip b{font-family:var(--f-mono);font-weight:500}
+.diff{list-style:none;margin:0;padding:0}
+.diff li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;padding:7px 0;border-top:1px solid var(--a-line);font-size:12px}
+.diff li:first-child{border-top:0}
+.diff li b{font:600 12.5px/1.4 var(--f-mono);font-variant-numeric:tabular-nums}
+.diff li span{font-family:var(--f-mono);font-size:11.5px;color:var(--a-ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.up b{color:var(--a-red)}.dn b{color:var(--a-sage)}
+.net{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--a-bg);font-size:12.5px;display:flex;justify-content:space-between}
+.net b{font-family:var(--f-mono)}
+
+/* settings */
+.sgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--a-line)}
+.srow:first-of-type{border-top:0}
+.srow b{font-weight:600;font-size:13px;display:block}
+.srow small{color:var(--a-ink2);font-size:11.5px;display:block}
+.tog{appearance:none;-webkit-appearance:none;width:36px;height:21px;border-radius:99px;background:var(--a-line2);position:relative;cursor:pointer;margin:0;transition:background .2s}
+.tog::after{content:"";position:absolute;top:2.5px;left:2.5px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .2s}
+.tog:checked{background:var(--a-sage)}
+.tog:checked::after{transform:translateX(15px)}
+.tog:disabled{cursor:not-allowed;opacity:.8}
+.tog:focus-visible{outline:2px solid var(--a-navy);outline-offset:2px}
+.plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.plist li{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--f-mono);font-size:12px;background:var(--a-bg);border-radius:8px;padding:6px 10px;animation:sIn .3s}
+.plist li em{font-style:normal;font-family:var(--f-body);font-size:11px;color:var(--a-ink3)}
+.plist li button{border:0;background:none;color:var(--a-ink3);font-size:15px;line-height:1;padding:0 2px}
+.padd{display:flex;gap:6px;margin-top:8px}
+.padd input{flex:1;min-width:0;border:1px solid var(--a-line2);background:var(--a-paper);border-radius:9px;padding:6px 10px;font:12px var(--f-mono);color:var(--a-ink)}
+.padd input:focus{outline:2px solid var(--a-navy);outline-offset:-1px}
+.sel{border:1px solid var(--a-line2);background:var(--a-paper);border-radius:8px;padding:4px 8px;font-size:12px;color:var(--a-ink)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:12.5px}
+.kv dt{color:var(--a-ink2)}.kv dd{margin:0;font-family:var(--f-mono);font-size:12px}
+
+/* toast */
+.toast{position:absolute;left:50%;bottom:18px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:var(--a-ink);color:var(--a-bg);border-radius:12px;padding:10px 10px 10px 16px;display:flex;align-items:center;gap:14px;font-size:13px;box-shadow:0 12px 30px -8px rgba(42,33,24,.5);transition:opacity .25s,transform .25s;z-index:5;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.toast button{border:0;background:var(--a-honey);color:var(--a-ink)!important;border-radius:8px;padding:5px 11px;font-weight:600;font-size:12.5px;white-space:nowrap}
+.toast button[hidden]{display:none}
+
+/* sheet */
+.sheet{position:absolute;inset:0;background:rgba(42,33,24,.32);display:grid;place-items:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:6;padding:16px}
+.sheet.on{opacity:1;pointer-events:auto}
+.sheet .card{width:min(420px,100%);padding:20px 22px;box-shadow:0 30px 60px -20px rgba(42,33,24,.45),0 0 0 1px var(--a-line);transform:translateY(10px);transition:transform .25s}
+.sheet.on .card{transform:none}
+.sheet h5{font:700 19px/1.2 var(--f-display);margin:0 0 6px}
+.sheet p{color:var(--a-ink2);font-size:13px;margin-bottom:14px}
+.sheet ul{list-style:none;margin:0 0 16px;padding:0;font-family:var(--f-mono);font-size:12px}
+.sheet ul li{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--a-line)}
+.sheet .row{display:flex;gap:8px;justify-content:flex-end}
+
+@media (max-width:1080px){.ovgrid{grid-template-columns:1fr}.rcol{display:grid;grid-template-columns:1fr 1fr}}
+@media (max-width:820px){
+  .abody{grid-template-columns:1fr;min-height:0}
+  .side{flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--a-line);padding:8px;gap:4px;scrollbar-width:none}
+  .side::-webkit-scrollbar{display:none}
+  .side .lab,.side .foot,.side .vol{display:none}
+  .sitem{width:auto;white-space:nowrap;flex:none}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ggrid,.hgrid,.sgrid,.start,.scanwrap{grid-template-columns:1fr}
+  .tcards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .screen{padding:16px 14px 18px}
+  .tm{height:340px}
+  .bub{height:340px}
+  .tbar .ttl{display:none}
+}
+@media (max-width:560px){.rcol{grid-template-columns:1fr}.start h4{font-size:36px}.tbar2 button span{display:none}.tbar .tsp .abtn:not(.pri){display:none}}
+
+/* ======== page sections ======== */
+section.blk{padding-block:120px 40px}
+.shd{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 48px;align-items:end;margin-bottom:44px}
+.shd h2{font-size:clamp(36px,5.2vw,70px);line-height:.97;font-weight:800;font-variation-settings:"wdth" 92;letter-spacing:-.025em}
+.shd p{color:var(--fg2);font-size:17px;max-width:52ch}
+.shd .eyebrow{grid-column:1/-1;margin-bottom:-8px}
+@media (max-width:820px){.shd{grid-template-columns:1fr}section.blk{padding-block:84px 24px}}
+
+/* facts strip */
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-block:1px solid var(--line);margin-top:56px}
+.fact{padding:26px 22px;border-left:1px solid var(--line)}
+.fact:first-child{border-left:0;padding-left:0}
+.fact b{display:block;font:800 clamp(34px,4.2vw,54px)/1 var(--f-display);letter-spacing:-.025em;font-variation-settings:"wdth" 92;font-variant-numeric:tabular-nums}
+.fact b em{font-style:normal;color:var(--honey)}
+.fact span{display:block;color:var(--fg2);font-size:14px;margin-top:10px;max-width:24ch}
+.src{font-size:12px;color:var(--fg3);margin-top:12px}
+@media (max-width:820px){.facts{grid-template-columns:1fr 1fr}.fact:nth-child(3){border-left:0;padding-left:0}.fact:nth-child(n+3){border-top:1px solid var(--line)}}
+
+/* pipeline */
+.pipe{border:1px solid var(--line);border-radius:22px;background:var(--bg2);overflow:hidden}
+.pipe-canvas{position:relative;height:260px;border-bottom:1px solid var(--line)}
+.pipe-canvas canvas{position:absolute;inset:0;width:100%;height:100%}
+.pnodes{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;pointer-events:none}
+.pnode{justify-self:center;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.pnode .ic{width:76px;height:76px;border-radius:22px;background:var(--bg);border:1px solid var(--line2);display:grid;place-items:center;color:var(--fg);transition:border-color .3s,box-shadow .3s}
+.pnode.on .ic{border-color:var(--honey);box-shadow:0 0 0 6px color-mix(in srgb,var(--honey) 16%,transparent)}
+.pnode b{font:600 14px/1.2 var(--f-body)}
+.pnode small{font:400 12px/1 var(--f-mono);color:var(--fg3)}
+.gauges{position:absolute;left:20px;right:20px;top:16px;display:flex;justify-content:space-between;gap:16px;font:400 12px/1.3 var(--f-mono);color:var(--fg3);pointer-events:none}
+.gauges b{display:block;font:700 22px/1.1 var(--f-display);color:var(--fg);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.gauges .mem{text-align:right}
+.gauges .mem i{display:block;width:140px;height:6px;border-radius:9px;background:var(--line);margin:6px 0 0 auto;overflow:hidden}
+.gauges .mem i::after{content:"";display:block;height:100%;width:22%;background:var(--sage);border-radius:9px}
+.psteps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.pstep{border:0;background:none;text-align:left;display:flex;flex-direction:column;justify-content:flex-start;padding:22px 24px 26px;border-left:1px solid var(--line);color:var(--fg);position:relative}
+.pstep:first-child{border-left:0}
+.pstep::before{content:"";position:absolute;left:0;right:0;top:-1px;height:2px;background:var(--honey);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+.pstep[aria-pressed="true"]::before{transform:scaleX(1)}
+.pstep .n{font:500 12px/1 var(--f-mono);color:var(--fg3)}
+.pstep h3{font:700 20px/1.15 var(--f-display);margin:10px 0 8px;letter-spacing:-.015em}
+.pstep p{color:var(--fg2);font-size:14px;line-height:1.55}
+.pstep[aria-pressed="true"] .n{color:var(--honey)}
+.pstep:hover h3{color:var(--honey)}
+.stack{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.stack span{font:400 13px/1 var(--f-mono);border:1px solid var(--line2);border-radius:999px;padding:7px 12px;color:var(--fg2)}
+@media (max-width:820px){.psteps{grid-template-columns:1fr 1fr}.pstep:nth-child(3){border-left:0}.pstep:nth-child(n+3){border-top:1px solid var(--line)}.pnode .ic{width:54px;height:54px;border-radius:16px}.pnode small{display:none}.pnode b{font-size:12px}.gauges .mem i{width:90px}.pipe-canvas{height:260px}}
+@media (max-width:480px){.psteps{grid-template-columns:1fr}.pstep{border-left:0!important;border-top:1px solid var(--line)}.pstep:first-child{border-top:0}}
 
 /* safety */
-.safe{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;margin-top:clamp(28px,4vw,48px)}
-.safe .pq{grid-column:1/7}
-.safe .ledger{grid-column:8/13}
-.flow{display:flex;flex-wrap:wrap;gap:0;margin-top:22px;list-style:none;font:500 12.5px var(--mono)}
-.flow li{border:1.5px solid var(--ink);padding:10px 14px;margin:0 -1.5px -1.5px 0;background:var(--paper);min-height:44px;display:flex;align-items:center}
-.flow li:nth-child(3){background:var(--sage)}
-.flow li:last-child{background:var(--coral)}
-.ledger{border:2px solid var(--ink);padding:18px 20px;background:var(--paper);position:relative}
-.ledger h3{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px}
-.ledger ul{list-style:none}
-.ledger li{font:500 15px var(--mono);padding:11px 12px;margin-bottom:6px;background-image:repeating-linear-gradient(45deg,rgba(23,18,13,.16) 0 1px,transparent 1px 8px);border:1px solid var(--hair);display:flex;justify-content:space-between;gap:10px}
-.ledger li small{font-size:11px;color:var(--ink2);align-self:center;text-transform:uppercase;letter-spacing:.08em}
-.ledger li.own{background:none;border:1.5px dashed var(--ink);font-family:var(--sans);font-weight:500;font-size:14.5px}
-.ledger p{font-size:14px;color:var(--ink2);margin-top:10px}
-@media(max-width:960px){.safe .pq,.safe .ledger{grid-column:1/13}.safe .ledger{margin-top:22px}}
+.safe{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px}
+.pen{border:1px solid var(--line);border-radius:22px;background:var(--bg2);padding:24px;position:relative;min-width:0}
+.pen h3{font:700 22px/1.2 var(--f-display);letter-spacing:-.015em}
+.pen>p{color:var(--fg2);font-size:14px;margin-top:6px}
+.files{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;min-height:132px;align-content:flex-start}
+.file{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:var(--bg);border-radius:12px;padding:9px 12px;font:400 13px/1.2 var(--f-mono);color:var(--fg);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;transition:transform .2s,opacity .3s,border-color .2s}
+.file small{color:var(--fg3);font-size:11.5px}
+.file .lk{color:var(--fg3)}
+.file:hover{border-color:var(--fg3)}
+.file.drag{cursor:grabbing;transition:none;z-index:20;box-shadow:0 20px 40px -10px rgba(0,0,0,.5);position:relative}
+.file.no{animation:shake .45s;border-color:var(--red);color:var(--red)}
+.file.gone{opacity:0;transform:scale(.6) translateY(30px);pointer-events:none}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.bin{margin-top:20px;border:1.5px dashed var(--line2);border-radius:18px;padding:18px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;transition:border-color .2s,background .2s}
+.bin.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.bin .can{width:52px;height:52px;border-radius:14px;background:var(--bg);display:grid;place-items:center;color:var(--fg2)}
+.bin.bump .can{animation:bump .4s}
+@keyframes bump{40%{transform:scale(1.15) rotate(-6deg)}}
+.bin b{display:block;font-weight:600}
+.bin small{color:var(--fg3);font-size:13px}
+.say{margin-top:14px;min-height:46px;font-size:14px;color:var(--fg2);display:flex;gap:10px;align-items:flex-start}
+.say i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--fg3);margin-top:7px}
+.say.bad i{background:var(--red)}.say.ok i{background:var(--sage)}
+.say.bad{color:var(--fg)}
+.flow{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:0}
+.flow li{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:16px 0;border-top:1px solid var(--line);transition:opacity .3s}
+.flow li:first-child{border-top:0;padding-top:4px}
+.flow .k{width:34px;height:34px;border-radius:11px;border:1px solid var(--line2);display:grid;place-items:center;font:500 12px/1 var(--f-mono);color:var(--fg3);transition:all .25s}
+.flow li.hit .k{background:var(--honey);border-color:var(--honey);color:var(--accent-ink)}
+.flow li.stop .k{background:var(--red);border-color:var(--red);color:#fff}
+.flow b{display:block;font-weight:600}
+.flow span{display:block;color:var(--fg2);font-size:14px;margin-top:2px}
+.plock{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+.plock span{font:400 12px/1 var(--f-mono);padding:6px 9px;border-radius:8px;background:var(--bg);border:1px solid var(--line);color:var(--fg2)}
+.gap{margin-top:18px;font-size:13px;color:var(--fg3);border-left:2px solid var(--line2);padding-left:12px}
+@media (max-width:900px){.safe{grid-template-columns:1fr}}
 
-/* briefs */
-.briefs{columns:3 260px;column-gap:40px;column-rule:1px solid var(--hair);margin-top:clamp(28px,4vw,48px)}
-.brief{break-inside:avoid;margin-bottom:28px;border-top:1px solid var(--rule);padding-top:8px}
-.brief h3{font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
-.brief p{font-size:15.5px;color:var(--ink2)}
-.brief code{font:400 12.5px var(--mono);background:var(--paper2);padding:1px 4px;word-break:break-all}
-.road{border:2px solid var(--ink);padding:18px 22px 6px;margin-top:10px;break-inside:avoid;background:var(--paper)}
-.road h3{font:italic 600 24px var(--serif);margin-bottom:6px;letter-spacing:-.01em}
-.road ul{list-style:none}
-.road li{border-top:1px solid var(--hair);padding:8px 0;font-size:14.5px;color:var(--ink2)}
-
-/* contents */
-.toc{list-style:none;margin-top:clamp(28px,4vw,48px);border-top:1px solid var(--rule)}
-.toc li{display:grid;grid-template-columns:70px auto 1fr minmax(0,44ch);gap:0 14px;align-items:baseline;padding:16px 0 14px;border-bottom:1px solid var(--hair);transition:background .25s,padding .35s var(--ease)}
-.toc li:hover{background:rgba(229,89,52,.08);padding-left:12px}
-.toc .n{font:italic 600 34px/1 var(--serif);color:var(--coral);font-variant-numeric:lining-nums}
-.toc .t{font:600 clamp(26px,3.6vw,46px)/1 var(--serif);letter-spacing:-.02em}
-.toc .dots{border-bottom:2px dotted var(--ink3);transform:translateY(-6px);min-width:20px}
-.toc .d{font-size:14.5px;color:var(--ink2);line-height:1.45}
-@media(max-width:860px){.toc li{grid-template-columns:48px 1fr;row-gap:4px}.toc .dots{display:none}.toc .d{grid-column:2}.toc .n{font-size:26px}}
+/* small print */
+.fine{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid var(--line)}
+.fine div{padding:24px 24px 26px 0;border-bottom:1px solid var(--line)}
+.fine div:not(:nth-child(3n+1)){padding-left:24px;border-left:1px solid var(--line)}
+.fine h3{font:700 18px/1.2 var(--f-display);letter-spacing:-.01em;margin-bottom:8px}
+.fine p{color:var(--fg2);font-size:14px}
+@media (max-width:820px){.fine{grid-template-columns:1fr}.fine div{padding-left:0!important;border-left:0!important}}
+.road{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.road span{display:inline-flex;align-items:center;gap:8px;border:1px dashed var(--line2);border-radius:999px;padding:8px 14px;font-size:14px;color:var(--fg2)}
+.road span::before{content:"";width:6px;height:6px;border-radius:50%;border:1.5px solid var(--fg3)}
 
 /* install */
-.inst{display:grid;grid-template-columns:repeat(12,1fr);gap:0 24px;margin-top:clamp(28px,4vw,48px);align-items:start}
-.inst .txt{grid-column:1/6}
-.inst .txt p{font-size:16.5px;margin-bottom:14px}
-.ad{grid-column:6/13;border:3px double var(--ink);background:var(--paper);padding:0;position:relative}
-.ad .hd{background:var(--ink);color:var(--paper);font:500 12px var(--mono);letter-spacing:.2em;text-transform:uppercase;padding:9px 16px;display:flex;justify-content:space-between;gap:10px}
-.ad ol{list-style:none;padding:0 18px;counter-reset:a}
-.ad li{padding:16px 0;border-bottom:1px dashed var(--ink3);counter-increment:a}
-.ad li:last-child{border:0}
-.ad li h3{font:600 20px/1.15 var(--serif);margin-bottom:6px}
-.ad li h3::before{content:counter(a) ".";font:italic 600 20px var(--serif);color:var(--coral);margin-right:8px}
-.ad li p{font-size:15px;color:var(--ink2)}
-.ad li p b{color:var(--ink);font-weight:600}
-.cmd{display:flex;align-items:stretch;margin-top:10px;background:var(--ink);color:var(--paper)}
-.cmd code{flex:1;min-width:0;padding:12px 14px;font:400 13px/1.55 var(--mono);white-space:pre-wrap;word-break:break-all;align-self:center}
-.cmd button{flex:none;min-width:76px;min-height:48px;border:0;border-left:1px solid rgba(244,236,220,.25);background:transparent;color:var(--paper);font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase}
-.cmd button:hover{background:var(--coral);color:var(--ink)}
-.cmd button.ok{background:var(--sage);color:var(--ink)}
-.cmd button:focus-visible{outline-color:var(--mustard);outline-offset:-4px}
-.build{margin-top:clamp(28px,4vw,48px);border:3px double var(--ink);background:var(--paper)}
-.build .cols{display:grid;grid-template-columns:5fr 7fr;gap:0 40px;padding:20px 24px 24px}
-.build h3{font:600 clamp(26px,3vw,40px)/1.05 var(--serif);margin-bottom:10px}
-.build .cols p{font-size:15.5px;color:var(--ink2);margin-bottom:10px}
-.build ul.rq{list-style:none;font:400 13.5px var(--mono);margin-top:12px}
-.build ul.rq li{border-top:1px solid var(--hair);padding:7px 0}
-.build .lbl{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);margin-top:14px;display:block}
-.build .lbl:first-child{margin-top:0}
-@media(max-width:960px){.inst .txt,.ad{grid-column:1/13}.ad{margin-top:20px}.build .cols{grid-template-columns:1fr;padding:16px}}
+.inst-box{border:1px solid var(--line);border-radius:22px;background:var(--bg2);overflow:hidden}
+.tabs{display:flex;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{border:0;background:none;padding:16px 22px;font-weight:600;font-size:15px;color:var(--fg3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+.tpanel{padding:28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:32px}
+.tpanel[hidden]{display:none}
+.isteps{list-style:none;margin:0;padding:0;counter-reset:s;display:flex;flex-direction:column;gap:20px}
+.isteps li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:14px}
+.isteps li::before{content:counter(s);width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font:500 13px/1 var(--f-mono);color:var(--fg2)}
+.isteps b{display:block;font-weight:600}
+.isteps span{display:block;color:var(--fg2);font-size:14px;margin-top:2px}
+.term{background:#0b0c11;border-radius:14px;border:1px solid #22252f;font:400 13px/1.7 var(--f-mono);color:#d9d4c9;overflow:hidden;min-width:0;color-scheme:dark}
+.term .th{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid #22252f;color:#6e707c;font-size:12px}
+.term .th i{width:10px;height:10px;border-radius:50%;background:#2b2e3a}
+.term .th span{margin-left:8px}
+.term .tb{padding:14px 16px;display:flex;flex-direction:column;gap:12px;overflow-x:auto}
+.term .ln{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start}
+.term .ln code{font-size:13px;white-space:pre;overflow-x:auto;color:#efe9dd}
+.term .ln code::before{content:"$ ";color:#F3B95F}
+.term .cm{color:#6e707c;font-size:12px}
+.copy{border:1px solid #2b2e3a;background:#151720;color:#a6a3ab;border-radius:7px;padding:3px 9px;font:500 11.5px/1.4 var(--f-mono)}
+.copy:hover{color:#efe9dd;border-color:#4a4e60}
+.copy.ok{color:#7fc29b;border-color:#3d6b51}
+.reqs{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.reqs span{font:400 12.5px/1 var(--f-mono);border:1px solid var(--line2);border-radius:8px;padding:7px 10px;color:var(--fg2)}
+@media (max-width:820px){.tpanel{grid-template-columns:1fr;padding:20px}}
 
 /* footer */
-.notes{margin-top:clamp(56px,8vw,112px);border-top:3px solid var(--rule);padding-top:14px}
-.notes ol{font:400 12.5px/1.6 var(--mono);color:var(--ink2);padding-left:18px;columns:2 320px;column-gap:40px}
-.notes li{margin-bottom:6px;break-inside:avoid}
-.notes h2{font:500 11px var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;font-family:var(--mono)}
-footer{margin-top:40px;border-top:1px solid var(--rule);padding:22px 0 56px}
-footer .page{display:flex;justify-content:space-between;gap:20px 40px;flex-wrap:wrap;align-items:flex-start}
-footer .links{display:flex;gap:6px 24px;flex-wrap:wrap;font:500 13px var(--mono)}
-footer .links a{padding:10px 0;display:inline-block}
-footer p{font:400 12.5px/1.6 var(--mono);color:var(--ink2);max-width:52ch}
-footer .big{font:800 clamp(52px,15vw,220px)/.85 var(--serif);letter-spacing:-.04em;width:100%;margin-top:6px}
-footer .big i{color:var(--coral);font-weight:400}
+footer{margin-top:120px;border-top:1px solid var(--line);padding-block:40px 56px}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center;color:var(--fg3);font-size:14px}
+footer nav{display:flex;gap:18px;flex-wrap:wrap}
+footer a{color:var(--fg2);text-decoration:none}
+footer a:hover{color:var(--fg)}
 
-@media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
-  *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;transition-delay:0s!important}
-  .js .rv,.js .hero h1 .w{opacity:1;transform:none}
-  .js .bar{clip-path:none}
-  .step{opacity:1}
-}
+/* command palette */
+.pal{position:fixed;inset:0;z-index:100;background:rgba(5,6,10,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;justify-content:center;align-items:flex-start;padding:max(12vh,calc(env(safe-area-inset-top,0px) + 24px)) max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}
+.pal[hidden]{display:none!important}
+.palbox{width:min(560px,100%);background:var(--bg2);border:1px solid var(--line2);border-radius:16px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);overflow:hidden;animation:sIn .18s}
+.palbox input{width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:16px 18px;font-size:16px;outline:0;color:var(--fg)}
+.palbox ul{list-style:none;margin:0;padding:6px;max-height:min(380px,55vh);overflow-y:auto}
+.palbox li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:9px;cursor:pointer;font-size:14px;color:var(--fg2)}
+.palbox li small{font:400 11.5px/1 var(--f-mono);color:var(--fg3)}
+.palbox li.on{background:var(--bg3);color:var(--fg)}
+.palbox .pf{display:flex;gap:14px;padding:9px 16px;border-top:1px solid var(--line);font-size:12px;color:var(--fg3)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo" viewBox="0 0 88 88"><rect width="88" height="88" rx="20" fill="#E55934"/><circle cx="24" cy="24" r="11" fill="#F3B95F"/><circle cx="65" cy="63" r="8" fill="#FFFFFF"/><circle cx="55" cy="34" r="5" fill="#FBE9C6"/></symbol>
+</svg>
 
-<header class="top">
-  <div class="page">
-    <a class="plate" href="#top"><i aria-hidden="true"></i>wimys_crumb</a>
-    <nav aria-label="Sections">
-      <a href="#groups">Groups</a>
-      <a href="#types">File types</a>
-      <a href="#history">History</a>
-      <a href="#safety">Safety</a>
-      <a href="#screens">Screens</a>
-      <a href="#download">Install</a>
-      <a class="btn sm" href="https://github.com/AbyAbyss/wimys_crumb/releases/latest">Download</a>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><svg class="mark" aria-hidden="true"><use href="#logo"/></svg>wimys_crumb</a>
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#app">Try it</a><a href="#how">How it works</a><a href="#safety">Safety</a><a href="#install">Install</a>
     </nav>
+    <div class="nav-end">
+      <button class="kbtn" type="button" id="palBtn" aria-label="Open command menu"><span>Jump to</span><kbd id="kmod">⌘K</kbd></button>
+      <button class="ibtn" type="button" id="themeBtn" aria-label="Toggle light and dark theme">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="btn btn-primary btn-sm" href="https://github.com/AbyAbyss/wimys_crumb/releases/latest">Download</a>
+    </div>
   </div>
 </header>
 
 <main id="top">
-<div class="strip"><div class="page"><span>The Disk Atlas</span><span>Release v0.1.5 &nbsp;/&nbsp; macOS 14+ &nbsp;/&nbsp; Free and open source (license TBD)</span></div></div>
-
-<div class="page">
-<div class="hero">
-  <div class="hero-grid">
-    <div class="kick-row"><span class="kicker">Feature &nbsp;/&nbsp; Disk space</span></div>
-    <h1 aria-label="Find where your disk space went."><span class="w" style="--i:0">Find</span> <span class="w" style="--i:1"><em>where</em></span> <span class="w" style="--i:2">your</span> <span class="w" style="--i:3">disk</span> <span class="w" style="--i:4">space</span> <span class="w" style="--i:5">went.</span></h1>
-    <div class="deck rv">
-      <p>wimys_crumb is a friendly disk-space scanner for macOS. It walks every volume, totals the same folder names wherever they hide, and lets you reclaim the dead weight safely. Trash by default, Undo within reach.</p>
-      <div class="badge"><b></b>Feature complete, v0.1.5</div>
-      <p class="fine">No account. No telemetry. Needs Full Disk Access to see everything.</p>
-    </div>
-    <div class="cta rv">
-      <a class="btn" href="#download">Download for Mac</a>
-      <a class="btn alt" href="#build">Build from source</a>
-    </div>
-  </div>
-
-  <figure class="fig" id="fig1" aria-labelledby="fig1t">
-    <div class="fig-head">
-      <div class="fig-no" id="fig1t">Fig. 1<span>Where it went, a treemap</span></div>
-      <div class="stamp">Sample drive, not your data</div>
-    </div>
-    <div class="stats" aria-label="Sample drive totals">
-      <div class="stat"><div class="k">Used</div><div class="v"><span id="sUsed">438</span><small>GB</small></div></div>
-      <div class="stat"><div class="k">Free</div><div class="v"><span id="sFree">61</span><small>GB</small></div></div>
-      <div class="stat"><div class="k">Items</div><div class="v"><span id="sItems">5.1</span><small>M</small></div></div>
-      <div class="stat sig"><div class="k">Could free</div><div class="v"><span id="sCould">52</span><small>GB</small></div></div>
-    </div>
-    <div class="gauge" aria-hidden="true"><i id="gauge" style="width:87.8%"></i></div>
-    <div class="crumbs" id="crumbs"><span class="hint">Click a cell to open it. Esc goes up.</span></div>
-    <div class="tm" id="tm" role="group" aria-label="Treemap of a sample drive. Each cell is a folder sized by disk usage."><noscript><p style="padding:20px">The interactive treemap needs JavaScript. The page still lists every feature below.</p></noscript></div>
-    <div class="cap" id="cap"><div class="path">Sample drive</div><div class="sz"></div></div>
-    <div class="legend"><span>Reclaimable (Quick wins)</span><span class="pr">Protected path, never offered</span></div>
-    <p class="srcline">Source: invented sample data, 499 GB disk, 438 GB used. Tile area is proportional to size. Squarified layout, drawn in this page.</p>
-  </figure>
-
-  <div class="qw" id="quickwins">
-    <div class="intro">
-      <div class="kicker">Quick wins</div>
-      <h2>The obvious stuff, in one list.</h2>
-      <p>The app flags things that are usually safe to clear: stale <span class="mono">node_modules</span>, Xcode <span class="mono">DerivedData</span>, large caches, old downloads. Tick what you want and press the button. Matching cells light up in the map above.</p>
-    </div>
-    <div class="panel">
-      <ul id="qwList"></ul>
-      <div class="act">
-        <p>Simulation. This page never touches your files. In the app, items go to the Trash and Undo puts them back.</p>
-        <button class="btn reclaim" id="reclaim" type="button">Reclaim 52 GB</button>
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <h1>Find where your disk space went<span class="crumbs" aria-hidden="true"><i></i><i></i><i></i></span></h1>
+      <div class="hero-side">
+        <p><b>wimys_crumb is a friendly disk-space scanner for macOS.</b> It walks every volume, totals the same folder names wherever they hide, and lets you reclaim the dead weight safely. Trash by default, Undo within reach.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="https://github.com/AbyAbyss/wimys_crumb/releases/latest">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M6 11l6 6 6-6M4 21h16"/></svg>Download for Mac</a>
+          <a class="btn btn-ghost" href="#app">Play with it first</a>
+        </div>
+        <div class="meta"><span><i class="dot"></i>v0.1.5, feature complete</span><span>macOS 14+</span><span>No account, no telemetry</span></div>
       </div>
     </div>
-  </div>
-</div>
 
-  <div class="nums" id="nums">
-    <div class="num rv"><div class="big"><span data-count data-to="5" data-suf="M">5M</span></div><p>files scanned in a few minutes, every volume, off the main thread.</p></div>
-    <div class="num rv" style="--d:.1s"><div class="big"><span data-count data-to="200" data-pre="&lt;">&lt;200</span><small>MB</small></div><p>resident while browsing a 5M-file scan.<sup><a href="#n2">2</a></sup></p></div>
-    <div class="num rv" style="--d:.2s"><div class="big"><span data-count data-to="8">8</span></div><p>screens, from Start to Settings. Index further down.</p></div>
-    <div class="num rv" style="--d:.3s"><div class="big">0</div><p>accounts, sync services or telemetry. It runs on your Mac.</p></div>
-  </div>
-  <p class="srcline">Source: project README. Scan time and memory depend on your disk and your files.</p>
+    <div class="stage" id="app">
+      <div class="hint">
+        <span><b>This is the app, running in the page.</b> Click a tile to drill in, tick Quick wins, hit Reclaim, then Undo. Try every screen in the sidebar.</span>
+        <span class="sample">Sample drive, not your data</span>
+      </div>
 
-  <!-- HOW IT WORKS -->
-  <section id="how">
-    <div class="sh">
-      <div class="kicker">How it works</div>
-      <h2 class="rv">Fast, bounded, <em>off the main thread.</em></h2>
-      <p class="lede rv">The scan tree lives in a SQLite file on disk, never in memory, so a bigger drive does not mean a bigger app.</p>
-    </div>
-    <div class="art">
-      <aside class="margin">
-        <div class="note"><b>Stack</b>Swift 5, SwiftUI, GRDB. macOS 14 (Sonoma) or later. Xcode 15 or later to build.</div>
-        <div class="note"><b>Where data lives</b><span class="mono">~/Library/Application Support/wimys_crumb/</span></div>
-      </aside>
-      <div class="body">
-        <div class="cols2">
-          <p class="dc">wimys_crumb walks the filesystem off the main thread and streams every directory, plus the top-N largest files, into a per-scan SQLite database through GRDB. The interface reads from that database with short-lived queries.</p>
-          <p>That is the whole trick. Because the scan tree never lives in RAM, memory stays bounded however large the disk is. Quit and relaunch, and you land back on your last scan instantly.</p>
-          <p class="pull">Memory stays bounded <em>regardless of disk size.</em><cite>Project README</cite></p>
+      <div class="win" id="win">
+        <div class="tbar">
+          <div class="lights" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="ttl"><b>wimys_crumb</b> &nbsp;·&nbsp; <span id="wtitle">Overview</span></div>
+          <div class="tsp">
+            <button class="abtn" type="button" data-go="settings">Open Settings</button>
+            <button class="abtn pri" type="button" id="rescan">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Rescan</button>
+          </div>
+        </div>
+        <div class="abody">
+          <nav class="side" aria-label="App screens">
+            <div class="lab">SCAN</div>
+            <button class="sitem" type="button" data-go="start"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M7 15h.01M11 15h6"/></svg>Start</button>
+            <button class="sitem" type="button" data-go="overview" aria-current="page"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="10" height="18" rx="2"/><rect x="15" y="3" width="6" height="8" rx="2"/><rect x="15" y="13" width="6" height="8" rx="2"/></svg>Overview<span class="badge" id="sbBadge">52 GB</span></button>
+            <button class="sitem" type="button" data-go="groups"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="10" r="6"/><circle cx="17" cy="16" r="4"/></svg>Groups</button>
+            <button class="sitem" type="button" data-go="types"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="9" width="18" height="6" rx="2"/><path d="M9 9v6M14 9v6"/></svg>File types</button>
+            <button class="sitem" type="button" data-go="history"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 19l5-7 4 3 5-8 4 5"/></svg>History</button>
+            <div class="lab">APP</div>
+            <button class="sitem" type="button" data-go="settings"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Settings</button>
+            <div class="vol"><b>Macintosh HD</b><div class="meter"><i id="svU" style="width:78%"></i><i class="cf" id="svC" style="width:10%"></i></div><small id="svT">438 GB used of 499 GB</small></div>
+            <div class="foot">Sample scan · 5.1 M items<br>Finished 2 minutes ago</div>
+          </nav>
+
+          <div class="main">
+            <!-- START -->
+            <div class="screen" data-s="start">
+              <div class="start">
+                <div>
+                  <div class="clab">DRIVES</div>
+                  <h4>Where did<br>your space go?</h4>
+                  <p class="lead">We'll sweep your drive, group what's eating space, and tell you what's safe to delete.</p>
+                  <div class="vols">
+                    <div class="card volrow">
+                      <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A2118" stroke-width="2"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M7 14h.01"/></svg></div>
+                      <div><b>Macintosh HD</b><small>438 GB used of 499 GB · Internal</small><div class="meter"><i style="width:88%"></i></div></div>
+                      <div class="pc">88%</div>
+                    </div>
+                    <div class="card volrow">
+                      <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A2118" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 7h6"/></svg></div>
+                      <div><b>Backup SSD</b><small>612 GB used of 1 TB · External</small><div class="meter"><i style="width:61%"></i></div></div>
+                      <div class="pc">61%</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
+                    <button class="abtn pri" type="button" id="startScan" style="padding:8px 14px">Scan Macintosh HD</button>
+                    <button class="abtn" type="button" id="pickFolder" style="padding:8px 14px">Pick a specific folder…</button>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="clab">Last scans <span>3 kept</span></div>
+                  <ul class="lastscans">
+                    <li>Macintosh HD <span>today · 438 GB</span></li>
+                    <li>Macintosh HD <span>Sep · 431 GB</span></li>
+                    <li>~/Developer <span>Sep · 84 GB</span></li>
+                  </ul>
+                  <button class="abtn" type="button" data-go="overview" style="margin-top:12px">Continue →</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- SCANNING -->
+            <div class="screen" data-s="scanning">
+              <div class="shead"><div><h3 id="scH">Scanning</h3><p>Walking the file tree… We'll group similar things and show you the big stuff.</p></div><span class="clab" style="margin:0">Sped up for this page</span></div>
+              <div class="scanwrap">
+                <div class="card" style="padding:22px">
+                  <div class="ring">
+                    <svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="96" fill="none" stroke="#E8DFCC" stroke-width="14"/><circle id="ringArc" cx="110" cy="110" r="96" fill="none" stroke="#E55934" stroke-width="14" stroke-linecap="round" stroke-dasharray="603.2" stroke-dashoffset="603.2"/></svg>
+                    <div class="pct"><div><b><span id="scP">0</span><small>%</small></b><span class="sub" id="scF">0 files</span></div></div>
+                  </div>
+                  <div class="nowscan"><small>CURRENTLY SCANNING</small><code id="scNow">/</code></div>
+                  <div class="scanbtns"><button class="abtn" type="button" id="scPause">Pause</button><button class="abtn" type="button" id="scCancel">Cancel</button></div>
+                </div>
+                <div class="card"><div class="clab">BIGGEST SO FAR <span id="scEta">collecting…</span></div><ul class="biggest" id="scBig"><li class="empty">collecting…</li></ul></div>
+              </div>
+            </div>
+
+            <!-- OVERVIEW -->
+            <div class="screen on" data-s="overview">
+              <div class="stats">
+                <div class="card stat"><div class="k"><i></i>Used</div><div class="v"><span id="stU">438</span><small>GB</small></div></div>
+                <div class="card stat"><div class="k"><i style="background:#D7C9AA"></i>Free</div><div class="v"><span id="stF">61</span><small>GB</small></div></div>
+                <div class="card stat"><div class="k"><i style="background:#9E8FCF"></i>Items scanned</div><div class="v">5.1<small>M</small></div></div>
+                <div class="card stat cf"><div class="k"><i></i><span id="stCk">Could free</span></div><div class="v"><span id="stC">52</span><small>GB</small></div></div>
+              </div>
+              <div class="ovgrid">
+                <div class="card tmcard">
+                  <div class="clab">WHERE THE SPACE GOES <span id="tmCount">5 folders</span></div>
+                  <div class="crumbbar" id="crumbs"></div>
+                  <div class="tm" id="tm" role="group" aria-label="Treemap of the sample drive. Tile area is proportional to size."></div>
+                  <div class="tmcap" id="tmcap"></div>
+                  <div class="legend"><span><i style="background:repeating-linear-gradient(135deg,#E55934 0 3px,#ef7a59 3px 6px)"></i>Reclaimable (Quick wins)</span><span><i style="background:repeating-linear-gradient(135deg,#D7C9AA 0 3px,#e2d6bd 3px 6px)"></i>Protected, never offered</span></div>
+                </div>
+                <div class="rcol">
+                  <div class="card">
+                    <div class="clab">QUICK WINS <span id="qwSum">52 GB</span></div>
+                    <ul class="qw" id="qw"></ul>
+                    <button class="abtn pri reclaim" type="button" id="reclaim">Reclaim 52 GB</button>
+                    <p class="qnote">Simulation. Nothing on your Mac is touched. In the app, items go to the Trash and Undo puts them back.</p>
+                  </div>
+                  <div class="card">
+                    <div class="clab">BY FILE TYPE <button class="abtn" type="button" data-go="types" style="padding:2px 8px;font-size:11px;letter-spacing:0">All →</button></div>
+                    <ul class="bt" id="bt"></ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GROUPS -->
+            <div class="screen" data-s="groups">
+              <div class="shead"><div><h3>Groups by name</h3><p>Folders with the same name across your disk, totalled. Click a bubble to expand it below.</p></div>
+                <div class="gfilter"><button class="chip" type="button" id="gAll" aria-pressed="true">All</button><button class="chip" type="button" id="gStale" aria-pressed="false">Stale only (3)</button></div></div>
+              <div class="ggrid">
+                <div class="card" style="padding:8px"><div class="bub" id="bub"></div></div>
+                <div class="card">
+                  <div class="clab">GROUPS <span id="gSum">7 groups · 136 GB</span></div>
+                  <ul class="glist" id="glist"></ul>
+                  <div class="gfoot"><span id="gSel">0 of 7 selected</span><button class="abtn pri" type="button" id="gFree" disabled>Free 0 GB →</button></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TYPES -->
+            <div class="screen" data-s="types">
+              <div class="shead"><div><h3>File types</h3><p>What it is, not just where. Click a segment or a card to see the heaviest files.</p></div><span class="clab" style="margin:0">438 GB used</span></div>
+              <div class="tbar2" id="tbar"></div>
+              <div class="tcards" id="tcards"></div>
+              <div class="card heavy"><div class="clab" id="hvT">HEAVIEST FILES · VIDEO <span>sample</span></div><ol id="hv"></ol></div>
+            </div>
+
+            <!-- HISTORY -->
+            <div class="screen" data-s="history">
+              <div class="shead"><div><h3>History</h3><p>Every scan is kept. Drag across the chart to read any month.</p></div><span class="clab" style="margin:0">9 scans</span></div>
+              <div class="hgrid">
+                <div class="card"><div class="clab">DISK USED OVER TIME, GB <span>y axis starts at 0</span></div><div class="hchart" id="hch"><div class="htip" id="htip"></div></div></div>
+                <div class="card">
+                  <div class="clab">GROWERS · SINCE LAST SCAN</div>
+                  <ul class="diff up"><li><b>+9.1 GB</b><span>~/Movies/Final Cut Library</span></li><li><b>+4.6 GB</b><span>~/Developer/ios-app</span></li><li><b>+2.3 GB</b><span>~/Library/Application Support</span></li></ul>
+                  <div class="clab" style="margin-top:18px">SHRINKERS</div>
+                  <ul class="diff dn"><li><b>−5.4 GB</b><span>~/Downloads</span></li><li><b>−3.6 GB</b><span>~/Library/Caches</span></li></ul>
+                  <div class="net"><span>Net change, Sep to Oct</span><b>+7.0 GB</b></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div class="screen" data-s="settings">
+              <div class="shead"><div><h3>Settings</h3><p>Safety, scans, snapshots and export.</p></div></div>
+              <div class="sgrid">
+                <div class="card">
+                  <div class="clab">SAFETY <span>What Crumb refuses to delete</span></div>
+                  <div class="srow"><div><b>Protect system paths</b><small>Always skip /System, /usr, /private, and similar.</small></div><input class="tog" type="checkbox" id="sProt" checked disabled aria-label="Protect system paths (always on in this demo)"></div>
+                  <div class="srow"><div><b>Protect active projects</b><small>Leave recently touched project folders alone.</small></div><input class="tog" type="checkbox" id="sAct" checked aria-label="Protect active projects"></div>
+                  <div class="srow"><div><b>Confirm large deletes</b><small>Show the confirmation sheet for any cleanup over 1 GB.</small></div><input class="tog" type="checkbox" id="sConf" checked aria-label="Confirm large deletes"></div>
+                  <div class="srow"><div><b>Allow deleting hidden</b><small>Show and allow removal of dot-folders like .Trash, .config.</small></div><input class="tog" type="checkbox" id="sHid" aria-label="Allow deleting hidden"></div>
+                  <div class="clab" style="margin-top:14px">PROTECTED PATHS</div>
+                  <ul class="plist" id="plist"></ul>
+                  <form class="padd" id="padd"><input id="pIn" type="text" placeholder="~/Clients" aria-label="Path to protect" autocomplete="off"><button class="abtn" type="submit">Add path</button></form>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+                  <div class="card">
+                    <div class="clab">SCANS <span>When and how Crumb sweeps</span></div>
+                    <div class="srow"><div><b>Scheduled scans</b><small id="schT">Off</small></div><input class="tog" type="checkbox" id="sSch" aria-label="Scheduled scans"></div>
+                    <div class="srow"><div><b>How often</b><small>Runs when the app is opened, not in the background.</small></div><select class="sel" id="sFreq" aria-label="Scan frequency"><option value="1">Daily</option><option value="7" selected>Weekly</option><option value="30">Monthly</option></select></div>
+                    <div class="srow"><div><b>Only on power</b><small>Skip a scheduled scan on battery.</small></div><input class="tog" type="checkbox" id="sPow" checked aria-label="Only scan on power"></div>
+                  </div>
+                  <div class="card">
+                    <div class="clab">SNAPSHOTS · DETECTION · EXPORT</div>
+                    <dl class="kv"><dt>Scans kept</dt><dd id="snapN">9 · 1.4 GB</dd><dt>Large-file threshold</dt><dd>1 GB</dd><dt>Engine</dt><dd>FileManager walk → SQLite (GRDB)</dd><dt>Version</dt><dd>0.1.5</dd></dl>
+                    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="abtn" type="button" id="exp">Export scan summary</button><button class="abtn" type="button" id="clr">Clear all scan data</button></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shT">
+              <div class="card"><h5 id="shT">Move 52 GB to the Trash?</h5><p id="shP">These go to the Trash. Undo puts them back.</p><ul id="shL"></ul>
+                <div class="row"><button class="abtn" type="button" id="shNo">Cancel</button><button class="abtn pri" type="button" id="shYes">Move to Trash</button></div></div>
+            </div>
+            <div class="toast" id="toast" role="status" aria-live="polite"><span id="toastT"></span><button type="button" id="toastB">Undo</button></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="scene">
-      <figure class="stick pipe" aria-labelledby="fig2t">
-        <div class="fig-head"><div class="fig-no" id="fig2t">Fig. 2<span>Data flow</span></div></div>
-        <svg viewBox="0 0 470 450" role="img" aria-label="Data flow: walk the drive, stream to SQLite, read with short queries, delete through DeleteService which patches the tree.">
-          <g class="st" data-s="0"><rect x="10" y="14" width="400" height="80"/><text class="t1" x="28" y="48">1. Walk</text><text class="t2" x="28" y="73">FileManager, every volume</text></g>
-          <path class="ar" d="M210 96V124"/>
-          <g class="st" data-s="1"><rect x="10" y="126" width="400" height="80"/><text class="t1" x="28" y="160">2. Stream</text><text class="t2" x="28" y="185">SQLite on disk, one DB per scan (GRDB)</text></g>
-          <path class="ar" d="M210 208V236"/>
-          <g class="st" data-s="2"><rect x="10" y="238" width="400" height="80"/><text class="t1" x="28" y="272">3. Read</text><text class="t2" x="28" y="297">SwiftUI, short-lived queries, no tree in RAM</text></g>
-          <path class="ar" d="M210 320V348"/>
-          <g class="st" data-s="3"><rect x="10" y="350" width="400" height="80"/><text class="t1" x="28" y="384">4. Delete</text><text class="t2" x="28" y="409">DeleteService, protected list, Trash</text></g>
-          <path class="ar loop" d="M412 390H440V166H414"/>
-          <text class="lt" transform="translate(458 300) rotate(90)" text-anchor="middle">patches the tree</text>
-        </svg>
-        <p class="srcline">Source: project README and architecture diagram.</p>
-      </figure>
-      <div class="steps" id="steps">
-        <div class="step" data-s="0"><div class="no">01</div><h3>Walk the drive</h3><p>Every volume is scanned with <code>FileManager</code> off the main thread. About 5 million files take a few minutes. Pause and cancel are on the Scanning screen, with the biggest folders showing as they are found.</p></div>
-        <div class="step" data-s="1"><div class="no">02</div><h3>Stream to SQLite</h3><p>Directories and the heaviest files stream into a per-scan database on disk. Old scans stay as snapshots you can browse or delete in Settings.</p></div>
-        <div class="step" data-s="2"><div class="no">03</div><h3>Read, never hold</h3><p>Every screen asks the database a small question and lets go of the answer. That is why a 5M-file scan browses in well under 200 MB.<sup><a href="#n2">2</a></sup></p></div>
-        <div class="step" data-s="3"><div class="no">04</div><h3>Delete in one place</h3><p>Every destructive action goes through a single <code>DeleteService</code>. It checks the protected-path list, moves items to the Trash, then patches the SQLite tree so the next query reflects reality without a rescan.</p></div>
-      </div>
+    <div class="facts">
+      <div class="fact"><b>5<em>M</em></b><span>files scanned in a few minutes, every volume, off the main thread.</span></div>
+      <div class="fact"><b>&lt;200<em>MB</em></b><span>resident while browsing a 5M-file scan.</span></div>
+      <div class="fact"><b>8</b><span>screens, from Start to Settings. You just used seven of them.</span></div>
+      <div class="fact"><b>0</b><span>accounts, sync services or telemetry. It runs on your Mac.</span></div>
     </div>
-  </section>
+    <p class="src">Source: project README. Scan time and memory depend on your disk and your files.</p>
+  </div>
+</section>
 
-  <!-- GROUPS -->
-  <section id="groups">
-    <div class="sh">
-      <div class="kicker">Groups</div>
-      <h2 class="rv">The same names, <em>added up.</em></h2>
-      <p class="lede rv">One folder is a rounding error. Forty-seven of them with the same name is a problem. Groups totals every instance across the disk.</p>
+<section class="blk" id="how">
+  <div class="wrap">
+    <div class="shd">
+      <div class="eyebrow">How it works</div>
+      <h2>A bigger drive doesn't mean a bigger app.</h2>
+      <p>The scan tree lives in a SQLite file on disk, never in memory. Every screen asks the database a small question and lets go of the answer. Quit and relaunch, and you land back on your last scan instantly.</p>
     </div>
-    <div class="groups">
-      <div class="side rv">
-        <p style="font-size:15.5px;color:var(--ink2)">Every <span class="mono">node_modules</span>, <span class="mono">DerivedData</span>, <span class="mono">Caches</span>, <span class="mono">__pycache__</span>, <span class="mono">Pods</span>, <span class="mono">target</span> and <span class="mono">.venv</span> is totalled across the drive. One click expands every instance.</p>
-        <table class="tbl" id="gTbl"><thead><tr><th>Name</th><th>Folders</th><th>Total</th></tr></thead><tbody></tbody></table>
-        <p class="srcline">Sample figures, invented for this page.</p>
-      </div>
-      <figure class="chart" aria-labelledby="fig3t">
-        <div class="fig-head"><div class="fig-no" id="fig3t">Fig. 3<span>Groups, sized by total</span></div><div class="stamp">Sample drive</div></div>
-        <div class="bub" id="bub"></div>
-        <div class="cap" id="bcap"><div class="path">Hover or focus a bubble.</div><div class="sz"></div></div>
-      </figure>
-    </div>
-  </section>
-
-  <!-- FILE TYPES -->
-  <section id="types">
-    <div class="sh">
-      <div class="kicker">File types</div>
-      <h2 class="rv">What it is, <em>not just where.</em></h2>
-      <p class="lede rv">Video, Photos, Code, Apps, Documents, Music, Archives and Other, as a stacked bar, with the heaviest files in each category one click away.</p>
-    </div>
-    <figure class="ft" aria-labelledby="fig4t">
-      <div class="fig-head" style="margin-bottom:12px"><div class="fig-no" id="fig4t">Fig. 4<span>438 GB used, by type</span></div><div class="stamp">Sample drive</div></div>
-      <ul class="bar" id="bar"></ul>
-      <ul class="ftl" id="ftl"></ul>
-      <p class="srcline">Source: invented sample data. Categories are the eight the app uses.</p>
-    </figure>
-  </section>
-
-  <!-- HISTORY -->
-  <section id="history">
-    <div class="sh">
-      <div class="kicker">History</div>
-      <h2 class="rv">What grew, <em>what shrank.</em></h2>
-      <p class="lede rv">Every scan is kept. History plots usage over time and diffs your two latest scans into growers and shrinkers.</p>
-    </div>
-    <figure class="hist" id="hist" aria-labelledby="fig5t">
-      <div class="plot">
-        <div class="fig-head" style="margin-bottom:10px"><div class="fig-no" id="fig5t">Fig. 5<span>Disk used over time, GB</span></div><div class="stamp">Sample drive</div></div>
-        <svg class="ch" id="ch" viewBox="0 0 760 380" role="img" aria-label="Area chart of disk used across nine monthly scans, rising from 352 to 438 GB of a 499 GB disk."></svg>
-        <p class="srcline">Source: nine invented monthly scans. The y axis starts at zero.</p>
-      </div>
-      <div class="calls" id="calls">
-        <div class="grp"><h3>Growers since last scan</h3>
-          <div class="co up" id="co1"><b>+9.1 GB</b><span>~/Movies/Final Cut Library</span></div>
-          <div class="co up" id="co2"><b>+4.6 GB</b><span>~/Developer/ios-app</span></div>
-          <div class="co up" id="co3"><b>+2.3 GB</b><span>~/Library/Application Support</span></div>
+    <div class="pipe">
+      <div class="pipe-canvas" id="pipeWrap">
+        <canvas id="pipe" aria-hidden="true"></canvas>
+        <div class="gauges"><div>files walked<b id="pgF">0</b></div><div class="mem">app memory<b>bounded</b><i></i></div></div>
+        <div class="pnodes">
+          <div class="pnode" data-i="0"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M7 14h.01M11 14h6"/></svg></div><b>Volumes</b><small>FileManager</small></div>
+          <div class="pnode" data-i="1"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg></div><b>Scan database</b><small>SQLite via GRDB</small></div>
+          <div class="pnode" data-i="2"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="10" height="18" rx="2"/><rect x="15" y="3" width="6" height="8" rx="2"/><rect x="15" y="13" width="6" height="8" rx="2"/></svg></div><b>Screens</b><small>short-lived queries</small></div>
+          <div class="pnode" data-i="3"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></div><b>DeleteService</b><small>one door out</small></div>
         </div>
-        <div class="grp"><h3>Shrinkers</h3>
-          <div class="co dn" id="co4"><b>-5.4 GB</b><span>~/Downloads</span></div>
-          <div class="co dn" id="co5"><b>-3.6 GB</b><span>~/Library/Caches</span></div>
-        </div>
-        <p class="net">Net change, scan 8 to scan 9: +7.0 GB.</p>
       </div>
-      <svg class="leaders" id="leaders" aria-hidden="true"></svg>
-    </figure>
-  </section>
+      <div class="psteps" id="psteps">
+        <button class="pstep" type="button" data-i="0" aria-pressed="true"><span class="n">step 1</span><h3>Walk the drive</h3><p>Every volume is scanned with FileManager off the main thread. Pause and Cancel live on the Scanning screen, and the biggest folders show up as they're found.</p></button>
+        <button class="pstep" type="button" data-i="1" aria-pressed="false"><span class="n">step 2</span><h3>Stream to SQLite</h3><p>Directories and the heaviest files stream into a per-scan database on disk. Old scans stay as snapshots you can browse or delete in Settings.</p></button>
+        <button class="pstep" type="button" data-i="2" aria-pressed="false"><span class="n">step 3</span><h3>Read, never hold</h3><p>Each screen runs a short query and drops the result. That's why a 5M-file scan browses in well under 200 MB.</p></button>
+        <button class="pstep" type="button" data-i="3" aria-pressed="false"><span class="n">step 4</span><h3>Delete in one place</h3><p>Every destructive action goes through a single DeleteService. It checks the protected list, moves items to the Trash, then patches the tree so the next query is right without a rescan.</p></button>
+      </div>
+    </div>
+    <div class="stack"><span>Swift 5</span><span>SwiftUI</span><span>GRDB</span><span>macOS 14 Sonoma+</span><span>Xcode 15+ to build</span><span>~/Library/Application Support/wimys_crumb/</span></div>
+  </div>
+</section>
 
-  <!-- SAFETY -->
-  <section id="safety">
-    <div class="sh">
-      <div class="kicker">Safety</div>
-      <h2 class="rv">Delete with <em>a net.</em></h2>
-      <p class="lede rv">A cleaning tool is only as good as its worst mistake, so the dangerous paths are off the table before you start.</p>
+<section class="blk" id="safety">
+  <div class="wrap">
+    <div class="shd">
+      <div class="eyebrow">Safety</div>
+      <h2>Go on, try to delete /System.</h2>
+      <p>A cleaning tool is only as good as its worst mistake, so the dangerous paths are off the table before you start. Drag anything below into the Trash, or tap it.</p>
     </div>
     <div class="safe">
-      <div class="pq rv">
-        <p class="pull" style="margin-top:0;column-span:none">Trash by default, <em>with Undo.</em><cite>How every delete works</cite></p>
-        <p>System folders are protected in code. Anything you delete goes to the Trash unless you explicitly choose to delete it forever, and Undo is one click away. You can add your own protected paths in Settings, and the app only sees what macOS lets it, so Full Disk Access is a choice you make.</p>
-        <ol class="flow" aria-label="Delete flow">
-          <li>You select</li><li>Protected list check</li><li>Trash</li><li>Undo</li>
+      <div class="pen">
+        <h3>Your sample Mac</h3>
+        <p>Locked paths are protected in code. The rest go to the Trash, and you can put them back.</p>
+        <div class="files" id="files"></div>
+        <div class="bin" id="bin">
+          <div class="can"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg></div>
+          <div><b id="binT">Trash is empty</b><small id="binS">Drop a path here</small></div>
+          <button class="btn btn-ghost btn-sm" type="button" id="binUndo" disabled>Put back</button>
+        </div>
+        <div class="say" id="say"><i></i><span>Pick something. Start with /System if you're feeling brave.</span></div>
+      </div>
+      <div class="pen">
+        <h3>How every delete works</h3>
+        <ol class="flow" id="flow">
+          <li><div class="k">1</div><div><b>You select</b><span>From Quick wins, Groups, Drill-down or File types.</span></div></li>
+          <li><div class="k">2</div><div><b>Protected list check</b><span>DeleteService refuses anything on the list. No exceptions, no override.</span></div></li>
+          <li><div class="k">3</div><div><b>Move to Trash</b><span>Unless you explicitly choose to delete forever.</span></div></li>
+          <li><div class="k">4</div><div><b>Undo</b><span>One click, while it's still in the macOS Trash.</span></div></li>
         </ol>
-        <p class="fine">Known gap: a real Undo beyond the macOS Trash window is on the roadmap as snapshot quarantine.</p>
-      </div>
-      <aside class="ledger rv" style="--d:.15s" aria-label="Protected paths">
-        <h3>Protected, compiled in</h3>
-        <ul>
-          <li>/System<small>protected</small></li>
-          <li>/Library<small>protected</small></li>
-          <li>/usr<small>protected</small></li>
-          <li>~/Library/Keychains<small>protected</small></li>
-          <li class="own">Your own paths, added in Settings</li>
-        </ul>
-        <p>And friends. The list is checked by one service that every delete passes through.</p>
-      </aside>
-    </div>
-  </section>
-
-  <!-- BRIEFS -->
-  <section id="briefs">
-    <div class="sh">
-      <div class="kicker">Also in this edition</div>
-      <h2 class="rv">Small print, <em>honestly.</em></h2>
-      <p class="lede rv">The rest of the paper, in short items.</p>
-    </div>
-    <div class="briefs">
-      <div class="brief"><h3>Private by design</h3><p>Runs entirely on your Mac. No telemetry, no sync, no account. Scan data lives under <code>~/Library/Application Support/wimys_crumb/</code>.</p></div>
-      <div class="brief"><h3>Scheduled scans</h3><p>Switch on a schedule in Settings, pick how often, and optionally scan only on power. They run when the app is opened, not in the background.<sup><a href="#n1">1</a></sup></p></div>
-      <div class="brief"><h3>JSON export</h3><p>Settings can export your scan as JSON, if you want the numbers somewhere else.</p></div>
-      <div class="brief"><h3>Full Disk Access</h3><p>Grant it to see everything. Without it the app still works, skips the locked-down areas, and shows a banner saying how many folders it could not read.</p></div>
-      <div class="brief"><h3>Any folder, not just drives</h3><p>The Start screen lists mounted volumes and recent scans. Prefer a single folder? Use "Pick a specific folder".</p></div>
-      <div class="brief"><h3>Snapshots</h3><p>Past scan databases can be browsed and deleted from Settings, or cleared all at once. Detection shows the read-only group catalog and the large-file threshold.</p></div>
-      <div class="road">
-        <h3>In a later edition</h3>
-        <ul>
-          <li>Code signing and notarization for a friction-free install</li>
-          <li>A Homebrew cask (<span class="mono">brew install --cask wimys-crumb</span>)</li>
-          <li>Duplicate-file detection by content hash</li>
-          <li>Snapshot quarantine for a real Undo beyond the macOS Trash window</li>
-          <li>Background scheduled scans via a launchd agent</li>
-          <li>Bundled fonts (Bricolage Grotesque, Geist and Geist Mono)</li>
-        </ul>
+        <div class="plock"><span>/System</span><span>/Library</span><span>/usr</span><span>/private</span><span>~/Library/Keychains</span><span>+ your own, in Settings</span></div>
+        <p class="gap">Known gap: a real Undo beyond the macOS Trash window is on the roadmap as snapshot quarantine.</p>
       </div>
     </div>
-  </section>
-
-  <!-- SCREENS -->
-  <section id="screens">
-    <div class="sh">
-      <div class="kicker">Contents</div>
-      <h2 class="rv">Eight screens, <em>one story.</em></h2>
-      <p class="lede rv">A table of contents for the app itself.</p>
-    </div>
-    <ol class="toc" id="toc">
-      <li class="rv"><span class="n">01</span><span class="t">Start</span><span class="dots"></span><span class="d">Mounted volumes and recent scans. Pick a drive, or any folder.</span></li>
-      <li class="rv"><span class="n">02</span><span class="t">Scanning</span><span class="dots"></span><span class="d">Live progress and the biggest folders found so far. Pause and Cancel.</span></li>
-      <li class="rv"><span class="n">03</span><span class="t">Overview</span><span class="dots"></span><span class="d">Stat cards (Used, Free, Items, Could-free), the treemap, the by-type list and Quick Wins.</span></li>
-      <li class="rv"><span class="n">04</span><span class="t">Drill-down</span><span class="dots"></span><span class="d">Folder contents and a detail panel. Multi-select with checkboxes, bulk delete from the footer.</span></li>
-      <li class="rv"><span class="n">05</span><span class="t">Groups</span><span class="dots"></span><span class="d">Every directory name totalled across the disk. Bubble chart hero and an expandable list.</span></li>
-      <li class="rv"><span class="n">06</span><span class="t">File types</span><span class="dots"></span><span class="d">Stacked-bar hero, per-category cards and the heaviest files in the focused category.</span></li>
-      <li class="rv"><span class="n">07</span><span class="t">History</span><span class="dots"></span><span class="d">Disk usage over time and the growers and shrinkers diff between your two latest scans.</span></li>
-      <li class="rv"><span class="n">08</span><span class="t">Settings</span><span class="dots"></span><span class="d">Safety toggles, protected paths, scheduled scans, detection, snapshots, JSON export, about.</span></li>
-    </ol>
-  </section>
-
-  <!-- INSTALL -->
-  <section id="download">
-    <div class="sh">
-      <div class="kicker">Classifieds</div>
-      <h2 class="rv">Free to a <em>good Mac.</em></h2>
-      <p class="lede rv">Grab the DMG, drag it to Applications, approve it once.</p>
-    </div>
-    <div class="inst">
-      <div class="txt rv">
-        <p>Get the latest <span class="mono">wimys_crumb-&lt;version&gt;.dmg</span> from the Releases page. It needs macOS 14 (Sonoma) or later. The current release is v0.1.5.</p>
-        <p>License: to be decided. The source is public on GitHub.</p>
-        <div class="cta">
-          <a class="btn" href="https://github.com/AbyAbyss/wimys_crumb/releases/latest">Download latest DMG</a>
-          <a class="btn alt" href="#build">Build from source</a>
-        </div>
-      </div>
-      <aside class="ad rv" style="--d:.12s" id="first-launch" aria-label="How to install">
-        <div class="hd"><span>How to install</span><span>Free</span></div>
-        <ol>
-          <li><h3>Download and drag</h3><p>Open the DMG and drag <b>wimys_crumb</b> into Applications.</p></li>
-          <li><h3>macOS can't verify it</h3><p>wimys_crumb is a free side project and is not notarized. Open <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>, or run in Terminal:</p>
-            <div class="cmd"><code>xattr -dr com.apple.quarantine /Applications/wimys_crumb.app</code><button type="button" data-copy="xattr -dr com.apple.quarantine /Applications/wimys_crumb.app" aria-label="Copy the xattr command">Copy</button></div></li>
-          <li><h3>Let it see everything</h3><p>Grant <b>Full Disk Access</b> (System Settings → Privacy &amp; Security → Full Disk Access) so the scan can read protected folders. It works without, and tells you how many folders it skipped.</p></li>
-        </ol>
-      </aside>
-    </div>
-
-    <div class="build" id="build">
-      <div class="hd" style="background:var(--ink);color:var(--paper);font:500 12px var(--mono);letter-spacing:.2em;text-transform:uppercase;padding:9px 16px">Do it yourself &nbsp;/&nbsp; Build from source</div>
-      <div class="cols">
-        <div>
-          <h3>Prefer to build it?</h3>
-          <p>The Xcode project is generated from <span class="mono">project.yml</span>, so it is not committed. Press <span class="mono">⌘R</span> to run. It opens on the Start screen and lists your mounted volumes. Click <b>Scan Macintosh HD</b> to begin.</p>
-          <ul class="rq"><li>macOS 14 (Sonoma) or later</li><li>Xcode 15 or later</li><li>XcodeGen, via <span class="mono">brew install xcodegen</span></li></ul>
-          <p style="margin-top:12px"><a href="https://github.com/AbyAbyss/wimys_crumb">Repository on GitHub</a> and <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a>.</p>
-        </div>
-        <div>
-          <span class="lbl">1. Install XcodeGen</span>
-          <div class="cmd"><code>brew install xcodegen</code><button type="button" data-copy="brew install xcodegen" aria-label="Copy: brew install xcodegen">Copy</button></div>
-          <span class="lbl">2. Clone</span>
-          <div class="cmd"><code>git clone https://github.com/AbyAbyss/wimys_crumb.git</code><button type="button" data-copy="git clone https://github.com/AbyAbyss/wimys_crumb.git" aria-label="Copy the git clone command">Copy</button></div>
-          <span class="lbl">3. Generate and open</span>
-          <div class="cmd"><code>cd wimys_crumb &amp;&amp; xcodegen generate &amp;&amp; open wimys_crumb.xcodeproj</code><button type="button" data-copy="cd wimys_crumb &amp;&amp; xcodegen generate &amp;&amp; open wimys_crumb.xcodeproj" aria-label="Copy the generate and open command">Copy</button></div>
-          <span class="lbl">After adding, removing or renaming files</span>
-          <div class="cmd"><code>xcodegen generate</code><button type="button" data-copy="xcodegen generate" aria-label="Copy: xcodegen generate">Copy</button></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="notes" id="notes">
-    <h2>Notes</h2>
-    <ol>
-      <li id="n1">Scheduled scans run when the app is opened, not in the background. True background scanning needs a helper agent and is on the roadmap.</li>
-      <li id="n2">The README says a 5M-file scan browses in well under 200 MB resident. Treat it as a guide, since your disk will differ.</li>
-      <li id="n3">Fig. 1 to 5 use sample data invented for this page. Nothing here scans, reads or deletes anything on your computer.</li>
-    </ol>
   </div>
-</div>
+</section>
+
+<section class="blk" id="more">
+  <div class="wrap">
+    <div class="shd">
+      <div class="eyebrow">The small print</div>
+      <h2>Everything else, briefly.</h2>
+      <p>The parts that don't fit in a window demo.</p>
+    </div>
+    <div class="fine">
+      <div><h3>Private by design</h3><p>Runs entirely on your Mac. No telemetry, no sync, no account. Scan data lives under <code>~/Library/Application Support/wimys_crumb/</code>.</p></div>
+      <div><h3>Full Disk Access</h3><p>Grant it to see everything. Without it the app still works, skips the locked-down areas, and shows a banner saying how many folders it couldn't read.</p></div>
+      <div><h3>Any folder, not just drives</h3><p>Start lists mounted volumes and recent scans. Prefer a single folder? Use "Pick a specific folder".</p></div>
+      <div><h3>Scheduled scans</h3><p>Pick how often and optionally scan only on power. They run when the app is opened, not in the background.</p></div>
+      <div><h3>Snapshots</h3><p>Past scan databases can be browsed and deleted from Settings, or cleared all at once.</p></div>
+      <div><h3>JSON export</h3><p>Settings can export your scan as JSON, if you want the numbers somewhere else.</p></div>
+    </div>
+    <div class="road" aria-label="Roadmap">
+      <span>Code signing and notarization</span><span>Homebrew cask</span><span>Duplicate files by content hash</span><span>Snapshot quarantine for a real Undo</span><span>Background scans via launchd</span><span>Bundled fonts</span>
+    </div>
+    <p class="src">On the roadmap, not in v0.1.5.</p>
+  </div>
+</section>
+
+<section class="blk" id="install">
+  <div class="wrap">
+    <div class="shd">
+      <div class="eyebrow">Install</div>
+      <h2>Free to a good Mac.</h2>
+      <p>Grab the DMG from the Releases page, drag it to Applications, approve it once. Needs macOS 14 (Sonoma) or later. License: to be decided; the source is public on GitHub.</p>
+    </div>
+    <div class="inst-box">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" type="button" id="tab-dmg" aria-controls="p-dmg" aria-selected="true">Download the DMG</button>
+        <button class="tab" role="tab" type="button" id="tab-src" aria-controls="p-src" aria-selected="false" tabindex="-1">Build from source</button>
+      </div>
+      <div class="tpanel" role="tabpanel" id="p-dmg" aria-labelledby="tab-dmg">
+        <div>
+          <ol class="isteps">
+            <li><div><b>Download and drag</b><span>Get <code>wimys_crumb-&lt;version&gt;.dmg</code>, open it and drag wimys_crumb into Applications.</span></div></li>
+            <li><div><b>"macOS can't verify it"</b><span>It's a free side project and isn't notarized. Open System Settings → Privacy &amp; Security and click Open Anyway, or run the command on the right.</span></div></li>
+            <li><div><b>Let it see everything</b><span>Grant Full Disk Access in System Settings → Privacy &amp; Security. It works without, and tells you how many folders it skipped.</span></div></li>
+          </ol>
+          <div class="cta" style="margin-top:26px"><a class="btn btn-primary" href="https://github.com/AbyAbyss/wimys_crumb/releases/latest">Download latest DMG</a><a class="btn btn-ghost" href="https://github.com/AbyAbyss/wimys_crumb/releases">All releases</a></div>
+        </div>
+        <div class="term"><div class="th"><i></i><i></i><i></i><span>Terminal</span></div>
+          <div class="tb">
+            <div class="cm"># only if Gatekeeper blocks the first launch</div>
+            <div class="ln"><code>xattr -dr com.apple.quarantine /Applications/wimys_crumb.app</code><button class="copy" type="button" data-copy="xattr -dr com.apple.quarantine /Applications/wimys_crumb.app">Copy</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="tpanel" role="tabpanel" id="p-src" aria-labelledby="tab-src" hidden>
+        <div>
+          <ol class="isteps">
+            <li><div><b>Install XcodeGen</b><span>The Xcode project is generated from <code>project.yml</code>, so it isn't committed.</span></div></li>
+            <li><div><b>Clone, generate, open</b><span>Then press ⌘R. It opens on Start and lists your mounted volumes.</span></div></li>
+            <li><div><b>After adding, removing or renaming files</b><span>Run <code>xcodegen generate</code> again.</span></div></li>
+          </ol>
+          <div class="reqs"><span>macOS 14+</span><span>Xcode 15+</span><span>XcodeGen</span></div>
+          <div class="cta" style="margin-top:22px"><a class="btn btn-ghost" href="https://github.com/AbyAbyss/wimys_crumb">Repository on GitHub</a><a class="btn btn-ghost" href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a></div>
+        </div>
+        <div class="term"><div class="th"><i></i><i></i><i></i><span>Terminal</span></div>
+          <div class="tb">
+            <div class="ln"><code>brew install xcodegen</code><button class="copy" type="button" data-copy="brew install xcodegen">Copy</button></div>
+            <div class="ln"><code>git clone https://github.com/AbyAbyss/wimys_crumb.git</code><button class="copy" type="button" data-copy="git clone https://github.com/AbyAbyss/wimys_crumb.git">Copy</button></div>
+            <div class="ln"><code>cd wimys_crumb &amp;&amp; xcodegen generate &amp;&amp; open wimys_crumb.xcodeproj</code><button class="copy" type="button" data-copy="cd wimys_crumb && xcodegen generate && open wimys_crumb.xcodeproj">Copy</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 </main>
 
 <footer>
-  <div class="page">
-    <div>
-      <div class="links">
-        <a href="https://github.com/AbyAbyss/wimys_crumb">Repository</a>
-        <a href="https://github.com/AbyAbyss/wimys_crumb/releases">Releases</a>
-        <a href="https://github.com/AbyAbyss/wimys_crumb#license">License (TBD)</a>
-        <a href="index.html">Made by Aby Saji Pappachan</a>
-      </div>
-      <p>wimys_crumb v0.1.5, a friendly disk-space scanner for macOS 14+. Swift, SwiftUI and GRDB. License to be decided.</p>
-    </div>
-    <div class="big" aria-hidden="true">wimys<i>_</i>crumb</div>
+  <div class="wrap">
+    <span style="display:flex;align-items:center;gap:10px"><svg class="mark" style="width:22px;height:22px" aria-hidden="true"><use href="#logo"/></svg>wimys_crumb v0.1.5 · sample figures on this page are invented</span>
+    <nav><a href="index.html">All projects</a><a href="https://github.com/AbyAbyss/wimys_crumb">GitHub</a><a href="https://github.com/AbyAbyss/wimys_crumb/releases">Releases</a></nav>
   </div>
 </footer>
 
-<div class="toast" id="toast" role="status" aria-live="polite"><p id="toastMsg"></p><button type="button" id="toastBtn">Undo</button></div>
+<div class="pal" id="pal" hidden>
+  <div class="palbox" role="dialog" aria-modal="true" aria-label="Command menu">
+    <input id="palIn" type="text" placeholder="Jump to a section, a screen, or an action" autocomplete="off" aria-label="Search commands">
+    <ul id="palList" role="listbox"></ul>
+    <div class="pf"><span><span class="kbd">↑↓</span> move</span><span><span class="kbd">↵</span> go</span><span><span class="kbd">esc</span> close</span></div>
+  </div>
+</div>
 
 <script>
 (function(){
 'use strict';
-var RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
 var $=function(s,r){return (r||document).querySelector(s)};
 var $$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
-var clamp=function(v,a,b){return Math.max(a,Math.min(b,v))};
-var ease=function(t){return 1-Math.pow(1-t,3)};
 var NS='http://www.w3.org/2000/svg';
-function svg(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function el(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function gb(v){v=Math.max(0,v);return (v<10&&Math.round(v*10)%10?v.toFixed(1):Math.round(v))+' GB'}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
-/* ---------- reveal ---------- */
-var io=('IntersectionObserver' in window)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12,rootMargin:'0px 0px -6% 0px'}):null;
-$$('.rv').forEach(function(e){io?io.observe(e):e.classList.add('in')});
+/* ---------- theme ---------- */
+var root=document.documentElement;
+try{var th=localStorage.getItem('wc-theme');if(th)root.setAttribute('data-theme',th)}catch(e){}
+function isDark(){var t=root.getAttribute('data-theme');return t?t==='dark':!matchMedia('(prefers-color-scheme: light)').matches}
+function toggleTheme(){var n=isDark()?'light':'dark';root.setAttribute('data-theme',n);try{localStorage.setItem('wc-theme',n)}catch(e){}}
+$('#themeBtn').addEventListener('click',toggleTheme);
+if(!/Mac|iPhone|iPad/.test(navigator.platform||navigator.userAgent))$('#kmod').textContent='Ctrl K';
 
-/* ---------- count-up ---------- */
-function tween(el,to,dur,fmt,done){
-  var from=el._v==null?0:el._v,t0=null;fmt=fmt||function(v){return Math.round(v)};
-  if(RM||dur<=0){el._v=to;el.textContent=fmt(to);return}
-  function f(ts){if(t0==null)t0=ts;var p=clamp((ts-t0)/dur,0,1),v=from+(to-from)*ease(p);el._v=v;el.textContent=fmt(v);if(p<1)requestAnimationFrame(f);else if(done)done()}
-  requestAnimationFrame(f);
-}
-var cio=('IntersectionObserver' in window&&!RM)?new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var el=e.target,to=+el.dataset.to,pre=el.dataset.pre||'',suf=el.dataset.suf||'';el._v=0;tween(el,to,1600,function(v){return pre+Math.round(v)+suf});cio.unobserve(el)}})},{threshold:.6}):null;
-$$('[data-count]').forEach(function(el){if(cio){var pre=el.dataset.pre||'',suf=el.dataset.suf||'';el.textContent=pre+'0'+suf;cio.observe(el)}});
+/* ---------- copy ---------- */
+$$('[data-copy]').forEach(function(b){b.addEventListener('click',function(){
+  var t=b.getAttribute('data-copy');
+  function ok(){b.textContent='Copied';b.classList.add('ok');setTimeout(function(){b.textContent='Copy';b.classList.remove('ok')},1600)}
+  function fb(){var c=b.previousElementSibling;if(c){var r=document.createRange();r.selectNodeContents(c);var s=getSelection();s.removeAllRanges();s.addRange(r)}b.textContent='Selected, press ⌘C'}
+  try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}
+})});
 
-/* ---------- copy buttons ---------- */
-$$('[data-copy]').forEach(function(b){
-  b.addEventListener('click',function(){
-    var text=b.getAttribute('data-copy'),old=b.textContent;
-    function done(){b.textContent='Copied';b.classList.add('ok');setTimeout(function(){b.textContent=old;b.classList.remove('ok')},1700)}
-    function fb(){try{var t=document.createElement('textarea');t.value=text;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t)}catch(e){}done()}
-    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fb);else fb();
-  });
+/* ---------- tabs ---------- */
+var tabs=$$('.tab');
+tabs.forEach(function(t,i){
+  t.addEventListener('click',function(){selTab(i)});
+  t.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){var j=(i+(e.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;selTab(j);tabs[j].focus()}});
 });
+function selTab(i){tabs.forEach(function(t,j){var on=i===j;t.setAttribute('aria-selected',on);t.tabIndex=on?0:-1;$('#'+t.getAttribute('aria-controls')).hidden=!on})}
 
-/* ---------- TREEMAP ---------- */
-var COL={violet:'#B0A2D9',sage:'#86B79B',mustard:'#E4AC3F',blue:'#8FB8D4',clay:'#DDA98C',rose:'#E4A0B3',stone:'#D6CBB6',slate:'#A4AEA6'};
-var TOTAL=499;
-var TREE={n:'Macintosh HD (sample)',c:[
- {n:'Users/aby',col:'violet',c:[
-  {n:'Movies',col:'violet',c:[{n:'Final Cut Library',v:61},{n:'Screen Recordings',v:29},{n:'Exports',v:22}]},
-  {n:'Developer',col:'sage',c:[
+/* =================== THE APP =================== */
+var C={coral:'#E55934',honey:'#F3B95F',sage:'#5FA37C',lilac:'#9E8FCF',navy:'#2C3E66',pink:'#D86A8A',sky:'#7BAFD4',sand:'#D7C9AA',stone:'#B5A48E',honeySoft:'#FBE9C6',lilacSoft:'#E8E2F5',sageSoft:'#D8ECDD'};
+var DARK={};DARK[C.navy]=1;DARK[C.coral]=1;
+var TREE={n:'Macintosh HD',c:[
+ {n:'Users/aby',col:C.lilac,c:[
+  {n:'Movies',col:C.lilac,c:[{n:'Final Cut Library',v:61},{n:'Screen Recordings',v:29},{n:'Exports',v:22}]},
+  {n:'Developer',col:C.sage,c:[
     {n:'client-app',c:[{n:'node_modules',v:14,q:'nm'},{n:'.next',v:9},{n:'src and assets',v:8}]},
     {n:'old-site',c:[{n:'node_modules',v:8,q:'nm'},{n:'src',v:9}]},
     {n:'ios-app',v:22},{n:'scripts',v:14}]},
-  {n:'Pictures',col:'mustard',c:[{n:'Photos Library',v:41},{n:'Screenshots',v:6}]},
-  {n:'Library',col:'blue',c:[{n:'DerivedData',v:18,q:'dd',p:'/Users/aby/Library/Developer/Xcode/DerivedData'},{n:'Caches',v:9,q:'ca',p:'/Users/aby/Library/Caches'},{n:'Application Support',v:9}]},
-  {n:'Downloads',col:'clay',c:[{n:'Old DMGs and zips',v:3,q:'dl'},{n:'Recent downloads',v:5}]},
-  {n:'Music',col:'rose',v:9}]},
- {n:'Applications',col:'mustard',c:[{n:'Xcode.app',v:38},{n:'Final Cut Pro.app',v:9},{n:'Other apps',v:24}]},
- {n:'System',col:'stone',prot:1,c:[{n:'Library',v:15},{n:'Applications',v:9}]},
- {n:'Library',col:'slate',prot:1,c:[{n:'Frameworks',v:11},{n:'Application Support',v:8}]},
- {n:'Other',col:'stone',p:'/private, /usr, /opt',c:[{n:'private',v:17,p:'/private'},{n:'usr',v:8,prot:1,p:'/usr'},{n:'opt',v:3,p:'/opt'}]}
+  {n:'Pictures',col:C.honey,c:[{n:'Photos Library',v:41},{n:'Screenshots',v:6}]},
+  {n:'Library',col:C.sky,c:[{n:'DerivedData',v:18,q:'dd',p:'/Users/aby/Library/Developer/Xcode/DerivedData'},{n:'Caches',v:9,q:'ca'},{n:'Application Support',v:9}]},
+  {n:'Downloads',col:C.pink,c:[{n:'Old DMGs and zips',v:3,q:'dl'},{n:'Recent downloads',v:5}]},
+  {n:'Music',col:C.navy,v:9}]},
+ {n:'Applications',col:C.honey,c:[{n:'Xcode.app',v:38},{n:'Final Cut Pro.app',v:9},{n:'Other apps',v:24}]},
+ {n:'System',col:C.sand,prot:1,c:[{n:'Library',v:15},{n:'Applications',v:9}]},
+ {n:'Library',col:C.sand,prot:1,c:[{n:'Frameworks',v:11},{n:'Application Support',v:8}]},
+ {n:'Other',col:C.stone,c:[{n:'private',v:17,prot:1},{n:'usr',v:8,prot:1},{n:'opt',v:3}]}
 ]};
 var QW=[
  {id:'nm',t:'Stale node_modules',s:'2 folders not touched in 90+ days',gb:22},
@@ -794,21 +968,88 @@ var QW=[
  {id:'ca',t:'Large Caches folders',s:'~/Library/Caches over 500 MB',gb:9},
  {id:'dl',t:'Old downloads',s:'DMGs and zips over 6 months old',gb:3}
 ];
-var leaves=[];
+var FT=[['Video',156,C.lilac],['Photos',108,C.honey],['Code',72,C.sage],['Apps',48,C.sky],['Documents',28,C.pink],['Music',12,C.navy],['Archives',8,C.coral],['Other',6,C.sand]];
+var HEAVY={
+ Video:[['Render Files (Final Cut)','~/Movies/Final Cut Library',18.2],['conf-talk-4k.mov','~/Movies/Exports',7.4],['Screen Recording 2026-09-12.mov','~/Movies/Screen Recordings',4.9],['trip-drone-raw.mp4','~/Movies/Exports',3.6]],
+ Photos:[['Photos Library.photoslibrary','~/Pictures',41],['originals-2025.zip','~/Pictures',5.2],['panorama-stack.tif','~/Pictures/Screenshots',1.3]],
+ Code:[['ios-app (repo)','~/Developer',22],['client-app/node_modules','~/Developer/client-app',14],['DerivedData','~/Library/Developer/Xcode',18]],
+ Apps:[['Xcode.app','/Applications',38],['Final Cut Pro.app','/Applications',9],['iOS 18 Simulator runtime','~/Library/Developer',6.8]],
+ Documents:[['tax-scans-2019-2025.pdf','~/Documents',2.4],['Keynote decks','~/Documents/Talks',1.9],['manuals.zip','~/Documents',1.1]],
+ Music:[['Music Library','~/Music',9],['GarageBand sounds','/Library/Application Support',2.1]],
+ Archives:[['Old DMGs and zips','~/Downloads',3],['backup-2024.tar.gz','~/Documents',2.6]],
+ Other:[['sleepimage','/private/var/vm',2],['swapfile0','/private/var/vm',1]]
+};
+var G=[
+ {n:'node_modules',v:61,f:47,c:C.coral,age:'avg 5 mo',stale:1,inst:[['~/Developer/client-app/node_modules',14],['~/Developer/old-site/node_modules',8],['~/Developer/ios-app/web/node_modules',6.2],['~/Developer/scripts/bot/node_modules',3.9],['43 more folders',28.9]]},
+ {n:'Caches',v:24,f:31,c:C.honey,age:'avg 2 mo',inst:[['~/Library/Caches',9],['~/Library/Containers/…/Caches',3.1],['~/Library/Developer/CoreSimulator/Caches',2.6],['28 more folders',9.3]]},
+ {n:'DerivedData',v:18,f:3,c:C.lilac,age:'avg 3 wk',stale:1,inst:[['~/Library/Developer/Xcode/DerivedData',16.4],['~/Developer/ios-app/build/DerivedData',1.2],['~/Developer/scripts/DerivedData',0.4]]},
+ {n:'target',v:14,f:9,c:C.sage,age:'avg 7 mo',stale:1,inst:[['~/Developer/rust-cli/target',6.8],['~/Developer/tools/target',3.1],['7 more folders',4.1]]},
+ {n:'Pods',v:9.6,f:6,c:C.sky,age:'avg 1 mo',inst:[['~/Developer/ios-app/Pods',4.4],['5 more folders',5.2]]},
+ {n:'.venv',v:7.3,f:5,c:C.pink,age:'avg 2 mo',inst:[['~/Developer/scripts/.venv',2.9],['4 more folders',4.4]]},
+ {n:'__pycache__',v:2.1,f:212,c:C.stone,age:'avg 2 mo',inst:[['~/Developer/scripts/__pycache__',0.1],['211 more folders',2.0]]}
+];
+var H=[['Feb',352],['Mar',361],['Apr',370],['May',366],['Jun',388],['Jul',402],['Aug',415],['Sep',431],['Oct',438]];
+
 (function prep(n,pp,col,prot){
   n.path=n.p||(pp+'/'+n.n);n.col=n.col||col;n.prot=n.prot||prot;
-  if(n.c){n.c.forEach(function(k){k.parent=n;prep(k,n===TREE?'':n.path,n.col,n.prot)})}else leaves.push(n);
-})(TREE,'', 'stone',0);
-TREE.path='';
-var removed={},checked={nm:1,dd:1,ca:1,dl:1},reclaimed=false;
-var view=TREE;
-
+  if(n.c)n.c.forEach(function(k){k.parent=n;prep(k,n===TREE?'':n.path,n.col,n.prot)});
+})(TREE,'',C.stone,0);
+TREE.path='/';
+var removed={},checked={nm:1,dd:1,ca:1,dl:1},lastRemoved=null,view=TREE;
 function recalc(n){if(!n.c){n.sz=removed[n.path]?0:n.v;n.mk=(!removed[n.path]&&n.q&&checked[n.q])?n.v:0;return}n.sz=0;n.mk=0;n.c.forEach(function(k){recalc(k);n.sz+=k.sz;n.mk+=k.mk})}
-function qs(n,set){if(!n.c){if(n.q&&!removed[n.path])set[n.q]=1;return}n.c.forEach(function(k){qs(k,set)})}
-function hasQ(n,q){if(!n.c)return n.q===q&&!removed[n.path];return n.c.some(function(k){return hasQ(k,q)})}
+function qAvail(id){var a=0;(function w(n){if(n.c)n.c.forEach(w);else if(n.q===id&&!removed[n.path])a+=n.v})(TREE);return a}
 
+/* screens */
+var win=$('#win'),cur='overview';
+var TITLES={start:'Start',scanning:'Scanning',overview:'Overview',groups:'Groups',types:'File types',history:'History',settings:'Settings'};
+function go(s){
+  if(scan.on&&s!=='scanning'){stopScan(true)}
+  cur=s;
+  $$('.screen',win).forEach(function(x){x.classList.toggle('on',x.dataset.s===s)});
+  $$('.sitem',win).forEach(function(x){x.toggleAttribute('aria-current',x.dataset.go===s);if(x.dataset.go===s)x.setAttribute('aria-current','page')});
+  $('#wtitle').textContent=TITLES[s]+(s==='overview'&&view!==TREE?' · Drill-down':'');
+  if(s==='overview')requestAnimationFrame(function(){layout(false)});
+  if(s==='groups')buildBubbles();
+  if(s==='history')buildChart();
+}
+$$('[data-go]',win).forEach(function(b){b.addEventListener('click',function(){go(b.dataset.go)})});
+
+/* stats */
+function refresh(){
+  recalc(TREE);
+  var rem=0;for(var k in removed)rem+=removed[k];
+  var could=0;QW.forEach(function(q){if(checked[q.id])could+=qAvail(q.id)});
+  var avail=0;QW.forEach(function(q){avail+=qAvail(q.id)});
+  $('#stU').textContent=Math.round(438-rem);$('#stF').textContent=Math.round(61+rem);
+  $('#stC').textContent=Math.round(rem&&!avail?rem:could);
+  $('#stCk').textContent=rem&&!avail?'Freed so far':'Could free';
+  $('#qwSum').textContent=gb(avail);
+  $('#sbBadge').textContent=gb(avail);$('#sbBadge').hidden=!avail;
+  var rb=$('#reclaim');rb.textContent=could?'Reclaim '+gb(could):(avail?'Tick something to reclaim':'Nothing obvious to clean up. Nice.');rb.disabled=!could;
+  $('#svU').style.width=((438-rem-could)/499*100)+'%';$('#svC').style.width=(could/499*100)+'%';
+  $('#svT').textContent=Math.round(438-rem)+' GB used of 499 GB';
+  $$('#qw li').forEach(function(li){var a=qAvail(li.dataset.id);li.classList.toggle('gone',!a);li.querySelector('.gb').textContent=a?gb(a):'done';li.querySelector('input').disabled=!a});
+}
+
+/* quick wins */
+QW.forEach(function(q){
+  var li=document.createElement('li');li.dataset.id=q.id;
+  li.innerHTML='<label><input class="cb" type="checkbox" checked><div><b>'+q.t+'</b><small>'+q.s+'</small></div><span class="gb">'+q.gb+' GB</span></label>';
+  var cb=li.querySelector('input');
+  cb.addEventListener('change',function(){checked[q.id]=cb.checked?1:0;refresh();paint()});
+  li.addEventListener('pointerenter',function(){pulseQ(q.id,true)});li.addEventListener('pointerleave',function(){pulseQ(q.id,false)});
+  $('#qw').appendChild(li);
+});
+function pulseQ(id,on){Object.keys(cells).forEach(function(k){var c=cells[k];if(c._n&&hasQ(c._n,id))c.classList.toggle('flash',on)})}
+function hasQ(n,id){if(!n.c)return n.q===id&&!removed[n.path];return n.c.some(function(k){return hasQ(k,id)})}
+
+/* by type mini */
+FT.forEach(function(f){var li=document.createElement('li');li.style.setProperty('--c',f[2]);li.innerHTML='<i></i>'+f[0]+'<span>'+f[1]+' GB</span>';$('#bt').appendChild(li)});
+
+/* ---------- treemap ---------- */
 function squarify(items,x,y,w,h){
-  var out=[],total=items.reduce(function(a,b){return a+b.v},0),k=w*h/total,rest=items.slice();
+  var out=[],total=items.reduce(function(a,b){return a+b.v},0);if(!total)return out;
+  var k=w*h/total,rest=items.slice();
   function worst(a,s){var sum=0,mx=0,mn=1e12;a.forEach(function(v){sum+=v;if(v>mx)mx=v;if(v<mn)mn=v});return Math.max(s*s*mx/(sum*sum),sum*sum/(s*s*mn))}
   while(rest.length){
     var side=Math.min(w,h),row=[rest[0]],wv=worst([rest[0].v*k],side),i=1;
@@ -820,321 +1061,397 @@ function squarify(items,x,y,w,h){
   }
   return out;
 }
-
-var tm=$('#tm'),cells={},crumbsEl=$('#crumbs'),capEl=$('#cap');
-function fmtGB(v){return (v<10&&v%1?v.toFixed(1):Math.round(v))+' GB'}
-function nodeNote(n){
-  if(n.prot)return 'Protected path. wimys_crumb will never offer to delete it.';
-  var m=n.mk;if(m>0)return fmtGB(m)+' of this is reclaimable (Quick wins).';
-  return n.c?'Click to open.':'No sub-folders in this sample.';
-}
-function setCap(n){
-  var tot=view.sz,pct=n?Math.round(n.sz/tot*100):100;
-  if(!n){capEl.innerHTML='<div class="path">'+(view===TREE?'/':view.path)+'<em>Hover or focus a cell. Currently showing '+(view===TREE?'the whole drive':'this folder')+'.</em></div><div class="sz">'+fmtGB(view.sz)+'<small>100% of view</small></div>';return}
-  capEl.innerHTML='<div class="path">'+n.path+'<em>'+nodeNote(n)+'</em></div><div class="sz">'+fmtGB(n.sz)+'<small>'+pct+'% of view</small></div>';
+var tm=$('#tm'),cells={},hovered=null;
+function kids(n){return (n.c||[]).filter(function(k){return k.sz>0}).sort(function(a,b){return b.sz-a.sz})}
+function cellColor(n){
+  if(n.q&&checked[n.q])return C.coral;
+  if(n.parent&&n.parent!==TREE&&n.parent.parent&&n.parent.parent!==TREE&&!n.c){return n.col}
+  return n.col;
 }
 function mkCell(n){
   var b=document.createElement('button');b.type='button';b.className='cell';
-  b.innerHTML='<span class="fill"><span class="band"></span></span><span class="lab"><b></b><i></i></span>';
-  b._n=n;b._fill=b.firstChild;b._band=b._fill.firstChild;b._b=b.lastChild.firstChild;b._i=b.lastChild.lastChild;
-  b.style.setProperty('--c',COL[n.col]||COL.stone);
-  if(n.prot)b.classList.add('prot');
-  b.classList.add(n.c?'drillable':'leaf');
-  b._fill.style.background=COL[n.col]||COL.stone;
-  tm.appendChild(b);return b;
+  b.innerHTML='<span class="f"><span class="rb"></span></span><span class="t"><b></b><i></i></span>';
+  b._n=n;
+  b.addEventListener('click',function(){if(n.c&&kids(n).length)drill(n,b);else{setCap(n);b.classList.remove('flash');void b.offsetWidth;b.classList.add('flash')}});
+  b.addEventListener('pointerenter',function(){hovered=n;setCap(n)});
+  b.addEventListener('focus',function(){hovered=n;setCap(n)});
+  b.addEventListener('pointerleave',function(){hovered=null;setCap(null)});
+  return b;
 }
-function place(el,r,op,sc){el.style.left=r.x+'px';el.style.top=r.y+'px';el.style.width=r.w+'px';el.style.height=r.h+'px';el.style.opacity=op==null?1:op;el.style.transform=sc?'scale('+sc+')':''}
-var lastW=0;
-function render(mode,origin){
-  recalc(TREE);
-  var W=tm.clientWidth,H=tm.clientHeight;
-  var kids=view.c.filter(function(k){return k.sz>0}).sort(function(a,b){return b.sz-a.sz});
-  var rects=squarify(kids.map(function(k){return {n:k,v:k.sz}}),0,0,W,H),map={};
-  rects.forEach(function(r){map[r.n.path]=r});
-  var instant=(mode==='init'||mode==='resize');
-  if(instant)tm.classList.add('nt');
-  // exits
-  Object.keys(cells).forEach(function(id){
-    if(map[id])return;
-    var el=cells[id];delete cells[id];el.tabIndex=-1;el.disabled=true;
-    var gone=(mode==='data');
-    var cx=parseFloat(el.style.left)+parseFloat(el.style.width)/2,cy=parseFloat(el.style.top)+parseFloat(el.style.height)/2;
-    if(gone&&!RM){el.style.transitionDelay=(.05*(+el.dataset.k||0))+'s';el.style.left=cx+'px';el.style.top=cy+'px';el.style.width='0px';el.style.height='0px';el.style.opacity='0'}
-    else{el.style.opacity='0';el.style.transform='scale(.97)'}
-    setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},gone?1300:500);
-  });
-  var idx=0;
+function paintCell(b,r,W,Hh){
+  var n=b._n,pw=r.w,ph=r.h;
+  b.style.left=(r.x/W*100)+'%';b.style.top=(r.y/Hh*100)+'%';b.style.width=(r.w/W*100)+'%';b.style.height=(r.h/Hh*100)+'%';
+  var col=n.q&&checked[n.q]?C.coral:n.col;
+  b.style.setProperty('--c',col);b.style.setProperty('--tc',DARK[col]?'#FFFFFF':'#2A2118');
+  b.classList.toggle('prot',!!n.prot);b.classList.toggle('q',!!(n.q&&!n.c));b.classList.toggle('on',!!(n.q&&checked[n.q]));b.classList.toggle('leaf',!n.c);
+  b.style.setProperty('--rp',(n.c&&n.mk?Math.max(6,n.mk/n.sz*100):0)+'%');
+  var t=b.querySelector('.t');t.style.display=(pw>58&&ph>34)?'':'none';
+  t.firstChild.textContent=n.n;t.lastChild.textContent=gb(n.sz)+(n.prot?' · protected':'');
+  t.lastChild.style.display=ph>48?'':'none';
+  b.setAttribute('aria-label',n.n+', '+gb(n.sz)+(n.prot?', protected':'')+(n.c?', open folder':''));
+}
+function layout(anim,fromRect){
+  var W=tm.clientWidth,Hh=tm.clientHeight;if(!W)return;
+  var ks=kids(view);
+  var rects=squarify(ks.map(function(k){return {n:k,v:k.sz}}),0,0,W,Hh);
+  var keep={};
   rects.forEach(function(r){
-    var n=r.n,el=cells[n.path];
-    if(!el){
-      el=cells[n.path]=mkCell(n);
-      if(instant){place(el,r,1)}
-      else{
-        var o=origin||{x:r.x+r.w/2,y:r.y+r.h/2,w:0,h:0};
-        if(mode==='up')o={x:W*.1,y:H*.1,w:W*.8,h:H*.8};
-        place(el,o,mode==='data'?0:0,mode==='up'?.96:0);
-        el.style.opacity=0;void el.offsetWidth;place(el,r,1,0);
+    var key=r.n.path,b=cells[key];keep[key]=1;
+    if(!b){
+      b=mkCell(r.n);cells[key]=b;tm.appendChild(b);
+      if(anim&&!RM){
+        var fr=fromRect||{x:r.x+r.w/2,y:r.y+r.h/2,w:0,h:0};
+        var sx=fromRect?fr.x+r.x/W*fr.w:fr.x,sy=fromRect?fr.y+r.y/Hh*fr.h:fr.y,sw=fromRect?r.w/W*fr.w:0,sh=fromRect?r.h/Hh*fr.h:0;
+        b.style.transition='none';
+        paintCell(b,{x:sx,y:sy,w:sw,h:sh},W,Hh);b.style.opacity=fromRect?'1':'0';
+        void b.offsetWidth;b.style.transition='';
       }
-    }else place(el,r,1,0);
-    el.dataset.k=idx++;el.style.transitionDelay='';
-    var small=r.w<74||r.h<44;
-    el._b.style.display=el._i.style.display=small?'none':'';
-    el._b.textContent=n.n;el._i.textContent=fmtGB(n.sz)+(n.prot?' protected':'');
-    if(r.h<62)el._i.style.display='none';
-    var fr=n.sz>0?n.mk/n.sz:0;el._band.style.height=(fr*100)+'%';
-    var q={};qs(n,q);el._q=Object.keys(q);
-    el.setAttribute('aria-label',n.n+', '+fmtGB(n.sz)+', '+Math.round(n.sz/view.sz*100)+' percent of this view. '+nodeNote(n)+(n.c?' Press Enter to open.':''));
-    el.tabIndex=0;el.disabled=false;
+    }
+    b.style.opacity='1';
+    paintCell(b,r,W,Hh);
   });
-  if(instant)requestAnimationFrame(function(){requestAnimationFrame(function(){tm.classList.remove('nt')})});
-  lastW=W;
-  applyHl();
-  drawCrumbs();stats();
+  Object.keys(cells).forEach(function(k){if(!keep[k]){var b=cells[k];delete cells[k];b.style.opacity='0';b.style.pointerEvents='none';setTimeout(function(){b.remove()},RM?0:400)}});
+  $('#tmCount').textContent=ks.length+' folders';
+  crumbs();setCap(hovered);
 }
-function drawCrumbs(){
-  var chain=[],n=view;while(n){chain.unshift(n);n=n.parent}
-  var h='';
+function paint(){layout(false)}
+function drill(n,b){
+  var W=tm.clientWidth,Hh=tm.clientHeight,r={x:b.offsetLeft,y:b.offsetTop,w:b.offsetWidth,h:b.offsetHeight};
+  Object.keys(cells).forEach(function(k){var c=cells[k];delete cells[k];c.style.opacity='0';c.style.pointerEvents='none';setTimeout(function(){c.remove()},350)});
+  view=n;hovered=null;layout(true,r);
+  $('#wtitle').textContent='Overview · Drill-down';
+}
+function up(){if(view===TREE)return;view=view.parent;hovered=null;Object.keys(cells).forEach(function(k){var c=cells[k];delete cells[k];c.remove()});layout(true);$('#wtitle').textContent='Overview'+(view!==TREE?' · Drill-down':'')}
+function crumbs(){
+  var bar=$('#crumbs'),chain=[],n=view;while(n){chain.unshift(n);n=n.parent}
+  bar.innerHTML='';
   chain.forEach(function(c,i){
-    var name=c===TREE?'Macintosh HD (sample)':c.n;
-    if(i===chain.length-1)h+='<span class="cur" aria-current="location">'+name+'</span>';
-    else h+='<button type="button" data-i="'+i+'">'+name+'</button><span class="sep" aria-hidden="true">/</span>';
+    if(i){var s=document.createElement('span');s.className='sep';bar.appendChild(s)}
+    var b=document.createElement('button');b.type='button';b.textContent=c.n;
+    if(i<chain.length-1)b.addEventListener('click',function(){view=c;hovered=null;Object.keys(cells).forEach(function(k){cells[k].remove();delete cells[k]});layout(true);$('#wtitle').textContent='Overview'+(view!==TREE?' · Drill-down':'')});
+    else b.setAttribute('aria-current','location');
+    bar.appendChild(b);
   });
-  h+='<span class="hint">Click a cell to open it. Esc goes up.</span>';
-  crumbsEl.innerHTML=h;crumbsEl._chain=chain;
+  if(view!==TREE){var e=document.createElement('span');e.className='esc';e.textContent='Esc goes up';bar.appendChild(e)}
 }
-crumbsEl.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;goTo(crumbsEl._chain[+b.dataset.i],e.detail===0)});
-function goTo(n,kb){
-  var up=false,x=view;while(x){if(x===n){up=true}x=x.parent}
-  view=n;setCap();render(up?'up':'drill');
-  if(kb){var f=tm.querySelector('.cell:not(:disabled)');if(f)f.focus()}
+function setCap(n){
+  var cap=$('#tmcap'),tot=view.sz||1;
+  if(!n){cap.innerHTML='<div class="p">'+esc(view.path)+'<em>'+(view===TREE?'Hover a tile for details. Click one to open it.':'Click a tile to go deeper, or use the crumbs above.')+'</em></div><div class="s">'+gb(view.sz)+'</div>';return}
+  var note=n.prot?'Protected path. wimys_crumb will never offer to delete it.':n.mk?gb(n.mk)+' of this is reclaimable (Quick wins).':n.c?'Click to open.':'No sub-folders in this sample.';
+  cap.innerHTML='<div class="p">'+esc(n.path)+'<em>'+note+'</em></div><div class="s">'+gb(n.sz)+' <small style="font:500 12px var(--f-body);color:var(--a-ink2)">'+Math.round(n.sz/tot*100)+'%</small></div>';
 }
-function origin(el){return {x:parseFloat(el.style.left),y:parseFloat(el.style.top),w:parseFloat(el.style.width),h:parseFloat(el.style.height)}}
-tm.addEventListener('click',function(e){
-  var el=e.target.closest('.cell');if(!el||!el._n.c)return;
-  var o=origin(el);view=el._n;setCap();render('drill',o);
-  if(e.detail===0){var f=tm.querySelector('.cell:not(:disabled)');if(f)f.focus()}
-});
-tm.addEventListener('keydown',function(e){if((e.key==='Escape'||e.key==='Backspace')&&view.parent){e.preventDefault();goTo(view.parent,true)}});
-function hov(e){var el=e.target.closest&&e.target.closest('.cell');if(el&&!el.disabled)setCap(el._n)}
-tm.addEventListener('pointerover',hov);tm.addEventListener('focusin',hov);
-tm.addEventListener('pointerleave',function(){setCap()});
-tm.addEventListener('focusout',function(e){if(!tm.contains(e.relatedTarget))setCap()});
+var rz;addEventListener('resize',function(){clearTimeout(rz);rz=setTimeout(function(){if(cur==='overview')layout(false);if(cur==='groups')buildBubbles();if(cur==='history')buildChart();sizePipe()},120)});
 
-/* stats */
-var elUsed=$('#sUsed'),elFree=$('#sFree'),elCould=$('#sCould'),elItems=$('#sItems'),gauge=$('#gauge');
-var usedNow=438;elCould._t=52;elUsed._v=438;elFree._v=61;elCould._v=52;
-function stats(){
-  var rm=0;leaves.forEach(function(l){if(removed[l.path])rm+=l.v});
-  var used=438-rm,could=TREE.mk;
-  if(used!==usedNow){usedNow=used;tween(elUsed,used,1400);tween(elFree,TOTAL-used,1400);gauge.style.width=(used/TOTAL*100)+'%'}
-  if(elCould._t!==could){elCould._t=could;tween(elCould,could,900)}
-  var tot=0;QW.forEach(function(q){if(checked[q.id]&&!reclaimedQ(q.id))tot+=q.gb});
-  var btn=$('#reclaim');
-  if(!reclaimed){btn.textContent=tot?'Reclaim '+tot+' GB':'Nothing selected';btn.disabled=!tot}
+/* reclaim + sheet + toast */
+var toastTimer;
+function toast(msg,undo){
+  $('#toastT').textContent=msg;var b=$('#toastB');b.hidden=!undo;b.onclick=undo||null;
+  var t=$('#toast');t.classList.add('on');clearTimeout(toastTimer);toastTimer=setTimeout(function(){t.classList.remove('on')},undo?6500:3200);
 }
-function reclaimedQ(id){return leaves.some(function(l){return l.q===id&&removed[l.path]})}
-
-/* quick wins */
-var qwList=$('#qwList');
-QW.forEach(function(q){
-  var li=document.createElement('li');
-  li.innerHTML='<label><input type="checkbox" checked data-q="'+q.id+'"><span><b>'+q.t+'</b><small>'+q.s+'</small></span></label><span class="n">'+q.gb+'<small>GB</small></span>';
-  qwList.appendChild(li);
-  li.addEventListener('pointerenter',function(){hlq=q.id;applyHl()});
-  li.addEventListener('pointerleave',function(){hlq=null;applyHl()});
-  li.addEventListener('focusin',function(){hlq=q.id;applyHl()});
-  li.addEventListener('focusout',function(){hlq=null;applyHl()});
-  li.querySelector('input').addEventListener('change',function(e){if(e.target.checked)checked[q.id]=1;else delete checked[q.id];recalc(TREE);render('data')});
-});
-var hlq=null;
-function applyHl(){Object.keys(cells).forEach(function(id){var el=cells[id];el.classList.toggle('hl',!!hlq&&el._q.indexOf(hlq)>-1)})}
-
-/* reclaim simulation + toast */
-var toast=$('#toast'),toastMsg=$('#toastMsg'),toastBtn=$('#toastBtn'),toastT,toastAct=null;
-function showToast(msg,sub,btn,act,ms){
-  toastMsg.innerHTML=msg+'<small>'+sub+'</small>';toastBtn.textContent=btn;toastBtn.style.display=btn?'':'none';toastAct=act;
-  toast.classList.add('on');clearTimeout(toastT);toastT=setTimeout(hideToast,ms);
-}
-function hideToast(){toast.classList.remove('on');if(reclaimed){var b=$('#reclaim');b.textContent='Restore the sample';b.disabled=false}}
-toastBtn.addEventListener('click',function(){if(toastAct)toastAct()});
-function doReclaim(){
-  var sum=0;leaves.forEach(function(l){if(l.q&&checked[l.q]&&!removed[l.path]){removed[l.path]=1;sum+=l.v}});
-  if(!sum)return;
-  reclaimed=true;var b=$('#reclaim');b.disabled=true;b.textContent='Moved to Trash';
-  $$('#qwList input').forEach(function(i){i.disabled=true});
-  hlq=null;render('data');
-  showToast('Moved to Trash: '+sum+' GB','Simulation. Nothing on your computer changed.','Undo',undo,12000);
-}
-function undo(){
-  removed={};reclaimed=false;
-  $$('#qwList input').forEach(function(i){i.disabled=false});
-  render('data');
-  showToast('Restored','Everything is back where it was (simulation).','',null,2600);
+function sheet(title,body,items,yes,yesLabel){
+  $('#shT').textContent=title;$('#shP').textContent=body;
+  $('#shL').innerHTML=items.map(function(i){return '<li><span>'+esc(i[0])+'</span><span>'+gb(i[1])+'</span></li>'}).join('');
+  $('#shYes').textContent=yesLabel||'Move to Trash';
+  var s=$('#sheet');s.classList.add('on');$('#shYes').focus();
+  $('#shYes').onclick=function(){s.classList.remove('on');yes()};
+  $('#shNo').onclick=function(){s.classList.remove('on')};
 }
 $('#reclaim').addEventListener('click',function(){
-  if(reclaimed){undo();return}
-  var st=$('.stats').getBoundingClientRect(),tr=tm.getBoundingClientRect(),vh=innerHeight;
-  var fits=tr.bottom-st.top<vh-90,inView=fits?(st.top>40&&tr.bottom<vh):(tr.top>60&&tr.bottom<vh);
-  if(inView){doReclaim();return}
-  var y=fits?scrollY+st.top-76:scrollY+tr.top-(vh-tr.height)/2;
-  window.scrollTo({top:Math.max(0,y),behavior:RM?'auto':'smooth'});
-  setTimeout(doReclaim,RM?0:650);
+  var items=[],tot=0;
+  (function w(n){if(n.c)n.c.forEach(w);else if(n.q&&checked[n.q]&&!removed[n.path]){items.push([n.path.replace('/Users/aby','~'),n.v]);tot+=n.v}})(TREE);
+  if(!items.length)return;
+  function doit(){
+    var batch={};
+    (function w(n){if(n.c)n.c.forEach(w);else if(n.q&&checked[n.q]&&!removed[n.path]){removed[n.path]=n.v;batch[n.path]=1}})(TREE);
+    lastRemoved=batch;
+    if(!view.sz||kids(view).every(function(k){return removed[k.path]})){view=TREE}
+    refresh();layout(true);
+    toast('Moved '+gb(tot)+' to the Trash.',function(){for(var k in lastRemoved)delete removed[k];lastRemoved=null;refresh();layout(true);toast('Put back. Nothing was lost.')});
+  }
+  if($('#sConf').checked&&tot>1)sheet('Move '+gb(tot)+' to the Trash?','Simulation. In the app these go to the macOS Trash, and Undo puts them back.',items,doit);else doit();
+});
+document.addEventListener('keydown',function(e){
+  if(!$('#pal').hidden)return;
+  if(e.key==='Escape'){if($('#sheet').classList.contains('on')){$('#sheet').classList.remove('on');return}if(cur==='overview'&&view!==TREE){var r=win.getBoundingClientRect();if(r.bottom>0&&r.top<innerHeight){up()}}}
+  if((e.key==='Backspace')&&cur==='overview'&&view!==TREE&&document.activeElement&&document.activeElement.classList.contains('cell')){e.preventDefault();up()}
 });
 
-var rt;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){render('resize');bubResize();layoutLeaders()},120)});
-
-recalc(TREE);setCap();render('init');
-// initial count-ups
-(function(){
-  var hero=$('.stats');
-  elUsed._v=0;elFree._v=0;elCould._v=0;elItems._v=0;
-  function go(){
-    tween(elUsed,438,1800);tween(elFree,61,1800);tween(elCould,52,1800);
-    tween(elItems,5.1,1800,function(v){return v.toFixed(1)});
-    elCould._t=52;
-  }
-  if(RM){return}
-  elUsed.textContent=elFree.textContent=elCould.textContent='0';elItems.textContent='0.0';
-  var o=new IntersectionObserver(function(es){if(es[0].isIntersecting){o.disconnect();setTimeout(go,300)}},{threshold:.15});o.observe(hero);
-})();
-
-/* ---------- PIPELINE sticky scene ---------- */
-(function(){
-  var steps=$$('.step'),st=$$('.pipe .st');
-  if(!('IntersectionObserver' in window)||RM){return}
-  document.documentElement.classList.add('pipejs');
-  var wide=function(){return innerWidth>960};
-  var so=new IntersectionObserver(function(es){es.forEach(function(e){
-    if(e.isIntersecting){var s=+e.target.dataset.s;steps.forEach(function(x){x.classList.toggle('on',+x.dataset.s===s)});st.forEach(function(x){x.classList.toggle('on',+x.dataset.s===s)})}
-  })},{rootMargin:'-42% 0px -48% 0px'});
-  steps.forEach(function(s){so.observe(s)});
-})();
-
-/* ---------- BUBBLES ---------- */
-var G=[
- {n:'node_modules',v:61,f:47,c:'#E55934'},{n:'Caches',v:24,f:31,c:COL.mustard},{n:'DerivedData',v:18,f:3,c:COL.violet},
- {n:'target',v:14,f:9,c:COL.sage},{n:'Pods',v:9.6,f:6,c:COL.blue},{n:'.venv',v:7.3,f:5,c:COL.rose},{n:'__pycache__',v:2.1,f:212,c:COL.stone}
-];
-var bub=$('#bub'),bs=null,bmobile=null;
-var gt=$('#gTbl tbody');
-G.forEach(function(g){var tr=document.createElement('tr');tr.innerHTML='<td>'+g.n+'</td><td>'+g.f+'</td><td>'+g.v+' GB</td>';gt.appendChild(tr);g.tr=tr});
-function setB(g){
-  var c=$('#bcap');
-  G.forEach(function(x){x.tr.classList.toggle('on',x===g);if(x.el)x.el.classList.toggle('on',x===g)});
-  if(!g){c.innerHTML='<div class="path">Hover or focus a bubble.</div><div class="sz"></div>';return}
-  c.innerHTML='<div class="path">'+g.n+'<em>'+g.f+' folders with this name, totalled across the sample disk.</em></div><div class="sz">'+g.v+' GB<small>'+Math.round(g.v/G.reduce(function(a,b){return a+b.v},0)*100)+'% of groups</small></div>';
+/* ---------- scanning ---------- */
+var scan={on:false,paused:false,p:0,raf:0,t0:0,last:0};
+var ALLP=[];(function w(n){ALLP.push(n.path);if(n.c)n.c.forEach(w)})(TREE);
+var BIG=[['~/Movies/Final Cut Library',61,C.lilac],['/Applications/Xcode.app',38,C.honey],['~/Pictures/Photos Library',41,C.honey],['~/Movies/Screen Recordings',29,C.lilac],['~/Developer/ios-app',22,C.sage],['~/Library/Developer/Xcode/DerivedData',18,C.sky]];
+function startScan(){
+  go('scanning');scan.on=true;scan.paused=false;scan.p=0;scan.last=performance.now();$('#scPause').textContent='Pause';$('#scH').textContent='Sweeping Macintosh HD';
+  $('#scBig').innerHTML='<li class="empty">collecting…</li>';$('#scEta').textContent='collecting…';
+  $('#rescan').disabled=true;
+  cancelAnimationFrame(scan.raf);scan.raf=requestAnimationFrame(tick);
 }
+function tick(now){
+  if(!scan.on)return;
+  var dt=now-scan.last;scan.last=now;
+  if(!scan.paused){scan.p=Math.min(1,scan.p+dt/(RM?800:6500))}
+  var p=scan.p,e=1-Math.pow(1-p,1.6);
+  $('#scP').textContent=Math.floor(p*100);
+  $('#scF').textContent=Math.floor(e*5100000).toLocaleString('en-US')+' files';
+  $('#ringArc').setAttribute('stroke-dashoffset',603.2*(1-p));
+  if(!scan.paused&&Math.random()<.35)$('#scNow').textContent=ALLP[Math.floor(Math.random()*ALLP.length)].replace('/Users/aby','~')+'/…';
+  var nb=Math.min(BIG.length,Math.floor(p*BIG.length*1.15));
+  var list=$('#scBig');
+  if(nb&&list.children.length!==nb||(nb&&list.querySelector('.empty'))){
+    var arr=BIG.slice(0,nb).sort(function(a,b){return b[1]-a[1]});
+    list.innerHTML=arr.map(function(b){return '<li style="--c:'+b[2]+'"><b>'+b[0]+'</b><span>'+b[1]+' GB</span><div class="meter"><i style="width:'+(b[1]/61*100)+'%"></i></div></li>'}).join('');
+  }
+  $('#scEta').textContent=scan.paused?'Paused':'~'+Math.max(1,Math.ceil((1-p)*6.5))+'s left';
+  if(p>=1){finishScan();return}
+  scan.raf=requestAnimationFrame(tick);
+}
+function stopScan(silent){scan.on=false;cancelAnimationFrame(scan.raf);$('#rescan').disabled=false;if(!silent)toast('Scan cancelled. Your last scan is still here.')}
+function finishScan(){
+  scan.on=false;$('#rescan').disabled=false;
+  removed={};lastRemoved=null;checked={nm:1,dd:1,ca:1,dl:1};$$('#qw input').forEach(function(i){i.checked=true});view=TREE;
+  Object.keys(cells).forEach(function(k){cells[k].remove();delete cells[k]});
+  refresh();go('overview');layout(true);
+  toast('Scan finished. 5.1 M items, 438 GB used.');
+}
+$('#rescan').addEventListener('click',startScan);
+$('#startScan').addEventListener('click',startScan);
+$('#pickFolder').addEventListener('click',function(){toast('In the app this opens a folder picker.')});
+$('#scPause').addEventListener('click',function(){scan.paused=!scan.paused;this.textContent=scan.paused?'Resume':'Pause';$('#scH').textContent=scan.paused?'Paused':'Sweeping Macintosh HD'});
+$('#scCancel').addEventListener('click',function(){stopScan();go('start')});
+
+/* ---------- groups ---------- */
+var gFilter='all',gSel={},gOpen=null;
+var totG=G.reduce(function(a,b){return a+b.v},0);
+function buildGList(){
+  var ul=$('#glist');ul.innerHTML='';
+  var shown=G.filter(function(g){return gFilter==='all'||g.stale});
+  shown.forEach(function(g){
+    var li=document.createElement('li');li.style.setProperty('--c',g.c);if(gOpen===g)li.classList.add('open');
+    li.innerHTML='<div class="grow"><input class="cb" type="checkbox" aria-label="Select '+g.n+'"'+(gSel[g.n]?' checked':'')+'><div class="nm"><b>'+g.n+'</b>'+(g.stale?'<span class="stale">STALE</span>':'')+'<small>'+g.f+' folders · '+g.age+'</small><div class="meter"><i style="width:'+(g.v/61*100)+'%"></i></div></div><span class="sz">'+g.v+' GB</span><button class="exp" type="button" aria-label="Show folders" aria-expanded="'+(gOpen===g)+'"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M3 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button></div><ul class="inst">'+g.inst.map(function(i){return '<li><span>'+i[0]+'</span><span>'+gb(i[1])+'</span></li>'}).join('')+'</ul>';
+    li.querySelector('.cb').addEventListener('change',function(e){if(e.target.checked)gSel[g.n]=g;else delete gSel[g.n];gFoot()});
+    li.querySelector('.exp').addEventListener('click',function(){openG(gOpen===g?null:g)});
+    ul.appendChild(li);g.li=li;
+  });
+  $('#gSum').textContent=shown.length+' groups · '+gb(shown.reduce(function(a,b){return a+b.v},0));
+  gFoot();
+}
+function openG(g){gOpen=g;G.forEach(function(x){if(x.li){x.li.classList.toggle('open',x===g);x.li.querySelector('.exp').setAttribute('aria-expanded',x===g)}if(x.el)x.el.classList.toggle('on',x===g)});if(g&&g.li&&cur==='groups'){var ul=$('#glist');}}
+function gFoot(){var ks=Object.keys(gSel),t=ks.reduce(function(a,k){return a+gSel[k].v},0);$('#gSel').textContent=ks.length+' of '+G.length+' selected';var b=$('#gFree');b.textContent='Free '+gb(t)+' →';b.disabled=!t}
+$('#gAll').addEventListener('click',function(){gFilter='all';this.setAttribute('aria-pressed','true');$('#gStale').setAttribute('aria-pressed','false');buildGList();buildBubbles()});
+$('#gStale').addEventListener('click',function(){gFilter='stale';this.setAttribute('aria-pressed','true');$('#gAll').setAttribute('aria-pressed','false');buildGList();buildBubbles()});
+$('#gFree').addEventListener('click',function(){
+  var ks=Object.keys(gSel),items=ks.map(function(k){return [k+' ×'+gSel[k].f,gSel[k].v]}),t=items.reduce(function(a,b){return a+b[1]},0);
+  sheet('Move '+gb(t)+' to the Trash?','Every folder in these groups goes to the Trash. Simulation, nothing is touched.',items,function(){
+    var prev=gSel;gSel={};buildGList();toast('Moved '+gb(t)+' to the Trash.',function(){gSel=prev;buildGList();toast('Put back.')});
+  });
+});
 function buildBubbles(){
-  bmobile=innerWidth<700;
-  var BW=bmobile?420:900,BH=bmobile?640:500,k=bmobile?12.6:18;
-  bub.innerHTML='';
-  var s=svg('svg',{viewBox:'0 0 '+BW+' '+BH,role:'group','aria-label':'Bubble chart of folder-name groups, area proportional to total size'},bub);bs=s;
-  G.forEach(function(g,i){g.r=k*Math.sqrt(g.v);g.cr=g.r<(bmobile?24:34)?g.r+(bmobile?34:30):g.r;var a=i*2.4;g.x=BW/2+Math.cos(a)*(50+i*26);g.y=BH/2+Math.sin(a)*(40+i*18)});
-  for(var it=0;it<700;it++){
-    G.forEach(function(g){g.x+=(BW/2-g.x)*.012;g.y+=(BH/2-g.y)*.02});
-    for(var i=0;i<G.length;i++)for(var j=i+1;j<G.length;j++){
-      var a=G[i],b=G[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||.01,m=a.cr+b.cr+7;
-      if(d<m){var p=(m-d)/2,ux=dx/d,uy=dy/d;a.x-=ux*p;a.y-=uy*p;b.x+=ux*p;b.y+=uy*p}
-    }
-    G.forEach(function(g){g.x=clamp(g.x,g.r+6,BW-g.r-6);g.y=clamp(g.y,g.r+6,BH-g.r-6)});
+  var box=$('#bub'),W=box.clientWidth,Hh=box.clientHeight;if(!W)return;
+  box.innerHTML='';
+  var s=el('svg',{viewBox:'0 0 '+W+' '+Hh,role:'group','aria-label':'Bubble chart of folder-name groups, area proportional to total size'},box);
+  var shown=G.filter(function(g){return gFilter==='all'||g.stale});
+  var area=W*Hh*.42,sum=shown.reduce(function(a,b){return a+b.v},0),k=Math.sqrt(area/(Math.PI*sum));
+  var nodes=shown.map(function(g,i){var a=i*2.39996,r0=i?Math.min(W,Hh)*.18*Math.sqrt(i)/2:0;return {g:g,r:Math.max(14,k*Math.sqrt(g.v)),x:W/2+Math.cos(a)*r0,y:Hh/2+Math.sin(a)*r0}});
+  for(var it=0;it<260;it++){
+    nodes.forEach(function(a){a.x+=(W/2-a.x)*.02;a.y+=(Hh/2-a.y)*.02});
+    for(var i=0;i<nodes.length;i++)for(var j=i+1;j<nodes.length;j++){var a=nodes[i],b=nodes[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||1,m=a.r+b.r+4;if(d<m){var p=(m-d)/d/2;a.x-=dx*p;a.y-=dy*p;b.x+=dx*p;b.y+=dy*p}}
+    nodes.forEach(function(a){a.x=Math.max(a.r+2,Math.min(W-a.r-2,a.x));a.y=Math.max(a.r+2,Math.min(Hh-a.r-2,a.y))});
   }
-  G.forEach(function(g,i){
-    var el=svg('g',{class:'b',tabindex:0,role:'img','aria-label':g.n+', '+g.v+' gigabytes across '+g.f+' folders'},s);g.el=el;
-    svg('circle',{r:g.r,fill:g.c},el);
-    var out=g.r<(bmobile?24:34);
-    var t1=svg('text',{class:'nm','text-anchor':'middle',y:out?g.r+17:(g.r>40?-4:3)},el);t1.textContent=g.n;
-    if(!out&&g.r>40){var t2=svg('text',{class:'vl','text-anchor':'middle',y:24},el);t2.textContent=g.v+' GB'}
-    else if(out){var t3=svg('text',{class:'vl','text-anchor':'middle',y:g.r+38,style:'font-size:18px'},el);t3.textContent=g.v+' GB'}
-    el.addEventListener('pointerenter',function(){setB(g)});el.addEventListener('pointerleave',function(){setB(null)});
-    el.addEventListener('focus',function(){setB(g)});el.addEventListener('blur',function(){setB(null)});
-    g.sx=g.x+(i%2?1:-1)*(40+i*18);g.sy=-g.r-80-i*60;g.dl=i*.07;
-  });
-  G.BW=BW;G.BH=BH;
-  updateBubbles(true);
-}
-function spring(t){if(t<=0)return 0;if(t>=1)return 1;return 1-Math.exp(-5.2*t)*Math.cos(10*t)}
-function bubP(){var r=bub.getBoundingClientRect(),vh=innerHeight;return clamp((vh*.92-r.top)/(Math.min(r.height,vh)*.85),0,1)}
-function updateBubbles(force){
-  var p=RM?1:bubP();
-  if(!force&&p===updateBubbles.last)return;updateBubbles.last=p;
-  G.forEach(function(g){
-    var t=clamp((p-g.dl)/(1-g.dl*1.0),0,1),s=spring(t),x=g.sx+(g.x-g.sx)*s,y=g.sy+(g.y-g.sy)*s;
-    g.el.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+')');
+  nodes.forEach(function(n,i){
+    var g=el('g',{class:'b',transform:'translate('+n.x+' '+n.y+')',tabindex:0,role:'button','aria-label':n.g.n+', '+n.g.v+' GB in '+n.g.f+' folders'},s);
+    var c=el('circle',{r:RM?n.r:0,fill:n.g.c,'fill-opacity':.92},g);
+    if(!RM){c.style.transition='r .6s cubic-bezier(.2,.8,.2,1) '+(i*50)+'ms';requestAnimationFrame(function(){requestAnimationFrame(function(){c.setAttribute('r',n.r)})})}
+    var dark=n.g.c===C.coral;
+    if(n.r>30){var t1=el('text',{'text-anchor':'middle',y:-2,'font-size':Math.min(15,n.r/4.2),'font-weight':600,fill:dark?'#fff':'#2A2118'},g);t1.textContent=n.g.n;var t2=el('text',{'text-anchor':'middle',y:Math.min(15,n.r/4.2)+2,'font-size':11.5,fill:dark?'#fff':'#2A2118','fill-opacity':.8},g);t2.textContent=n.g.v+' GB · '+n.g.f}
+    else{var t3=el('text',{'text-anchor':'middle',y:n.r+14,'font-size':11},g);t3.textContent=n.g.n}
+    n.g.el=g;if(gOpen===n.g)g.classList.add('on');
+    function pick(){openG(gOpen===n.g?null:n.g)}
+    g.addEventListener('click',pick);g.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});
   });
 }
-function bubResize(){if(bmobile!==(innerWidth<700))buildBubbles();if(hmobile!==(innerWidth<700)){buildChart();updateHist(true)}}
-buildBubbles();
+buildGList();
 
-/* ---------- FILE TYPES ---------- */
-var FT=[['Video',156,COL.violet],['Photos',108,COL.mustard],['Code',72,COL.sage],['Apps',48,COL.blue],['Documents',28,COL.rose],['Music',12,COL.clay],['Archives',8,COL.slate],['Other',6,COL.stone]];
-var bar=$('#bar'),ftl=$('#ftl'),totFT=438;
+/* ---------- types ---------- */
+var tFocus='Video';
 FT.forEach(function(f){
-  var pct=Math.round(f[1]/totFT*100);
-  var li=document.createElement('li');li.style.setProperty('--v',f[1]);li.style.setProperty('--c',f[2]);li.innerHTML=f[0]+'<small>'+f[1]+' GB</small>';li.title=f[0]+': '+f[1]+' GB';if(f[1]<40)li.classList.add('tiny');bar.appendChild(li);
-  var l2=document.createElement('li');l2.style.setProperty('--c',f[2]);l2.innerHTML='<i></i><b>'+f[0]+'</b><span>'+f[1]+' GB, '+pct+'%</span>';ftl.appendChild(l2);
-  function on(v){return function(){li.classList.toggle('on',v);l2.classList.toggle('on',v)}}
-  [li,l2].forEach(function(e){e.addEventListener('pointerenter',on(true));e.addEventListener('pointerleave',on(false))});
+  var b=document.createElement('button');b.type='button';b.style.setProperty('--v',f[1]);b.style.setProperty('--c',f[2]);b.style.setProperty('--tc',DARK[f[2]]?'#fff':'#2A2118');
+  b.innerHTML=f[1]>=40?'<span>'+f[0]+'</span>':'';b.title=f[0]+': '+f[1]+' GB';b.setAttribute('aria-label',f[0]+', '+f[1]+' GB');b.dataset.t=f[0];
+  b.addEventListener('click',function(){focusT(f[0])});$('#tbar').appendChild(b);
+  var c=document.createElement('button');c.type='button';c.className='tcard';c.dataset.t=f[0];c.style.setProperty('--c',f[2]);
+  c.innerHTML='<span class="tt"><i></i>'+f[0]+'</span><span class="tv">'+f[1]+' GB<small>'+Math.round(f[1]/438*100)+'%</small></span>';
+  c.addEventListener('click',function(){focusT(f[0])});$('#tcards').appendChild(c);
 });
-if('IntersectionObserver' in window){var bo=new IntersectionObserver(function(es){if(es[0].isIntersecting){bar.classList.add('in');bo.disconnect()}},{threshold:.5});bo.observe(ftl)}else bar.classList.add('in');
+function focusT(t){
+  tFocus=t;var bar=$('#tbar');bar.classList.add('focus');
+  $$('#tbar button').forEach(function(b){var on=b.dataset.t===t;b.classList.toggle('on',on);var f=FT.filter(function(x){return x[0]===b.dataset.t})[0];});
+  $$('#tcards .tcard').forEach(function(c){c.classList.toggle('on',c.dataset.t===t)});
+  $('#hvT').innerHTML='HEAVIEST FILES · '+t.toUpperCase()+' <span>sample</span>';
+  $('#hv').innerHTML=HEAVY[t].map(function(h){return '<li><div style="min-width:0"><b>'+esc(h[0])+'</b><small>'+esc(h[1])+'</small></div><span>'+gb(h[2])+'</span></li>'}).join('');
+}
+focusT('Video');
 
-/* ---------- HISTORY ---------- */
-var H=[['Feb',352],['Mar',361],['Apr',370],['May',366],['Jun',388],['Jul',402],['Aug',415],['Sep',431],['Oct',438]];
-var ch=$('#ch'),CW,CH,ML=44,MR=14,MT=18,MB=34,PW,PH,hmobile=null;
-function hx(i){return ML+PW*i/(H.length-1)}function hy(v){return MT+PH*(1-v/500)}
+/* ---------- history ---------- */
 function buildChart(){
-  hmobile=innerWidth<700;CW=hmobile?400:760;CH=hmobile?340:380;ML=hmobile?34:44;PW=CW-ML-MR;PH=CH-MT-MB;ch.innerHTML='';ch.setAttribute('viewBox','0 0 '+CW+' '+CH);
-  var g=svg('g',{class:'grid'},ch),ax=svg('g',{class:'ax'},ch);
-  [0,100,200,300,400].forEach(function(v){svg('line',{x1:ML,x2:CW-MR,y1:hy(v),y2:hy(v)},g);var t=svg('text',{x:ML-8,y:hy(v)+4,'text-anchor':'end'},ax);t.textContent=v});
-  H.forEach(function(h,i){var t=svg('text',{x:hx(i),y:CH-10,'text-anchor':'middle'},ax);t.textContent=h[0]});
-  var cp=svg('g',{class:'capline'},ch);svg('line',{x1:ML,x2:CW-MR,y1:hy(499),y2:hy(499)},cp);var ct=svg('text',{x:ML+6,y:hy(499)-6},cp);ct.textContent='Disk capacity, 499 GB';
-  var d=H.map(function(h,i){return (i?'L':'M')+hx(i)+' '+hy(h[1])}).join('');
-  var defs=svg('defs',{},ch),clip=svg('clipPath',{id:'hclip'},defs);var cr=svg('rect',{x:0,y:0,width:CW,height:CH},clip);
-  svg('path',{class:'area',d:d+'L'+hx(H.length-1)+' '+hy(0)+'L'+hx(0)+' '+hy(0)+'Z','clip-path':'url(#hclip)'},ch);
-  var ln=svg('path',{class:'line',d:d,pathLength:1,'stroke-dasharray':1,'stroke-dashoffset':0},ch);
-  var pts=H.map(function(h,i){var c=svg('circle',{class:'pt'+(i===H.length-1?' last':''),cx:hx(i),cy:hy(h[1]),r:i===H.length-1?7:4.5,tabindex:0,'aria-label':h[0]+': '+h[1]+' GB'},ch);var tt=svg('title',{},c);tt.textContent=h[0]+': '+h[1]+' GB used';return c});
-  var lv=svg('text',{x:hx(H.length-1),y:hy(438)-16,'text-anchor':'end',style:'font:italic 600 '+(hmobile?18:22)+'px var(--serif);fill:var(--ink)'},ch);lv.textContent='438 GB';
-  ch._p={cr:cr,ln:ln,pts:pts,lv:lv};updateHist.last=-1;
-}
-buildChart();
-function histP(){var r=ch.getBoundingClientRect(),vh=innerHeight;return clamp((vh*.9-r.top)/(r.height*.75),0,1)}
-var leadersEl=$('#leaders'),histEl=$('#hist');
-var LEAD=[['co1','#B63715'],['co2','#B63715'],['co3','#B63715'],['co4','#2c6a4a'],['co5','#2c6a4a']];
-function layoutLeaders(){
-  leadersEl.innerHTML='';
-  if(innerWidth<=960)return;
-  var fr=histEl.getBoundingClientRect(),last=ch._p.pts[ch._p.pts.length-1].getBoundingClientRect();
-  var x0=last.left+last.width/2-fr.left,y0=last.top+last.height/2-fr.top;
-  LEAD.forEach(function(l,i){
-    var c=document.getElementById(l[0]).getBoundingClientRect(),x1=c.left-fr.left-12,y1=c.top-fr.top+16;
-    var mx=x0+(x1-x0)*.55;
-    var p=svg('path',{d:'M'+x0+' '+y0+'C'+mx+' '+y0+' '+mx+' '+y1+' '+x1+' '+y1,stroke:l[1],pathLength:1,'stroke-dasharray':1,'stroke-dashoffset':RM?0:1},leadersEl);
-    var d=svg('circle',{cx:x1,cy:y1,r:3.5,fill:l[1],opacity:RM?1:0},leadersEl);
-    p._d=d;
-  });
-  updateHist(true);
-}
-function updateHist(force){
-  var p=RM?1:histP();
-  if(!force&&p===updateHist.last)return;updateHist.last=p;
-  var P=ch._p,e=ease(p),n=H.length-1;
-  P.cr.setAttribute('width',(ML+(CW-ML)*e).toFixed(1));
-  P.ln.setAttribute('stroke-dashoffset',(1-e).toFixed(4));
-  P.pts.forEach(function(c,i){c.style.opacity=(hx(i)<=ML+(CW-ML)*e+1)?1:0});
-  P.lv.style.opacity=e>.97?1:0;
-  var lp=clamp((p-.88)/.12,0,1);
-  $$('path',leadersEl).forEach(function(pa,i){var t=clamp(lp*1.6-i*.12,0,1);pa.setAttribute('stroke-dashoffset',(1-ease(t)).toFixed(3));pa._d.setAttribute('opacity',t>.98?1:0)});
+  var box=$('#hch'),W=box.clientWidth,Hh=box.clientHeight;if(!W)return;
+  var old=box.querySelector('svg');if(old)old.remove();
+  var ML=36,MR=10,MT=22,MB=26,PW=W-ML-MR,PH=Hh-MT-MB;
+  function x(i){return ML+PW*i/(H.length-1)}function y(v){return MT+PH*(1-v/500)}
+  var s=el('svg',{viewBox:'0 0 '+W+' '+Hh,role:'img','aria-label':'Disk used rose from 352 GB in February to 438 GB in October'});box.insertBefore(s,box.firstChild);
+  var d=el('defs',{},s),lg=el('linearGradient',{id:'hgrad',x1:0,y1:0,x2:0,y2:1},d);el('stop',{offset:0,'stop-color':'#E55934','stop-opacity':.28},lg);el('stop',{offset:1,'stop-color':'#E55934','stop-opacity':0},lg);
+  var g=el('g',{class:'grid'},s),ax=el('g',{class:'ax'},s);
+  [0,100,200,300,400].forEach(function(v){el('line',{x1:ML,x2:W-MR,y1:y(v),y2:y(v)},g);var t=el('text',{x:ML-6,y:y(v)+4,'text-anchor':'end'},ax);t.textContent=v});
+  H.forEach(function(h,i){if(W<460&&i%2)return;var t=el('text',{x:x(i),y:Hh-6,'text-anchor':'middle'},ax);t.textContent=h[0]});
+  var cp=el('g',{class:'cap'},s);el('line',{x1:ML,x2:W-MR,y1:y(499),y2:y(499)},cp);var ct=el('text',{x:ML+4,y:y(499)-6},cp);ct.textContent='Capacity, 499 GB';
+  var path=H.map(function(h,i){return (i?'L':'M')+x(i)+' '+y(h[1])}).join('');
+  el('path',{class:'area',d:path+'L'+x(H.length-1)+' '+y(0)+'L'+x(0)+' '+y(0)+'Z'},s);
+  var ln=el('path',{class:'line',d:path},s);
+  if(!RM){var L=ln.getTotalLength();ln.style.strokeDasharray=L;ln.style.strokeDashoffset=L;ln.getBoundingClientRect();ln.style.transition='stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)';ln.style.strokeDashoffset=0}
+  H.forEach(function(h,i){el('circle',{class:'pt'+(i===H.length-1?' end':''),cx:x(i),cy:y(h[1]),r:i===H.length-1?5:3.5},s)});
+  var sc=el('g',{class:'scrub',opacity:0},s),sl=el('line',{y1:MT,y2:MT+PH},sc),sd=el('circle',{r:5},sc);
+  var tip=$('#htip');
+  function at(cx){var i=Math.round((cx-ML)/PW*(H.length-1));i=Math.max(0,Math.min(H.length-1,i));
+    sl.setAttribute('x1',x(i));sl.setAttribute('x2',x(i));sd.setAttribute('cx',x(i));sd.setAttribute('cy',y(H[i][1]));sc.setAttribute('opacity',1);
+    var dlt=i?H[i][1]-H[i-1][1]:0;
+    tip.innerHTML=H[i][0]+' · <b>'+H[i][1]+' GB</b>'+(i?' · '+(dlt>=0?'+':'−')+Math.abs(dlt)+' GB':'');tip.style.left=Math.max(60,Math.min(W-60,x(i)))+'px';tip.style.top=y(H[i][1])+'px';tip.style.opacity=1}
+  s.addEventListener('pointermove',function(e){var r=s.getBoundingClientRect();at(e.clientX-r.left)});
+  s.addEventListener('pointerdown',function(e){var r=s.getBoundingClientRect();at(e.clientX-r.left)});
+  s.addEventListener('pointerleave',function(){sc.setAttribute('opacity',0);tip.style.opacity=0});
 }
 
-/* ---------- scroll loop ---------- */
-var ticking=false;
-function onScroll(){if(ticking)return;ticking=true;requestAnimationFrame(function(){ticking=false;
-  var vh=innerHeight,r=bub.getBoundingClientRect();if(r.bottom>-50&&r.top<vh+50)updateBubbles();
-  var h=ch.getBoundingClientRect();if(h.bottom>-50&&h.top<vh+50)updateHist();
-})}
-addEventListener('scroll',onScroll,{passive:true});
-setTimeout(function(){layoutLeaders();updateBubbles(true);onScroll()},60);
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){layoutLeaders();render('resize')});
-addEventListener('load',function(){layoutLeaders();render('resize')});
+/* ---------- settings ---------- */
+var PROT=['/System','/Library','/usr','/private','~/Library/Keychains'],mine=['~/Clients/archive'];
+function buildP(){
+  $('#plist').innerHTML=PROT.map(function(p){return '<li>'+p+'<em>built in</em></li>'}).join('')+mine.map(function(p,i){return '<li>'+esc(p)+'<button type="button" data-i="'+i+'" aria-label="Remove '+esc(p)+'">×</button></li>'}).join('');
+  $$('#plist button').forEach(function(b){b.addEventListener('click',function(){mine.splice(+b.dataset.i,1);buildP()})});
+}
+buildP();
+$('#padd').addEventListener('submit',function(e){e.preventDefault();var v=$('#pIn').value.trim();if(!v)return;if(v[0]!=='/'&&v[0]!=='~'){toast('Paths start with / or ~');return}mine.push(v);$('#pIn').value='';buildP();toast('Protected '+v+'. Crumb will never delete it.')});
+function schT(){var on=$('#sSch').checked,f=$('#sFreq').value;$('#schT').textContent=on?'Runs every '+f+' day'+(f==='1'?'':'s')+' when the app is open':'Off'}
+$('#sSch').addEventListener('change',schT);$('#sFreq').addEventListener('change',schT);
+$('#exp').addEventListener('click',function(){toast('In the app this saves the scan as JSON.')});
+$('#clr').addEventListener('click',function(){sheet('Clear all scan data?','Deletes every scan database (1.4 GB). Your files are untouched; only Crumb\'s history of them is removed.',[['9 scan databases',1.4]],function(){$('#snapN').textContent='0 · 0 GB';toast('Scan history cleared. Simulation.')},'Clear all')});
+$('#sHid').addEventListener('change',function(){if(this.checked)toast('Dot-folders like .Trash and .config are now shown.')});
+
+/* ---------- boot app ---------- */
+refresh();
+requestAnimationFrame(function(){layout(true)});
+
+/* =================== PIPELINE =================== */
+var pc=$('#pipe'),px=pc.getContext('2d'),pw=$('#pipeWrap'),pDots=[],pStep=0,pFiles=0,pRun=false,pT=0;
+function sizePipe(){var r=pw.getBoundingClientRect(),dpr=Math.min(2,devicePixelRatio||1);pc.width=r.width*dpr;pc.height=r.height*dpr;px.setTransform(dpr,0,0,dpr,0,0);pc._w=r.width;pc._h=r.height}
+sizePipe();
+function nodeX(i){return pc._w*(i+.5)/4}
+function cssv(n){return getComputedStyle(root).getPropertyValue(n).trim()}
+function pipeFrame(t){
+  var W=pc._w,Hh=pc._h,cy=Hh/2-12;
+  px.clearRect(0,0,W,Hh);
+  var line=cssv('--line2'),hon=cssv('--honey'),acc=cssv('--accent'),sg=cssv('--sage');
+  px.strokeStyle=line;px.lineWidth=1.5;px.setLineDash([3,6]);
+  px.beginPath();px.moveTo(nodeX(0),cy);px.lineTo(nodeX(3),cy);px.stroke();px.setLineDash([]);
+  if(pRun&&!RM){
+    var rate=pStep===0||pStep===1?3:pStep===2?1.4:.6;
+    if(Math.random()<rate/3)pDots.push({x:nodeX(0)+30,y:cy+(Math.random()-.5)*26,v:1.6+Math.random()*2.2,c:Math.random()<.12?acc:hon,seg:pStep});
+  }
+  for(var i=pDots.length-1;i>=0;i--){
+    var d=pDots[i],lim=nodeX(Math.min(3,1+(d.seg>=2?2:d.seg>=1?0:0)));
+    var stop=pStep<=1?nodeX(1)-30:pStep===2?nodeX(2)-30:nodeX(3)-30;
+    d.x+=d.v;d.y+=(cy-d.y)*.02;
+    if(d.x>=stop){pDots.splice(i,1);if(pStep<=1)pFiles+=900+Math.random()*900;continue}
+    px.globalAlpha=Math.min(1,(d.x-nodeX(0)-30)/40);
+    px.fillStyle=d.c;px.beginPath();px.arc(d.x,d.y,2.4,0,7);px.fill();
+  }
+  px.globalAlpha=1;
+  if(pRun&&pStep<=1)$('#pgF').textContent=Math.floor(pFiles).toLocaleString('en-US');
+  requestAnimationFrame(pipeFrame);
+}
+requestAnimationFrame(pipeFrame);
+function setStep(i){pStep=i;$$('.pstep').forEach(function(b){b.setAttribute('aria-pressed',+b.dataset.i===i)});$$('.pnode').forEach(function(n){n.classList.toggle('on',+n.dataset.i<=i&&(+n.dataset.i===i||+n.dataset.i===0))})}
+$$('.pstep').forEach(function(b){b.addEventListener('click',function(){pAuto=false;setStep(+b.dataset.i)})});
+var pAuto=true;setStep(0);
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){pRun=es[0].isIntersecting},{threshold:.2}).observe(pw)}else pRun=true;
+setInterval(function(){if(pAuto&&pRun&&!RM)setStep((pStep+1)%4)},3800);
+
+/* =================== SAFETY =================== */
+var FILES=[
+ {p:'/System',prot:1},{p:'~/Library/Caches',gb:9},{p:'/usr',prot:1},{p:'~/Downloads/old-dmgs',gb:3},
+ {p:'~/Library/Keychains',prot:1},{p:'~/Developer/old-site/node_modules',gb:8},{p:'/Library',prot:1},{p:'~/Library/Developer/Xcode/DerivedData',gb:18}
+];
+var binStack=[],flowEls=$$('#flow li'),flowT=[];
+function flow(stopAt){
+  flowT.forEach(clearTimeout);flowT=[];
+  flowEls.forEach(function(l){l.classList.remove('hit','stop')});
+  var seq=stopAt===1?[0,1]:[0,1,2];
+  seq.forEach(function(i,k){flowT.push(setTimeout(function(){flowEls[i].classList.add(stopAt===1&&i===1?'stop':'hit')},k*(RM?0:180)))});
+}
+function say(cls,msg){var s=$('#say');s.className='say '+cls;s.lastChild.textContent=msg}
+function trashIt(f,node){
+  if(f.prot){node.classList.remove('no');void node.offsetWidth;node.classList.add('no');flow(1);say('bad',f.p+' is protected in code. DeleteService refused it, and there is no override.');return}
+  node.classList.add('gone');setTimeout(function(){if(node.classList.contains('gone'))node.hidden=true},RM?0:300);binStack.push(f);flow(2);
+  var b=$('#bin');b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump');
+  say('ok','Moved '+f.p+' to the Trash. Nothing is gone for good yet.');updBin();
+}
+function updBin(){var t=binStack.reduce(function(a,b){return a+b.gb},0);$('#binT').textContent=binStack.length?binStack.length+' item'+(binStack.length>1?'s':'')+' · '+gb(t):'Trash is empty';$('#binS').textContent=binStack.length?'Last in: '+binStack[binStack.length-1].p:'Drop a path here';$('#binUndo').disabled=!binStack.length}
+$('#binUndo').addEventListener('click',function(){var f=binStack.pop();if(!f)return;f.node.hidden=false;void f.node.offsetWidth;f.node.classList.remove('gone');flowT.forEach(clearTimeout);flowEls.forEach(function(l){l.classList.remove('hit','stop')});flowEls[3].classList.add('hit');say('ok','Put back '+f.p+'. Undo is one click.');updBin()});
+FILES.forEach(function(f){
+  var n=document.createElement('button');n.type='button';n.className='file';f.node=n;
+  n.innerHTML=(f.prot?'<svg class="lk" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>':'')+esc(f.p)+(f.gb?' <small>'+f.gb+' GB</small>':'');
+  n.setAttribute('aria-label',(f.prot?'Protected: ':'')+f.p+'. Press to move to Trash.');
+  var sx,sy,drag=false,id=null;
+  n.addEventListener('pointerdown',function(e){if(e.button)return;id=e.pointerId;sx=e.clientX;sy=e.clientY;drag=false;n.setPointerCapture(id)});
+  n.addEventListener('pointermove',function(e){if(id!==e.pointerId)return;var dx=e.clientX-sx,dy=e.clientY-sy;if(!drag&&Math.hypot(dx,dy)>6){drag=true;n.classList.add('drag')}if(drag){n.style.transform='translate('+dx+'px,'+dy+'px) rotate('+(dx/40)+'deg)';$('#bin').classList.toggle('over',overBin(e))}});
+  function end(e){if(id!==e.pointerId)return;id=null;var was=drag;drag=false;n.classList.remove('drag');n.style.transform='';var ob=overBin(e);$('#bin').classList.remove('over');if(!was||ob)trashIt(f,n);else say('','Dropped outside the Trash. Nothing happened.')}
+  n.addEventListener('pointerup',end);n.addEventListener('pointercancel',function(e){id=null;drag=false;n.classList.remove('drag');n.style.transform='';$('#bin').classList.remove('over')});
+  n.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();trashIt(f,n)}});
+  n.addEventListener('click',function(e){e.preventDefault()});
+  $('#files').appendChild(n);
+});
+function overBin(e){var r=$('#bin').getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom}
+
+/* =================== COMMAND PALETTE =================== */
+var CMDS=[
+ ['Try the app','Section',function(){scrollTo('#app')}],
+ ['How it works','Section',function(){scrollTo('#how')}],
+ ['Safety sandbox','Section',function(){scrollTo('#safety')}],
+ ['The small print','Section',function(){scrollTo('#more')}],
+ ['Install','Section',function(){scrollTo('#install')}],
+ ['Overview screen','App',function(){go('overview');scrollTo('#app')}],
+ ['Groups screen','App',function(){go('groups');scrollTo('#app')}],
+ ['File types screen','App',function(){go('types');scrollTo('#app')}],
+ ['History screen','App',function(){go('history');scrollTo('#app')}],
+ ['Settings screen','App',function(){go('settings');scrollTo('#app')}],
+ ['Start screen','App',function(){go('start');scrollTo('#app')}],
+ ['Run a scan','Action',function(){scrollTo('#app');startScan()}],
+ ['Toggle light and dark','Action',toggleTheme],
+ ['Build from source','Install',function(){selTab(1);scrollTo('#install')}],
+ ['Download the DMG','Link',function(){location.href='https://github.com/AbyAbyss/wimys_crumb/releases/latest'}],
+ ['Source on GitHub','Link',function(){location.href='https://github.com/AbyAbyss/wimys_crumb'}]
+];
+function scrollTo(s){var t=$(s);if(t)t.scrollIntoView({behavior:RM?'auto':'smooth',block:'start'})}
+var pal=$('#pal'),pin=$('#palIn'),plist=$('#palList'),pIdx=0,pRes=CMDS,lastFocus=null;
+function renderPal(){
+  var q=pin.value.toLowerCase().trim();
+  pRes=CMDS.filter(function(c){return !q||(c[0]+' '+c[1]).toLowerCase().indexOf(q)>-1});
+  pIdx=Math.min(pIdx,Math.max(0,pRes.length-1));
+  plist.innerHTML=pRes.length?pRes.map(function(c,i){return '<li role="option" data-i="'+i+'" class="'+(i===pIdx?'on':'')+'" aria-selected="'+(i===pIdx)+'">'+c[0]+'<small>'+c[1]+'</small></li>'}).join(''):'<li>No match. Try "scan" or "groups".</li>';
+  $$('li[data-i]',plist).forEach(function(li){li.addEventListener('click',function(){runPal(+li.dataset.i)});li.addEventListener('pointermove',function(){if(pIdx!==+li.dataset.i){pIdx=+li.dataset.i;mark()}})});
+}
+function mark(){$$('li[data-i]',plist).forEach(function(li){var on=+li.dataset.i===pIdx;li.classList.toggle('on',on);li.setAttribute('aria-selected',on);if(on)li.scrollIntoView({block:'nearest'})})}
+function openPal(){lastFocus=document.activeElement;pal.hidden=false;pin.value='';pIdx=0;renderPal();pin.focus()}
+function closePal(){pal.hidden=true;if(lastFocus&&lastFocus.focus)lastFocus.focus()}
+function runPal(i){var c=pRes[i];if(!c)return;closePal();c[2]()}
+$('#palBtn').addEventListener('click',openPal);
+pal.addEventListener('click',function(e){if(e.target===pal)closePal()});
+pin.addEventListener('input',function(){pIdx=0;renderPal()});
+pin.addEventListener('keydown',function(e){
+  if(e.key==='ArrowDown'){e.preventDefault();pIdx=(pIdx+1)%Math.max(1,pRes.length);mark()}
+  else if(e.key==='ArrowUp'){e.preventDefault();pIdx=(pIdx-1+pRes.length)%Math.max(1,pRes.length);mark()}
+  else if(e.key==='Enter'){e.preventDefault();runPal(pIdx)}
+  else if(e.key==='Escape'){e.preventDefault();closePal()}
+});
+document.addEventListener('keydown',function(e){
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();pal.hidden?openPal():closePal()}
+  else if(e.key==='/'&&pal.hidden&&!/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName)){e.preventDefault();openPal()}
+});
 })();
 </script>
 </body>
