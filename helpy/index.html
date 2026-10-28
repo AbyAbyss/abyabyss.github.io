@@ -257,6 +257,7 @@
   .final { text-align: center; padding: clamp(140px, 18vw, 240px) 0 80px; }
   .final h2 { margin-inline: auto; font-size: clamp(54px, 9vw, 150px); max-width: 12ch; }
   .final .sub { margin: 0 auto 36px; }
+  .final__cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
   .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding: 28px 0 40px; border-top: 1px solid var(--line); color: var(--ink-3); font-size: 14px; }
   .foot a { text-decoration: none; } .foot a:hover { color: var(--ink); }
 
@@ -518,7 +519,10 @@
   <section class="wrap final">
     <h2 id="final-h">Free and open source.</h2>
     <p class="sub" data-reveal>MIT licensed. Built with Tauri, Rust and React for macOS, Windows and Linux.</p>
-    <a class="btn btn--accent" href="https://github.com/AbyAbyss/helpy" data-reveal style="height:56px;padding:0 30px;font-size:17px"><i class="ph-bold ph-github-logo"></i>Get Helpy</a>
+    <div class="final__cta" data-reveal>
+      <a class="btn btn--accent" href="https://github.com/AbyAbyss/helpy" style="height:56px;padding:0 30px;font-size:17px"><i class="ph-bold ph-github-logo"></i>Get Helpy</a>
+      <a class="btn" href="https://buymeacoffee.com/abyabyss" style="height:56px;padding:0 30px;font-size:17px"><i class="ph-fill ph-coffee"></i>Buy me a coffee</a>
+    </div>
   </section>
 </main>
 
