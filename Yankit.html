@@ -507,6 +507,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
         <li><a href="#shortcuts">Shortcuts</a></li>
         <li><a href="#download">Download</a></li>
         <li><a href="#build">Build</a></li>
+        <li><a href="#support">Support</a></li>
       </ul>
     </nav>
     <a class="gh" href="https://github.com/AbyAbyss/Yankit">GitHub →</a>
@@ -846,7 +847,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
           <h3>Yankit for macOS</h3>
           <p>The latest build is on the Releases page as <code class="mono" style="background:rgba(42,34,48,.1);padding:1px 6px;border-radius:4px;font-size:13px">Yankit-&lt;version&gt;.dmg</code>. Open it and drag Yankit into Applications.</p>
           <a class="btn" href="https://github.com/AbyAbyss/Yankit/releases/latest">Download latest DMG</a>
-          <p class="meta">Needs macOS 14 (Sonoma) or later.<br />Latest release: v1.3.1 · MIT license<br /><a href="#build" style="color:var(--pt)">or build it from source ↓</a></p>
+          <p class="meta">Needs macOS 14 (Sonoma) or later.<br />Latest release: v1.3.1 · MIT license<br /><a href="#build" style="color:var(--pt)">or build it from source ↓</a><br /><a href="#support" style="color:var(--pt)">enjoying it? buy me a coffee ☕</a></p>
         </div>
       </div>
 
@@ -912,6 +913,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
         <div class="sheet">
           <h3>next up</h3>
           <ul>
+            <li><i></i>Auto-updates: Check for Updates… right in the menu</li>
             <li><i></i>Code signing and notarization for a friction-free install</li>
             <li><i></i>A Homebrew cask: <code>brew install --cask yankit</code></li>
             <li><i></i>Drag items out of the history panel</li>
@@ -924,6 +926,42 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
           <h3>Contributions <em>welcome.</em></h3>
           <p>MIT licensed. Build it, fork it, improve it. The design contract lives in ARCHITECTURE.md.</p>
           <a class="btn" href="https://github.com/AbyAbyss/Yankit">Open the repo →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPORT: the app's "Support Yankit…" menu item opens #support. -->
+<section class="sec" id="support" aria-labelledby="suph" style="padding-top:90px">
+  <div class="wrap">
+    <div class="rv"><p class="kick"><b>08</b> Support</p>
+    <h2 class="h2" id="suph">Free to build.<br />Nice to <em>support.</em></h2>
+    <p class="lede">Yankit stays MIT licensed and free to download or build. If it saves you time, here's how to keep it going.</p></div>
+
+    <div class="dl">
+      <!-- Once the build is signed and the store product exists (Phase 3),
+           swap this card for the supporter download:
+           <h3>Supporter download</h3>
+           <p>The same signed build, with updates built in. Pay what you want: $5 is suggested, and every bit goes into Yankit.</p>
+           <a class="btn" href="STORE-LINK">Get the supporter download</a>
+           <p class="meta">Same app as the free download.<br />No account, no license key.</p> -->
+      <div class="clip rv" style="--r:-1deg;transform:rotate(-1deg)">
+        <span class="tape"></span>
+        <div class="sheet" style="clip-path:var(--torn4)">
+          <h3>Free, and staying free</h3>
+          <p>No account, no trial, no paywall. The cheapest way to help: star the repo, report a bug, or tell a friend who copies a lot.</p>
+          <a class="btn" href="https://github.com/AbyAbyss/Yankit">Star on GitHub</a>
+          <p class="meta">MIT licensed.<br /><a href="https://github.com/AbyAbyss/Yankit/issues" style="color:var(--pt)">Report a bug or ask for a feature →</a></p>
+        </div>
+      </div>
+
+      <div class="clip rv" style="--d:.1s;transform:rotate(1deg)">
+        <span class="tape v" style="--tr:4deg"></span>
+        <div class="sheet" style="background-color:var(--lilac);clip-path:var(--torn1)">
+          <h3>Leave a <em>tip.</em></h3>
+          <p>If Yankit saves you a few minutes a day, a coffee keeps the updates coming.</p>
+          <a class="btn" href="https://buymeacoffee.com/abyabyss">Buy me a coffee</a>
         </div>
       </div>
     </div>
@@ -942,6 +980,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;
       <a href="https://github.com/AbyAbyss/Yankit/blob/main/ARCHITECTURE.md">Architecture</a>
       <a href="https://github.com/AbyAbyss/Yankit/releases">Releases</a>
       <a href="https://github.com/AbyAbyss/Yankit/blob/main/LICENSE">License</a>
+      <a href="#support">Support</a>
     </nav>
     <p class="made">Made by <a href="index.html">Aby Saji Pappachan</a></p>
   </div>
