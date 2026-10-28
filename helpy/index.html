@@ -283,6 +283,22 @@
   .pip.is-on { opacity: 1; }
   .pip svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4)); }
 
+  /* ---------- Download ---------- */
+  .dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 56px; }
+  .dl__card { display: flex; flex-direction: column; gap: 14px; padding: 28px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); }
+  .dl__card h3 { margin: 0; font: 750 24px/1.2 var(--display); display: flex; align-items: center; gap: 10px; }
+  .dl__card h3 i { color: var(--accent); font-size: 28px; }
+  .dl__card p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; }
+  .dl__card .btn { align-self: flex-start; }
+  .dl__note { margin-top: auto; padding-top: 14px; border-top: 1px dashed var(--line); color: var(--ink-3) !important; font-size: 14px !important; }
+  .dl__note b { color: var(--ink-2); }
+  .dl__code { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 6px 6px 6px 12px; border-radius: 12px; background: var(--bg-2); border: 1px solid var(--line); }
+  .dl__code code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: 500 12.5px/1.4 var(--mono); color: var(--ink); }
+  .dl__code button { flex: none; padding: 6px 12px; border-radius: 8px; border: 0; background: var(--accent); color: #18090a; font: 600 13px var(--body); cursor: pointer; }
+  .dl__more { margin: 28px 0 0; color: var(--ink-3); font-size: 15px; }
+  .dl__more a { color: var(--ink-2); }
+  @media (max-width: 900px) { .dl { grid-template-columns: minmax(0, 1fr); } }
+
   /* Reveal (only when scripts run) */
   .js [data-reveal] { opacity: 0; transform: translateY(40px); }
 
@@ -328,7 +344,7 @@
 <nav class="nav" aria-label="Main">
   <a class="brand" href="#top"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 6 L26 13.5 A22 22 0 1 1 13.5 26 Z" fill="#ff6166"/><ellipse cx="29" cy="33" rx="2.9" ry="4" fill="#1b2030"/><ellipse cx="40" cy="33" rx="2.9" ry="4" fill="#1b2030"/></svg>Helpy</a>
   <span class="nav__gap"></span>
-  <div class="nav__links"><a href="#story">How it helps</a><a href="#homes">Two homes</a><a href="#agents">Agents</a><a href="#tour">Tour</a><a class="btn btn--accent" href="https://github.com/AbyAbyss/helpy"><i class="ph-bold ph-github-logo"></i>Get Helpy</a></div>
+  <div class="nav__links"><a href="#story">How it helps</a><a href="#homes">Two homes</a><a href="#agents">Agents</a><a href="#tour">Tour</a><a class="btn btn--accent" href="#download"><i class="ph-bold ph-download-simple"></i>Get Helpy</a></div>
 </nav>
 
 <main id="top">
@@ -338,7 +354,7 @@
       <h1 id="h1"><span class="w"><span>Help</span></span> <span class="w"><span>that</span></span> <span class="w"><span>lives</span></span> <span class="w"><span>where</span></span> <span class="w"><span>you</span></span> <span class="w"><span><em>look.</em></span></span></h1>
       <p class="lede" data-hero>Ask out loud. Helpy points at the real button, draws on your apps, and runs agents for you.</p>
       <div class="hero__cta" data-hero>
-        <a class="btn btn--accent" href="https://github.com/AbyAbyss/helpy"><i class="ph-bold ph-github-logo"></i>Get Helpy</a>
+        <a class="btn btn--accent" href="#download"><i class="ph-bold ph-download-simple"></i>Get Helpy</a>
         <a class="btn" href="#tour"><i class="ph-fill ph-play-circle"></i>Watch the tour</a>
       </div>
       <div class="homes" role="radiogroup" aria-label="Where Helpy lives" data-hero>
@@ -469,6 +485,34 @@
     <div class="tour" id="tour-box">
       <video controls playsinline preload="metadata" poster="../shots/helpy/tour-poster-cursor.jpg" src="../clips/helpy.mp4" width="1920" height="1080"><a href="../clips/helpy.mp4">Watch the Helpy tour (MP4, under 3 minutes)</a></video>
     </div>
+  </section>
+
+  <section class="wrap gap" id="download">
+    <p class="eyebrow" data-reveal>Download</p>
+    <h2 data-reveal>Get Helpy.</h2>
+    <p class="sub" data-reveal>Free for macOS, Windows and Linux. <span id="dl-ver">Installers are on the Releases page.</span></p>
+    <div class="dl">
+      <article class="dl__card" data-reveal>
+        <h3><i class="ph-fill ph-apple-logo"></i>macOS</h3>
+        <p>Macs with Apple Silicon (M1 or later). Open the .dmg and drag Helpy into Applications.</p>
+        <a class="btn btn--accent" id="dl-mac" href="https://github.com/AbyAbyss/helpy/releases/latest"><i class="ph-bold ph-download-simple"></i>Download .dmg</a>
+        <p class="dl__note"><b>First launch:</b> the build isn't signed, so macOS says it can't verify Helpy. Open it once, then click <b>Open Anyway</b> in System Settings → Privacy &amp; Security. If macOS says the app is damaged, run this in Terminal:</p>
+        <div class="dl__code"><code id="dl-xattr">xattr -dr com.apple.quarantine /Applications/Helpy.app</code><button type="button" id="dl-copy">Copy</button></div>
+      </article>
+      <article class="dl__card" data-reveal>
+        <h3><i class="ph-fill ph-windows-logo"></i>Windows</h3>
+        <p>Windows 10 or 11, 64-bit. Run the installer.</p>
+        <a class="btn btn--accent" id="dl-win" href="https://github.com/AbyAbyss/helpy/releases/latest"><i class="ph-bold ph-download-simple"></i>Download .exe</a>
+        <p class="dl__note"><b>First launch:</b> the build isn't signed, so SmartScreen may warn you. Click <b>More info → Run anyway</b>.</p>
+      </article>
+      <article class="dl__card" data-reveal>
+        <h3><i class="ph-fill ph-linux-logo"></i>Linux</h3>
+        <p>64-bit, X11 (Wayland is best effort). Make the AppImage executable and run it.</p>
+        <a class="btn btn--accent" id="dl-linux" href="https://github.com/AbyAbyss/helpy/releases/latest"><i class="ph-bold ph-download-simple"></i>Download .AppImage</a>
+        <p class="dl__note">Prefer a package? The .deb and .rpm are on the <a href="https://github.com/AbyAbyss/helpy/releases/latest">release page</a>.</p>
+      </article>
+    </div>
+    <p class="dl__more" data-reveal>Intel Mac, or no build for your computer? <a href="https://github.com/AbyAbyss/helpy#run-it">Build it from source</a>. Older versions are under <a href="https://github.com/AbyAbyss/helpy/releases">all releases</a>.</p>
   </section>
 
   <section class="wrap final">
@@ -765,6 +809,36 @@
   $$("video[data-inview]").forEach((v) => vio.observe(v));
 
   setMode(mode, true);
+})();
+</script>
+<script>
+/* Download buttons point straight at the latest release's installers when GitHub lists them */
+(() => {
+  const copy = document.getElementById("dl-copy");
+  copy.addEventListener("click", () => {
+    navigator.clipboard.writeText(document.getElementById("dl-xattr").textContent).then(() => {
+      copy.textContent = "Copied";
+      setTimeout(() => (copy.textContent = "Copy"), 1600);
+    }).catch(() => {});
+  });
+
+  const ver = document.getElementById("dl-ver");
+  fetch("https://api.github.com/repos/AbyAbyss/helpy/releases/latest")
+    .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+    .then((rel) => {
+      ver.textContent = `Latest release: ${rel.tag_name}.`;
+      const assets = rel.assets || [];
+      const pick = (id, ...patterns) => {
+        for (const re of patterns) {
+          const a = assets.find((x) => re.test(x.name));
+          if (a) return void (document.getElementById(id).href = a.browser_download_url);
+        }
+      };
+      pick("dl-mac", /\.dmg$/i);
+      pick("dl-win", /-setup\.exe$/i, /\.msi$/i);
+      pick("dl-linux", /\.AppImage$/i);
+    })
+    .catch((status) => { if (status === 404) ver.textContent = "The first release is coming soon."; });
 })();
 </script>
 </body>
