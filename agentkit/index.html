@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>AgentKit</title>
-<meta name="description" content="AgentKit is one TypeScript SDK for AI agents: server, UI hooks, approvals, MCP, workflows and sandboxes, plus a self-hosted console that shows every call, token and dollar. Open source, MIT.">
+<meta name="description" content="AgentKit is one SDK for AI agents in TypeScript, Python, Go and Rust: server, UI hooks, approvals, MCP, workflows and sandboxes, plus a self-hosted console that shows every call, token and dollar. Open source, MIT.">
 <meta property="og:title" content="AgentKit: stop rebuilding agent plumbing">
-<meta property="og:description" content="One TypeScript SDK for AI agents. Batteries included: server, React, Vue and Svelte hooks, approvals, MCP, workflows, sandboxes and a console for every call, token and dollar.">
+<meta property="og:description" content="One SDK for AI agents in TypeScript, Python, Go and Rust. Batteries included: server, React, Vue and Svelte hooks, approvals, MCP, workflows, sandboxes and a console for every call, token and dollar.">
 <meta property="og:image" content="https://abyabyss.github.io/agentkit/tour-poster.jpg">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
@@ -425,6 +425,7 @@
     <nav class="nav-links" aria-label="Sections">
       <a href="#demo">Demo</a>
       <a href="#how">How it works</a>
+      <a href="#languages">Languages</a>
       <a href="#batteries">Batteries</a>
       <a href="#console">Console</a>
       <a href="#teams">Teams</a>
@@ -446,14 +447,15 @@
     <div class="blob a"></div><div class="blob b"></div>
     <div class="wrap hero-grid">
       <div>
-        <span class="eyebrow"><span class="dot"></span>Open source · MIT · TypeScript</span>
+        <span class="eyebrow"><span class="dot"></span>Open source · MIT · TypeScript · Python · Go · Rust</span>
         <h1>Stop rebuilding agent <span class="hl">plumbing.<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M4 14 C 60 4, 120 4, 170 11 S 260 16, 296 6"/></svg></span></h1>
-        <p class="lead">AgentKit is <b>one TypeScript SDK for AI agents</b>: the server, the UI hooks, approvals, MCP, workflows and sandboxes, plus a console that shows <b>every call, token and dollar</b>. You write the agent. The plumbing is already in the box.</p>
+        <p class="lead">AgentKit is <b>one SDK for AI agents, in TypeScript, Python, Go and Rust</b>: the server, the UI hooks, approvals, MCP, workflows and sandboxes, plus a console that shows <b>every call, token and dollar</b>. You write the agent. The plumbing is already in the box.</p>
         <div class="actions">
           <a class="btn primary" href="#demo"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>Watch the 2-minute demo</a>
           <a class="btn" href="https://abyabyss.github.io/agentkit/docs/getting-started/">Get started</a>
         </div>
         <div class="facts">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg>TypeScript, Python, Go, Rust</span>
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg>React, Vue and Svelte hooks</span>
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg>Any model provider</span>
           <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg>Self-hosted console</span>
@@ -565,6 +567,61 @@
 <span class="tk-c">// streaming, reconnects and approvals: handled</span></code></pre>
             <div class="fw"><span>React</span><span>Vue</span><span>Svelte</span><span>Vanilla JS client</span><span>AG-UI over SSE or WebSocket</span></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Languages ================= -->
+  <section class="sec" id="languages">
+    <div class="wrap">
+      <div class="sec-head rv">
+        <span class="eyebrow"><span class="dot"></span>Languages</span>
+        <h2>One engine. Four languages.</h2>
+        <p>The whole runtime in TypeScript, Python, Go and Rust: providers, tools, MCP, memory, RAG, workflows, telemetry, sandboxes, the server and the client. Not a client for someone else's server.</p>
+      </div>
+      <div class="start">
+        <div class="code term rv">
+          <div class="term-tabs" role="tablist" aria-label="Languages">
+            <button type="button" role="tab" aria-selected="true" data-lang="0">TypeScript</button>
+            <button type="button" role="tab" aria-selected="false" data-lang="1">Python</button>
+            <button type="button" role="tab" aria-selected="false" data-lang="2">Go</button>
+            <button type="button" role="tab" aria-selected="false" data-lang="3">Rust</button>
+          </div>
+<pre id="lang0"><code><span class="tk-c"># Node 20+</span>
+pnpm add @agentkit/core
+
+<span class="tk-k">import</span> { createAgent } <span class="tk-k">from</span> <span class="tk-s">"@agentkit/core"</span>;
+
+<span class="tk-k">const</span> agent = <span class="tk-f">createAgent</span>({ provider: <span class="tk-s">"anthropic"</span> });
+<span class="tk-k">const</span> result = <span class="tk-k">await</span> agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>);</code></pre>
+<pre id="lang1" hidden><code><span class="tk-c"># Python 3.12+, imported as agentkit</span>
+uv add headless-agentkit
+
+<span class="tk-k">from</span> agentkit <span class="tk-k">import</span> create_agent
+
+agent = <span class="tk-f">create_agent</span>({<span class="tk-s">"provider"</span>: <span class="tk-s">"anthropic"</span>})
+result = <span class="tk-k">await</span> agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>)</code></pre>
+<pre id="lang2" hidden><code><span class="tk-c"># Go 1.25+</span>
+go get github.com/AbyAbyss/agentkit/sdks/go@latest
+
+<span class="tk-k">import</span> agentkit <span class="tk-s">"github.com/AbyAbyss/agentkit/sdks/go"</span>
+
+a, err := agentkit.<span class="tk-f">CreateAgent</span>(agentkit.Config{Provider: agentkit.<span class="tk-f">Provider</span>(<span class="tk-s">"anthropic"</span>)})
+result, err := a.<span class="tk-f">Run</span>(ctx, <span class="tk-s">"Summarise this changelog"</span>)</code></pre>
+<pre id="lang3" hidden><code><span class="tk-c"># Rust 1.88+, imported as agentkit</span>
+cargo add headless-agentkit
+
+<span class="tk-k">use</span> agentkit::{Config, RunOptions, create_agent};
+
+<span class="tk-k">let</span> agent = <span class="tk-f">create_agent</span>(Config::<span class="tk-f">new</span>(<span class="tk-s">"anthropic"</span>))?;
+<span class="tk-k">let</span> result = agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>, RunOptions::<span class="tk-f">default</span>()).<span class="tk-k">await</span>?;</code></pre>
+        </div>
+        <div class="why">
+          <div class="rv"><b style="background:var(--t1);color:var(--t1-fg)">1</b><div><h3>The same engine</h3><p>Not a thin wrapper: each language runs the full runtime in-process, with its own idioms (asyncio, <code>context.Context</code>, Tokio).</p></div></div>
+          <div class="rv"><b style="background:var(--t2);color:var(--t2-fg)">2</b><div><h3>One wire</h3><p>Every server speaks the same AG-UI protocol, so a React UI can drive a Go backend, or a Python client a Rust server.</p></div></div>
+          <div class="rv"><b style="background:var(--t3);color:var(--t3-fg)">3</b><div><h3>Checked against each other</h3><p>All four replay the same conformance fixtures, and every client passes the same contract suite against every server.</p></div></div>
+          <div class="rv"><b style="background:var(--t4);color:var(--t4-fg)">4</b><div><h3>Docs and a guide for each</h3><p><a href="https://abyabyss.github.io/agentkit/docs/python/">Python</a>, <a href="https://abyabyss.github.io/agentkit/docs/go/">Go</a> and <a href="https://abyabyss.github.io/agentkit/docs/rust/">Rust</a> sections, plus an LLM guide per language for your coding agent.</p></div></div>
         </div>
       </div>
     </div>
@@ -709,7 +766,7 @@
 git clone https://github.com/AbyAbyss/agentkit.git
 <span class="tk-k">cd</span> agentkit && pnpm install && pnpm build
 
-<span class="tk-c"># every feature, 21 stops, no API key</span>
+<span class="tk-c"># every feature, 22 stops, no API key</span>
 pnpm example:tour
 
 <span class="tk-c"># the same tour as a live dashboard</span>
@@ -726,9 +783,9 @@ result.output; <span class="tk-c">// typed and validated</span></code></pre>
         </div>
         <div class="why">
           <div class="rv"><b style="background:var(--t2);color:var(--t2-fg)">1</b><div><h3>A library, not a platform</h3><p>Import it into any backend, CLI or serverless function. Your UI, your data, your product.</p></div></div>
-          <div class="rv"><b style="background:var(--t3);color:var(--t3-fg)">2</b><div><h3>Typed end to end</h3><p>Zod-validated tools and outputs, and a TypeScript type on every event.</p></div></div>
+          <div class="rv"><b style="background:var(--t3);color:var(--t3-fg)">2</b><div><h3>Typed end to end</h3><p>Validated tools and outputs, and a typed payload on every event, in all four languages.</p></div></div>
           <div class="rv"><b style="background:var(--t1);color:var(--t1-fg)">3</b><div><h3>Grows with you</h3><p>Start with <code>createAgent</code>. Outgrow it and the same import gives you the plugin kernel underneath.</p></div></div>
-          <div class="rv"><b style="background:var(--t4);color:var(--t4-fg)">4</b><div><h3>Built for coding agents</h3><p>Ask your AI assistant: <code>LLM_GUIDE.md</code> documents every feature in one file.</p></div></div>
+          <div class="rv"><b style="background:var(--t4);color:var(--t4-fg)">4</b><div><h3>Built for coding agents</h3><p>Ask your AI assistant: <code>LLM_GUIDE.md</code> documents every feature in one file, with a Python, Go and Rust edition of each.</p></div></div>
         </div>
       </div>
 
@@ -872,6 +929,13 @@ result.output; <span class="tk-c">// typed and validated</span></code></pre>
     try { await navigator.clipboard.writeText(pre.innerText); $("#copy").textContent = "Copied"; } catch (e) { $("#copy").textContent = "Select and copy"; }
     setTimeout(() => ($("#copy").textContent = "Copy"), 1600);
   });
+
+  /* ---------- Languages tabs ---------- */
+  const langBtns = $$("[data-lang]");
+  langBtns.forEach((b) => b.addEventListener("click", () => {
+    langBtns.forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+    langBtns.forEach((x) => { $("#lang" + x.dataset.lang).hidden = x !== b; });
+  }));
 
   /* ---------- Hero: a support agent, an approval, and its trace ---------- */
   const chat = $("#chat"), rows = $("#rows"), live = $("#live");
