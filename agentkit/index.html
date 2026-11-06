@@ -307,6 +307,27 @@
   .fw { display: flex; gap: 6px; padding: 0 20px 18px; flex-wrap: wrap; }
   .fw span { font: 600 12px/1 var(--sans); padding: 6px 10px; border-radius: 999px; background: oklch(1 0 0 / 0.08); color: oklch(0.88 0.02 7); }
 
+  /* Same UI, any backend */
+  .swap { border-radius: 22px; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 22px; display: grid; gap: 16px; }
+  .swap-flow { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; }
+  .swap-ui { border-radius: 14px; background: var(--surface-2); padding: 14px; display: grid; gap: 6px; min-width: 0; }
+  .swap .k { font: 700 11px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--text-2); }
+  .swap-ui code { font: 500 13px/1.4 var(--mono); color: var(--text); overflow-wrap: anywhere; }
+  .swap-ui small { color: var(--text-2); font-size: 12.5px; }
+  .swap-wire { display: grid; justify-items: center; gap: 6px; color: var(--text-2); font: 600 11px/1.2 var(--sans); text-align: center; }
+  .swap-wire::before { content: ""; width: 56px; height: 2px; border-radius: 2px; background: repeating-linear-gradient(90deg, var(--accent) 0 6px, transparent 6px 11px); }
+  .swap-be { display: grid; gap: 6px; }
+  .swap-be button { border: 1px solid var(--border); background: transparent; color: var(--text-2); font: 600 13px/1 var(--sans); padding: 9px 12px; border-radius: 10px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; gap: 8px; }
+  .swap-be button span { font-weight: 500; font-size: 11.5px; opacity: 0; transition: opacity 160ms; }
+  .swap-be button[aria-selected="true"] { color: var(--text); border-color: var(--accent); background: color-mix(in oklch, var(--accent) 10%, transparent); }
+  .swap-be button[aria-selected="true"] span { opacity: 1; }
+  .swap p { margin: 0; color: var(--text-2); font-size: 14.5px; line-height: 1.55; }
+  .swap p b { color: var(--text); }
+  @media (max-width: 640px) {
+    .swap-flow { grid-template-columns: minmax(0, 1fr); }
+    .swap-wire::before { width: 2px; height: 28px; background: repeating-linear-gradient(180deg, var(--accent) 0 6px, transparent 6px 11px); }
+  }
+
   /* Bento */
   .bento { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
   .tile { position: relative; border-radius: 24px; padding: 26px; overflow: hidden; background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); transition: transform 220ms cubic-bezier(.2,.9,.3,1.2); }
@@ -648,6 +669,24 @@ session.<span class="tk-f">send</span>(<span class="tk-s">"Where is order 1001?"
             </div>
             <div class="fw"><span>React</span><span>Vue</span><span>Svelte</span><span>Vanilla JS client</span><span>Python, Go and Rust clients</span><span>AG-UI over SSE or WebSocket</span></div>
           </div>
+          <div class="swap rv" aria-label="The same UI works with every backend language">
+            <div class="swap-flow">
+              <div class="swap-ui">
+                <span class="k">Your UI</span>
+                <code>useAgentSession(apiUrl)</code>
+                <small>React, Vue, Svelte or the JS client. Written once in TypeScript.</small>
+              </div>
+              <div class="swap-wire">same<br>protocol</div>
+              <div class="swap-be" role="tablist" aria-label="Backend language">
+                <span class="k">Your backend</span>
+                <button type="button" role="tab" aria-selected="true" data-pick="ts">TypeScript<span>serving</span></button>
+                <button type="button" role="tab" aria-selected="false" data-pick="py">Python<span>serving</span></button>
+                <button type="button" role="tab" aria-selected="false" data-pick="go">Go<span>serving</span></button>
+                <button type="button" role="tab" aria-selected="false" data-pick="rs">Rust<span>serving</span></button>
+              </div>
+            </div>
+            <p><b>Change the backend, keep the UI.</b> Every server speaks the same AG-UI protocol over SSE or WebSocket, so moving from TypeScript to Python, Go or Rust changes the server code above and nothing in the UI. One contract suite runs every client against every server to keep it that way.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -700,7 +739,7 @@ cargo add headless-agentkit
         </div>
         <div class="why">
           <div class="rv"><b style="background:var(--t1);color:var(--t1-fg)">1</b><div><h3>The same engine</h3><p>Not a thin wrapper: each language runs the full runtime in-process, with its own idioms (asyncio, <code>context.Context</code>, Tokio).</p></div></div>
-          <div class="rv"><b style="background:var(--t2);color:var(--t2-fg)">2</b><div><h3>One wire</h3><p>Every server speaks the same AG-UI protocol, so a React UI can drive a Go backend, or a Python client a Rust server.</p></div></div>
+          <div class="rv"><b style="background:var(--t2);color:var(--t2-fg)">2</b><div><h3>One wire</h3><p>Write the UI once in TypeScript (React, Vue, Svelte or the JS client) and point it at any of the four servers. Swap the backend language and the UI code stays the same; a Python client can talk to a Rust server too.</p></div></div>
           <div class="rv"><b style="background:var(--t3);color:var(--t3-fg)">3</b><div><h3>Checked against each other</h3><p>All four replay the same conformance fixtures, and every client passes the same contract suite against every server.</p></div></div>
           <div class="rv"><b style="background:var(--t4);color:var(--t4-fg)">4</b><div><h3>Docs and a guide for each</h3><p><a href="https://abyabyss.github.io/agentkit/docs/python/">Python</a>, <a href="https://abyabyss.github.io/agentkit/docs/go/">Go</a> and <a href="https://abyabyss.github.io/agentkit/docs/rust/">Rust</a> sections, plus an LLM guide per language for your coding agent.</p></div></div>
         </div>
