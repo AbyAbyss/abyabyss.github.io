@@ -281,9 +281,14 @@
   .chore ul { list-style: none; margin: 20px 0 0; padding: 0; display: grid; gap: 10px; }
   .chore li { position: relative; display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface-2); font-weight: 600; font-size: 15.5px; }
   .chore li small { font: 500 12.5px/1.6 var(--mono); color: var(--text-3); white-space: nowrap; }
-  .chore li::after { content: ""; position: absolute; left: 12px; right: 12px; top: 50%; height: 2.5px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transform-origin: left; transition: transform 520ms cubic-bezier(.6,0,.2,1); }
+  .chore li::after { content: ""; position: absolute; left: 12px; right: 12px; top: 50%; height: 1.5px; margin-top: -0.75px; border-radius: 2px; background: color-mix(in oklab, var(--accent) 70%, transparent); transform: scaleX(0); transform-origin: left; transition: transform 520ms cubic-bezier(.6,0,.2,1); pointer-events: none; }
+  /* The reveal: around the pointer the strike line fades out and a soft glow sits behind the text. */
+  .chore li { --px: -999px; --py: -999px; --sx: -999px; --sy: -999px; }
+  .chore.peek li::after { -webkit-mask-image: radial-gradient(circle 140px at var(--sx) var(--sy), transparent 0, transparent 46%, rgb(0 0 0 / 0.55) 72%, #000 100%); mask-image: radial-gradient(circle 140px at var(--sx) var(--sy), transparent 0, transparent 46%, rgb(0 0 0 / 0.55) 72%, #000 100%); }
+  .chore li::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity 260ms; background: radial-gradient(circle 150px at var(--px) var(--py), color-mix(in oklab, var(--accent) 14%, transparent), transparent 70%); }
+  .chore.peek li::before { opacity: 1; }
   .chore.struck li::after { transform: scaleX(1); }
-  .chore.struck li { color: var(--text-3); }
+  .chore.struck li { color: var(--text-2); }
   .chore li:nth-child(2)::after { transition-delay: 120ms; } .chore li:nth-child(3)::after { transition-delay: 240ms; } .chore li:nth-child(4)::after { transition-delay: 360ms; } .chore li:nth-child(5)::after { transition-delay: 480ms; } .chore li:nth-child(6)::after { transition-delay: 600ms; } .chore li:nth-child(7)::after { transition-delay: 720ms; }
   .chore .tally { margin-top: 18px; font-weight: 700; color: var(--accent-text); font-size: 15px; opacity: 0; transition: opacity 400ms 900ms; }
   .chore.struck .tally { opacity: 1; }
@@ -291,7 +296,13 @@
   .code { background: var(--code-bg); color: var(--code-text); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); }
   .code-head { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid oklch(1 0 0 / 0.08); font: 500 13px/1 var(--mono); color: oklch(0.8 0.02 7); }
   .code-head .tag { margin-left: auto; font: 700 11.5px/1 var(--sans); padding: 5px 9px; border-radius: 999px; background: oklch(1 0 0 / 0.08); }
-  .code pre { margin: 0; padding: 18px 20px 20px; font: 400 14.5px/1.65 var(--mono); overflow-x: auto; }
+  .code pre { margin: 0; padding: 18px 20px 20px; font: 400 14.5px/1.65 var(--mono); overflow-x: auto; tab-size: 4; }
+  .code pre code { display: block; }
+  [data-pane][hidden] { display: none !important; }
+  .lang-pick { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface-2); border: 1px solid var(--border); justify-self: start; }
+  .lang-pick button { border: 0; background: transparent; color: var(--text-2); font: 600 13px/1 var(--sans); padding: 9px 12px; border-radius: 9px; cursor: pointer; }
+  .lang-pick button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  .lang-pick-start { margin: 0 0 14px; }
   .tk-k { color: oklch(0.78 0.13 2); } .tk-s { color: oklch(0.85 0.11 150); } .tk-f { color: oklch(0.85 0.1 72); } .tk-c { color: oklch(0.62 0.02 7); font-style: italic; } .tk-n { color: oklch(0.82 0.09 235); }
   .fw { display: flex; gap: 6px; padding: 0 20px 18px; flex-wrap: wrap; }
   .fw span { font: 600 12px/1 var(--sans); padding: 6px 10px; border-radius: 999px; background: oklch(1 0 0 / 0.08); color: oklch(0.88 0.02 7); }
@@ -545,7 +556,9 @@
           <p class="tally">All of it ships in the SDK.</p>
         </div>
         <div class="codes">
+          <div class="lang-pick" role="tablist" aria-label="Language"><button type="button" role="tab" aria-selected="true" data-pick="ts">TypeScript</button><button type="button" role="tab" aria-selected="false" data-pick="py">Python</button><button type="button" role="tab" aria-selected="false" data-pick="go">Go</button><button type="button" role="tab" aria-selected="false" data-pick="rs">Rust</button></div>
           <div class="code rv">
+            <div data-pane="ts">
             <div class="code-head">server.ts<span class="tag">@agentkit/core + server</span></div>
 <pre><code><span class="tk-k">import</span> { createAgent } <span class="tk-k">from</span> <span class="tk-s">"@agentkit/core"</span>;
 <span class="tk-k">import</span> { serve } <span class="tk-k">from</span> <span class="tk-s">"@agentkit/server"</span>;
@@ -558,14 +571,82 @@
 });
 
 <span class="tk-k">await</span> <span class="tk-f">serve</span>(agent, { port: <span class="tk-n">8787</span> });</code></pre>
+            </div>
+            <div data-pane="py" hidden>
+            <div class="code-head">server.py<span class="tag">headless-agentkit</span></div>
+<pre><code><span class="tk-k">from</span> agentkit <span class="tk-k">import</span> create_agent
+<span class="tk-k">from</span> agentkit.server <span class="tk-k">import</span> serve
+
+agent = <span class="tk-f">create_agent</span>({
+    <span class="tk-s">"provider"</span>: <span class="tk-s">"anthropic"</span>,
+    <span class="tk-s">"tools"</span>: [get_order, refund_order],
+    <span class="tk-s">"approvals"</span>: {<span class="tk-s">"policies"</span>: {<span class="tk-s">"refund_order"</span>: <span class="tk-s">"approve"</span>}},
+    <span class="tk-s">"telemetry"</span>: {<span class="tk-s">"service"</span>: <span class="tk-s">"support-bot"</span>},
+})
+
+<span class="tk-k">await</span> <span class="tk-f">serve</span>(agent, port=<span class="tk-n">8787</span>)</code></pre>
+            </div>
+            <div data-pane="go" hidden>
+            <div class="code-head">main.go<span class="tag">agentkit/sdks/go</span></div>
+<pre><code>a, err := agentkit.<span class="tk-f">CreateAgent</span>(agentkit.Config{
+	Provider:  agentkit.<span class="tk-f">Provider</span>(<span class="tk-s">"anthropic"</span>),
+	Tools:     []*tools.ToolDef{getOrder, refundOrder},
+	Approvals: &amp;approvals.ApprovalsConfig{Policies: <span class="tk-k">map</span>[string]approvals.ToolPolicy{
+		<span class="tk-s">"refund_order"</span>: approvals.PolicyApprove,
+	}},
+	Telemetry: &amp;telemetry.TelemetryConfig{Service: <span class="tk-s">"support-bot"</span>},
+})
+
+port := <span class="tk-n">8787</span>
+handle, err := server.<span class="tk-f">Serve</span>(a, server.ServeOptions{Port: &amp;port})</code></pre>
+            </div>
+            <div data-pane="rs" hidden>
+            <div class="code-head">main.rs<span class="tag">headless-agentkit</span></div>
+<pre><code><span class="tk-k">let</span> agent = <span class="tk-f">create_agent</span>(Config {
+    tools: <span class="tk-k">Some</span>(vec![get_order, refund_order]),
+    approvals: <span class="tk-k">Some</span>(ApprovalsConfig {
+        policies: <span class="tk-k">Some</span>(HashMap::<span class="tk-f">from</span>([(<span class="tk-s">"refund_order"</span>.<span class="tk-f">into</span>(), ToolPolicy::Approve)])),
+        ..Default::<span class="tk-f">default</span>()
+    }),
+    telemetry: <span class="tk-k">Some</span>(TelemetryConfig { service: <span class="tk-k">Some</span>(<span class="tk-s">"support-bot"</span>.<span class="tk-f">into</span>()), ..Default::<span class="tk-f">default</span>() }),
+    ..Config::<span class="tk-f">new</span>(<span class="tk-s">"anthropic"</span>)
+})?;
+
+<span class="tk-f">serve</span>(&amp;agent, ServeOptions { port: <span class="tk-k">Some</span>(<span class="tk-n">8787</span>), ..Default::<span class="tk-f">default</span>() }).<span class="tk-k">await</span>?;</code></pre>
+            </div>
           </div>
           <div class="code rv">
+            <div data-pane="ts">
             <div class="code-head">Chat.tsx<span class="tag">@agentkit/react</span></div>
 <pre><code><span class="tk-k">const</span> { client, send } = <span class="tk-f">useAgentSession</span>(url);
 <span class="tk-k">const</span> { messages } = <span class="tk-f">useConversation</span>(client);
 <span class="tk-k">const</span> { approvals, approve } = <span class="tk-f">usePendingRequests</span>(client);
 <span class="tk-c">// streaming, reconnects and approvals: handled</span></code></pre>
-            <div class="fw"><span>React</span><span>Vue</span><span>Svelte</span><span>Vanilla JS client</span><span>AG-UI over SSE or WebSocket</span></div>
+            </div>
+            <div data-pane="py" hidden>
+            <div class="code-head">chat.py<span class="tag">agentkit.client</span></div>
+<pre><code><span class="tk-k">from</span> agentkit.client <span class="tk-k">import</span> connect
+
+session = <span class="tk-k">await</span> <span class="tk-f">connect</span>(url)
+session.<span class="tk-f">on</span>(<span class="tk-s">"stream:token"</span>, <span class="tk-k">lambda</span> t: <span class="tk-f">print</span>(t[<span class="tk-s">"token"</span>], end=<span class="tk-s">""</span>))
+<span class="tk-k">await</span> session.<span class="tk-f">send</span>(<span class="tk-s">"Where is order 1001?"</span>)
+<span class="tk-c"># approvals: await session.approve(request_id)</span></code></pre>
+            </div>
+            <div data-pane="go" hidden>
+            <div class="code-head">chat.go<span class="tag">agentkit/sdks/go/client</span></div>
+<pre><code>session, err := client.<span class="tk-f">Connect</span>(ctx, url, client.ConnectOptions{})
+session.<span class="tk-f">On</span>(<span class="tk-s">"stream:token"</span>, <span class="tk-k">func</span>(p <span class="tk-k">any</span>) { fmt.<span class="tk-f">Print</span>(p.(<span class="tk-k">map</span>[string]<span class="tk-k">any</span>)[<span class="tk-s">"token"</span>]) })
+_, err = session.<span class="tk-f">Send</span>(ctx, <span class="tk-s">"Where is order 1001?"</span>, <span class="tk-k">nil</span>)
+<span class="tk-c">// approvals: session.Approve(ctx, requestID)</span></code></pre>
+            </div>
+            <div data-pane="rs" hidden>
+            <div class="code-head">chat.rs<span class="tag">agentkit::client</span></div>
+<pre><code><span class="tk-k">let</span> session = <span class="tk-f">connect</span>(&amp;url, ConnectOptions::<span class="tk-f">default</span>()).<span class="tk-k">await</span>?;
+<span class="tk-k">let</span> _tokens = session.<span class="tk-f">on</span>(<span class="tk-s">"stream:token"</span>, |p| print!(<span class="tk-s">"{}"</span>, p[<span class="tk-s">"token"</span>].<span class="tk-f">as_str</span>().<span class="tk-f">unwrap_or</span>(<span class="tk-s">""</span>)));
+session.<span class="tk-f">send</span>(<span class="tk-s">"Where is order 1001?"</span>, <span class="tk-k">None</span>).<span class="tk-k">await</span>?;
+<span class="tk-c">// approvals: session.approve(&amp;request_id).await?</span></code></pre>
+            </div>
+            <div class="fw"><span>React</span><span>Vue</span><span>Svelte</span><span>Vanilla JS client</span><span>Python, Go and Rust clients</span><span>AG-UI over SSE or WebSocket</span></div>
           </div>
         </div>
       </div>
@@ -583,33 +664,33 @@
       <div class="start">
         <div class="code term rv">
           <div class="term-tabs" role="tablist" aria-label="Languages">
-            <button type="button" role="tab" aria-selected="true" data-lang="0">TypeScript</button>
-            <button type="button" role="tab" aria-selected="false" data-lang="1">Python</button>
-            <button type="button" role="tab" aria-selected="false" data-lang="2">Go</button>
-            <button type="button" role="tab" aria-selected="false" data-lang="3">Rust</button>
+            <button type="button" role="tab" aria-selected="true" data-pick="ts">TypeScript</button>
+            <button type="button" role="tab" aria-selected="false" data-pick="py">Python</button>
+            <button type="button" role="tab" aria-selected="false" data-pick="go">Go</button>
+            <button type="button" role="tab" aria-selected="false" data-pick="rs">Rust</button>
           </div>
-<pre id="lang0"><code><span class="tk-c"># Node 20+</span>
+<pre data-pane="ts"><code><span class="tk-c"># Node 20+</span>
 pnpm add @agentkit/core
 
 <span class="tk-k">import</span> { createAgent } <span class="tk-k">from</span> <span class="tk-s">"@agentkit/core"</span>;
 
 <span class="tk-k">const</span> agent = <span class="tk-f">createAgent</span>({ provider: <span class="tk-s">"anthropic"</span> });
 <span class="tk-k">const</span> result = <span class="tk-k">await</span> agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>);</code></pre>
-<pre id="lang1" hidden><code><span class="tk-c"># Python 3.12+, imported as agentkit</span>
+<pre data-pane="py" hidden><code><span class="tk-c"># Python 3.12+, imported as agentkit</span>
 uv add headless-agentkit
 
 <span class="tk-k">from</span> agentkit <span class="tk-k">import</span> create_agent
 
 agent = <span class="tk-f">create_agent</span>({<span class="tk-s">"provider"</span>: <span class="tk-s">"anthropic"</span>})
 result = <span class="tk-k">await</span> agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>)</code></pre>
-<pre id="lang2" hidden><code><span class="tk-c"># Go 1.25+</span>
+<pre data-pane="go" hidden><code><span class="tk-c"># Go 1.25+</span>
 go get github.com/AbyAbyss/agentkit/sdks/go@latest
 
 <span class="tk-k">import</span> agentkit <span class="tk-s">"github.com/AbyAbyss/agentkit/sdks/go"</span>
 
 a, err := agentkit.<span class="tk-f">CreateAgent</span>(agentkit.Config{Provider: agentkit.<span class="tk-f">Provider</span>(<span class="tk-s">"anthropic"</span>)})
 result, err := a.<span class="tk-f">Run</span>(ctx, <span class="tk-s">"Summarise this changelog"</span>)</code></pre>
-<pre id="lang3" hidden><code><span class="tk-c"># Rust 1.88+, imported as agentkit</span>
+<pre data-pane="rs" hidden><code><span class="tk-c"># Rust 1.88+, imported as agentkit</span>
 cargo add headless-agentkit
 
 <span class="tk-k">use</span> agentkit::{Config, RunOptions, create_agent};
@@ -755,6 +836,7 @@ cargo add headless-agentkit
         <h2>Running in a minute. No API key needed.</h2>
         <p>The tour walks through every feature on a mock model, so you can see it all before you spend a cent.</p>
       </div>
+      <div class="lang-pick lang-pick-start" role="tablist" aria-label="Language"><button type="button" role="tab" aria-selected="true" data-pick="ts">TypeScript</button><button type="button" role="tab" aria-selected="false" data-pick="py">Python</button><button type="button" role="tab" aria-selected="false" data-pick="go">Go</button><button type="button" role="tab" aria-selected="false" data-pick="rs">Rust</button></div>
       <div class="start">
         <div class="code term rv">
           <div class="term-tabs" role="tablist" aria-label="Get started">
@@ -762,7 +844,7 @@ cargo add headless-agentkit
             <button type="button" role="tab" aria-selected="false" data-term="1">Add to a project</button>
             <button type="button" class="copy" id="copy">Copy</button>
           </div>
-<pre id="term0"><code><span class="tk-c"># clone and build</span>
+<pre id="term0"><code data-pane="ts"><span class="tk-c"># clone and build</span>
 git clone https://github.com/AbyAbyss/agentkit.git
 <span class="tk-k">cd</span> agentkit && pnpm install && pnpm build
 
@@ -770,8 +852,32 @@ git clone https://github.com/AbyAbyss/agentkit.git
 pnpm example:tour
 
 <span class="tk-c"># the same tour as a live dashboard</span>
-pnpm example:tour:web</code></pre>
-<pre id="term1" hidden><code><span class="tk-k">import</span> { createAgent } <span class="tk-k">from</span> <span class="tk-s">"@agentkit/core"</span>;
+pnpm example:tour:web</code><code data-pane="py" hidden><span class="tk-c"># clone (needs uv)</span>
+git clone https://github.com/AbyAbyss/agentkit.git
+<span class="tk-k">cd</span> agentkit
+
+<span class="tk-c"># every feature, 22 stops, no API key</span>
+make tour-py
+
+<span class="tk-c"># the same tour as a live dashboard</span>
+make tour-web-py</code><code data-pane="go" hidden><span class="tk-c"># clone (needs Go 1.25+)</span>
+git clone https://github.com/AbyAbyss/agentkit.git
+<span class="tk-k">cd</span> agentkit
+
+<span class="tk-c"># every feature, 22 stops, no API key</span>
+make tour-go
+
+<span class="tk-c"># the same tour as a live dashboard</span>
+make tour-web-go</code><code data-pane="rs" hidden><span class="tk-c"># clone (needs Rust 1.88+)</span>
+git clone https://github.com/AbyAbyss/agentkit.git
+<span class="tk-k">cd</span> agentkit
+
+<span class="tk-c"># every feature, 22 stops, no API key</span>
+make tour-rust
+
+<span class="tk-c"># the same tour as a live dashboard</span>
+make tour-web-rust</code></pre>
+<pre id="term1" hidden><code data-pane="ts"><span class="tk-k">import</span> { createAgent } <span class="tk-k">from</span> <span class="tk-s">"@agentkit/core"</span>;
 <span class="tk-k">import</span> { z } <span class="tk-k">from</span> <span class="tk-s">"zod"</span>;
 
 <span class="tk-k">const</span> agent = <span class="tk-f">createAgent</span>({ provider: <span class="tk-s">"anthropic"</span> });
@@ -779,7 +885,35 @@ pnpm example:tour:web</code></pre>
 <span class="tk-k">const</span> result = <span class="tk-k">await</span> agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>, {
   output: z.<span class="tk-f">object</span>({ summary: z.<span class="tk-f">string</span>(), risk: z.<span class="tk-f">enum</span>([<span class="tk-s">"low"</span>, <span class="tk-s">"high"</span>]) }),
 });
-result.output; <span class="tk-c">// typed and validated</span></code></pre>
+result.output; <span class="tk-c">// typed and validated</span></code><code data-pane="py" hidden><span class="tk-k">from</span> typing <span class="tk-k">import</span> Literal
+<span class="tk-k">from</span> pydantic <span class="tk-k">import</span> BaseModel
+<span class="tk-k">from</span> agentkit <span class="tk-k">import</span> create_agent
+
+<span class="tk-k">class</span> <span class="tk-f">Summary</span>(BaseModel):
+    summary: str
+    risk: Literal[<span class="tk-s">"low"</span>, <span class="tk-s">"high"</span>]
+
+agent = <span class="tk-f">create_agent</span>({<span class="tk-s">"provider"</span>: <span class="tk-s">"anthropic"</span>})
+result = <span class="tk-k">await</span> agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>, output=Summary)
+result.output  <span class="tk-c"># a Summary instance, validated</span></code><code data-pane="go" hidden><span class="tk-k">type</span> Summary <span class="tk-k">struct</span> {
+	Summary string <span class="tk-s">`json:"summary"`</span>
+	Risk    string <span class="tk-s">`json:"risk" enum:"low,high"`</span>
+}
+
+a, err := agentkit.<span class="tk-f">CreateAgent</span>(agentkit.Config{Provider: agentkit.<span class="tk-f">Provider</span>(<span class="tk-s">"anthropic"</span>)})
+result, err := a.<span class="tk-f">Run</span>(ctx, <span class="tk-s">"Summarise this changelog"</span>,
+	agentkit.RunOptions{Output: agentkit.<span class="tk-f">OutputOf</span>[Summary]()})
+result.Output.(Summary) <span class="tk-c">// typed and validated</span></code><code data-pane="rs" hidden>#[<span class="tk-f">derive</span>(Deserialize, JsonSchema)]
+<span class="tk-k">struct</span> Summary { summary: String, risk: Risk }
+
+#[<span class="tk-f">derive</span>(Deserialize, JsonSchema)]
+#[<span class="tk-f">serde</span>(rename_all = <span class="tk-s">"lowercase"</span>)]
+<span class="tk-k">enum</span> Risk { Low, High }
+
+<span class="tk-k">let</span> agent = <span class="tk-f">create_agent</span>(Config::<span class="tk-f">new</span>(<span class="tk-s">"anthropic"</span>))?;
+<span class="tk-k">let</span> options = RunOptions { output: <span class="tk-k">Some</span>(output_type::&lt;Summary&gt;()), ..Default::<span class="tk-f">default</span>() };
+<span class="tk-k">let</span> result = agent.<span class="tk-f">run</span>(<span class="tk-s">"Summarise this changelog"</span>, options).<span class="tk-k">await</span>?;
+<span class="tk-k">let</span> summary: Summary = serde_json::<span class="tk-f">from_value</span>(result.output)?; <span class="tk-c">// typed and validated</span></code></pre>
         </div>
         <div class="why">
           <div class="rv"><b style="background:var(--t2);color:var(--t2-fg)">1</b><div><h3>A library, not a platform</h3><p>Import it into any backend, CLI or serverless function. Your UI, your data, your product.</p></div></div>
@@ -930,12 +1064,46 @@ result.output; <span class="tk-c">// typed and validated</span></code></pre>
     setTimeout(() => ($("#copy").textContent = "Copy"), 1600);
   });
 
-  /* ---------- Languages tabs ---------- */
-  const langBtns = $$("[data-lang]");
-  langBtns.forEach((b) => b.addEventListener("click", () => {
-    langBtns.forEach((x) => x.setAttribute("aria-selected", String(x === b)));
-    langBtns.forEach((x) => { $("#lang" + x.dataset.lang).hidden = x !== b; });
-  }));
+  /* ---------- One language picker for every snippet ---------- */
+  // Any picker switches every snippet on the page; the choice is remembered.
+  const setLang = (lang) => {
+    $$("[data-pick]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.pick === lang)));
+    $$("[data-pane]").forEach((p) => { p.hidden = p.dataset.pane !== lang; });
+    try { localStorage.setItem("agentkit-lang", lang); } catch (e) {}
+  };
+  $$("[data-pick]").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.pick)));
+  try {
+    const saved = localStorage.getItem("agentkit-lang");
+    if (saved && ["ts", "py", "go", "rs"].includes(saved)) setLang(saved);
+  } catch (e) {}
+
+  /* ---------- "What you'd write by hand": a soft reveal around the pointer ---------- */
+  // The strike lines thin out to nothing inside a circle that follows the cursor (or a
+  // finger), so the struck text can be read where you look.
+  const chore = $("#chore");
+  if (chore) {
+    const items = $$("li", chore);
+    let fade = 0;
+    const place = (x, y) => {
+      chore.classList.add("peek");
+      items.forEach((li) => {
+        const r = li.getBoundingClientRect();
+        li.style.setProperty("--px", `${x - r.left}px`);
+        li.style.setProperty("--py", `${y - r.top}px`);
+        // The strike line starts 12px in and sits on the item's middle; its mask is laid out in its own box.
+        li.style.setProperty("--sx", `${x - r.left - 12}px`);
+        li.style.setProperty("--sy", `${y - r.top - r.height / 2}px`);
+      });
+    };
+    const leave = (delay) => {
+      clearTimeout(fade);
+      fade = setTimeout(() => chore.classList.remove("peek"), delay);
+    };
+    chore.addEventListener("pointermove", (e) => { clearTimeout(fade); place(e.clientX, e.clientY); });
+    chore.addEventListener("pointerdown", (e) => { clearTimeout(fade); place(e.clientX, e.clientY); });
+    chore.addEventListener("pointerleave", (e) => leave(e.pointerType === "mouse" ? 0 : 1600));
+    chore.addEventListener("pointercancel", () => leave(1600));
+  }
 
   /* ---------- Hero: a support agent, an approval, and its trace ---------- */
   const chat = $("#chat"), rows = $("#rows"), live = $("#live");
