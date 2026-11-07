@@ -319,6 +319,9 @@
   .lang-pick button { border: 0; background: transparent; color: var(--text-2); font: 600 13px/1 var(--sans); padding: 9px 12px; border-radius: 9px; cursor: pointer; }
   .lang-pick button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
   .lang-pick-start { margin: 0 0 14px; }
+  .alpha-note { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 18px; padding: 14px 16px; border-radius: 14px; background: var(--accent-soft); color: var(--text-2); font-size: 15px; line-height: 1.5; max-width: 760px; }
+  .alpha-note svg { width: 18px; height: 18px; flex: none; margin-top: 2px; color: var(--accent-text); }
+  .alpha-note b { color: var(--accent-text); }
   .tk-k { color: oklch(0.78 0.13 2); } .tk-s { color: oklch(0.85 0.11 150); } .tk-f { color: oklch(0.85 0.1 72); } .tk-c { color: oklch(0.62 0.02 7); font-style: italic; } .tk-n { color: oklch(0.82 0.09 235); }
   .fw { display: flex; gap: 6px; padding: 0 20px 18px; flex-wrap: wrap; }
   .fw span { font: 600 12px/1 var(--sans); padding: 6px 10px; border-radius: 999px; background: oklch(1 0 0 / 0.08); color: oklch(0.88 0.02 7); }
@@ -715,6 +718,7 @@ session.<span class="tk-f">send</span>(<span class="tk-s">"Where is order 1001?"
         <h2>One engine. Four languages.</h2>
         <p>The whole runtime in TypeScript, Python, Go and Rust: providers, tools, MCP, memory, RAG, workflows, telemetry, sandboxes, the server and the client. Not a client for someone else's server.</p>
       </div>
+      <p class="alpha-note rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><span><b>Private during alpha.</b> The packages aren't published yet, so these install commands work for alpha testers only. They'll be public once AgentKit is stable.</span></p>
       <div class="start">
         <div class="code term rv">
           <div class="term-tabs" role="tablist" aria-label="Languages">
@@ -890,6 +894,7 @@ cargo add headless-agentkit
         <h2>Running in a minute. No API key needed.</h2>
         <p>The tour walks through every feature on a mock model, so you can see it all before you spend a cent.</p>
       </div>
+      <p class="alpha-note rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg><span><b>Private during alpha.</b> The repository and packages aren't public yet, so these commands work for alpha testers only. They'll be public once AgentKit is stable.</span></p>
       <div class="lang-pick lang-pick-start" role="tablist" aria-label="Language"><button type="button" role="tab" aria-selected="true" data-pick="ts">TypeScript</button><button type="button" role="tab" aria-selected="false" data-pick="py">Python</button><button type="button" role="tab" aria-selected="false" data-pick="go">Go</button><button type="button" role="tab" aria-selected="false" data-pick="rs">Rust</button></div>
       <div class="start">
         <div class="code term rv">
