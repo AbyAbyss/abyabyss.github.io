@@ -7,7 +7,7 @@
 <meta name="description" content="AgentKit is one SDK for AI agents in TypeScript, Python, Go and Rust: server, UI hooks, approvals, MCP, workflows and sandboxes, plus a self-hosted console that shows every call, token and dollar. Open source, MIT.">
 <meta property="og:title" content="AgentKit: stop rebuilding agent plumbing">
 <meta property="og:description" content="One SDK for AI agents in TypeScript, Python, Go and Rust. Batteries included: server, React, Vue and Svelte hooks, approvals, MCP, workflows, sandboxes and a console for every call, token and dollar.">
-<meta property="og:image" content="https://abyabyss.github.io/agentkit/tour-poster.jpg">
+<meta property="og:image" content="https://abyabyss.github.io/agentkit/tour-poster.jpg?v=4lang">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#fdf1f3">
@@ -556,9 +556,9 @@
         <button type="button" role="tab" aria-selected="false" data-cut="teaser">Teaser <b>0:15</b></button>
       </div>
       <div class="player rv">
-        <video id="video" controls playsinline preload="metadata" poster="tour-poster.jpg" width="1920" height="1080">
-          <source src="tour.mp4" type="video/mp4">
-          <a href="tour.mp4">Watch the AgentKit demo (MP4)</a>
+        <video id="video" controls playsinline preload="metadata" poster="tour-poster.jpg?v=4lang" width="1920" height="1080">
+          <source src="tour.mp4?v=4lang" type="video/mp4">
+          <a href="tour.mp4?v=4lang">Watch the AgentKit demo (MP4)</a>
         </video>
       </div>
       <div class="chapters rv" id="chapters">
@@ -1122,8 +1122,8 @@ result.Output.(Summary) <span class="tk-c">// typed and validated</span></code><
 
   /* ---------- Teaser / full demo switch ---------- */
   const cuts = {
-    demo: { src: "tour.mp4", poster: "tour-poster.jpg" },
-    teaser: { src: "teaser.mp4", poster: "teaser-poster.jpg" },
+    demo: { src: "tour.mp4?v=4lang", poster: "tour-poster.jpg?v=4lang" },
+    teaser: { src: "teaser.mp4?v=4lang", poster: "teaser-poster.jpg" },
   };
   const cutBtns = $$("[data-cut]");
   cutBtns.forEach((b) => b.addEventListener("click", () => {
