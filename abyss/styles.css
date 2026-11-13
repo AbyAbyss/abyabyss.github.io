@@ -263,6 +263,7 @@ h2 em { color: var(--glow); font-size: 0.86em; letter-spacing: -0.01em; padding-
 
 /* ---------- contact ---------- */
 .contact { padding-top: 60vh; padding-bottom: 0; min-height: 150vh; display: flex; flex-direction: column; justify-content: flex-end; }
+.journey .contact { min-height: 300vh; } /* room to fly the cave before the contact copy arrives */
 .contact-in { padding-bottom: 9vh; max-width: 900px !important; }
 .contact h2 { font-size: clamp(50px, 9.4vw, 150px); }
 .mail { display: flex; align-items: center; flex-wrap: wrap; gap: 14px 18px; margin-top: 40px; }

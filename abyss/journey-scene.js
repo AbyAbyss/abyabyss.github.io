@@ -430,7 +430,7 @@ export function createScene(canvas, opts = {}) {
   }
   // deeper, sparser, colder: company for the midnight zone
   const deepColors = [0x4fe3ff, 0x6d8dff, 0x6dffb8, 0xc08bff];
-  [[40, -131, -12, 1.7], [14, -150, -15, 2.2], [-12, -158, -11, 1.4], [-38, -180, -14, 1.9], [-47, -206, -11, 1.5], [-63, -228, -13, 2.3], [-48, -250, -12, 1.7]].forEach(([x, y, z, sc], i) => jelly(x, y, z, sc, deepColors[i % 4]));
+  [[40, -131, -12, 1.7], [15, -136, -25, 2.2], [-13, -141, -24, 1.4], [-38, -180, -14, 1.9], [-47, -206, -11, 1.5], [-63, -228, -13, 2.3], [-48, -250, -12, 1.7]].forEach(([x, y, z, sc], i) => jelly(x, y, z, sc, deepColors[i % 4]));
   for (let i = 0; i < (lite ? 4 : 10); i++) {
     const u = Math.random(), a = rand(Math.PI * 2), d = rand(14, 30);  // scattered along the leftward leg, then the drop
     const cx = u < 0.6 ? lerp(60, -55, u / 0.6) : -55, cy = u < 0.6 ? lerp(-128, -190, u / 0.6) : lerp(-190, -258, (u - 0.6) / 0.4);
@@ -534,9 +534,133 @@ export function createScene(canvas, opts = {}) {
         vec3 c = mix(vec3(.3, .95, 1.), vec3(.5, 1., .7), vS); gl_FragColor = vec4(c * a * vA, 1.); }`,
     }));
     lines.frustumCulled = dots.frustumCulled = false;
-    net.add(lines, dots); net.position.set(-27, -283, -9); scene.add(net);
+    net.add(lines, dots); net.position.set(-74, -282, -8); scene.add(net);
   }
   updaters.push((t, cam) => { net.visible = cam.y < -225 && cam.y > -345; net.rotation.y = t * 0.05; net.rotation.x = Math.sin(t * 0.07) * 0.2; });
+
+  /* ---------- small glowing growths, shared by the wreck and the cave ---------- */
+  function glowPoints(arr, size, c1, c2) {
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(arr, 3));
+    g.setAttribute("aSeed", new THREE.Float32BufferAttribute(Array.from({ length: arr.length / 3 }, Math.random), 1));
+    const pts = new THREE.Points(g, new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false,
+      uniforms: { uTime: G.uTime, uPointScale: G.uPointScale, uFogDensity: G.uFogDensity, uSize: { value: size }, uA: { value: new THREE.Color(c1) }, uB: { value: new THREE.Color(c2) } },
+      vertexShader: `attribute float aSeed; uniform float uTime, uPointScale, uFogDensity, uSize; varying float vA, vS;
+        void main(){ vec4 mv = modelViewMatrix * vec4(position, 1.); float d = -mv.z; gl_Position = projectionMatrix * mv;
+          gl_PointSize = uSize * (.5 + aSeed) * uPointScale / max(d, .1); vS = aSeed;
+          vA = (.35 + .65 * pow(.5 + .5 * sin(uTime * (.5 + aSeed * 1.5) + aSeed * 40.), 2.)) * exp(-uFogDensity * uFogDensity * d * d) * smoothstep(.3, 2., d); }`,
+      fragmentShader: `uniform vec3 uA, uB; varying float vA, vS; void main(){ float r = length(gl_PointCoord - .5); float a = smoothstep(.5, 0., r); a = a * a * a + smoothstep(.1, 0., r);
+        gl_FragColor = vec4(mix(uA, uB, vS) * a * vA, 1.); }`,
+    }));
+    pts.frustumCulled = false; return pts;
+  }
+
+  /* ---------- the shipwreck: resting on a ledge beside the leftward pan ---------- */
+  {
+    const wreck = new THREE.Group(), ship = new THREE.Group();
+    const L = 36, B = 4.3, D = 5.2, NS = 46, NR = 14;
+    const steel = new THREE.MeshStandardMaterial({ color: 0x5a3d2e, roughness: 1, flatShading: true, side: THREE.DoubleSide });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x33302e, roughness: 0.9, metalness: 0.3, flatShading: true });
+    const pos = [], idx = [], growth = [];
+    const deckY = (t) => 1.9 * Math.pow(1 - t, 3) + 0.5 * Math.pow(t, 4);
+    for (let i = 0; i <= NS; i++) {
+      const t = i / NS;
+      const w = B * Math.min(1, Math.pow(t / 0.32, 0.72)) * (1 - 0.3 * smooth(0.82, 1, t)) + 0.05;
+      const d = D * (0.5 + 0.5 * smooth(0, 0.22, t));
+      for (let j = 0; j <= NR; j++) {
+        const th = (j / NR) * Math.PI, c = Math.cos(th), sn = Math.sin(th);
+        const dent = Math.sin(i * 1.7 + j * 2.3) * 0.07;
+        pos.push(w * Math.sign(c) * Math.pow(Math.abs(c), 0.55) + dent, deckY(t) - d * Math.pow(sn, 0.8), (t - 0.5) * L);
+        if (Math.random() < 0.3) growth.push(pos[pos.length - 3] * 1.03, pos[pos.length - 2], pos[pos.length - 1]);
+      }
+    }
+    const V = (i, j) => i * (NR + 1) + j;
+    for (let i = 0; i < NS; i++) {
+      for (let j = 0; j < NR; j++) {
+        if (i >= 25 && i <= 29 && j >= 9 && j <= 12) continue;                    // the breach that sank her
+        idx.push(V(i, j), V(i + 1, j), V(i, j + 1), V(i + 1, j), V(i + 1, j + 1), V(i, j + 1));
+      }
+      idx.push(V(i, 0), V(i, NR), V(i + 1, 0), V(i + 1, 0), V(i, NR), V(i + 1, NR)); // deck
+    }
+    const hg = new THREE.BufferGeometry(); hg.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); hg.setIndex(idx); hg.computeVertexNormals();
+    ship.add(new THREE.Mesh(hg, steel));
+    const add = (geo, mat, x, y, z, rx = 0, rz = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, 0, rz); ship.add(m); return m; };
+    add(new THREE.BoxGeometry(5.4, 3, 6.5), steel, 0, 1.7, 8);                     // deckhouse
+    add(new THREE.BoxGeometry(4, 2.1, 3.8), steel, 0, 4.2, 7.2);                   // bridge
+    add(new THREE.BoxGeometry(6.4, 0.18, 4.6), dark, 0, 5.3, 7.2);                 // bridge roof
+    add(new THREE.CylinderGeometry(0.85, 1.05, 4.6, 10), dark, 0.2, 5.4, 11.6, -0.12, 0.3); // funnel, knocked askew
+    add(new THREE.BoxGeometry(3.4, 0.9, 4.2), dark, 0, 0.9, -4.5);                 // cargo hatch
+    add(new THREE.BoxGeometry(3.4, 0.9, 3.2), dark, 0, 1.3, -10.5);
+    add(new THREE.CylinderGeometry(0.1, 0.2, 12, 6), dark, 0, 7, -7.4, 0.14, 0.05); // foremast
+    add(new THREE.CylinderGeometry(0.07, 0.07, 5, 5), dark, 0, 10, -7.9, 0.14, Math.PI / 2);
+    add(new THREE.CylinderGeometry(0.09, 0.12, 9, 6), dark, 1.2, 3.9, -3.6, 1.05, 0.2); // fallen cargo boom
+    add(new THREE.CylinderGeometry(0.1, 0.18, 5, 6), dark, -0.4, 3.2, 1.2, -0.5, 0.35); // broken mainmast
+    for (let k = 0; k < 9; k++) add(new THREE.CylinderGeometry(0.04, 0.04, 1.1, 4), dark, (k % 2 ? 1 : -1) * 3.9, 1.2 + deckY(0.36 + k * 0.03), -5 + k * 1.2); // railing stubs
+    const glass = new THREE.MeshBasicMaterial({ color: new THREE.Color(0.2, 0.95, 0.8) });
+    [-1.2, 0, 1.2].forEach((x) => add(new THREE.BoxGeometry(0.8, 0.6, 0.1), glass, x, 4.4, 5.28));
+    [6.2, 7.6, 9].forEach((z) => { add(new THREE.BoxGeometry(0.1, 0.5, 0.7), glass, 2.72, 2, z); add(new THREE.BoxGeometry(0.1, 0.5, 0.7), glass, -2.72, 2, z); });
+    const ghost = new THREE.PointLight(0x5ef2c8, 30, 22, 1.7); ghost.position.set(0, 4.6, 3.5); ship.add(ghost);
+    ship.add(glowPoints(growth, 0.16, 0x4fe3ff, 0x8dffb0));
+    ship.rotation.y = Math.PI / 2;                                                 // bow points left, the way the camera travels
+    const moon = new THREE.PointLight(0x8fd8ff, 150, 46, 1.6); moon.position.set(0, 13, 7); ship.add(moon); // a cold fill so the whole silhouette reads
+    wreck.add(ship); wreck.rotation.set(0.3, 0, -0.07); wreck.scale.setScalar(0.7); wreck.position.set(0, -156.6, -19);
+
+    const lg = new THREE.PlaneGeometry(96, 54, lite ? 40 : 70, lite ? 24 : 40).rotateX(-Math.PI / 2), lp = lg.attributes.position;
+    for (let i = 0; i < lp.count; i++) {
+      const x = lp.getX(i), z = lp.getZ(i), r = Math.hypot(x / 48, z / 27);
+      lp.setY(i, Math.sin(x * 0.31 + z * 0.2) * 0.8 + Math.cos(z * 0.45 - x * 0.12) * 0.7 + Math.sin(x * 0.9) * Math.cos(z * 1.1) * 0.35 - Math.pow(r, 2.6) * 34);
+    }
+    lg.computeVertexNormals();
+    const ledge = new THREE.Mesh(lg, new THREE.MeshStandardMaterial({ color: 0x3d3833, roughness: 1, flatShading: true }));
+    ledge.position.set(0, -160.2, -21);
+    const site = new THREE.Group(); site.add(wreck, ledge); scene.add(site);
+    updaters.push((t, cam) => { site.visible = cam.y < -105 && cam.y > -215; ghost.intensity = 26 + Math.sin(t * 1.3) * 8; });
+  }
+
+  /* ---------- the cave: a tunnel from the abyss down to the trench floor ---------- */
+  {
+    const cave = new THREE.Group();
+    const curve = new THREE.CatmullRomCurve3([[-68, -292, 2.5], [-60, -298, 2], [-44, -311, 0.5], [-28, -333, 0.5], [-12, -348.5, 0], [-6, -351, 0]].map((v) => new THREE.Vector3(...v)));
+    const tg = new THREE.TubeGeometry(curve, lite ? 130 : 260, 5.7, lite ? 14 : 22, false);
+    const tp = tg.attributes.position, tn = tg.attributes.normal, glow = [], spots = [];
+    for (let i = 0; i < tp.count; i++) {
+      const x = tp.getX(i), y = tp.getY(i), z = tp.getZ(i);
+      const n = Math.sin(x * 0.9 + y * 0.7) * Math.cos(z * 1.1 + y * 0.4) * 0.9 + Math.sin(x * 2.3 + z * 1.9 + y * 2.1) * 0.4;
+      tp.setXYZ(i, x + tn.getX(i) * n, y + tn.getY(i) * n, z + tn.getZ(i) * n);
+      if (Math.random() < (lite ? 0.12 : 0.16)) glow.push(tp.getX(i) - tn.getX(i) * 0.2, tp.getY(i) - tn.getY(i) * 0.2, tp.getZ(i) - tn.getZ(i) * 0.2);
+      if (Math.random() < 0.007) spots.push([new THREE.Vector3(tp.getX(i), tp.getY(i), tp.getZ(i)), new THREE.Vector3(-tn.getX(i), -tn.getY(i), -tn.getZ(i))]);
+    }
+    tg.computeVertexNormals();
+    cave.add(new THREE.Mesh(tg, new THREE.MeshStandardMaterial({ color: 0x40362d, roughness: 1, flatShading: true, side: THREE.BackSide })));
+    cave.add(glowPoints(glow, 0.2, 0x45e6ff, 0x7dffb2));
+
+    // crystals growing in from the walls
+    const crystals = new THREE.InstancedMesh(new THREE.ConeGeometry(0.2, 1.7, 5).translate(0, 0.75, 0), new THREE.MeshBasicMaterial({ color: 0xffffff }), spots.length * 3);
+    const dm = new THREE.Object3D(), up = new THREE.Vector3(0, 1, 0), dir = new THREE.Vector3(), col = new THREE.Color();
+    const hues = [[0.1, 0.8, 1.1], [0.7, 0.15, 1.2], [0.12, 1, 0.55]];
+    spots.forEach(([p, n], i) => { for (let k = 0; k < 3; k++) {
+      dir.copy(n).add(new THREE.Vector3(rand(-0.5, 0.5), rand(-0.5, 0.5), rand(-0.5, 0.5))).normalize();
+      dm.position.copy(p).addScaledVector(n, -0.2); dm.quaternion.setFromUnitVectors(up, dir); dm.scale.setScalar(k ? rand(0.4, 0.8) : rand(0.9, 1.6)); dm.updateMatrix();
+      crystals.setMatrixAt(i * 3 + k, dm.matrix); const h = hues[i % 3], b = rand(0.5, 1); crystals.setColorAt(i * 3 + k, col.setRGB(h[0] * b, h[1] * b, h[2] * b));
+    } });
+    crystals.frustumCulled = false; cave.add(crystals);
+    [0.3, 0.62].forEach((u, i) => { const l = new THREE.PointLight(i ? 0x9a6cff : 0x45e6ff, 22, 20, 1.8); l.position.copy(curve.getPoint(u)); cave.add(l); });
+
+    // boulders around the mouth, so the entrance reads as rock from outside
+    const bg = new THREE.IcosahedronGeometry(1, 1), bp = bg.attributes.position;
+    for (let i = 0; i < bp.count; i++) { const v = new THREE.Vector3().fromBufferAttribute(bp, i); const k = 1 + Math.sin(v.x * 4.3 + v.y * 3.1) * 0.18 + Math.cos(v.z * 5.2) * 0.12; bp.setXYZ(i, v.x * k, v.y * k, v.z * k); }
+    bg.computeVertexNormals();
+    const boulders = new THREE.InstancedMesh(bg, new THREE.MeshStandardMaterial({ color: 0x40382f, roughness: 1, flatShading: true }), lite ? 40 : 80);
+    const tan = new THREE.Vector3(), off = new THREE.Vector3();
+    for (let i = 0; i < boulders.count; i++) {
+      const u = Math.pow(Math.random(), 1.6) * 0.5 + 0.02; curve.getPoint(u, dm.position); curve.getTangent(u, tan);
+      off.randomDirection(); off.addScaledVector(tan, -off.dot(tan)).normalize();
+      dm.position.addScaledVector(off, rand(9.5, 15)); dm.rotation.set(rand(3), rand(3), rand(3)); dm.scale.set(rand(2, 3.8), rand(2, 3.8), rand(2, 3.8)); dm.updateMatrix(); boulders.setMatrixAt(i, dm.matrix);
+    }
+    boulders.frustumCulled = false; cave.add(boulders);
+    scene.add(cave);
+    updaters.push((t, cam) => { cave.visible = cam.y < -262; });
+  }
 
   /* ---------- the trench floor ---------- */
   const floorH = (x, z) => {
