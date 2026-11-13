@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aby Saji Pappachan · The dive version</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Aby Saji Pappachan, Technical Lead with 8 years building scalable backend systems and AI-powered products. Walsall, West Midlands. Open to senior Backend, Platform and AI roles.">
+<meta name="author" content="Aby Saji Pappachan">
+<meta property="og:title" content="Aby Saji Pappachan · Technical Lead · Backend, Platform &amp; AI">
+<meta property="og:description" content="8 years building scalable backend systems and AI-powered products. A portfolio you descend through.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#01060b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2301131f'/%3E%3Cpath d='M5 12c3-3 5-3 8 0s5 3 8 0 5-3 6-1' fill='none' stroke='%235ef2ff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='22' r='2.6' fill='%23ff7a3c'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="abyss/styles.css">
+<link rel="modulepreload" href="vendor/three-kit.min.js">
+</head>
+<body>
+
+<canvas id="sea" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+
+<!-- Pre-dive check -->
+<div class="boot" id="boot" role="status" aria-live="polite">
+  <div class="boot-in">
+    <p class="mono boot-k">Pre-dive check</p>
+    <ul class="boot-list mono">
+      <li>Hull integrity</li><li>Ballast</li><li>Lamps</li><li>Depth gauge</li>
+    </ul>
+    <div class="boot-bar"><i id="boot-fill"></i></div>
+    <p class="mono boot-n"><span id="boot-pct">000</span> %</p>
+  </div>
+</div>
+
+<a class="skip" href="#about">Skip to content</a>
+
+<!-- Top bar -->
+<header class="bar">
+  <a class="mark" href="#top" aria-label="Aby Saji Pappachan, back to the surface">
+    <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M3 11c4-4 6-4 10 0s6 4 10 0 4-3 6-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="22" r="2.6" fill="var(--warm)"/></svg>
+    <span>Aby Saji Pappachan</span>
+  </a>
+  <div class="bar-r">
+    <span class="avail mono"><i></i>Available now</span>
+    <button class="snd mono" id="snd" type="button" aria-pressed="false" aria-label="Toggle ambient sound">
+      <span class="snd-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="snd-t">Sound off</span>
+    </button>
+    <a class="pill mono" href="Aby_Saji_Pappachan_Technical_Lead.pdf" download>CV ↓</a>
+  </div>
+</header>
+
+<!-- Depth gauge: the navigation -->
+<aside class="gauge" aria-hidden="true">
+  <div class="g-read">
+    <p class="mono g-k">Depth</p>
+    <p class="g-num"><span id="g-depth">0</span><small>m</small></p>
+    <p class="mono g-zone" id="g-zone">Surface</p>
+  </div>
+  <div class="g-tele mono">
+    <p><span>Pressure</span><b id="g-atm">1</b> atm</p>
+    <p><span>Water</span><b id="g-temp">24.0</b> °C</p>
+    <p><span>Light</span><b id="g-light">100</b> %</p>
+  </div>
+</aside>
+
+<nav class="rail" aria-label="Sections">
+  <i class="rail-fill" id="rail-fill"></i>
+  <a href="#top" data-sec="top"><span>Surface</span><b>0 m</b></a>
+  <a href="#about" data-sec="about"><span>About</span><b>12 m</b></a>
+  <a href="#experience" data-sec="experience"><span>Experience</span><b>200 m</b></a>
+  <a href="#work" data-sec="work"><span>Work</span><b>1,000 m</b></a>
+  <a href="#skills" data-sec="skills"><span>Skills</span><b>4,000 m</b></a>
+  <a href="#contact" data-sec="contact"><span>Contact</span><b>10,935 m</b></a>
+</nav>
+
+<main>
+
+  <!-- 0 m -->
+  <section class="hero" id="top" data-sec="top" aria-label="Introduction">
+    <div class="hero-pin">
+      <p class="mono hero-k"><span>Technical Lead</span><span>Backend · Platform · AI</span><span>Walsall, UK</span></p>
+      <h1 class="hero-name" aria-label="Aby Saji Pappachan">
+        <span class="ln" aria-hidden="true"><span data-chars>Aby Saji</span></span>
+        <span class="ln" aria-hidden="true"><span data-chars>Pappachan</span></span>
+      </h1>
+      <div class="hero-foot">
+        <a class="dive" href="#about"><span class="dive-ring" aria-hidden="true"><i></i></span><span class="mono">Scroll to dive</span></a>
+        <p class="hero-tag">I build what runs <em>below the surface</em>: backend systems that scale, and AI that ships.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 – 200 m -->
+  <section class="sec about" id="about" data-sec="about" aria-labelledby="about-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>01</b> Sunlight zone <span>12 – 200 m</span></p>
+      <h2 id="about-h" data-words>Eight years of owning products <em>end to end.</em></h2>
+    </header>
+    <div class="about-grid">
+      <div class="prose" data-reveal>
+        <p class="lead">My whole career, 8 years across four startups, has been owning products end to end: a Zero Trust security product built from nothing to 10+ enterprise customers, a company-wide reporting platform, and production LLM and MCP infrastructure.</p>
+        <p>I'm the person people bring <q>could we actually do this?</q> to, before anyone spends money finding out. At every company I've worked at, product managers, architects and sales brought me ideas to assess, and my proofs of concept repeatedly became the base implementation months later.</p>
+        <p>I work mostly in TypeScript and Node.js, with Go and Python where they fit, across NestJS services, event-driven systems on AWS, and MCP and LLM platforms. I like pairing leadership with hands-on work: mentoring a team, setting the review standards, and building things that scale and keep working.</p>
+        <p class="rtw mono"><i></i>UK right to work · no sponsorship required</p>
+      </div>
+      <ul class="stats">
+        <li data-reveal><b data-count="8" data-suffix=" yrs">8 yrs</b><span>backend, platform and AI engineering</span></li>
+        <li data-reveal><b data-count="2" data-suffix="M+">2M+</b><span>users of a browser extension I built</span></li>
+        <li data-reveal><b data-count="50" data-suffix="k">50k</b><span>messages a day through my notification platform</span></li>
+        <li data-reveal><b data-count="45" data-suffix="%">45%</b><span>lower infrastructure cost from my analytics stack</span></li>
+        <li data-reveal><b data-count="300" data-suffix="+">300+</b><span>SaaS providers in my simulation framework</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 200 – 1,000 m -->
+  <section class="sec xp" id="experience" data-sec="experience" aria-labelledby="xp-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>02</b> Twilight zone <span>200 – 1,000 m</span></p>
+      <h2 id="xp-h" data-words>Career, <em>layer by layer.</em></h2>
+      <p class="zone-p" data-reveal>From full-stack workflow platforms to Zero Trust security to leading AI and data platforms. Every company I have worked for has asked me to come back.</p>
+    </header>
+    <ol class="tl">
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2025</b><span class="mono">2025 to Jun 2026</span></div>
+        <div class="job-body">
+          <h3>Technical Lead</h3><p class="job-org">Josys Digital Technologies</p>
+          <ul>
+            <li>Promoted to Technical Lead after two consecutive years rated top performer. Selected for Architect in 2026.</li>
+            <li>Led and mentored a team of 4 engineers through design reviews, pairing and code review.</li>
+            <li>Coordinated delivery across 3 product teams as the backend architecture owner, setting the interface contracts between services.</li>
+            <li>Owned code review and engineering standards across every project in the company, and ran technical interviews and onboarding for new backend hires.</li>
+            <li>Built MCP clients and servers that cut integration time for new services from 2 weeks to 2 days.</li>
+            <li>Shipped an internal LLM platform for context-aware retrieval that saved the team 8 hours a week, with 60% less manual querying.</li>
+            <li>Designed an analytics stack, Airbyte → DuckDB → Apache Airflow: about 70% faster queries above 50M rows, 45% lower infrastructure cost, and reports down from 25 minutes to under 2.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2022</b><span class="mono">2022 to Mar 2025</span></div>
+        <div class="job-body">
+          <h3>Senior Software Engineer</h3><p class="job-org">Josys Digital Technologies</p>
+          <ul>
+            <li>Championed NestJS as the company-wide backend standard across 12+ microservices, cutting new-engineer onboarding from 6 weeks to 3.</li>
+            <li>Built a notification platform handling 50,000 messages a day, consolidating 8 flows into one across email, Slack and Teams.</li>
+            <li>Built a browser extension serving over 2 million users from a single codebase across Chromium and Firefox, Manifest V2 and V3, with silent activation for enterprise deployment.</li>
+            <li>Built a simulation framework covering 300+ integrated SaaS providers. It cut testing infrastructure cost 35%, never needed a bug fix, and became the customer-facing production sandbox.</li>
+            <li>Led the security project and team, building a Go service that orchestrates Semgrep, Gitleaks and Trivy across the GitHub repository estate.</li>
+            <li>Built a multi-database GraphQL platform with automatic schema generation and dynamic filter conversion.</li>
+            <li>Rated top performer two years running.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2019</b><span class="mono">2019 to Aug 2022</span></div>
+        <div class="job-body">
+          <h3>Member of Technical Staff (MTS-1)</h3><p class="job-org">InstaSafe, Bengaluru</p>
+          <ul>
+            <li>Designed and built a Zero Trust Network Access (ZTNA) solution from scratch, part of a new product line that brought in 10+ enterprise customers.</li>
+            <li>Built a gateway server for agentless access to private web apps, cutting enterprise customer onboarding time 40%.</li>
+            <li>Led 3 engineers delivering 6 security product enhancements, each from design through production.</li>
+            <li>Built a cross-platform desktop client for secure access to private resources.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2018</b><span class="mono">2018 to May 2019</span></div>
+        <div class="job-body">
+          <h3>Earlier experience</h3><p class="job-org">GrowthEnabler · Haappy, Bengaluru</p>
+          <ul>
+            <li>GrowthEnabler, Aug 2018 to May 2019: built a full-stack SRM workflow platform and a startup-to-corporate matching system.</li>
+            <li>Haappy, Jan to Aug 2018: built WebTV websites and an internal CRM for task and workflow tracking.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2013</b><span class="mono">2013 to 2017</span></div>
+        <div class="job-body">
+          <h3>B.E. Computer Science &amp; Engineering</h3><p class="job-org">East Point College of Engineering, Bengaluru</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- 1,000 – 4,000 m -->
+  <section class="sec work" id="work" data-sec="work" aria-labelledby="work-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>03</b> Midnight zone <span>1,000 – 4,000 m</span></p>
+      <h2 id="work-h" data-words>Things I've built <em>after hours.</em></h2>
+      <p class="zone-p" data-reveal>Agent runtimes, developer tools, media pipelines and native apps. Projects marked Open source have public code you can read today. Projects marked Private aren't public yet, and AgentKit is the next one being prepared for an open-source release.</p>
+    </header>
+    <div class="feat" id="feat"></div>
+
+    <header class="sub" data-reveal>
+      <h3>And the rest of the shelf</h3><span class="mono" id="shelf-n"></span>
+    </header>
+    <div class="shelf" id="shelf"></div>
+
+    <header class="zone zone-2">
+      <p class="mono zone-k"><b>04</b> Professional work <span>Josys · InstaSafe</span></p>
+      <h2 data-words>Platforms <em>&amp;</em> systems.</h2>
+      <p class="zone-p" data-reveal>Backend, data and AI platforms I delivered at Josys and InstaSafe.</p>
+    </header>
+    <div class="pro" id="pro"></div>
+  </section>
+
+  <!-- 4,000 – 6,000 m -->
+  <section class="sec skills" id="skills" data-sec="skills" aria-labelledby="skills-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>05</b> Abyssal zone <span>4,000 – 6,000 m</span></p>
+      <h2 id="skills-h" data-words>The toolkit, <em>all connected.</em></h2>
+    </header>
+    <div class="kit" id="kit"></div>
+  </section>
+
+  <!-- 10,935 m -->
+  <section class="sec contact" id="contact" data-sec="contact" aria-labelledby="contact-h">
+    <div class="contact-in">
+      <p class="mono zone-k"><b>06</b> Trench floor <span>10,935 m</span></p>
+      <h2 id="contact-h" data-words>Let's build something <em>worth shipping.</em></h2>
+      <p class="zone-p" data-reveal>Available immediately. Open to senior Backend, Platform and AI roles across the West Midlands, or remote in the UK.</p>
+      <div class="mail" data-reveal>
+        <a class="mail-a" href="mailto:abyrocksaji@gmail.com">abyrocksaji@gmail.com</a>
+        <button class="pill mono" id="copy" type="button">Copy</button>
+      </div>
+      <ul class="links" data-reveal>
+        <li><span class="mono">Phone</span><a href="tel:+447435067875">+44 7435 067875</a></li>
+        <li><span class="mono">LinkedIn</span><a href="https://www.linkedin.com/in/aby-saji/" target="_blank" rel="noopener">linkedin.com/in/aby-saji ↗</a></li>
+        <li><span class="mono">GitHub</span><a href="https://github.com/AbyAbyss" target="_blank" rel="noopener">github.com/AbyAbyss ↗</a></li>
+        <li><span class="mono">CV</span><a href="Aby_Saji_Pappachan_Technical_Lead.pdf" download>Download the PDF ↓</a></li>
+      </ul>
+    </div>
+    <footer class="foot mono">
+      <span>Aby Saji Pappachan · Technical Lead · Backend &amp; AI Engineer</span>
+      <a href="journey.html">See the scroll-painting version →</a>
+      <a href="#top" id="ascend">Ascend ↑</a>
+    </footer>
+  </section>
+
+</main>
+
+<div class="cursor" id="cursor" aria-hidden="true"><i></i></div>
+
+<noscript><style>.boot{display:none}[data-reveal],[data-words]{opacity:1!important;transform:none!important}</style></noscript>
+<script src="vendor/lenis.min.js"></script>
+<script type="module" src="abyss/main.js"></script>
+</body>
+</html>
