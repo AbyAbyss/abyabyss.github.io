@@ -142,42 +142,12 @@ document.addEventListener("click", (e) => {
 
 /* ---------- the descent: scroll → world height, depth and camera ---------- */
 const SECS = ["top", "about", "experience", "work", "skills", "contact"].map((id) => document.getElementById(id));
-// The route. `s` is section-space (1 = start of About, 2 = start of Experience, ...), so the
-// camera reaches each knot as that part of the page arrives. x: right, y: up, z: toward the viewer.
-const ROUTE = [
-  { s: 0,    p: [0, 2.4, 0],       yaw: 0,     pitch: 0.13 },   // above the water
-  { s: 1,    p: [0, -12, 0],       yaw: -0.1,  pitch: -0.2 },   // down
-  { s: 1.33, p: [17, -6, -2],      yaw: -0.5,  pitch: 0.16 },   // up, back under the ripples
-  { s: 1.7,  p: [41, -19, -4],     yaw: -0.32, pitch: -0.06 },  // right, into the kelp
-  { s: 2,    p: [62, -32, -1],     yaw: 0.08,  pitch: -0.14 },
-  { s: 2.5,  p: [65, -80, 1],      yaw: 0.22,  pitch: -0.08 },  // down through the jellyfish
-  { s: 3,    p: [62, -125, 0],     yaw: 0.4,   pitch: -0.05 },
-  { s: 3.3,  p: [22, -139, -3],    yaw: 0.42,  pitch: 0.02 },   // left along the cables
-  { s: 3.58, p: [-22, -163, 2],    yaw: 0.3,   pitch: -0.04 },
-  { s: 3.8,  p: [-55, -190, 0],    yaw: 0,     pitch: -0.16 },
-  { s: 4,    p: [-55, -262, 0],    yaw: -0.3,  pitch: -0.06 },  // down again
-  { s: 4.5,  p: [-27, -283, -1],   yaw: -0.55, pitch: -0.1 },   // right, through the network
-  { s: 5,    p: [0, -303, 0],      yaw: -0.1,  pitch: -0.2 },
-  { s: 6,    p: [0, -352.8, 0],    yaw: 0,     pitch: 0.015 },  // the floor
-];
-// world height → metres shown on the gauge
-const DEPTH = [[0, 0], [-12, 12], [-32, 200], [-125, 1000], [-262, 4000], [-303, 6000], [-352.8, 10935]];
-const depthAt = (y) => {
-  if (y >= 0) return 0;
-  for (let k = 1; k < DEPTH.length; k++) if (y >= DEPTH[k][0]) return lerp(DEPTH[k - 1][1], DEPTH[k][1], (DEPTH[k - 1][0] - y) / (DEPTH[k - 1][0] - DEPTH[k][0]));
-  return DEPTH[DEPTH.length - 1][1];
+const KEY = {
+  y: [2.4, -12, -48, -128, -262, -318, -352.8],
+  m: [0, 12, 200, 1000, 4000, 6000, 10935],
+  pitch: [0.13, -0.2, -0.1, -0.07, -0.08, -0.1, 0.015],
+  yaw: [0, 0, 0.32, -0.26, 0.3, -0.12, 0],
 };
-const tangent = (k, a) => { // finite-difference tangents keep the path smooth through every knot
-  const lo = ROUTE[Math.max(0, k - 1)], hi = ROUTE[Math.min(ROUTE.length - 1, k + 1)];
-  return (hi.p[a] - lo.p[a]) / (hi.s - lo.s);
-};
-function routeAt(u) {
-  let k = 0; while (k < ROUTE.length - 2 && u >= ROUTE[k + 1].s) k++;
-  const A = ROUTE[k], B = ROUTE[k + 1], h = B.s - A.s, t = clamp((u - A.s) / h, 0, 1), t2 = t * t, t3 = t2 * t;
-  const pos = [0, 1, 2].map((a) => (2 * t3 - 3 * t2 + 1) * A.p[a] + (t3 - 2 * t2 + t) * h * tangent(k, a) + (-2 * t3 + 3 * t2) * B.p[a] + (t3 - t2) * h * tangent(k + 1, a));
-  const e = smooth(0, 1, t);
-  return { x: pos[0], y: pos[1], z: pos[2], yaw: lerp(A.yaw, B.yaw, e), pitch: lerp(A.pitch, B.pitch, e) };
-}
 const ZONES = ["Surface", "Sunlight zone", "Twilight zone", "Midnight zone", "Abyssal zone", "Hadal zone · trench floor"];
 let breaks = [];
 function measure() {
@@ -187,17 +157,16 @@ function measure() {
 function sample(sy) {
   let i = 0; while (i < SECS.length - 1 && sy >= breaks[i + 1]) i++;
   const t = clamp((sy - breaks[i]) / Math.max(1, breaks[i + 1] - breaks[i]), 0, 1);
-  let e = t;
-  if (i === 0) e = t * t * (1.6 - 0.6 * t);                 // hold the horizon, then plunge
-  if (i === SECS.length - 1) e = 1 - Math.pow(1 - t, 1.7);  // settle onto the floor
-  const r = routeAt(i + e);
-  if (i === 0) r.pitch -= Math.sin(Math.PI * clamp((t - 0.12) / 0.88, 0, 1)) * 0.5;
-  r.y = Math.max(r.y, -352.8);
-  return { i, t, ...r, m: depthAt(r.y) };
+  let e = t, pitch = lerp(KEY.pitch[i], KEY.pitch[i + 1], smooth(0, 1, t));
+  if (i === 0) { e = t * t * (1.6 - 0.6 * t); pitch -= Math.sin(Math.PI * clamp((t - 0.12) / 0.88, 0, 1)) * 0.5; } // hold the horizon, then plunge
+  if (i === SECS.length - 1) e = 1 - Math.pow(1 - t, 1.7);                                                   // settle onto the floor
+  const y = lerp(KEY.y[i], KEY.y[i + 1], e);
+  const m = i === 0 ? Math.max(0, -y) : lerp(KEY.m[i], KEY.m[i + 1], e);
+  return { i, t, y, m, pitch, yaw: lerp(KEY.yaw[i], KEY.yaw[i + 1], smooth(0, 1, t)) };
 }
 
 const ui = {
-  depth: $("#g-depth"), zone: $("#g-zone"), atm: $("#g-atm"), temp: $("#g-temp"), light: $("#g-light"), head: $("#g-head"),
+  depth: $("#g-depth"), zone: $("#g-zone"), atm: $("#g-atm"), temp: $("#g-temp"), light: $("#g-light"),
   rail: $("#rail-fill"), links: $$(".rail a"), root: document.documentElement, heroPin: $(".hero-pin"),
 };
 const fmt = new Intl.NumberFormat("en-GB");
@@ -211,13 +180,11 @@ function hud(s, sy) {
     ui.temp.textContent = temp.toFixed(1);
     ui.light.textContent = d > 1000 ? "0" : Math.round(100 * Math.exp(-d / 160));
   }
-  const hd = Math.round((((-s.yaw * 180) / Math.PI) % 360 + 360) % 360 / 5) * 5 % 360;
-  if (ui.head.textContent !== String(hd).padStart(3, "0")) ui.head.textContent = String(hd).padStart(3, "0");
   const z = d < 1 ? 0 : d < 200 ? 1 : d < 1000 ? 2 : d < 4000 ? 3 : d < 6000 ? 4 : 5;
   if (z !== lastZone) { lastZone = z; ui.zone.textContent = ZONES[z]; }
   ui.links.forEach((a, k) => a.classList.toggle("on", k === s.i));
   ui.rail.style.setProperty("--p", clamp(sy / breaks[breaks.length - 1], 0, 1).toFixed(4));
-  ui.root.style.setProperty("--scrim", (s.i === 0 ? smooth(0.55, 1, s.t) * 0.85 : Math.max(0.85, smooth(-14, -60, s.y))).toFixed(3));
+  ui.root.style.setProperty("--scrim", smooth(-14, -60, s.y).toFixed(3));
   ui.root.classList.toggle("under", s.i > 0);
   if (ui.heroPin) {
     const o = s.i === 0 ? 1 - smooth(0.28, 0.62, s.t) : 0;
@@ -319,19 +286,18 @@ async function start() {
   await Promise.race([document.fonts ? document.fonts.ready : 0, new Promise((r) => setTimeout(r, 2500))]);
   measure();
 
-  let last = performance.now(), first = true; const cam = sample(scrollY());
+  let last = performance.now(), camY = sample(scrollY()).y, first = true;
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     if (lenis) lenis.raf(now);
     const sy = scrollY(), s = sample(sy);
-    const kf = first ? 1 : 1 - Math.exp(-dt * 7);
-    cam.x = lerp(cam.x, s.x, kf); cam.y = lerp(cam.y, s.y, kf); cam.z = lerp(cam.z, s.z, kf);
+    camY = first ? s.y : lerp(camY, s.y, 1 - Math.exp(-dt * 7));
     hud(s, sy);
     cp.x = lerp(cp.x, cp.tx, 0.2); cp.y = lerp(cp.y, cp.ty, 0.2);
     cursor.style.transform = `translate3d(${cp.x}px, ${cp.y}px, 0)`;
     if (scene && !document.hidden) {
-      const st = scene.state; st.x = cam.x; st.y = cam.y; st.z = cam.z; st.pitch = lerp(st.pitch, s.pitch, first ? 1 : 1 - Math.exp(-dt * 5)); st.yaw = lerp(st.yaw, s.yaw, first ? 1 : 1 - Math.exp(-dt * 3));
-      scene.render(dt); audio.update(cam.y, st.time);
+      const st = scene.state; st.y = camY; st.pitch = lerp(st.pitch, s.pitch, first ? 1 : 1 - Math.exp(-dt * 5)); st.yaw = lerp(st.yaw, s.yaw, first ? 1 : 1 - Math.exp(-dt * 3));
+      scene.render(dt); audio.update(camY, st.time);
     }
     if (first) { first = false; step(3); }
     requestAnimationFrame(frame);

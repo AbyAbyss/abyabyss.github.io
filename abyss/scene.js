@@ -165,14 +165,14 @@ export function createScene(canvas, opts = {}) {
       void main(){ float x = vUv.x; float skew = x + (1. - vUv.y) * .25;
         float n = vnoise(vec2(skew * 7. + uSeed, uTime * .12 + uSeed)) * vnoise(vec2(skew * 19. - uTime * .07, uSeed * 3.));
         float a = smoothstep(.06, .45, n) * smoothstep(0., .3, x) * smoothstep(1., .7, x) * pow(vUv.y, 1.6) * smoothstep(1., .93, vUv.y);
-        gl_FragColor = vec4(vec3(.55, .95, 1.) * a * .42 * uFade, 1.); }`,
+        gl_FragColor = vec4(vec3(.55, .95, 1.) * a * 1.1 * uFade, 1.); }`,
   });
   const rays = new THREE.Group();
-  for (let i = 0; i < (lite ? 9 : 18); i++) {
+  for (let i = 0; i < (lite ? 6 : 10); i++) {
     const m = rayMat.clone(); m.uniforms.uTime = G.uTime; m.uniforms.uSeed.value = i * 7.3;
     const g = new THREE.PlaneGeometry(rand(14, 26), 70); g.translate(0, -35, 0);
-    const r = new THREE.Mesh(g, m);
-    r.position.set(rand(-22, 84), 0, rand(-42, -9)); r.rotation.z = rand(-0.22, 0.22);
+    const r = new THREE.Mesh(g, m); const a = (i / 10) * Math.PI * 2 + rand(0.4), d = rand(14, 34);
+    r.position.set(Math.cos(a) * d, 0, Math.sin(a) * d - 6); r.rotation.z = rand(-0.22, 0.22);
     rays.add(r);
   }
   scene.add(rays);
@@ -291,50 +291,10 @@ export function createScene(canvas, opts = {}) {
   }
   const schools = [
     school({ count: lite ? 140 : 340, center: new THREE.Vector3(0, -24, -4), rMin: 7, rMax: 15, spread: 3.2, speed: 0.55, scale: 0.42 }),
-    school({ count: lite ? 90 : 220, center: new THREE.Vector3(24, -13, -17), rMin: 3, rMax: 8, spread: 2.2, speed: -0.5, scale: 0.34, squash: 1 }),
-    school({ count: lite ? 60 : 140, center: new THREE.Vector3(50, -27, -15), rMin: 3, rMax: 7, spread: 2, speed: 0.42, scale: 0.3, squash: 0.9 }),
+    school({ count: lite ? 90 : 220, center: new THREE.Vector3(-9, -41, -16), rMin: 3, rMax: 8, spread: 2.2, speed: -0.5, scale: 0.34, squash: 1 }),
+    school({ count: lite ? 60 : 140, center: new THREE.Vector3(14, -58, -20), rMin: 3, rMax: 7, spread: 2, speed: 0.42, scale: 0.3, squash: 0.9 }),
   ];
   updaters.push((t, cam) => { const v = cam.y < 1 && cam.y > -110; schools.forEach((s) => (s.visible = v)); });
-
-  /* ---------- kelp forest: the pan to the right runs through it ---------- */
-  {
-    const blade = new THREE.PlaneGeometry(1, 1, 2, 44); blade.translate(0, 0.5, 0);
-    const plants = lite ? 55 : 120, n = plants * 3;
-    const kelp = new THREE.InstancedMesh(blade, new THREE.ShaderMaterial({
-      side: THREE.DoubleSide, fog: false,
-      uniforms: { uTime: G.uTime, uCam: G.uCam, uFogColor: G.uFogColor, uFogDensity: G.uFogDensity },
-      vertexShader: /* glsl */ `
-        attribute vec3 aK; uniform float uTime; varying float vH; varying vec3 vWp; varying float vE; varying float vS;
-        void main(){ float h = position.y; vH = h; vS = aK.x;
-          vec3 p = position;
-          p.x *= (.35 + .65 * pow(abs(sin(h * 26. + aK.x * 9.)), .6)) * smoothstep(1., .9, h) * (.5 + .5 * smoothstep(0., .1, h));
-          vE = p.x;
-          vec4 w = modelMatrix * instanceMatrix * vec4(p, 1.);
-          float sway = h * h * aK.y;
-          w.x += sin(uTime * .55 + aK.x * 6.283 + h * 3.2) * 2.4 * sway + sin(uTime * .21 + aK.x * 11.) * 1.6 * sway;
-          w.z += cos(uTime * .47 + aK.x * 4.1 + h * 2.6) * 1.8 * sway;
-          vWp = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
-      fragmentShader: /* glsl */ `
-        varying float vH, vE, vS; varying vec3 vWp; uniform vec3 uCam; ${FOG_PARS}
-        void main(){ vec3 lo = vec3(.03, .12, .07), hi = mix(vec3(.42, .5, .1), vec3(.2, .46, .16), vS);
-          vec3 c = mix(lo, hi, smoothstep(.1, 1., vH)) * (.55 + .45 * smoothstep(-40., -4., vWp.y));
-          c *= .75 + .25 * smoothstep(.5, 0., abs(vE));          // darker edges, lighter midrib
-          gl_FragColor = vec4(applyFog(c, length(uCam - vWp)), 1.); }`,
-    }), n);
-    const k = new Float32Array(n * 3), dm = new THREE.Object3D();
-    for (let i = 0; i < plants; i++) {
-      const x = rand(16, 82), z = Math.random() < 0.82 ? rand(-50, -8) : rand(5, 16);
-      const top = rand(-13, -4), h = rand(30, 52), seed = Math.random();
-      for (let b = 0; b < 3; b++) {
-        dm.position.set(x + rand(-0.6, 0.6), top - h, z + rand(-0.6, 0.6)); dm.rotation.set(0, rand(Math.PI), 0);
-        dm.scale.set(rand(0.9, 1.7), h * rand(0.8, 1), 1); dm.updateMatrix(); kelp.setMatrixAt(i * 3 + b, dm.matrix);
-        k[(i * 3 + b) * 3] = (seed + b * 0.13) % 1; k[(i * 3 + b) * 3 + 1] = rand(0.6, 1.2);
-      }
-    }
-    blade.setAttribute("aK", new THREE.InstancedBufferAttribute(k, 3));
-    kelp.frustumCulled = false; scene.add(kelp);
-    updaters.push((t, cam) => { kelp.visible = cam.y < 1 && cam.y > -85 && cam.x > -30; });
-  }
 
   /* ---------- a whale passing in the blue ---------- */
   const whale = new THREE.Group();
@@ -360,7 +320,7 @@ export function createScene(canvas, opts = {}) {
     whale.visible = cam.y < -36 && cam.y > -130;
     if (!whale.visible) return;
     const a = t * 0.05 + 3.6;
-    whale.position.set(64 + Math.cos(a) * 17, -84 + Math.sin(t * 0.21) * 2.5, -31 + Math.sin(a) * 9);
+    whale.position.set(Math.cos(a) * 17, -84 + Math.sin(t * 0.21) * 2.5, -31 + Math.sin(a) * 9);
     whale.rotation.y = -a + Math.PI; whale.rotation.x = Math.sin(t * 0.42) * 0.06;
     whale.userData.tail.rotation.x = Math.sin(t * 0.84) * 0.32;
     whale.userData.fins[0].rotation.z = -0.5 + Math.sin(t * 0.84 + 1) * 0.12; whale.userData.fins[1].rotation.z = 0.5 - Math.sin(t * 0.84 + 1) * 0.12;
@@ -422,24 +382,23 @@ export function createScene(canvas, opts = {}) {
     scene.add(grp); jellies.push(grp);
   }
   // a few close "hero" jellies along the path, then a wider field
-  jelly(69, -50, -9, 1.5, 0x7fe9ff); jelly(56, -66, -12, 1.9, 0xff8fd0); jelly(70, -84, -8, 1.3, 0xb09cff);
-  jelly(57, -101, -10, 1.6, 0x7dffc8); jelly(71, -117, -13, 2.1, 0xff8fd0);
+  jelly(5.5, -66, -9, 1.5, 0x7fe9ff); jelly(-7, -82, -12, 1.9, 0xff8fd0); jelly(6.5, -101, -8, 1.3, 0xb09cff);
+  jelly(-5, -117, -10, 1.6, 0x7dffc8); jelly(9, -132, -13, 2.1, 0xff8fd0);
   for (let i = 0; i < (lite ? 8 : 20); i++) {
     const a = rand(Math.PI * 2), d = rand(13, 36);
-    jelly(63 + Math.cos(a) * d, rand(-132, -40), Math.sin(a) * d - 8, rand(0.6, 1.7), jellyColors[i % jellyColors.length]);
+    jelly(Math.cos(a) * d, rand(-150, -56), Math.sin(a) * d - 8, rand(0.6, 1.7), jellyColors[i % jellyColors.length]);
   }
   // deeper, sparser, colder: company for the midnight zone
   const deepColors = [0x4fe3ff, 0x6d8dff, 0x6dffb8, 0xc08bff];
-  [[40, -131, -12, 1.7], [14, -150, -15, 2.2], [-12, -158, -11, 1.4], [-38, -180, -14, 1.9], [-47, -206, -11, 1.5], [-63, -228, -13, 2.3], [-48, -250, -12, 1.7]].forEach(([x, y, z, sc], i) => jelly(x, y, z, sc, deepColors[i % 4]));
+  [[8, -158, -11, 1.7], [-9, -181, -14, 2.2], [10, -203, -12, 1.4], [7, -226, -10, 1.9], [-8, -247, -15, 2.4]].forEach(([x, y, z, sc], i) => jelly(x, y, z, sc, deepColors[i % 4]));
   for (let i = 0; i < (lite ? 4 : 10); i++) {
-    const u = Math.random(), a = rand(Math.PI * 2), d = rand(14, 30);  // scattered along the leftward leg, then the drop
-    const cx = u < 0.6 ? lerp(60, -55, u / 0.6) : -55, cy = u < 0.6 ? lerp(-128, -190, u / 0.6) : lerp(-190, -258, (u - 0.6) / 0.4);
-    jelly(cx + Math.cos(a) * d, cy + rand(-8, 8), -Math.abs(Math.sin(a) * d) - 9, rand(0.7, 1.8), deepColors[i % 4]);
+    const a = rand(Math.PI * 2), d = rand(15, 34);
+    jelly(Math.cos(a) * d, rand(-258, -152), Math.sin(a) * d - 8, rand(0.7, 1.8), deepColors[i % 4]);
   }
   updaters.push((t, cam) => {
     const vis = cam.y < -28 && cam.y > -290;
     for (const j of jellies) {
-      j.visible = vis && Math.abs(j.userData.base.y - cam.y) < 55 && Math.abs(j.userData.base.x - cam.x) < 80;
+      j.visible = vis && Math.abs(j.userData.base.y - cam.y) < 55;
       if (!j.visible) continue;
       const ph = j.userData.phase;
       j.position.y = j.userData.base.y + Math.sin(t * 0.3 + ph) * 1.1 + (Math.sin(t * 1.5 + ph) * 0.5 + 0.5) * 0.25;
@@ -464,22 +423,22 @@ export function createScene(canvas, opts = {}) {
         gl_FragColor = vec4(uColor * a * (1. - fogAmount(length(uCam - vWp))), 1.); }`,
   });
   const strandColors = [0x4fe3ff, 0x6dffb8, 0x6d8dff, 0xff9d5c, 0x4fe3ff, 0xc08bff, 0x6dffb8];
-  for (let i = 0; i < (lite ? 5 : 7); i++) {
-    const pts = [];
-    if (i < 5) for (let k = 0; k <= 9; k++) pts.push(new THREE.Vector3(78 - k * 17, lerp(-124, -198, k / 9) + (i - 2) * 5 + rand(-4, 4), -10 - i * 3.6 + rand(-3, 3)));
-    else { const a = i * 2.4, d = rand(10, 16); for (let k = 0; k <= 9; k++) pts.push(new THREE.Vector3(-55 + Math.cos(a) * d + rand(-3, 3), -182 - k * 10, -Math.abs(Math.sin(a) * d) - 9 + rand(-3, 3))); }
+  for (let i = 0; i < (lite ? 4 : 7); i++) {
+    const a = (i / 7) * Math.PI * 2 + 0.5, d = rand(12, 24), pts = [];
+    for (let k = 0; k <= 9; k++) pts.push(new THREE.Vector3(Math.cos(a) * d + rand(-3, 3), -128 - k * 16, Math.sin(a) * d - 9 + rand(-3, 3)));
     const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 240, 0.05, 5, false), strandMat(strandColors[i], i * 3.1));
     tube.frustumCulled = false; strands.add(tube);
   }
   scene.add(strands);
 
-  const bioCount = lite ? 1100 : 3400;
+  const bioCount = lite ? 700 : 1900;
   const bioGeo = new THREE.BufferGeometry();
   {
     const p = new Float32Array(bioCount * 3), c = new Float32Array(bioCount * 3), s = new Float32Array(bioCount);
     const pal = [0x4fe3ff, 0x6dffb8, 0x5d7dff, 0x4fe3ff, 0xffa25c, 0xc08bff].map((h) => new THREE.Color(h));
     for (let i = 0; i < bioCount; i++) {
-      p[i * 3] = rand(-100, 100); p[i * 3 + 1] = rand(-322, -120); p[i * 3 + 2] = rand(-50, 14);
+      const cl = Math.random() < 0.6; const a = rand(Math.PI * 2); const d = cl ? rand(4, 16) : rand(10, 46);
+      p[i * 3] = Math.cos(a) * d; p[i * 3 + 1] = rand(-322, -124); p[i * 3 + 2] = Math.sin(a) * d - 8;
       const col = pal[(Math.random() * pal.length) | 0]; c[i * 3] = col.r; c[i * 3 + 1] = col.g; c[i * 3 + 2] = col.b; s[i] = Math.random();
     }
     bioGeo.setAttribute("position", new THREE.BufferAttribute(p, 3)); bioGeo.setAttribute("color", new THREE.BufferAttribute(c, 3)); bioGeo.setAttribute("aSeed", new THREE.BufferAttribute(s, 1));
@@ -534,7 +493,7 @@ export function createScene(canvas, opts = {}) {
         vec3 c = mix(vec3(.3, .95, 1.), vec3(.5, 1., .7), vS); gl_FragColor = vec4(c * a * vA, 1.); }`,
     }));
     lines.frustumCulled = dots.frustumCulled = false;
-    net.add(lines, dots); net.position.set(-27, -283, -9); scene.add(net);
+    net.add(lines, dots); net.position.set(9, -292, -24); scene.add(net);
   }
   updaters.push((t, cam) => { net.visible = cam.y < -225 && cam.y > -345; net.rotation.y = t * 0.05; net.rotation.x = Math.sin(t * 0.07) * 0.2; });
 
@@ -626,7 +585,7 @@ export function createScene(canvas, opts = {}) {
     scene.add(seabed);
   }
   updaters.push((t, cam) => {
-    seabed.visible = cam.y < -284;
+    seabed.visible = cam.y < -295;
     if (!seabed.visible) return;
     const k = 0.5 + 0.5 * Math.sin(t * 2.2), b = seabed.userData.beacon;
     b.bl.intensity = 14 + 55 * Math.pow(k, 6); b.lampMat.color.setRGB(0.25 + 2.6 * Math.pow(k, 6), 1.5 + 2.5 * Math.pow(k, 6), 1.7 + 2.5 * Math.pow(k, 6));
@@ -671,7 +630,7 @@ export function createScene(canvas, opts = {}) {
   composer.addPass(new OutputPass());
 
   /* ---------- frame ---------- */
-  const state = { x: 0, y: 2.4, z: 0, pitch: 0, yaw: 0, speed: 0, mx: 0, my: 0, smx: 0, smy: 0, last: new THREE.Vector3(0, 2.4, 0), time: 0 };
+  const state = { y: 2.4, pitch: 0, yaw: 0, speed: 0, mx: 0, my: 0, smx: 0, smy: 0, lastY: 2.4, time: 0 };
   const fogCol = new THREE.Color();
 
   function sampleFog(y) {
@@ -699,10 +658,10 @@ export function createScene(canvas, opts = {}) {
 
     const y = state.y, under = y < 0;
     const bob = under ? Math.sin(t * 0.5) * 0.12 : Math.sin(t * 0.8) * 0.06;
-    camera.position.set(state.x + Math.sin(t * 0.13) * 0.35 + state.smx * 0.5, y + bob, state.z + Math.cos(t * 0.11) * 0.25);
+    camera.position.set(Math.sin(t * 0.13) * 0.35 + state.smx * 0.5, y + bob, Math.cos(t * 0.11) * 0.25);
     camera.rotation.set(state.pitch + state.smy * 0.05 + Math.sin(t * 0.31) * 0.008, state.yaw - state.smx * 0.085, Math.sin(t * 0.23) * 0.012 * (under ? 1 : 0.3));
 
-    const vel = Math.hypot(state.x - state.last.x, y - state.last.y, state.z - state.last.z) / Math.max(dt, 1e-3); state.last.set(state.x, y, state.z);
+    const vel = (y - state.lastY) / Math.max(dt, 1e-3); state.lastY = y;
     state.speed = lerp(state.speed, clamp(Math.abs(vel) / 60, 0, 1), 1 - Math.exp(-dt * 5));
 
     const [fc, fd] = sampleFog(y);
