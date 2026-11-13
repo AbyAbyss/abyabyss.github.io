@@ -3,1747 +3,249 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Aby Saji Pappachan · Portfolio in Motion v3</title>
+<title>Aby Saji Pappachan · Technical Lead · Backend, Platform &amp; AI</title>
 <meta name="description" content="Aby Saji Pappachan, Technical Lead with 8 years building scalable backend systems and AI-powered products. Walsall, West Midlands. Open to senior Backend, Platform and AI roles.">
 <meta name="author" content="Aby Saji Pappachan">
-<meta property="og:title" content="Aby Saji Pappachan · Portfolio in Motion v3">
-<meta property="og:description" content="8 years building scalable backend systems and AI-powered products.">
+<meta property="og:title" content="Aby Saji Pappachan · Technical Lead · Backend, Platform &amp; AI">
+<meta property="og:description" content="8 years building scalable backend systems and AI-powered products. A portfolio you descend through.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#e9edea">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ff4b2b'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='700' text-anchor='middle' fill='%23fff'%3EA%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#01060b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2301131f'/%3E%3Cpath d='M5 12c3-3 5-3 8 0s5 3 8 0 5-3 6-1' fill='none' stroke='%235ef2ff' stroke-width='2.4' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='22' r='2.6' fill='%23ff7a3c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&family=Caveat:wght@500..700&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400..700&display=swap">
-<style>
-  :root {
-    --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
-    --sans: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
-    --mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
-    --hand: "Caveat", "Segoe Print", "Comic Sans MS", cursive;
-
-    /* The stage colours. Script morphs these as each scene arrives. */
-    --bg: #e9edea;
-    --fg: #101715;
-    --acc: #ff4b2b;
-    --mute: color-mix(in srgb, var(--fg) 58%, transparent);
-    --hair: color-mix(in srgb, var(--fg) 22%, transparent);
-
-    /* Cut paper stays paper on every stage. */
-    --paper: #fbf8ef;
-    --ink: #101715;
-    --ink-2: #4a4f4a;
-    --tape: rgba(255, 210, 92, 0.85);
-    --mint: #2ed3a7;
-    --shadow: 0 1px 1px rgba(16, 23, 21, 0.12), 0 18px 30px -14px rgba(16, 23, 21, 0.5);
-    color-scheme: light;
-  }
-  * { box-sizing: border-box; }
-  html { background: #e9edea; overflow-x: clip; }
-  html.lenis, html.lenis body { height: auto; }
-  .lenis.lenis-smooth { scroll-behavior: auto !important; }
-  .lenis.lenis-stopped { overflow: hidden; }
-  body {
-    margin: 0; background: var(--bg); color: var(--fg);
-    font: 400 18px/1.55 var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip;
-  }
-  img { max-width: 100%; display: block; }
-  a { color: inherit; }
-  h1, h2, h3, p, ul { margin: 0; }
-  ul { padding: 0; list-style: none; }
-  :focus-visible { outline: 3px solid var(--acc); outline-offset: 3px; }
-  .mono { font: 500 12px/1.4 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; }
-  .hand { font-family: var(--hand); font-weight: 600; }
-  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .pad { padding-inline: clamp(18px, 4.5vw, 72px); }
-
-  /* ---------- Preloader ---------- */
-  .pre { display: none; position: fixed; inset: 0; z-index: 100; background: #0d1513; color: #eef3ef; grid-template-rows: 1fr auto; padding: clamp(18px, 4.5vw, 72px); }
-  html.js .pre { display: grid; }
-  .pre-name { align-self: center; justify-self: center; text-align: center; font: 500 clamp(18px, 2.4vw, 30px)/1.2 var(--display); font-style: italic; }
-  .pre-name small { display: block; margin-top: 10px; font: 500 12px/1 var(--mono); letter-spacing: 0.2em; text-transform: uppercase; font-style: normal; color: #8fa39a; }
-  .pre-row { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
-  .pre-n { font: 800 clamp(90px, 18vw, 260px)/0.8 var(--display); letter-spacing: -0.05em; font-variant-numeric: tabular-nums; color: var(--acc); }
-  .pre-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: rgba(238, 243, 239, 0.12); }
-  .pre-bar i { display: block; height: 100%; width: 100%; transform-origin: left; transform: scaleX(0); background: var(--acc); }
-
-  /* ---------- Chrome: nav, progress, cursor ---------- */
-  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px clamp(18px, 4.5vw, 72px); color: #fff; mix-blend-mode: difference; pointer-events: none; }
-  .nav a, .nav button { pointer-events: auto; }
-  .nav a { text-decoration: none; }
-  .nav-name { font: 700 18px/1 var(--display); font-style: italic; }
-  .nav-scene { position: absolute; left: 50%; transform: translateX(-50%); overflow: hidden; }
-  .nav-links { display: flex; gap: 22px; }
-  .nav-links a { position: relative; }
-  .nav-links a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform 300ms cubic-bezier(0.7, 0, 0.2, 1); }
-  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
-  .rail { position: fixed; right: 0; top: 0; bottom: 0; width: 4px; z-index: 49; background: transparent; mix-blend-mode: difference; }
-  .rail i { display: block; height: 100%; background: #fff; transform-origin: top; transform: scaleY(0); }
-  .cursor { display: none; position: fixed; left: 0; top: 0; z-index: 90; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: #fff; mix-blend-mode: difference; pointer-events: none; place-items: center; }
-  .cursor span { font: 500 10px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: #000; opacity: 0; }
-  @media (hover: hover) and (pointer: fine) { html.motion .cursor { display: grid; } html.motion, html.motion a, html.motion button { cursor: none; } }
-
-  /* ---------- Shared type ---------- */
-  .title { font: 800 clamp(56px, 11.5vw, 190px)/0.86 var(--display); letter-spacing: -0.035em; text-transform: uppercase; }
-  .title em { font-style: italic; font-weight: 500; text-transform: none; letter-spacing: -0.02em; }
-  .mask .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
-  .mask .ch { display: inline-block; }
-  .kicker { color: var(--acc); }
-  .tape { position: absolute; z-index: 3; width: 96px; height: 26px; background: var(--tape); clip-path: polygon(3% 0, 97% 6%, 100% 50%, 96% 100%, 2% 94%, 0 45%); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); }
-  .scene { position: relative; }
-
-  /* ---------- Scene 1: hero ---------- */
-  .hero { position: relative; height: 100svh; min-height: 620px; overflow: hidden; display: grid; place-items: center; }
-  .hero-top { position: absolute; top: 68px; left: 0; right: 0; display: flex; justify-content: space-between; gap: 12px; color: var(--mute); }
-  .hero-name { position: relative; z-index: 2; text-align: center; font: 800 clamp(64px, 12.4vw, 230px)/0.84 var(--display); letter-spacing: -0.04em; text-transform: uppercase; }
-  .hero-name .ln { display: block; white-space: nowrap; }
-  .hero-name .l2 { font-style: italic; letter-spacing: -0.03em; }
-  .hero-name .w { display: inline-block; }
-  .hero-name .ch { display: inline-block; will-change: transform; }
-  .hero-say { position: absolute; z-index: 1; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1000px, 88vw); text-align: center; font: 500 clamp(30px, 5vw, 76px)/1.04 var(--display); letter-spacing: -0.02em; text-wrap: balance; }
-  .hero-say em { color: var(--acc); font-style: italic; }
-  .hero-say .wd { display: inline-block; }
-  .hero-sub { position: absolute; z-index: 1; left: 50%; bottom: 13svh; transform: translateX(-50%); width: min(560px, 84vw); text-align: center; color: var(--mute); font-size: 16px; }
-  .cue { position: absolute; z-index: 3; left: 50%; bottom: 26px; transform: translateX(-50%); display: grid; justify-items: center; gap: 8px; color: var(--mute); }
-  .cue i { width: 1px; height: 38px; background: var(--fg); transform-origin: top; animation: cue 1.8s ease-in-out infinite; }
-  @keyframes cue { 0% { transform: scaleY(0); } 55% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
-
-  /* Cut-outs stuck onto the stage */
-  .cut { position: absolute; z-index: 3; will-change: transform; }
-  .cut-in { position: relative; }
-  .c-pass { left: 5vw; top: 22svh; width: 250px; }
-  .c-pass .cut-in { background: var(--paper); color: var(--ink); padding: 18px 18px 16px; box-shadow: var(--shadow); transform: rotate(-5deg); }
-  .c-pass .tape { top: -12px; left: 76px; transform: rotate(3deg); }
-  .pass-h { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 2px solid var(--ink); }
-  .pass-h b { width: 44px; height: 44px; display: grid; place-items: center; background: var(--ink); color: var(--mint); font: 700 italic 18px/1 var(--display); }
-  .pass-h span { font: 700 16px/1.05 var(--display); }
-  .pass-l { display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; margin-top: 10px; font-size: 13px; line-height: 1.3; }
-  .pass-l dt { font: 500 10px/1.6 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: #6b706b; }
-  .pass-l dd { margin: 0; }
-  .c-note { right: 6vw; top: 20svh; width: 200px; }
-  .c-note .cut-in { background: #fff0a6; color: #2b2610; padding: 18px 16px 20px; box-shadow: var(--shadow); font: 600 27px/1.02 var(--hand); transform: rotate(4deg); }
-  .c-strip { right: 4vw; bottom: 24svh; }
-  .c-strip .cut-in { background: var(--mint); color: #08110e; padding: 10px 22px 12px; font: 800 24px/1 var(--display); letter-spacing: 0.02em; text-transform: uppercase; box-shadow: var(--shadow); transform: rotate(-6deg); clip-path: polygon(0 8%, 4% 0, 9% 10%, 14% 0, 20% 9%, 26% 0, 100% 0, 98% 30%, 100% 62%, 97% 100%, 0 100%, 2% 55%); }
-  .c-stamp { left: 7vw; bottom: 22svh; }
-  .c-stamp .cut-in { border: 3px double var(--acc); color: var(--acc); padding: 12px 16px 10px; font: 500 12px/1.35 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; text-align: center; transform: rotate(-9deg); border-radius: 4px; }
-  .c-stamp .cut-in b { display: block; font: 800 20px/1 var(--display); letter-spacing: 0.04em; margin-bottom: 4px; }
-  .c-badge { left: calc(50% - 65px); top: 15svh; width: 130px; height: 130px; }
-  .c-badge svg { width: 100%; height: 100%; overflow: visible; }
-  .c-badge text { font: 500 11.5px var(--mono); letter-spacing: 0.22em; text-transform: uppercase; fill: var(--fg); }
-  .c-badge .core { fill: var(--acc); }
-
-  /* ---------- Scene 2: manifesto ---------- */
-  .about { padding-block: 22vh 12vh; }
-  .manifesto { font: 500 clamp(30px, 4.9vw, 78px)/1.06 var(--display); letter-spacing: -0.02em; max-width: 20em; text-wrap: pretty; }
-  .manifesto .wd { transition: none; }
-  .manifesto.q { margin-top: 16vh; margin-left: auto; font-style: italic; max-width: 19em; }
-  .manifesto .hl { color: var(--acc); }
-  .about-small { margin: 12vh 0 0 auto; max-width: 30em; color: var(--mute); font-size: 19px; }
-  .stats { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 34px 22px; margin-top: 18vh; padding-bottom: 6vh; }
-  .stat { position: relative; padding: 22px 20px 24px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); grid-column: span 2; will-change: transform; }
-  .stat:nth-child(4) { grid-column: 2 / span 2; }
-  .stat:nth-child(5) { grid-column: 4 / span 2; }
-  .stat b { display: block; font: 800 clamp(48px, 6vw, 92px)/0.9 var(--display); letter-spacing: -0.03em; font-variant-numeric: lining-nums tabular-nums; }
-  .stat span { display: block; margin-top: 10px; color: var(--ink-2); font-size: 16px; line-height: 1.35; }
-  .stat:nth-child(1) { transform: rotate(-2deg); } .stat:nth-child(2) { transform: rotate(1.5deg); background: #d6f3e8; }
-  .stat:nth-child(3) { transform: rotate(-1deg); background: #fff0a6; } .stat:nth-child(4) { transform: rotate(2deg); }
-  .stat:nth-child(5) { transform: rotate(-1.5deg); background: #d6f3e8; }
-  .stat .tape { top: -12px; left: 24px; transform: rotate(-5deg); width: 76px; }
-
-  /* ---------- Scene 3: experience filmstrip ---------- */
-  .xp { position: relative; height: 100svh; min-height: 640px; overflow: hidden; --fx: 0px; }
-  .xp::before, .xp::after { content: ""; position: absolute; left: 0; right: 0; height: 26px; z-index: 5; pointer-events: none; background: repeating-linear-gradient(90deg, transparent 0 14px, color-mix(in srgb, var(--fg) 30%, transparent) 14px 30px, transparent 30px 44px); background-size: 44px 100%; background-position: var(--fx) 0; -webkit-mask: linear-gradient(transparent 6px, #000 6px, #000 20px, transparent 20px); mask: linear-gradient(transparent 6px, #000 6px, #000 20px, transparent 20px); }
-  .xp::before { top: 0; } .xp::after { bottom: 0; }
-  .xp-track { display: flex; align-items: stretch; height: 100%; width: max-content; padding: 64px 0 56px; }
-  .panel { position: relative; flex: 0 0 auto; width: min(80vw, 1040px); display: grid; align-content: center; padding: 0 clamp(20px, 4vw, 64px); border-left: 1px dashed var(--hair); }
-  .panel-intro { width: min(70vw, 900px); border-left: 0; }
-  .yr { position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 0; font: 800 clamp(200px, 34vw, 520px)/0.8 var(--display); letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--fg) 35%, transparent); pointer-events: none; font-variant-numeric: lining-nums; white-space: nowrap; }
-  .p-body { position: relative; z-index: 1; max-width: 720px; }
-  .p-when { color: var(--acc); }
-  .p-role { margin-top: 10px; font: 800 clamp(34px, 4.6vw, 68px)/0.96 var(--display); letter-spacing: -0.03em; }
-  .p-org { margin-top: 8px; font: 500 15px/1.3 var(--mono); color: var(--mute); }
-  .p-list { margin-top: 22px; display: grid; gap: 10px; }
-  .p-list li { position: relative; padding-left: 26px; font-size: clamp(15px, 1.25vw, 17.5px); line-height: 1.45; }
-  .p-list li::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 12px; height: 2px; background: var(--acc); }
-  .xp-hint { margin-top: 26px; color: var(--mute); }
-  .xp-bar { position: absolute; left: clamp(18px, 4.5vw, 72px); right: clamp(18px, 4.5vw, 72px); bottom: 34px; height: 3px; background: var(--hair); z-index: 6; }
-  .xp-bar i { display: block; height: 100%; background: var(--acc); transform-origin: left; transform: scaleX(0); }
-
-  /* ---------- Scene 4: work ---------- */
-  .work { padding-top: 18vh; }
-  .work-head { margin-bottom: 10vh; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
-  .work-head p { color: var(--mute); max-width: 26em; justify-self: end; }
-  .stack { position: relative; padding-bottom: 6vh; }
-  .pcard {
-    position: sticky; top: calc(9vh + var(--i) * 22px); height: min(78vh, 660px); min-height: 480px; margin-bottom: 14vh;
-    display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(20px, 3vw, 48px);
-    background: var(--paper); color: var(--ink); padding: clamp(18px, 2.4vw, 34px); box-shadow: var(--shadow); transform-origin: 50% 0;
-  }
-  .pcard .shade { position: absolute; inset: 0; background: #0d1513; opacity: 0; pointer-events: none; z-index: 4; }
-  .pcard .tape { top: -13px; left: 40px; transform: rotate(-4deg); }
-  .pframe { position: relative; overflow: hidden; background: #0d1513; }
-  .pframe img { position: absolute; left: 0; top: -8%; width: 100%; height: 116%; object-fit: cover; object-position: top left; }
-  .pframe.fit { background: #f4f6f5; }
-  .pframe.fit img { object-fit: contain; object-position: center; }
-  .pbody { display: flex; flex-direction: column; justify-content: center; gap: 14px; min-width: 0; }
-  .pbody .mono { color: var(--acc); }
-  .pname { font: 800 clamp(40px, 5.2vw, 84px)/0.9 var(--display); letter-spacing: -0.035em; text-transform: uppercase; overflow-wrap: anywhere; }
-  .pdesc { font-size: clamp(14.5px, 1.15vw, 17px); line-height: 1.5; color: var(--ink-2); }
-  .ptech { display: flex; flex-wrap: wrap; gap: 6px; }
-  .ptech span { font: 500 11.5px/1 var(--mono); padding: 6px 8px; border: 1px solid rgba(16, 23, 21, 0.2); }
-  .plinks { display: flex; flex-wrap: wrap; gap: 8px 20px; }
-  .plinks a { font: 500 13px/1.2 var(--mono); text-decoration: none; border-bottom: 2px solid var(--acc); padding-bottom: 2px; }
-  .plinks a:hover { background: rgba(255, 75, 43, 0.12); }
-  .badge-priv { align-self: flex-start; padding: 4px 8px 3px; border: 2px solid var(--acc); color: var(--acc); font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-3deg); }
-  .badge-oss { align-self: flex-start; padding: 4px 8px 3px; border: 2px solid #12805c; color: #0e6a4c; font: 500 11px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; transform: rotate(-3deg); }
-  .badge-priv.soon { display: inline-block; }
-  .pcount { position: absolute; right: 22px; top: 14px; font: 500 12px/1 var(--mono); color: #7a7f7a; letter-spacing: 0.1em; z-index: 2; }
-
-  .idx-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-block: 8vh 16px; border-bottom: 2px solid var(--fg); }
-  .idx-head h3 { font: 500 clamp(28px, 3.4vw, 52px)/1 var(--display); font-style: italic; }
-  .idx { border-top: 0; }
-  .row { display: grid; grid-template-columns: 56px minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1.2fr); align-items: baseline; gap: 16px; padding: 22px 0; border-bottom: 1px solid var(--hair); text-decoration: none; position: relative; transition: padding-left 350ms cubic-bezier(0.2, 0.7, 0.2, 1), color 250ms; }
-  .row .n { font: 500 12px var(--mono); color: var(--mute); }
-  .row .nm { font: 700 clamp(28px, 3.6vw, 54px)/1 var(--display); letter-spacing: -0.02em; }
-  .row .mt { color: var(--mute); font-size: 15px; }
-  .row .tc { color: var(--mute); font: 500 12px/1.4 var(--mono); text-align: right; }
-  .row::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--acc); transform: scaleX(0); transform-origin: left; transition: transform 450ms cubic-bezier(0.7, 0, 0.2, 1); }
-  .row:hover, .row:focus-visible { padding-left: 22px; color: var(--acc); }
-  .row:hover::after, .row:focus-visible::after { transform: scaleX(1); }
-
-  /* Projects that have their own site: a gallery of pasted-in cards, then the plain shelf */
-  .sites { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 40px 28px; padding-top: 38px; padding-bottom: 8px; }
-  .scard { position: relative; grid-column: span 2; display: flex; flex-direction: column; gap: 14px; padding: 14px 14px 20px; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); transform: rotate(var(--r, 0deg)); transition: transform 380ms cubic-bezier(.3, 0, .2, 1), box-shadow 380ms; }
-  .scard:nth-child(3n+1) { --r: -1deg; } .scard:nth-child(3n+2) { --r: 0.8deg; } .scard:nth-child(3n) { --r: -0.5deg; }
-  .scard:nth-child(n+4) { grid-column: span 3; flex-direction: row; align-items: stretch; gap: 20px; }
-  .scard:nth-child(4):last-child { grid-column: span 6; }
-  .scard:hover, .scard:focus-within { transform: rotate(0deg) translateY(-8px); box-shadow: 0 1px 1px rgba(16, 23, 21, 0.1), 0 26px 40px -16px rgba(16, 23, 21, 0.5); }
-  .scard .tape { top: -13px; left: 34px; transform: rotate(-4deg); }
-  .scard:nth-child(even) .tape { left: auto; right: 34px; transform: rotate(5deg); }
-  .scard .sf { position: relative; overflow: hidden; aspect-ratio: 16 / 10; background: #0d1513; border: 1px solid rgba(16, 23, 21, 0.18); }
-  .scard .sf img.mascots { object-position: center; background: #f1ead6; }
-  .scard:nth-child(n+4) .sf { flex: 0 0 46%; aspect-ratio: auto; min-height: 190px; }
-  .scard .sf img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; transition: transform 700ms cubic-bezier(.3, 0, .2, 1); }
-  .scard:hover .sf img, .scard:focus-within .sf img { transform: scale(1.06); }
-  .scard .sb { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
-  .scard .sb > * { margin: 0; }
-  .scard .sb .mono { color: var(--acc); font-size: 11.5px; }
-  .scard h4 { font: 800 clamp(26px, 2.4vw, 34px)/1 var(--display); letter-spacing: -0.02em; }
-  .scard .blurb { font-size: 15.5px; line-height: 1.45; color: var(--ink-2); }
-  .scard .stamps { display: flex; flex-wrap: wrap; gap: 8px; }
-  .scard .ptech { margin-top: auto; }
-  .scard .sl { display: flex; gap: 8px 20px; flex-wrap: wrap; align-items: baseline; }
-  .scard .go { font: 600 13px/1.2 var(--mono); text-decoration: none; border-bottom: 2px solid var(--acc); padding-bottom: 2px; }
-  .scard .go::after { content: ""; position: absolute; inset: 0; z-index: 1; }
-  .scard .gh { position: relative; z-index: 2; font: 500 13px/1.2 var(--mono); text-decoration: none; border-bottom: 1px solid var(--hair); padding-bottom: 2px; }
-  .scard .gh:hover { border-color: var(--acc); }
-  .tg { display: inline-block; padding: 4px 7px 3px; border: 1.5px solid currentColor; font: 600 10px/1 var(--mono); letter-spacing: 0.13em; text-transform: uppercase; transform: rotate(-2deg); white-space: nowrap; }
-  .tg.site { color: var(--acc); } .tg.oss { color: #0e6a4c; } .tg.wip { color: #8a5a00; } .tg.priv { color: var(--mute); border-style: dashed; }
-  .row .mt .tg { margin-left: 8px; vertical-align: 2px; }
-  .idx-group { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 30px 0 10px; border-bottom: 2px solid var(--fg); font: 600 12px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
-  .idx-group b { color: var(--fg); font-weight: 600; }
-  .sites-head { padding-block: 10vh 0; }
-  @media (max-width: 1000px) { .sites { grid-template-columns: repeat(2, minmax(0, 1fr)); } .scard, .scard:nth-child(n+4) { grid-column: span 1; flex-direction: column; } .scard:nth-child(n+4) .sf { flex: none; aspect-ratio: 16 / 10; min-height: 0; } }
-  @media (max-width: 640px) { .sites { grid-template-columns: minmax(0, 1fr); gap: 34px; } .row .mt .tg { display: block; width: max-content; margin: 8px 0 0; } }
-  html:not(.motion) .scard { transform: none; }
-  html:not(.motion) .scard .sf img { transition: none; }
-  .peek { position: fixed; left: 0; top: 0; z-index: 60; width: 320px; aspect-ratio: 16 / 10; pointer-events: none; opacity: 0; overflow: hidden; background: #0d1513; box-shadow: var(--shadow); border: 6px solid var(--paper); }
-  .peek img { width: 100%; height: 100%; object-fit: cover; object-position: top left; }
-  .peek.fit img { object-fit: contain; background: #f4f6f5; }
-
-  /* ---------- Scene 5: platforms ---------- */
-  .plat { padding-block: 20vh 14vh; }
-  .plat-head { margin-bottom: 10vh; display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; }
-  .plat-head p { color: var(--mute); max-width: 26em; justify-self: end; }
-  .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 34px 26px; perspective: 1400px; }
-  .card { position: relative; background: var(--paper); color: var(--ink); padding: 26px 22px 24px; box-shadow: var(--shadow); transform: rotate(var(--r, 0deg)); }
-  .card:nth-child(3n+1) { --r: -0.9deg; } .card:nth-child(3n+2) { --r: 0.7deg; } .card:nth-child(3n) { --r: -0.4deg; }
-  .card .org { color: var(--acc); }
-  .card h3 { margin-top: 8px; font: 800 26px/1 var(--display); letter-spacing: -0.02em; }
-  .card p { margin-top: 10px; font-size: 15.5px; line-height: 1.5; color: var(--ink-2); }
-  .card .ptech { margin-top: 14px; }
-
-  /* ---------- Scene 6: skills ---------- */
-  .skills { padding-block: 16vh 14vh; }
-  .skills-head { margin-bottom: 8vh; }
-  .mqs { display: grid; gap: clamp(10px, 2vw, 26px); }
-  .mq { position: relative; padding-top: 30px; will-change: transform; }
-  .mq-label { position: absolute; left: clamp(18px, 4.5vw, 72px); top: 0; z-index: 2; font-size: 30px; line-height: 1; color: var(--fg); background: var(--bg); padding: 2px 10px 2px 0; transform: rotate(-3deg); }
-  .mq-view { overflow: hidden; }
-  .mq-in { display: flex; width: max-content; will-change: transform; }
-  .mq-in span { flex: none; padding-right: 0.5em; font: 800 clamp(58px, 9.4vw, 150px)/1.02 var(--display); letter-spacing: -0.03em; text-transform: uppercase; white-space: nowrap; }
-  .mq:nth-child(even) .mq-in span { color: transparent; -webkit-text-stroke: 2px var(--fg); }
-  .mq-in i { font-style: normal; color: var(--acc); padding-right: 0.4em; }
-  html:not(.motion) .mq-view { overflow-x: auto; }
-
-  /* ---------- Scene 7: contact ---------- */
-  .contact { padding-block: 22vh 10vh; min-height: 100svh; display: grid; align-content: space-between; gap: 12vh; }
-  .px { font: 500 clamp(58px, 12.6vw, 220px)/0.86 var(--display); letter-spacing: -0.04em; text-transform: uppercase; }
-  .px .w { display: inline-block; white-space: nowrap; }
-  .px .ch { display: inline-block; }
-  .px em { font-style: italic; color: var(--acc); }
-  .contact-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px 60px; align-items: end; }
-  .contact-grid > p { font: 500 clamp(22px, 2.4vw, 34px)/1.25 var(--display); max-width: 20em; }
-  .lines { display: grid; }
-  .lines a, .lines div { display: flex; justify-content: space-between; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--hair); text-decoration: none; }
-  .lines .l { color: var(--mute); }
-  .lines .v { font: 500 clamp(17px, 1.6vw, 22px)/1.2 var(--display); text-align: right; overflow-wrap: anywhere; }
-  .lines a:hover .v { color: var(--acc); }
-  .cta { display: inline-grid; place-items: center; width: clamp(150px, 15vw, 210px); aspect-ratio: 1; border-radius: 50%; background: var(--acc); color: #fff; text-decoration: none; font: 800 clamp(20px, 1.9vw, 28px)/1 var(--display); text-transform: uppercase; text-align: center; }
-  .foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 28px; padding-top: 18px; border-top: 1px solid var(--hair); color: var(--mute); font-size: 14px; }
-  .foot a { text-underline-offset: 3px; }
-  .copy { font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 8px; margin-left: 8px; border: 1px solid var(--hair); background: transparent; color: var(--fg); }
-  .copy:hover { border-color: var(--acc); color: var(--acc); }
-
-
-
-  /* ---------- v2: paper explosions ---------- */
-  .band { position: relative; z-index: 6; overflow: hidden; margin: -1.6vw -4vw; padding: 1vw 0; background: var(--fg); color: var(--bg); transform: rotate(-2.5deg); will-change: transform; }
-  .band-in { display: flex; width: max-content; }
-  .band-in span { flex: none; padding-right: 0.6em; font: 800 clamp(34px, 5.6vw, 88px)/1.05 var(--display); letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
-  .band-in i { font-style: normal; color: var(--acc); padding: 0 0.15em; }
-  .card::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 250ms; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 0%), rgba(255, 255, 255, 0.75), transparent 55%); mix-blend-mode: soft-light; }
-  .card:hover::after { opacity: 1; }
-  .cloud-scene { position: relative; height: 100svh; min-height: 620px; display: grid; grid-template-rows: auto 1fr; padding: 96px clamp(18px, 4.5vw, 72px) 40px; }
-  .cloud-title { font: 800 clamp(34px, 5.6vw, 88px)/0.92 var(--display); letter-spacing: -0.03em; text-transform: uppercase; }
-  .cloud-title em { font-style: italic; text-transform: none; font-weight: 500; }
-  .cloud { position: relative; align-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 1240px; margin-inline: auto; }
-  .chip { display: inline-block; will-change: transform; }
-  .chip-i { display: block; padding: 11px 17px 12px; font: 700 clamp(14px, 1.5vw, 23px)/1 var(--sans); border-radius: 3px; box-shadow: 0 6px 12px -6px rgba(8, 17, 14, 0.55); rotate: var(--r, 0deg); cursor: default; }
-  .chip:nth-child(4n+1) { --r: -2.4deg; } .chip:nth-child(4n+2) { --r: 1.6deg; } .chip:nth-child(4n+3) { --r: -0.8deg; } .chip:nth-child(4n) { --r: 2.6deg; }
-  .chip.c0 .chip-i { background: #fbf8ef; color: #101715; } .chip.c1 .chip-i { background: #101715; color: #2ed3a7; }
-  .chip.c2 .chip-i { background: #ff4b2b; color: #fff; } .chip.c3 .chip-i { background: #ffd25c; color: #2b2610; }
-  .chip.c4 .chip-i { background: #d6f3e8; color: #08110e; } .chip.c5 .chip-i { background: #08110e; color: #fbf8ef; }
-  .chip.c6 .chip-i { background: #ff7a4d; color: #08110e; }
-  .ring { position: absolute; left: 50%; top: 50%; width: 24vmin; height: 24vmin; margin: -12vmin 0 0 -12vmin; border-radius: 50%; border: 3px solid var(--fg); pointer-events: none; opacity: 0; }
-  html:not(.motion) .band, html:not(.motion) .ring { display: none; }
-  html:not(.motion) .cloud-scene { height: auto; min-height: 0; padding-block: 10vh; }
-  html:not(.motion) .stat { transform: none; }
-  .skills { overflow-x: clip; }
-
-
-  /* ---------- v3: the exploded watch ---------- */
-  .anat { position: relative; height: 100svh; min-height: 640px; display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.1fr) minmax(0, 0.95fr); align-items: center; gap: 2vw; padding: 76px clamp(18px, 4.5vw, 72px) 30px; overflow: hidden; }
-  .anat-head .title { font-size: clamp(44px, 6.2vw, 108px); }
-  .anat-head p { margin-top: 22px; max-width: 24em; color: var(--mute); }
-  .anat-head .mono { color: var(--acc); margin-bottom: 14px; }
-  #machine { display: block; height: min(86svh, 900px); width: auto; max-width: 100%; margin-inline: auto; overflow: visible; }
-  .wt * { vector-effect: non-scaling-stroke; }
-  .wt text { font-family: var(--mono); font-weight: 700; }
-  .wt .disp { font-family: var(--display); }
-  .cur { animation: blink 1s steps(2) infinite; }
-  @keyframes blink { 50% { opacity: 0; } }
-  .legend li em { display: block; font: 500 11px/1.4 var(--mono); font-style: normal; letter-spacing: 0.1em; text-transform: uppercase; color: var(--acc); margin-bottom: 3px; }
-  .lyr { transition: opacity 350ms ease, filter 350ms ease; }
-  .wt[data-a] .lyr { opacity: 0.28; }
-  .wt[data-a] .lyr.on { opacity: 1; filter: drop-shadow(0 0 16px color-mix(in srgb, var(--acc) 75%, transparent)); }
-  .shd { filter: blur(14px); }
-  .legend { display: grid; gap: 2px; align-content: center; list-style: none; margin: 0; padding: 0; }
-  .legend .intro { padding: 0 0 18px 18px; color: var(--acc); }
-  .legend li:not(.intro) { padding: 8px 0 8px 18px; border-left: 2px solid var(--hair); color: var(--mute); transition: color 300ms, border-color 300ms, padding 300ms; }
-  .legend li b { display: block; font: 800 clamp(17px, 1.5vw, 24px)/1.1 var(--display); text-transform: uppercase; letter-spacing: -0.01em; }
-  .legend li span { display: block; max-height: 0; overflow: hidden; opacity: 0; font-size: 15px; line-height: 1.45; transition: max-height 400ms ease, opacity 300ms ease, margin 300ms ease; }
-  .legend li.on:not(.intro) { color: var(--fg); border-color: var(--acc); padding-left: 28px; }
-  .legend li.on:not(.intro) span { max-height: 118px; opacity: 1; margin-top: 6px; }
-  html:not(.motion) .anat { height: auto; min-height: 0; padding-block: 12vh; overflow: visible; }
-  html:not(.motion) .legend li span { max-height: none; opacity: 1; margin-top: 4px; }
-  html:not(.motion) .legend .intro { display: none; }
-  @media (max-width: 1000px) {
-    .anat { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; padding-top: 62px; align-items: start; }
-    .anat-head .title { font-size: clamp(34px, 9vw, 60px); } .anat-head p { display: none; }
-    #machine { height: 100%; max-height: 52svh; }
-    html.motion .legend li:not(.on) { display: none; }
-    .legend { min-height: 128px; align-content: start; }
-  }
-  @media (max-width: 1000px) { html:not(.motion) #machine { height: auto; max-height: none; width: min(100%, 520px); } html:not(.motion) .anat { grid-template-rows: auto; } }
-
-  /* ---------- No motion: a plain, complete page ---------- */
-  html:not(.motion) .hero { height: auto; min-height: 0; display: block; text-align: center; padding: 130px clamp(18px, 4.5vw, 72px) 90px; overflow: visible; }
-  html:not(.motion) .hero-top, html:not(.motion) .cue, html:not(.motion) .cut:not(.c-stamp) { display: none; }
-  html:not(.motion) .hero-say, html:not(.motion) .hero-sub { position: static; transform: none; margin: 34px auto 0; }
-  html:not(.motion) .c-stamp { position: static; display: block; width: max-content; margin: 34px auto 0; }
-  html:not(.motion) .hero-name { font-size: clamp(56px, 11vw, 190px); }
-  html:not(.motion) .xp { height: auto; min-height: 0; overflow: visible; }
-  html:not(.motion) .xp::before, html:not(.motion) .xp::after, html:not(.motion) .xp-bar { display: none; }
-  html:not(.motion) .xp-track { display: block; width: auto; padding: 14vh 0 4vh; }
-  html:not(.motion) .panel, html:not(.motion) .panel-intro { width: auto; padding: 0 0 12vh; border-left: 0; }
-  html:not(.motion) .yr { position: relative; top: auto; transform: none; display: block; font-size: clamp(120px, 24vw, 300px); margin-bottom: 1vw; }
-  html:not(.motion) .pcard { position: relative; top: auto; height: auto; margin-bottom: 8vh; }
-  html:not(.motion) .row .tc { text-align: right; }
-
-  /* ---------- Small screens ---------- */
-  @media (max-width: 900px) {
-    .nav-scene, .nav-links a:not(:last-child) { display: none; }
-    .hero-top { top: 62px; }
-    .c-pass { width: 170px; left: 3vw; top: 17svh; } .c-pass .pass-l dt:nth-of-type(n+3), .c-pass .pass-l dd:nth-of-type(n+3) { display: none; }
-    .c-note, .c-stamp, .c-badge { display: none; } .c-strip { right: 3vw; bottom: 21svh; } .c-strip .cut-in { font-size: 18px; }
-    .about { padding-block: 16vh 8vh; } .manifesto.q { margin-top: 10vh; }
-    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stat, .stat:nth-child(4), .stat:nth-child(5) { grid-column: auto; }
-    .stat:nth-child(5) { grid-column: 1 / -1; }
-    .xp { height: auto; overflow: visible; min-height: 0; }
-    .xp::before, .xp::after, .xp-bar { display: none; }
-    .xp-track { display: block; width: auto; padding: 14vh 0 4vh; }
-    .panel, .panel-intro { width: auto; padding: 0 0 12vh; border-left: 0; }
-    .yr { position: relative; top: auto; transform: none; display: block; font-size: 30vw; margin-bottom: 2vw; }
-    .work-head p, .plat-head p { justify-self: start; }
-    .contact-grid { grid-template-columns: minmax(0, 1fr); }
-    .pcard { position: relative; top: auto; height: auto; margin-bottom: 8vh; grid-template-columns: minmax(0, 1fr); }
-    .pframe { aspect-ratio: 16 / 10; }
-    .row { grid-template-columns: 34px minmax(0, 1fr); } .row .mt, .row .tc { grid-column: 2; text-align: left; }
-    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .peek { display: none; }
-    .cloud-scene { padding-top: 74px; } .chip-i { padding: 8px 11px 9px; } .cloud { gap: 8px; }
-    .contact { min-height: 0; }
-  }
-  @media (max-width: 560px) {
-    body { font-size: 17px; }
-    .hero-name { font-size: 15.4vw; } .hero-top span:nth-child(2) { display: none; }
-    .cards { grid-template-columns: minmax(0, 1fr); }
-    .stats { gap: 26px 14px; } .stat { padding: 16px 14px 18px; }
-    .lines .v { font-size: 16px; }
-  }
-  @media (prefers-reduced-motion: reduce) { .cue i, .cur { animation: none; } }
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="abyss/styles.css">
+<link rel="modulepreload" href="vendor/three-kit.min.js">
 </head>
-<body>
-<script>
-  // Motion is on only when the script runs, GSAP loaded, and the visitor hasn't asked for less.
-  (function () {
-    var less = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.documentElement.classList.add(less ? "still" : "js");
-  })();
-</script>
+<body class="journey">
 
-<div class="pre" id="pre" aria-hidden="true">
-  <div class="pre-name">Aby Saji Pappachan<small>Portfolio in motion</small></div>
-  <div class="pre-row"><span class="mono">Loading the showreel</span><span class="pre-n" id="pre-n">000</span></div>
-  <div class="pre-bar"><i id="pre-bar"></i></div>
+<canvas id="sea" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+
+<!-- Pre-dive check -->
+<div class="boot" id="boot" role="status" aria-live="polite">
+  <div class="boot-in">
+    <p class="mono boot-k">Pre-dive check</p>
+    <ul class="boot-list mono">
+      <li>Hull integrity</li><li>Ballast</li><li>Lamps</li><li>Depth gauge</li>
+    </ul>
+    <div class="boot-bar"><i id="boot-fill"></i></div>
+    <p class="mono boot-n"><span id="boot-pct">000</span> %</p>
+  </div>
 </div>
 
-<div class="cursor" id="cursor" aria-hidden="true"><span id="cursor-t"></span></div>
-<div class="rail" aria-hidden="true"><i id="rail"></i></div>
-<div class="peek" id="peek" aria-hidden="true"><img alt=""></div>
+<a class="skip" href="#about">Skip to content</a>
 
-<header class="nav">
-  <a class="nav-name" href="#top">Aby Saji Pappachan</a>
-  <span class="nav-scene mono"><span id="scene-name" style="display:inline-block">Intro</span></span>
-  <nav class="nav-links mono" aria-label="Sections">
-    <a href="#about">About</a><a href="#experience">Experience</a><a href="#work">Work</a><a href="#skills">Skills</a><a href="#contact">Contact</a>
-  </nav>
+<!-- Top bar -->
+<header class="bar">
+  <a class="mark" href="#top" aria-label="Aby Saji Pappachan, back to the surface">
+    <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M3 11c4-4 6-4 10 0s6 4 10 0 4-3 6-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="22" r="2.6" fill="var(--warm)"/></svg>
+    <span>Aby Saji Pappachan</span>
+  </a>
+  <div class="bar-r">
+    <span class="avail mono"><i></i>Available now</span>
+    <button class="snd mono" id="snd" type="button" aria-pressed="false" aria-label="Toggle ambient sound">
+      <span class="snd-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span id="snd-t">Sound off</span>
+    </button>
+    <a class="pill mono" href="Aby_Saji_Pappachan_Technical_Lead.pdf" download>CV ↓</a>
+  </div>
 </header>
 
-<main id="top">
+<!-- Depth gauge: the navigation -->
+<aside class="gauge" aria-hidden="true">
+  <div class="g-read">
+    <p class="mono g-k">Depth</p>
+    <p class="g-num"><span id="g-depth">0</span><small>m</small></p>
+    <p class="mono g-zone" id="g-zone">Surface</p>
+  </div>
+  <div class="g-tele mono">
+    <p><span>Pressure</span><b id="g-atm">1</b> atm</p>
+    <p><span>Water</span><b id="g-temp">24.0</b> °C</p>
+    <p><span>Light</span><b id="g-light">100</b> %</p>
+    <p><span>Heading</span><b id="g-head">000</b> °</p>
+  </div>
+</aside>
 
-  <section class="hero scene" data-bg="#e9edea" data-fg="#101715" data-acc="#ff4b2b" data-label="Intro" aria-label="Introduction">
-    <div class="hero-top pad mono"><span>Portfolio · Volume 8</span><span>Backend, platform and AI engineering</span><span>Walsall, West Midlands, UK</span></div>
+<nav class="rail" aria-label="Sections">
+  <i class="rail-fill" id="rail-fill"></i>
+  <a href="#top" data-sec="top"><span>Surface</span><b>0 m</b></a>
+  <a href="#about" data-sec="about"><span>About</span><b>12 m</b></a>
+  <a href="#experience" data-sec="experience"><span>Experience</span><b>200 m</b></a>
+  <a href="#work" data-sec="work"><span>Work</span><b>1,000 m</b></a>
+  <a href="#skills" data-sec="skills"><span>Skills</span><b>4,000 m</b></a>
+  <a href="#contact" data-sec="contact"><span>Contact</span><b>10,935 m</b></a>
+</nav>
 
-    <div class="cut c-pass" data-dx="-22" data-dy="-8" data-rot="-14"><div class="cut-in">
-      <span class="tape" aria-hidden="true"></span>
-      <div class="pass-h"><b aria-hidden="true">ASP</b><span>Aby Saji<br>Pappachan</span></div>
-      <dl class="pass-l">
-        <dt>Role</dt><dd>Technical Lead</dd>
-        <dt>Years</dt><dd>8, across four startups</dd>
-        <dt>Focus</dt><dd>Backend · Platform · AI and LLMs</dd>
-        <dt>Speaks</dt><dd>TypeScript · Node.js · Go · Python</dd>
-      </dl>
-    </div></div>
-    <div class="cut c-note" data-dx="20" data-dy="-12" data-rot="12"><div class="cut-in">available now, for the right role</div></div>
-    <div class="cut c-strip" data-dx="24" data-dy="10" data-rot="10"><div class="cut-in">Backend &amp; AI</div></div>
-    <div class="cut c-stamp" data-dx="-20" data-dy="12" data-rot="-12"><div class="cut-in"><b>UK</b>right to work<br>no sponsorship required</div></div>
-    <div class="cut c-badge" data-dx="6" data-dy="-14" data-rot="0"><div class="cut-in">
-      <svg viewBox="0 0 130 130" aria-hidden="true"><defs><path id="ring" d="M65 65 m-52 0 a52 52 0 1 1 104 0 a52 52 0 1 1 -104 0"/></defs>
-        <circle class="core" cx="65" cy="65" r="14"/><text><textPath href="#ring">Backend · Platform · AI · Backend · Platform · AI ·</textPath></text></svg>
-    </div></div>
+<main>
 
-    <h1 class="hero-name" id="hero-name" aria-label="Aby Saji Pappachan">
-      <span class="ln l1" aria-hidden="true">Aby Saji</span>
-      <span class="ln l2" aria-hidden="true">Pappachan</span>
-    </h1>
-    <p class="hero-say" id="hero-say">I build backend systems that scale, and <em>AI that ships.</em></p>
-    <p class="hero-sub" id="hero-sub">Eight years architecting distributed systems, secure platforms and LLM-powered products, from high-performance MCP platforms to production AI agents.</p>
-    <div class="cue mono" aria-hidden="true"><span>Scroll</span><i></i></div>
-  </section>
-
-  <div class="band" aria-hidden="true" data-i="0"></div>
-
-  <section class="about pad scene" id="about" data-bg="#f1e6cf" data-fg="#1c1712" data-acc="#d8431f" data-label="About">
-    <p class="mono kicker" style="margin-bottom:5vh">About</p>
-    <p class="manifesto" data-scrub>My whole career, 8 years across four startups, has been owning products end to end: a Zero Trust security product built from nothing to 10+ enterprise customers, a company-wide reporting platform, and production LLM and MCP infrastructure.</p>
-    <p class="manifesto q" data-scrub>I'm the person people bring "could we actually do this?" to, before anyone spends money finding out. At every company I've worked at, product managers, architects and sales brought me ideas to assess, and my proofs of concept repeatedly became the base implementation months later.</p>
-    <p class="about-small" data-fade>I work mostly in TypeScript and Node.js, with Go and Python where they fit, across NestJS services, event-driven systems on AWS, and MCP and LLM platforms. I like pairing leadership with hands-on work: mentoring a team, setting the review standards, and building things that scale and keep working.</p>
-    <div class="stats" id="stats">
-      <div class="stat" data-speed="0.9"><span class="tape" aria-hidden="true"></span><b data-to="8" data-suffix=" yrs">8 yrs</b><span>backend, platform and AI engineering</span></div>
-      <div class="stat" data-speed="1.5"><b data-to="2" data-suffix="M+">2M+</b><span>users of a browser extension I built</span></div>
-      <div class="stat" data-speed="0.6"><b data-to="50" data-suffix="k">50k</b><span>messages a day through my notification platform</span></div>
-      <div class="stat" data-speed="1.2"><b data-to="45" data-suffix="%">45%</b><span>lower infrastructure cost from my analytics stack</span></div>
-      <div class="stat" data-speed="0.8"><span class="tape" aria-hidden="true" style="left:auto;right:24px"></span><b data-to="300" data-suffix="+">300+</b><span>SaaS providers in my simulation framework</span></div>
+  <!-- 0 m -->
+  <section class="hero" id="top" data-sec="top" aria-label="Introduction">
+    <div class="hero-pin">
+      <p class="mono hero-k"><span>Technical Lead</span><span>Backend · Platform · AI</span><span>Walsall, UK</span></p>
+      <h1 class="hero-name" aria-label="Aby Saji Pappachan">
+        <span class="ln" aria-hidden="true"><span data-chars>Aby Saji</span></span>
+        <span class="ln" aria-hidden="true"><span data-chars>Pappachan</span></span>
+      </h1>
+      <div class="hero-foot">
+        <a class="dive" href="#about"><span class="dive-ring" aria-hidden="true"><i></i></span><span class="mono">Scroll to dive</span></a>
+        <p class="hero-tag">I build what runs <em>below the surface</em>: backend systems that scale, and AI that ships.</p>
+      </div>
     </div>
   </section>
 
-  <section class="anat scene" id="anatomy" data-bg="#0c2233" data-fg="#eaf3f5" data-acc="#ffb648" data-label="Anatomy" aria-label="Anatomy of a developer's machine">
-    <div class="anat-head">
-      <p class="mono">Inside the machine</p>
-      <h2 class="title">Taken<br>apart, <em>put<br>back.</em></h2>
-      <p>A laptop is where all of this gets built, so it's how I explain it. Every part has one job, the parts have to fit together, and nothing runs until they all do.</p>
+  <!-- 12 – 200 m -->
+  <section class="sec about" id="about" data-sec="about" aria-labelledby="about-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>01</b> Sunlight zone <span>12 – 200 m</span></p>
+      <h2 id="about-h" data-words>Eight years of owning products <em>end to end.</em></h2>
+    </header>
+    <div class="about-grid">
+      <div class="prose" data-reveal>
+        <p class="lead">My whole career, 8 years across four startups, has been owning products end to end: a Zero Trust security product built from nothing to 10+ enterprise customers, a company-wide reporting platform, and production LLM and MCP infrastructure.</p>
+        <p>I'm the person people bring <q>could we actually do this?</q> to, before anyone spends money finding out. At every company I've worked at, product managers, architects and sales brought me ideas to assess, and my proofs of concept repeatedly became the base implementation months later.</p>
+        <p>I work mostly in TypeScript and Node.js, with Go and Python where they fit, across NestJS services, event-driven systems on AWS, and MCP and LLM platforms. I like pairing leadership with hands-on work: mentoring a team, setting the review standards, and building things that scale and keep working.</p>
+        <p class="rtw mono"><i></i>UK right to work · no sponsorship required</p>
+      </div>
+      <ul class="stats">
+        <li data-reveal><b data-count="8" data-suffix=" yrs">8 yrs</b><span>backend, platform and AI engineering</span></li>
+        <li data-reveal><b data-count="2" data-suffix="M+">2M+</b><span>users of a browser extension I built</span></li>
+        <li data-reveal><b data-count="50" data-suffix="k">50k</b><span>messages a day through my notification platform</span></li>
+        <li data-reveal><b data-count="45" data-suffix="%">45%</b><span>lower infrastructure cost from my analytics stack</span></li>
+        <li data-reveal><b data-count="300" data-suffix="+">300+</b><span>SaaS providers in my simulation framework</span></li>
+      </ul>
     </div>
-    <svg id="machine" class="wt" viewBox="0 0 900 1200" role="img" aria-label="An exploded laptop. From top to bottom: display, keyboard, logic board, AI chip, memory and storage, ports and radios, battery and cooling, and the case, each standing for one layer of a software system."></svg>
-    <ol class="legend" id="legend" aria-label="What each part stands for"></ol>
   </section>
 
-  <section class="xp scene" id="experience" data-bg="#0d1513" data-fg="#eef3ef" data-acc="#2ed3a7" data-label="Experience" aria-label="Experience">
-    <div class="xp-track" id="xp-track">
-      <article class="panel panel-intro">
-        <div class="p-body">
-          <p class="mono kicker">Experience</p>
-          <h2 class="title" style="margin-top:14px">Career<br><em>timeline</em></h2>
-          <p class="p-org" style="margin-top:22px;max-width:32em;font:400 18px/1.5 var(--sans);color:var(--mute)">From full-stack workflow platforms to Zero Trust security to leading AI and data platforms. Every company I have worked for has asked me to come back.</p>
-          <p class="xp-hint mono">Keep scrolling <span aria-hidden="true">→</span></p>
+  <!-- 200 – 1,000 m -->
+  <section class="sec xp" id="experience" data-sec="experience" aria-labelledby="xp-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>02</b> Twilight zone <span>200 – 1,000 m</span></p>
+      <h2 id="xp-h" data-words>Career, <em>layer by layer.</em></h2>
+      <p class="zone-p" data-reveal>From full-stack workflow platforms to Zero Trust security to leading AI and data platforms. Every company I have worked for has asked me to come back.</p>
+    </header>
+    <ol class="tl">
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2025</b><span class="mono">2025 to Jun 2026</span></div>
+        <div class="job-body">
+          <h3>Technical Lead</h3><p class="job-org">Josys Digital Technologies</p>
+          <ul>
+            <li>Promoted to Technical Lead after two consecutive years rated top performer. Selected for Architect in 2026.</li>
+            <li>Led and mentored a team of 4 engineers through design reviews, pairing and code review.</li>
+            <li>Coordinated delivery across 3 product teams as the backend architecture owner, setting the interface contracts between services.</li>
+            <li>Owned code review and engineering standards across every project in the company, and ran technical interviews and onboarding for new backend hires.</li>
+            <li>Built MCP clients and servers that cut integration time for new services from 2 weeks to 2 days.</li>
+            <li>Shipped an internal LLM platform for context-aware retrieval that saved the team 8 hours a week, with 60% less manual querying.</li>
+            <li>Designed an analytics stack, Airbyte → DuckDB → Apache Airflow: about 70% faster queries above 50M rows, 45% lower infrastructure cost, and reports down from 25 minutes to under 2.</li>
+          </ul>
         </div>
-      </article>
-      <article class="panel"><span class="yr" aria-hidden="true">2025</span><div class="p-body">
-        <p class="p-when mono">2025 to Jun 2026</p><h3 class="p-role">Technical Lead</h3><p class="p-org">Josys Digital Technologies</p>
-        <ul class="p-list">
-          <li>Promoted to Technical Lead after two consecutive years rated top performer. Selected for Architect in 2026.</li>
-          <li>Led and mentored a team of 4 engineers through design reviews, pairing and code review.</li>
-          <li>Coordinated delivery across 3 product teams as the backend architecture owner, setting the interface contracts between services.</li>
-          <li>Owned code review and engineering standards across every project in the company, and ran technical interviews and onboarding for new backend hires.</li>
-          <li>Built MCP clients and servers that cut integration time for new services from 2 weeks to 2 days.</li>
-          <li>Shipped an internal LLM platform for context-aware retrieval that saved the team 8 hours a week, with 60% less manual querying.</li>
-          <li>Designed an analytics stack, Airbyte → DuckDB → Apache Airflow: about 70% faster queries above 50M rows, 45% lower infrastructure cost, and reports down from 25 minutes to under 2.</li>
-        </ul></div></article>
-      <article class="panel"><span class="yr" aria-hidden="true">2022</span><div class="p-body">
-        <p class="p-when mono">2022 to Mar 2025</p><h3 class="p-role">Senior Software Engineer</h3><p class="p-org">Josys Digital Technologies</p>
-        <ul class="p-list">
-          <li>Championed NestJS as the company-wide backend standard across 12+ microservices, cutting new-engineer onboarding from 6 weeks to 3.</li>
-          <li>Built a notification platform handling 50,000 messages a day, consolidating 8 flows into one across email, Slack and Teams.</li>
-          <li>Built a browser extension serving over 2 million users from a single codebase across Chromium and Firefox, Manifest V2 and V3, with silent activation for enterprise deployment.</li>
-          <li>Built a simulation framework covering 300+ integrated SaaS providers. It cut testing infrastructure cost 35%, never needed a bug fix, and became the customer-facing production sandbox.</li>
-          <li>Led the security project and team, building a Go service that orchestrates Semgrep, Gitleaks and Trivy across the GitHub repository estate.</li>
-          <li>Built a multi-database GraphQL platform with automatic schema generation and dynamic filter conversion.</li>
-          <li>Rated top performer two years running.</li>
-        </ul></div></article>
-      <article class="panel"><span class="yr" aria-hidden="true">2019</span><div class="p-body">
-        <p class="p-when mono">2019 to Aug 2022</p><h3 class="p-role">Member of Technical Staff (MTS-1)</h3><p class="p-org">InstaSafe, Bengaluru</p>
-        <ul class="p-list">
-          <li>Designed and built a Zero Trust Network Access (ZTNA) solution from scratch, part of a new product line that brought in 10+ enterprise customers.</li>
-          <li>Built a gateway server for agentless access to private web apps, cutting enterprise customer onboarding time 40%.</li>
-          <li>Led 3 engineers delivering 6 security product enhancements, each from design through production.</li>
-          <li>Built a cross-platform desktop client for secure access to private resources.</li>
-        </ul></div></article>
-      <article class="panel"><span class="yr" aria-hidden="true">2018</span><div class="p-body">
-        <p class="p-when mono">2018 to May 2019</p><h3 class="p-role">Earlier experience</h3><p class="p-org">GrowthEnabler · Haappy, Bengaluru</p>
-        <ul class="p-list">
-          <li>GrowthEnabler, Aug 2018 to May 2019: built a full-stack SRM workflow platform and a startup-to-corporate matching system.</li>
-          <li>Haappy, Jan to Aug 2018: built WebTV websites and an internal CRM for task and workflow tracking.</li>
-        </ul></div></article>
-      <article class="panel" style="width:min(70vw,820px)"><span class="yr" aria-hidden="true">2013</span><div class="p-body">
-        <p class="p-when mono">2013 to 2017</p><h3 class="p-role">B.E. Computer Science &amp; Engineering</h3><p class="p-org">East Point College of Engineering, Bengaluru</p></div></article>
-    </div>
-    <div class="xp-bar" aria-hidden="true"><i id="xp-bar"></i></div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2022</b><span class="mono">2022 to Mar 2025</span></div>
+        <div class="job-body">
+          <h3>Senior Software Engineer</h3><p class="job-org">Josys Digital Technologies</p>
+          <ul>
+            <li>Championed NestJS as the company-wide backend standard across 12+ microservices, cutting new-engineer onboarding from 6 weeks to 3.</li>
+            <li>Built a notification platform handling 50,000 messages a day, consolidating 8 flows into one across email, Slack and Teams.</li>
+            <li>Built a browser extension serving over 2 million users from a single codebase across Chromium and Firefox, Manifest V2 and V3, with silent activation for enterprise deployment.</li>
+            <li>Built a simulation framework covering 300+ integrated SaaS providers. It cut testing infrastructure cost 35%, never needed a bug fix, and became the customer-facing production sandbox.</li>
+            <li>Led the security project and team, building a Go service that orchestrates Semgrep, Gitleaks and Trivy across the GitHub repository estate.</li>
+            <li>Built a multi-database GraphQL platform with automatic schema generation and dynamic filter conversion.</li>
+            <li>Rated top performer two years running.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2019</b><span class="mono">2019 to Aug 2022</span></div>
+        <div class="job-body">
+          <h3>Member of Technical Staff (MTS-1)</h3><p class="job-org">InstaSafe, Bengaluru</p>
+          <ul>
+            <li>Designed and built a Zero Trust Network Access (ZTNA) solution from scratch, part of a new product line that brought in 10+ enterprise customers.</li>
+            <li>Built a gateway server for agentless access to private web apps, cutting enterprise customer onboarding time 40%.</li>
+            <li>Led 3 engineers delivering 6 security product enhancements, each from design through production.</li>
+            <li>Built a cross-platform desktop client for secure access to private resources.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2018</b><span class="mono">2018 to May 2019</span></div>
+        <div class="job-body">
+          <h3>Earlier experience</h3><p class="job-org">GrowthEnabler · Haappy, Bengaluru</p>
+          <ul>
+            <li>GrowthEnabler, Aug 2018 to May 2019: built a full-stack SRM workflow platform and a startup-to-corporate matching system.</li>
+            <li>Haappy, Jan to Aug 2018: built WebTV websites and an internal CRM for task and workflow tracking.</li>
+          </ul>
+        </div>
+      </li>
+      <li class="job" data-reveal>
+        <div class="job-when"><b>2013</b><span class="mono">2013 to 2017</span></div>
+        <div class="job-body">
+          <h3>B.E. Computer Science &amp; Engineering</h3><p class="job-org">East Point College of Engineering, Bengaluru</p>
+        </div>
+      </li>
+    </ol>
   </section>
 
-  <div class="band" aria-hidden="true" data-i="1"></div>
+  <!-- 1,000 – 4,000 m -->
+  <section class="sec work" id="work" data-sec="work" aria-labelledby="work-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>03</b> Midnight zone <span>1,000 – 4,000 m</span></p>
+      <h2 id="work-h" data-words>Things I've built <em>after hours.</em></h2>
+      <p class="zone-p" data-reveal>Agent runtimes, developer tools, media pipelines and native apps. Projects marked Open source have public code you can read today. Projects marked Private aren't public yet, and AgentKit is the next one being prepared for an open-source release.</p>
+    </header>
+    <div class="feat" id="feat"></div>
 
-  <section class="work pad scene" id="work" data-bg="#dfe9e4" data-fg="#0f1714" data-acc="#e5432a" data-label="Work">
-    <div class="work-head">
-      <div><p class="mono kicker" style="margin-bottom:16px">Personal projects</p><h2 class="title" data-split>Things I've built</h2></div>
-      <p>Agent runtimes, developer tools, media pipelines and native apps. Projects marked Open source have public code you can read today. Projects stamped Private aren't public yet, and AgentKit is the next one being prepared for an open-source release.</p>
-    </div>
-    <div class="stack" id="stack"></div>
-    <div class="idx-head sites-head"><h3>Projects with their own site</h3><span class="mono" style="color:var(--mute)" id="sites-count"></span></div>
-    <div class="sites" id="sites"></div>
-    <div class="idx-head"><h3>And the rest of the shelf</h3><span class="mono" style="color:var(--mute)" id="idx-count"></span></div>
-    <div class="idx" id="idx"></div>
+    <header class="sub" data-reveal>
+      <h3>And the rest of the shelf</h3><span class="mono" id="shelf-n"></span>
+    </header>
+    <div class="shelf" id="shelf"></div>
+
+    <header class="zone zone-2">
+      <p class="mono zone-k"><b>04</b> Professional work <span>Josys · InstaSafe</span></p>
+      <h2 data-words>Platforms <em>&amp;</em> systems.</h2>
+      <p class="zone-p" data-reveal>Backend, data and AI platforms I delivered at Josys and InstaSafe.</p>
+    </header>
+    <div class="pro" id="pro"></div>
   </section>
 
-  <section class="plat pad scene" id="platforms" data-bg="#15110f" data-fg="#f4ece1" data-acc="#ff7a4d" data-label="Platforms">
-    <div class="plat-head">
-      <div><p class="mono kicker" style="margin-bottom:16px">Professional work</p><h2 class="title" data-split>Platforms <em>&amp;</em> systems</h2></div>
-      <p>Backend, data and AI platforms I delivered at Josys and InstaSafe.</p>
-    </div>
-    <div class="cards" id="cards"></div>
+  <!-- 4,000 – 6,000 m -->
+  <section class="sec skills" id="skills" data-sec="skills" aria-labelledby="skills-h">
+    <header class="zone">
+      <p class="mono zone-k"><b>05</b> Abyssal zone <span>4,000 – 6,000 m</span></p>
+      <h2 id="skills-h" data-words>The toolkit, <em>all connected.</em></h2>
+    </header>
+    <div class="kit" id="kit"></div>
   </section>
 
-  <div class="band" aria-hidden="true" data-i="2"></div>
-
-  <section class="skills scene" id="skills" data-bg="#2ed3a7" data-fg="#08110e" data-acc="#08110e" data-label="Skills">
-    <div class="skills-head pad">
-      <p class="mono" style="margin-bottom:16px">Skills</p>
-      <h2 class="title" data-split>Technical <em>toolkit</em></h2>
-    </div>
-    <div class="mqs" id="mqs"></div>
-    <div class="cloud-scene" id="cloud" aria-label="The whole toolkit">
-      <span class="ring" aria-hidden="true"></span>
-      <div><p class="mono" style="margin-bottom:12px">All at once</p><h3 class="cloud-title">The whole toolkit, <em>exploded.</em></h3></div>
-      <div class="cloud" id="cloud-chips"></div>
-    </div>
-  </section>
-
-  <div class="band" aria-hidden="true" data-i="3"></div>
-
-  <section class="contact pad scene" id="contact" data-bg="#0d1513" data-fg="#eef3ef" data-acc="#ff5b3a" data-label="Contact">
-    <div>
-      <p class="mono kicker" style="margin-bottom:5vh">Contact</p>
-      <h2 class="px" id="px" aria-label="Let's build something worth shipping.">Let's build something <em>worth shipping.</em></h2>
-    </div>
-    <div class="contact-grid">
-      <div>
-        <p>Available immediately. Open to senior Backend, Platform and AI roles across the West Midlands, or remote in the UK.</p>
-        <p style="margin-top:34px"><a class="cta mag" href="mailto:abyrocksaji@gmail.com" data-cursor="Write">Say hello</a></p>
+  <!-- 10,935 m -->
+  <section class="sec contact" id="contact" data-sec="contact" aria-labelledby="contact-h">
+    <div class="contact-in">
+      <p class="mono zone-k"><b>06</b> Trench floor <span>10,935 m</span></p>
+      <h2 id="contact-h" data-words>Let's build something <em>worth shipping.</em></h2>
+      <p class="zone-p" data-reveal>Available immediately. Open to senior Backend, Platform and AI roles across the West Midlands, or remote in the UK.</p>
+      <div class="mail" data-reveal>
+        <a class="mail-a" href="mailto:abyrocksaji@gmail.com">abyrocksaji@gmail.com</a>
+        <button class="pill mono" id="copy" type="button">Copy</button>
       </div>
-      <div class="lines">
-        <div><span class="l mono">Email</span><span class="v"><a href="mailto:abyrocksaji@gmail.com" id="email" style="border:0;padding:0;display:inline">abyrocksaji@gmail.com</a><button class="copy" type="button" id="copy-email">Copy</button></span></div>
-        <a href="tel:+447435067875"><span class="l mono">Phone</span><span class="v">+44 7435 067875</span></a>
-        <a href="https://www.linkedin.com/in/aby-saji/" target="_blank" rel="noopener"><span class="l mono">LinkedIn</span><span class="v">linkedin.com/in/aby-saji</span></a>
-        <a href="https://github.com/AbyAbyss" target="_blank" rel="noopener"><span class="l mono">GitHub</span><span class="v">github.com/AbyAbyss</span></a>
-        <a href="Aby_Saji_Pappachan_Technical_Lead.pdf" download="Aby_Saji_Pappachan_Technical_Lead.pdf"><span class="l mono">CV</span><span class="v">Download the PDF ↓</span></a>
-      </div>
+      <ul class="links" data-reveal>
+        <li><span class="mono">Phone</span><a href="tel:+447435067875">+44 7435 067875</a></li>
+        <li><span class="mono">LinkedIn</span><a href="https://www.linkedin.com/in/aby-saji/" target="_blank" rel="noopener">linkedin.com/in/aby-saji ↗</a></li>
+        <li><span class="mono">GitHub</span><a href="https://github.com/AbyAbyss" target="_blank" rel="noopener">github.com/AbyAbyss ↗</a></li>
+        <li><span class="mono">CV</span><a href="Aby_Saji_Pappachan_Technical_Lead.pdf" download>Download the PDF ↓</a></li>
+      </ul>
     </div>
-    <footer class="foot">
-      <span>Aby Saji Pappachan · Technical Lead · Backend &amp; AI Engineer · Walsall, West Midlands</span>
+    <footer class="foot mono">
+      <span>Aby Saji Pappachan · Technical Lead · Backend &amp; AI Engineer</span>
+      <a href="dive.html">See the straight-dive version →</a>
+      <a href="#top" id="ascend">Ascend ↑</a>
     </footer>
   </section>
+
 </main>
 
-<script src="vendor/gsap.min.js"></script>
-<script src="vendor/ScrollTrigger.min.js"></script>
+<div class="cursor" id="cursor" aria-hidden="true"><i></i></div>
+
+<noscript><style>.boot{display:none}[data-reveal],[data-words]{opacity:1!important;transform:none!important}</style></noscript>
 <script src="vendor/lenis.min.js"></script>
-<script>
-(function () {
-  "use strict";
-                var R = "https://raw.githubusercontent.com/AbyAbyss/";
-                var OSS = [
-                    {
-                        name: "AgentKit",
-                        meta: "Agent Runtime SDK \u00b7 TypeScript",
-                        priv: true,
-                        soon: true,
-                        site: {
-                            href: "agentkit/",
-                            label: "Visit the site",
-                        },
-                        docs: {
-                            href: "agentkit/docs/getting-started/",
-                            label: "Read the docs",
-                        },
-                        link: {
-                            href: "agentkit/#tour",
-                            label: "Watch the 40 second tour",
-                        },
-                        desc:
-                            "A config-first headless agent runtime for TypeScript, being prepared for an open-source release under the MIT licence. Multi-provider with " +
-                            "mid-session model hot-swapping, full MCP support over stdio and HTTP, human-in-the-loop plan mode " +
-                            "and approval gates, and a record-and-replay harness so agent behaviour is tested deterministically " +
-                            "in CI with no API keys and no spend.",
-                        tech: [
-                            "TypeScript",
-                            "Node.js",
-                            "MCP",
-                            "Zod",
-                            "Turborepo",
-                            "SSE",
-                        ],
-                        fit: true,
-                        shots: [
-                            "shots/agentkit/tour-poster.jpg",
-                            "shots/agentkit/banner.svg",
-                            "shots/agentkit/architecture.svg",
-                        ],
-                    },
-                    {
-                        name: "Helpy",
-                        meta: "AI Desktop Companion \u00b7 Tauri + Rust",
-                        repo: "https://github.com/AbyAbyss/helpy",
-                        site: {
-                            href: "helpy/",
-                            label: "Visit the site",
-                        },
-                        link: {
-                            href: "helpy/#tour",
-                            label: "Watch the 45 second tour",
-                        },
-                        desc:
-                            "An AI companion that lives next to your cursor. Ask out loud and it looks at your screen, then " +
-                            "highlights the real button, draws arrows and lines over your apps, and walks you through step by step. " +
-                            "Say a task and it plans background agents, asks before anything risky, and can undo every file change. " +
-                            "Works with Anthropic, OpenAI, Gemini or a local model, on macOS, Windows and Linux. Open source: the code is " +
-                            "public, there are no prebuilt installers yet, and you build it from source with your own model key.",
-                        tech: [
-                            "Rust",
-                            "Tauri",
-                            "React",
-                            "TypeScript",
-                            "MCP",
-                            "Whisper",
-                        ],
-                        shots: [
-                            "notch.png",
-                            "hero.jpg",
-                            "walkthrough.png",
-                            "plan-card.png",
-                            "card-dark.png",
-                        ].map(function (s) {
-                            return "shots/helpy/" + s;
-                        }),
-                    },
-                    {
-                        name: "ffmpeg-mcp",
-                        meta: "MCP Video Editor \u00b7 Python",
-                        repo: "https://github.com/AbyAbyss/ffmpeg-mcp-video-editor",
-                        desc:
-                            "Gives any MCP client a real video editor: 38 typed tools over ffmpeg, Whisper and MediaPipe " +
-                            "instead of a shell escape hatch. Non-blocking jobs with real ffmpeg progress and working cancel, " +
-                            "face-tracked landscape-to-vertical reframing, word-level auto-captioning, and whole-timeline " +
-                            "renders in a single pass. 727 tests, and the unit suite runs with no ffmpeg installed.",
-                        tech: [
-                            "Python",
-                            "MCP",
-                            "FFmpeg",
-                            "Whisper",
-                            "OpenCV",
-                        ],
-                        fit: true,
-                        shots: [
-                            "banner",
-                            "reframe",
-                            "architecture",
-                        ].map(function (s) {
-                            return (
-                                R +
-                                "ffmpeg-mcp-video-editor/main/docs/" +
-                                s +
-                                ".svg"
-                            );
-                        }),
-                    },
-                    {
-                        name: "redis_gui",
-                        meta: "Redis Client \u00b7 Go + React",
-                        repo: "https://github.com/AbyAbyss/redis_gui",
-                        site: {
-                            href: "redis_gui",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "A full Redis GUI that ships as one static Go binary and runs as a local web app, a native desktop " +
-                            "app, or headless in Docker. SCAN keyspace browser with per-type viewers, 1 Hz metrics, a coalesced " +
-                            "MONITOR stream and a memory analyzer over WebSocket, plus RBAC, an audit log and AES-256-GCM " +
-                            "encrypted credentials.",
-                        tech: [
-                            "Go",
-                            "Redis",
-                            "React",
-                            "TypeScript",
-                            "WebSockets",
-                            "SQLite",
-                        ],
-                        shots: [
-                            "keyspace",
-                            "workbench",
-                            "cli",
-                            "monitor",
-                            "metrics",
-                            "memory",
-                        ].map(function (s) {
-                            return (
-                                R +
-                                "redis_gui/main/docs/screenshots/" +
-                                s +
-                                ".png"
-                            );
-                        }),
-                    },
-                    {
-                        name: "term-rest-client",
-                        meta: "API Client \u00b7 Go TUI + Web",
-                        repo: "https://github.com/AbyAbyss/cli-rest-client",
-                        site: {
-                            href: "term-rest-client",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "An API client for REST, GraphQL, Server-Sent Events and WebSocket, run as rest in the " +
-                            "terminal or, with rest -gui, in the browser (requests still run in Go, so no CORS). Collections " +
-                            "with nested folders, environments, history, one-line tests and pre-request scripts, Postman " +
-                            "and cURL import and export, code snippets in five languages, and load testing with ramping " +
-                            "virtual users, live charts and pass/fail thresholds. One static Go binary that also fails CI " +
-                            "when a test or threshold fails.",
-                        tech: ["Go", "tview", "tcell", "GraphQL", "WebSocket", "Load testing", "Vanilla JS", "Playwright"],
-                        shots: ["main", "gui", "gui-load", "graphql-schema", "streaming", "websocket", "loadtest", "code"].map(function (s) {
-                            return "assets/term-rest-client/" + s + ".webp";
-                        }),
-                    },
-                    {
-                        name: "ANIMATRON",
-                        meta: "Animation Studio \u00b7 React",
-                        priv: true,
-                        link: {
-                            href: "animator/",
-                            label: "Open the live app",
-                        },
-                        desc:
-                            "A browser-based SVG character animation studio: rig characters, animate them on a multi-track " +
-                            "timeline, sync lips to audio and export, with no install and no server. Anatomically pivoted joint " +
-                            "rigs, RMS-driven auto lip sync, deterministic particle effects, and an AI co-pilot whose output is " +
-                            "validated against the renderer's real enums so it can never corrupt undo/redo.",
-                        tech: [
-                            "React",
-                            "TypeScript",
-                            "SVG",
-                            "Web Audio",
-                            "Zustand",
-                            "Claude + GPT-4o",
-                        ],
-                        shots: [
-                            "shots/animator/editor.png",
-                            "shots/animator/ai-critic.png",
-                            "shots/animator/effects.png",
-                            "shots/animator/architecture.svg",
-                        ],
-                    },
-                    {
-                        name: "ReelForge",
-                        meta: "AI Video Generator \u00b7 Python",
-                        priv: true,
-                        desc:
-                            "A local-first AI faceless-video generator: a topic, story or script becomes a scene plan, visuals, " +
-                            "narration, word-timed captions and a finished 1080\u00d71920 MP4. Clip mode turns one long video into " +
-                            "several shorts using local Whisper, LLM-picked moments snapped to speech boundaries, and a 9:16 crop " +
-                            "centred on the speaker via median-of-12-frames YuNet face detection.",
-                        tech: [
-                            "Python",
-                            "FastAPI",
-                            "Next.js",
-                            "FFmpeg",
-                            "Whisper",
-                            "OpenCV",
-                        ],
-                        shots: [
-                            "create-topic.png",
-                            "editor.png",
-                            "clip-real-footage.jpg",
-                            "clip-face-crop.jpg",
-                            "create-ideas.png",
-                            "library.png",
-                            "upload.png",
-                        ].map(function (s) {
-                            return "shots/reelforge/" + s;
-                        }),
-                    },
-                    {
-                        name: "dockman",
-                        meta: "Docker Manager \u00b7 Tauri",
-                        repo: "https://github.com/AbyAbyss/dockman",
-                        site: {
-                            href: "dockman",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "A native desktop app that drives Docker and Podman side by side from one window: containers, " +
-                            "images, volumes, networks, builds and the runtime binaries themselves. An interactive shell into any " +
-                            "running container, a network topology map with live bandwidth, a build layer waterfall, and automatic " +
-                            "Docker retry when a Podman run hits an architecture mismatch.",
-                        tech: ["Rust", "Tauri", "React", "TypeScript", "Docker", "Podman"],
-                        shots: [
-                            "dashboard",
-                            "containers",
-                            "images",
-                            "volumes",
-                            "networks",
-                            "builds",
-                            "binaries",
-                            "run-container",
-                            "run-container-progress",
-                            "settings",
-                        ].map(function (s) {
-                            return (
-                                R +
-                                "dockman/main/docs/screenshots/" +
-                                s +
-                                ".png"
-                            );
-                        }),
-                    },
-                    {
-                        name: "sandkit",
-                        meta: "Code Playground SDK \u00b7 TypeScript",
-                        repo: "https://github.com/AbyAbyss/sandkit",
-                        site: {
-                            href: "sandkit/",
-                            label: "Try it live",
-                        },
-                        desc:
-                            "Embed a multi-language code playground in any React app with a single component. JavaScript and " +
-                            "Python run entirely in the browser on QuickJS and Pyodide (~50ms, no API key, code never leaves " +
-                            "the machine), while Go, Rust and Bash execute on a self-hosted Piston engine behind a Hono API and " +
-                            "a BullMQ queue. Ships with key management, usage metering and Stripe billing.",
-                        tech: [
-                            "TypeScript",
-                            "Hono",
-                            "WebAssembly",
-                            "Turborepo",
-                            "Pyodide",
-                            "QuickJS",
-                        ],
-                        fit: true,
-                        shots: ["sandkit.svg"],
-                    },
-                    {
-                        name: "DevConnect",
-                        meta: "All-in-one Dev Tool \u00b7 Tauri",
-                        priv: true,
-                        desc:
-                            "A developer desktop app combining a multi-database client, a REST client, a rich document editor " +
-                            "and a VSCode-style plugin system. MySQL, PostgreSQL, SQLite, MongoDB and Redis behind one UI with " +
-                            "IntelliSense and a schema explorer, plus docs where live database queries and REST requests embed " +
-                            "as blocks. Shipped through CI with parallel stable and alpha channels.",
-                        tech: [
-                            "Rust",
-                            "Tauri",
-                            "React",
-                            "TypeScript",
-                            "PostgreSQL",
-                            "MongoDB",
-                        ],
-                        shots: ["shots/devconnect.svg"],
-                    },
-                    {
-                        name: "GraceTrack",
-                        meta: "Offline-first Mobile App \u00b7 Flutter",
-                        priv: true,
-                        desc:
-                            "An offline-first giving tracker with no backend, no accounts and no analytics. Data lives on the " +
-                            "device and, optionally, in the user's own Google Sheet through a drive.file scope that can only see " +
-                            "the one file it created. Rule-based income splits stored as immutable snapshots, recurrence " +
-                            "detection, timezone- and OEM-aware notifications, and honest multi-currency handling.",
-                        tech: [
-                            "Flutter",
-                            "Dart",
-                            "Riverpod",
-                            "Drift/SQLite",
-                            "OAuth",
-                        ],
-                        fit: true,
-                        shots: [
-                            "shots/gracetrack/screen-home.svg",
-                            "shots/gracetrack/screen-entry.svg",
-                            "shots/gracetrack/screen-reports.svg",
-                            "shots/gracetrack/screen-history.svg",
-                            "shots/gracetrack/privacy.svg",
-                        ],
-                    },
-                    {
-                        name: "Yankit",
-                        meta: "macOS Utility \u00b7 Swift",
-                        repo: "https://github.com/AbyAbyss/Yankit",
-                        site: {
-                            href: "Yankit",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "A fast, free, open-source macOS clipboard manager. It remembers the text, images and files you " +
-                            "copy and pastes any of them back with \u2318\u21e7V. History lives in SQLite with payloads on disk rather " +
-                            "than in RAM, so it idles around 40 MB, and it deliberately skips password-manager content and stays " +
-                            "out of Spotlight and Time Machine.",
-                        tech: ["Swift", "SwiftUI", "AppKit", "macOS", "SQLite"],
-                        fit: true,
-                        shots: [
-                            "shots/yankit/hero.jpg",
-                            "shots/yankit/panel.png",
-                            "shots/yankit/preview.gif",
-                            "shots/yankit/peek.png",
-                            "shots/yankit/settings.png",
-                            "shots/yankit/architecture.svg",
-                        ],
-                    },
-                    {
-                        name: "wimys_crumb",
-                        meta: "Disk Scanner \u00b7 Swift",
-                        repo: "https://github.com/AbyAbyss/wimys_crumb",
-                        site: {
-                            href: "wimys_crumb",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "A macOS disk-space scanner that walks ~5M files in a few minutes and shows exactly where the space " +
-                            "went. The scan tree streams into SQLite on disk rather than memory, so browsing a 5M-file scan stays " +
-                            "under 200 MB resident. Groups every node_modules, DerivedData and Caches across the whole drive, and " +
-                            "funnels all deletes through one protected-path-aware service with Undo.",
-                        tech: ["Swift", "SwiftUI", "GRDB", "SQLite", "macOS"],
-                        fit: true,
-                        shots: [
-                            "overview",
-                            "architecture",
-                        ].map(function (s) {
-                            return R + "wimys_crumb/main/docs/" + s + ".svg";
-                        }),
-                    },
-                    {
-                        name: "InkTerm",
-                        meta: "AI Terminal \u00b7 Tauri",
-                        repo: "https://github.com/AbyAbyss/InkTerm",
-                        site: {
-                            href: "inkterm",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "A cross-platform desktop terminal with a stylized UI: multi-tab sessions, a file-browser overlay, " +
-                            "live CPU/memory/network stats, an AI agent panel and MCP server management with per-server tool " +
-                            "toggles. Five themes in a frameless transparent window. Still in active development.",
-                        tech: ["Rust", "Tauri", "React", "TypeScript", "MCP"],
-                        shots: [
-                            "terminal",
-                            "ai-agent",
-                            "mcp",
-                            "retro-mcp",
-                            "dark-pro",
-                            "settings",
-                        ].map(function (s) {
-                            return (
-                                R +
-                                "InkTerm/main/docs/screenshots/" +
-                                s +
-                                ".png"
-                            );
-                        }),
-                    },
-                    {
-                        name: "WALLE",
-                        meta: "AI Desktop Companion \u00b7 Tauri + Rust",
-                        repo: "https://github.com/AbyAbyss/my_walle",
-                        site: {
-                            href: "walle",
-                            label: "Visit the site",
-                        },
-                        desc:
-                            "A desktop AI companion that lives in the corner of your screen. Press Ctrl+Shift+Space, ask it to open " +
-                            "an app or check git status, and it answers in a speech bubble with a face to match. Two mascots, a robot " +
-                            "and a parrot, with seven emotions each. An early experiment from March 2026, no longer in active development.",
-                        tech: ["Rust", "Tauri", "React", "TypeScript"],
-                        shots: [R + "my_walle/main/docs/images/desktop.jpg"],
-                    },
-                    {
-                        name: "PrivateVault",
-                        meta: "Encrypted Vault \u00b7 Flutter",
-                        priv: true,
-                        desc:
-                            "A cross-platform privacy vault that encrypts media on the device and stores it in the user's own " +
-                            "Google Drive appdata folder, hidden from the normal Drive UI. Vault encryption is independent of " +
-                            "the device lock screen, so the blobs are useless without the passphrase, and decrypted data is " +
-                            "never written to disk. Ships a documented container format and a standalone CLI decryptor.",
-                        tech: [
-                            "Flutter",
-                            "Dart",
-                            "AES",
-                            "Argon2",
-                            "OAuth",
-                            "Google Drive API",
-                        ],
-                        fit: true,
-                        shots: ["shots/privatevault.svg"],
-                    },
-                ];
-                var WORK = [
-                    {
-                        name: "LLM & MCP Platform",
-                        org: "Josys",
-                        meta: "AI / LLM Systems",
-                        desc:
-                            "An internal LLM platform for context-aware retrieval across production data, with a graph database " +
-                            "for semantic querying. Saved the team 8 hours a week with 60% less manual querying. MCP clients and " +
-                            "servers cut integration time for new services from 2 weeks to 2 days.",
-                        tech: ["LLMs", "RAG", "LangChain", "MCP", "Graph DB", "Node.js"],
-                    },
-                    {
-                        name: "Analytics Platform",
-                        org: "Josys",
-                        meta: "Data &amp; Analytics",
-                        desc:
-                            "A reporting and analytics stack: Airbyte ingestion, DuckDB for columnar analytics and Apache Airflow " +
-                            "for orchestration. About 70% faster queries above 50M rows, 45% lower infrastructure cost, and " +
-                            "reports down from 25 minutes to under 2.",
-                        tech: ["Airbyte", "DuckDB", "Apache Airflow", "Python", "ETL"],
-                    },
-                    {
-                        name: "Notification Platform",
-                        org: "Josys",
-                        meta: "Platform Engineering",
-                        desc:
-                            "One notification service handling 50,000 messages a day, consolidating 8 separate flows across " +
-                            "email, Slack and Teams, on REST and AWS SQS. Built as part of rolling out NestJS as the standard " +
-                            "across 12+ microservices, which cut onboarding from 6 weeks to 3.",
-                        tech: ["NestJS", "TypeScript", "AWS SQS", "Slack", "Microsoft Teams"],
-                    },
-                    {
-                        name: "Enterprise Browser Extension",
-                        org: "Josys",
-                        meta: "Web Extensions",
-                        desc:
-                            "A browser extension serving over 2 million users from one codebase across Chromium and Firefox, " +
-                            "supporting Manifest V2 and V3, with silent activation for enterprise deployment.",
-                        tech: ["TypeScript", "WebExtensions", "Chromium", "Firefox"],
-                    },
-                    {
-                        name: "SaaS Simulation Framework",
-                        org: "Josys",
-                        meta: "Testing Infrastructure",
-                        desc:
-                            "Simulates 300+ integrated SaaS providers for testing at scale. Cut testing infrastructure cost 35%, " +
-                            "never needed a bug fix, and became the customer-facing production sandbox.",
-                        tech: ["Node.js", "Golang", "AWS ECS", "Docker"],
-                    },
-                    {
-                        name: "Security Scanning Service",
-                        org: "Josys",
-                        meta: "Security · Team lead",
-                        desc:
-                            "Led the security project and team: a Go service that orchestrates Semgrep, Gitleaks and Trivy " +
-                            "across the company's GitHub repository estate.",
-                        tech: ["Go", "Semgrep", "Gitleaks", "Trivy", "GitHub"],
-                    },
-                    {
-                        name: "GraphQL Multi-DB Platform",
-                        org: "Josys",
-                        meta: "GraphQL · Multi-DB",
-                        desc:
-                            "A multi-database GraphQL platform with automatic schema generation, unifying MySQL, MongoDB and " +
-                            "PostgreSQL behind one API with dynamic filter conversion.",
-                        tech: ["GraphQL", "NestJS", "MySQL", "MongoDB", "PostgreSQL"],
-                    },
-                    {
-                        name: "ZTNA Solution",
-                        org: "InstaSafe",
-                        meta: "Security · R&amp;D",
-                        desc:
-                            "A Zero Trust Network Access product built from scratch: a cross-platform desktop client plus a " +
-                            "gateway server for agentless access to private web apps. Helped bring in 10+ enterprise customers " +
-                            "and cut customer onboarding time 40%.",
-                        tech: ["Node.js", "Spring Boot", "ZTNA", "Secure Gateway"],
-                    },
-                    {
-                        name: "Dev-Connector",
-                        org: "Side project",
-                        meta: "Desktop · P2P",
-                        desc:
-                            "A decentralised, privacy-first API client that needs no server: a Tauri (Rust) desktop shell with " +
-                            "GunDB peer-to-peer sync. REST and GraphQL today, gRPC planned.",
-                        tech: ["React", "Tauri", "Rust", "GunDB"],
-                    },
-                ];
-                var SKILLS = [
-                    ["Languages", ["TypeScript", "JavaScript", "Node.js", "Go", "Python", "Java", "SQL", "Lua"]],
-                    ["Backend", ["NestJS", "Spring Boot", "FastAPI", "REST", "GraphQL", "Microservices", "Event-driven architecture"]],
-                    ["Web & Client", ["React", "Next.js", "Angular", "Electron", "Tauri", "Cross-browser extensions"]],
-                    ["Cloud & Infra", ["AWS (ECS, SQS, SNS, S3)", "Docker", "Kubernetes", "CI/CD"]],
-                    ["Data & Search", ["PostgreSQL", "MySQL", "MongoDB", "OpenSearch", "Redis", "Airflow", "Airbyte", "DuckDB"]],
-                    ["AI & LLM", ["MCP", "LLMs", "RAG", "LangChain", "AI agents"]],
-                    ["Security", ["Zero Trust Network Access", "WireGuard", "Semgrep", "Gitleaks", "Trivy"]],
-                ];
-
-
-  var $ = function (s, r) { return (r || document).querySelector(s); };
-  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
-  var esc = function (s) { return String(s).replace(/&(?!amp;|lt;|gt;|#)/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); };
-  var byName = function (n) { return OSS.filter(function (p) { return p.name === n; })[0]; };
-
-  /* ---------- Content that comes from data ---------- */
-  var STACK = ["AgentKit", "Helpy", "Yankit", "wimys_crumb", "term-rest-client", "ANIMATRON", "ReelForge", "sandkit"].map(byName);
-  var SITES = [
-    ["redis_gui", "assets/redis_gui/keyspace.webp", "A Redis GUI in one static Go binary. Browse the keyspace, run commands, watch live metrics and the MONITOR stream."],
-    ["dockman", "assets/dockman/dashboard.webp", "Docker and Podman side by side in one native window, with a shell into any container and a build layer waterfall."],
-    ["InkTerm", "assets/inkterm/terminal.webp", "A desktop terminal with tabs, live system stats, five themes and an MCP panel. Still in development.", "In development"],
-    ["WALLE", "assets/walle/mascots.webp", "A little desktop companion in the corner of your screen, a robot or a parrot. An early experiment.", "Early experiment"]
-  ].map(function (r) { var p = byName(r[0]); p.thumb = r[1]; p.blurb = r[2]; p.status = r[3] || ""; return p; });
-  var INDEX = OSS.filter(function (p) { return STACK.indexOf(p) < 0 && SITES.indexOf(p) < 0; });
-  var rank = function (p) { return p.priv ? 2 : 1; };
-  INDEX = INDEX.map(function (p, i) { return [p, i]; }).sort(function (a, b) { return rank(a[0]) - rank(b[0]) || a[1] - b[1]; }).map(function (x) { return x[0]; });
-
-  function linksOf(p) {
-    var o = [];
-    if (p.site) o.push('<a href="' + p.site.href + '" data-cursor="Open">' + esc(p.site.label) + " ↗</a>");
-    if (p.docs) o.push('<a href="' + p.docs.href + '" data-cursor="Open">' + esc(p.docs.label) + " ↗</a>");
-    if (p.link) o.push('<a href="' + p.link.href + '" data-cursor="Open">' + esc(p.link.label) + " ↗</a>");
-    if (p.repo) o.push('<a href="' + p.repo + '" target="_blank" rel="noopener" data-cursor="Open">View on GitHub ↗</a>');
-    return o.length ? '<div class="plinks">' + o.join("") + "</div>" : "";
-  }
-  var pad2 = function (n) { return (n < 10 ? "0" : "") + n; };
-  $("#stack").innerHTML = STACK.map(function (p, i) {
-    return '<article class="pcard" style="--i:' + i + '"><span class="tape" aria-hidden="true"></span><span class="shade"></span>' +
-      '<span class="pcount">' + pad2(i + 1) + " / " + pad2(STACK.length) + "</span>" +
-      '<div class="pframe' + (p.fit ? " fit" : "") + '"><img loading="lazy" src="' + p.shots[0] + '" alt="' + esc(p.name) + ' screenshot"></div>' +
-      '<div class="pbody"><p class="mono">' + p.meta + "</p>" + (p.soon ? '<span class="badge-priv soon">Private, open source soon</span>' : p.priv ? '<span class="badge-priv">Private</span>' : p.repo ? '<span class="badge-oss">Open source</span>' : "") +
-      '<h3 class="pname">' + esc(p.name) + '</h3><p class="pdesc">' + esc(p.desc) + "</p>" +
-      '<div class="ptech">' + p.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" + linksOf(p) + "</div></article>";
-  }).join("");
-  $("#sites-count").textContent = SITES.length + " with a site";
-  $("#sites").innerHTML = SITES.map(function (p) {
-    return '<article class="scard"><span class="tape" aria-hidden="true"></span>' +
-      '<div class="sf"><img loading="lazy"' + (p.name === "WALLE" ? ' class="mascots"' : "") + ' src="' + p.thumb + '" alt="' + esc(p.name) + (p.name === "WALLE" ? ", the robot and the parrot" : " screenshot") + '"></div>' +
-      '<div class="sb"><p class="mono">' + p.meta + "</p><h4>" + esc(p.name) + "</h4>" +
-      '<div class="stamps"><span class="tg oss">Open source</span>' + (p.status ? '<span class="tg wip">' + esc(p.status) + "</span>" : "") + "</div>" +
-      '<p class="blurb">' + esc(p.blurb) + "</p>" +
-      '<div class="ptech">' + p.tech.slice(0, 4).map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div>" +
-      '<div class="sl"><a class="go" href="' + p.site.href + '" aria-label="Visit the ' + esc(p.name) + ' site" data-cursor="Open site">Visit the site ↗</a>' +
-      '<a class="gh" href="' + p.repo + '" target="_blank" rel="noopener" data-cursor="Open">GitHub ↗</a></div></div></article>';
-  }).join("");
-  $("#idx-count").textContent = INDEX.length + " more";
-  var GROUPS = { 1: "Open source on GitHub", 2: "Private for now" };
-  var gcount = { 1: 0, 2: 0 }; INDEX.forEach(function (p) { gcount[rank(p)]++; });
-  var lastRank = 0;
-  $("#idx").innerHTML = INDEX.map(function (p, i) {
-    var href = p.site ? p.site.href : p.repo || "";
-    var tag = href ? "a" : "div", r = rank(p), head = "";
-    if (r !== lastRank) { lastRank = r; head = '<div class="idx-group"><span>' + GROUPS[r] + "</span><b>" + gcount[r] + "</b></div>"; }
-    var stamp = p.priv ? '<span class="tg priv">Private</span>' : '<span class="tg oss">Open source</span>';
-    return head + "<" + tag + ' class="row" ' + (href ? 'href="' + href + '"' + (p.repo && !p.site ? ' target="_blank" rel="noopener"' : "") : "") + ' data-peek="' + i + '" data-cursor="View">' +
-      '<span class="n">' + pad2(i + 1) + '</span><span class="nm">' + esc(p.name) + "</span><span class=\"mt\">" + p.meta + stamp + '</span><span class="tc">' + p.tech.slice(0, 4).join(" · ") + "</span></" + tag + ">";
-  }).join("");
-  $("#cards").innerHTML = WORK.map(function (w) {
-    return '<article class="card"><p class="org mono">' + esc(w.org) + " · " + w.meta + "</p><h3>" + esc(w.name) + "</h3><p>" + esc(w.desc) + '</p><div class="ptech">' + w.tech.map(function (t) { return "<span>" + esc(t) + "</span>"; }).join("") + "</div></article>";
-  }).join("");
-  $("#mqs").innerHTML = SKILLS.map(function (g) {
-    var run = g[1].map(function (s) { return "<span>" + esc(s) + "<i>✦</i></span>"; }).join("");
-    return '<div class="mq" aria-hidden="true"><p class="mq-label hand">' + esc(g[0]) + '</p><div class="mq-view"><div class="mq-in">' + run + run + "</div></div></div>";
-  }).join("");
-  // Every skill as a paper chip, shuffled with a fixed seed so the mix is the same each visit.
-  var seed = 11, rnd = function () { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-  var chipData = [];
-  SKILLS.forEach(function (g, gi) { g[1].forEach(function (t) { chipData.push([t, gi % 7]); }); });
-  for (var ci = chipData.length - 1; ci > 0; ci--) { var cj = Math.floor(rnd() * (ci + 1)), tmp = chipData[ci]; chipData[ci] = chipData[cj]; chipData[cj] = tmp; }
-  $("#cloud-chips").innerHTML = chipData.map(function (c) { return '<span class="chip c' + c[1] + '"><span class="chip-i">' + esc(c[0]) + "</span></span>"; }).join("");
-  var BANDS = [
-    "Owning products end to end <i>✦</i> Backend <i>✦</i> Platform <i>✦</i> AI <i>✦</i>",
-    "Shipped <i>✦</i> Shipping <i>✦</i> Shipping next <i>✦</i>",
-    "Platforms <i>✦</i> Data <i>✦</i> LLMs <i>✦</i> MCP <i>✦</i>",
-    "Let's talk <i>✦</i> Available now <i>✦</i>"
-  ];
-
-  /* ---------- Anatomy: a developer's laptop, drawn as isometric slabs ---------- */
-  var ANAT = [
-    ["Interface", "Display", "The surface people touch: React, Next.js and a browser extension serving 2M+ users."],
-    ["Product", "Keyboard", "Owning products end to end, from the first prototype to enterprise customers."],
-    ["Services", "Logic board", "NestJS, Spring Boot and FastAPI microservices, each chip with one job."],
-    ["AI", "AI chip", "LLM platforms, RAG, MCP clients and servers, and AI agents."],
-    ["Data", "Memory and storage", "PostgreSQL, MongoDB, OpenSearch, Redis, Airflow and DuckDB."],
-    ["APIs and events", "Ports and radios", "REST and GraphQL contracts, plus event-driven systems on AWS SQS and SNS at 50,000 messages a day."],
-    ["Infrastructure", "Battery and cooling", "AWS ECS, Docker, Kubernetes and CI/CD, with the load tests that keep it honest."],
-    ["Security", "Case", "Zero Trust networking, Semgrep, Gitleaks and Trivy, sealed in."]
-  ];
-  (function () {
-    var SIN = 0.4, R2 = 0.70711, W = 480, D = 300, MID = 600, GAP = 22, SPREAD = 118;
-    var ISO = "matrix(" + R2 + " " + f2(R2 * SIN) + " " + -R2 + " " + f2(R2 * SIN) + " 0 0)";
-    function f2(n) { return Math.round(n * 10000) / 10000; }
-    var f = function (n) { return Math.round(n * 10) / 10; };
-    var P = function (x, y) { return [R2 * (x - y), R2 * SIN * (x + y)]; };
-    var at = function (v) { return f(v[0]) + " " + f(v[1]); };
-    var rect = function (x, y, w, h, fill, o) { o = o || {}; return '<rect x="' + f(x) + '" y="' + f(y) + '" width="' + f(w) + '" height="' + f(h) + '"' + (o.rx ? ' rx="' + o.rx + '"' : "") + ' fill="' + fill + '"' + (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 1.5) + '"' : "") + (o.cls ? ' class="' + o.cls + '"' : "") + "/>"; };
-    var circ = function (x, y, r, fill, o) { o = o || {}; return '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="' + f(r) + '" fill="' + fill + '"' + (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 1.5) + '"' : "") + (o.dash ? ' stroke-dasharray="' + o.dash + '"' : "") + "/>"; };
-    var line = function (x1, y1, x2, y2, stroke, sw, extra) { return '<line x1="' + f(x1) + '" y1="' + f(y1) + '" x2="' + f(x2) + '" y2="' + f(y2) + '" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linecap="round"' + (extra || "") + "/>"; };
-    var poly = function (pts, stroke, sw) { return '<polyline points="' + pts.map(function (q) { return q[0] + "," + q[1]; }).join(" ") + '" fill="none" stroke="' + stroke + '" stroke-width="' + sw + '" stroke-linejoin="round" stroke-linecap="round"/>'; };
-    var txt = function (x, y, str, size, fill, o) { o = o || {}; return '<text x="' + f(x) + '" y="' + f(y) + '" font-size="' + size + '" fill="' + fill + '" text-anchor="middle"' + (o.ls ? ' letter-spacing="' + o.ls + '"' : "") + (o.cls ? ' class="' + o.cls + '"' : "") + (o.style ? ' font-style="' + o.style + '"' : "") + ">" + str + "</text>"; };
-    var pins = function (x, y, w, h, col) {
-      var o = "", n = Math.max(3, Math.floor(w / 13)), st = w / n;
-      for (var i = 0; i < n; i++) { var px = x + st * (i + 0.5) - 2; o += rect(px, y - 6, 4, 6, col) + rect(px, y + h, 4, 6, col); }
-      var m = Math.max(3, Math.floor(h / 13)), sv = h / m;
-      for (var j = 0; j < m; j++) { var py = y + sv * (j + 0.5) - 2; o += rect(x - 6, py, 6, 4, col) + rect(x + w, py, 6, 4, col); }
-      return o;
-    };
-    var chip = function (x, y, w, h, label, size) { return pins(x, y, w, h, "#b7c7c1") + rect(x, y, w, h, "#1b2226", { rx: 5, stroke: "#b7c7c1", sw: 1.5 }) + circ(x + 9, y + 9, 3, "#b7c7c1") + txt(x + w / 2, y + h / 2 + size * 0.35, label, size, "#f1f4f2"); };
-
-    var layers = [], lay = function (i, o) {
-      var base = MID + (i - 3.5) * GAP, exp = MID + (i - 3.5) * SPREAD, w = o.w || W, d = o.d || D, t = o.t;
-      var B = P(w / 2, -d / 2), C = P(w / 2, d / 2), L = P(-w / 2, d / 2);
-      var sideR = '<path d="M' + at(B) + "L" + at(C) + "L" + f(C[0]) + " " + f(C[1] + t) + "L" + f(B[0]) + " " + f(B[1] + t) + 'Z" fill="' + o.sideR + '"/>';
-      var sideL = '<path d="M' + at(L) + "L" + at(C) + "L" + f(C[0]) + " " + f(C[1] + t) + "L" + f(L[0]) + " " + f(L[1] + t) + 'Z" fill="' + o.sideL + '"/>';
-      var top = rect(-w / 2, -d / 2, w, d, o.top, { rx: 12, stroke: o.edge, sw: 2 });
-      var lifts = (o.lifts || []).map(function (l) { return '<g class="lift" data-lift="' + l[1] + '"><g transform="' + ISO + '">' + l[0] + "</g></g>"; }).join("");
-      layers.push('<g class="lyr" data-i="' + i + '" data-base="' + f(base) + '" transform="translate(450 ' + f(exp) + ')">' + sideR + sideL + '<g transform="' + ISO + '">' + top + (o.plane || "") + "</g>" + lifts + "</g>");
-    };
-
-    // 0 Display: a code editor
-    var code = [[0, [[90, "#2ed3a7"], [46, "rgba(234,243,245,.7)"]]], [0, [[54, "#ffb648"], [118, "#6ec3ff"]]], [1, [[70, "#ff5b3a"], [64, "rgba(234,243,245,.55)"]]], [2, [[40, "#2ed3a7"], [104, "rgba(234,243,245,.55)"], [30, "#ffb648"]]], [2, [[126, "#6ec3ff"]]], [1, [[30, "#ffb648"], [86, "rgba(234,243,245,.5)"]]], [0, [[62, "#2ed3a7"]]], [0, []], [0, [[104, "#ff5b3a"], [52, "#6ec3ff"]]], [1, [[84, "rgba(234,243,245,.55)"], [44, "#2ed3a7"]]]];
-    var codeSvg = "";
-    code.forEach(function (row, r) { var x = -114 + row[0] * 22, y = -96 + r * 21; row[1].forEach(function (sg) { codeSvg += rect(x, y, sg[0], 9, sg[1], { rx: 3 }); x += sg[0] + 7; }); });
-    var files = ""; for (var fi = 0; fi < 8; fi++) files += rect(-216, -98 + fi * 18, 40 + ((fi * 23) % 34), 7, "rgba(234,243,245,.32)", { rx: 3 });
-    lay(0, { t: 10, top: "#22384a", edge: "#7d98aa", sideR: "#0e1b26", sideL: "#152838", plane: rect(-226, -138, 452, 276, "#0b141d", { rx: 8, stroke: "#2f4a5e" }) + rect(-226, -138, 452, 24, "#152636", { rx: 8 }) + circ(-208, -126, 5, "#ff5b3a") + circ(-192, -126, 5, "#ffb648") + circ(-176, -126, 5, "#2ed3a7") + rect(-226, -114, 96, 252, "#101d2a") + files + codeSvg + rect(-2, 96, 9, 15, "#2ed3a7", { cls: "cur" }) + txt(120, -125, "api.controller.ts", 11, "rgba(234,243,245,.55)") });
-
-    // 1 Keyboard: the keycaps lift off the deck
-    var wells = "", caps = "", KR = [[-118, 13, 26, 14], [-96, 13, 28, 24], [-64, 13, 28, 24], [-32, 12, 30, 24], [0, 11, 31, 24]];
-    KR.forEach(function (r, ri) { var n = r[1], w = r[2], h = r[3], x0 = -(n * (w + 5) - 5) / 2; for (var k = 0; k < n; k++) { var kx = x0 + k * (w + 5), col = ri === 1 && k === 0 ? "#2ed3a7" : ri === 3 && k === n - 1 ? "#ff5b3a" : (ri * 7 + k) % 9 === 0 ? "#ffb648" : "#3a5368"; wells += rect(kx, r[0], w, h, "#0f1a24", { rx: 4 }); caps += rect(kx, r[0], w, h, col, { rx: 4, stroke: "#0e1822", sw: 1 }); } });
-    wells += rect(-158, 32, 316, 24, "#0f1a24", { rx: 4 }); caps += rect(-92, 32, 184, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 }) + rect(-158, 32, 58, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 }) + rect(100, 32, 58, 24, "#3a5368", { rx: 4, stroke: "#0e1822", sw: 1 });
-    lay(1, { t: 14, top: "#1d2f3f", edge: "#5d7a90", sideR: "#0c1720", sideL: "#132534", plane: wells + rect(-84, 74, 168, 62, "#25394a", { rx: 10, stroke: "#5d7a90" }), lifts: [[caps, 46]] });
-
-    // 2 Logic board: five chips, one per service
-    var traces = poly([[-220, 40], [-160, 40], [-130, 70], [-30, 70]], "#2ea58d", 2) + poly([[220, -20], [170, -20], [150, -60]], "#2ea58d", 2) + poly([[-30, 140], [-30, 110]], "#2ea58d", 2) + poly([[-200, -110], [-90, -110], [-60, -80]], "#2ea58d", 2) + poly([[200, 100], [160, 100], [140, 120]], "#2ea58d", 2);
-    var caps2 = ""; for (var ci = 0; ci < 9; ci++) caps2 += circ(-200 + ci * 26, -122, 5, "#0b1a17", { stroke: "#2ea58d", sw: 1.2 });
-    lay(2, { t: 8, top: "#0f3d35", edge: "#2ea58d", sideR: "#06211d", sideL: "#0a2e28", plane: traces + caps2, lifts: [[chip(-150, -76, 120, 120, "SVC", 26) + chip(70, -104, 90, 64, "AUTH", 17) + chip(100, 24, 100, 64, "ORDERS", 15) + chip(-200, 76, 90, 56, "NOTIFY", 14) + chip(0, 82, 80, 50, "API", 17), 36]] });
-
-    // 3 AI chip
-    var nn = line(-190, -20, -84, 0, "#ff8a6a", 2) + line(-190, 70, -84, 20, "#ff8a6a", 2) + line(190, -20, 84, 0, "#ff8a6a", 2) + line(190, 70, 84, 20, "#ff8a6a", 2) + line(0, -130, 0, -86, "#ff8a6a", 2) + line(0, 130, 0, 86, "#ff8a6a", 2);
-    var grid = ""; for (var gi = -2; gi <= 2; gi++) grid += line(gi * 30, -70, gi * 30, 70, "rgba(42,16,8,.55)", 1.2) + line(-70, gi * 30, 70, gi * 30, "rgba(42,16,8,.55)", 1.2);
-    lay(3, { t: 8, top: "#1c2445", edge: "#7f8fe0", sideR: "#0b1027", sideL: "#141b38", plane: nn + '<g class="spin airing"><circle r="112" fill="none" stroke="#ffb648" stroke-width="2" stroke-dasharray="6 9"/></g>', lifts: [[pins(-80, -80, 160, 160, "#d8dcf5") + rect(-80, -80, 160, 160, "#ff5b3a", { rx: 12, stroke: "#ffd0c4", sw: 2 }) + grid + txt(0, 24, "AI", 74, "#2a1008", { cls: "disp" }), 40], [chip(-214, -30, 70, 44, "MCP", 15) + chip(146, -30, 70, 44, "RAG", 15) + chip(-35, 96, 70, 44, "LLM", 15), 22]] });
-
-    // 4 Memory and storage
-    var stick = function (y, tag) { var c = ""; for (var k = 0; k < 8; k++) c += rect(-118 + k * 38, y + 8, 28, 22, "#0d1318", { rx: 3 }); var g = ""; for (var q = 0; q < 26; q++) g += rect(-146 + q * 11.4, y + 38, 8, 8, "#d9aa47"); return rect(-150, y, 300, 48, "#16564a", { rx: 4, stroke: "#2ea58d" }) + c + g + txt(140, y - 6, tag, 11, "#9be3cf").replace('text-anchor="middle"', 'text-anchor="end"'); };
-    var ssd = rect(-140, 74, 220, 66, "#2a3550", { rx: 8, stroke: "#6ec3ff" }) + rect(-130, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(-76, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(-22, 84, 44, 30, "#0d1318", { rx: 3 }) + rect(32, 84, 40, 30, "#0d1318", { rx: 3 }) + txt(-30, 132, "POSTGRES · MONGO · OPENSEARCH", 10, "#9fc3e6");
-    lay(4, { t: 8, top: "#12293a", edge: "#4d90b5", sideR: "#08161f", sideL: "#0d2130", plane: rect(-210, -120, 420, 250, "rgba(255,255,255,.03)", { rx: 8, stroke: "rgba(109,190,255,.25)", sw: 1 }), lifts: [[stick(-112, "REDIS"), 26], [stick(-46, "AIRFLOW · DUCKDB"), 40], [ssd, 54]] });
-
-    // 5 Ports and radios
-    var ports = ""; for (var pi = 0; pi < 3; pi++) ports += rect(-150 + pi * 62, 112, 44, 14, "#0a1218", { rx: 7, stroke: "#9fb4c2" });
-    ports += rect(30, 110, 56, 16, "#0a1218", { rx: 3, stroke: "#9fb4c2" }) + circ(122, 118, 8, "#0a1218", { stroke: "#9fb4c2" });
-    var pk = ""; for (var kk = 0; kk < 4; kk++) pk += rect(-200 + kk * 96, 46, 42, 16, kk % 2 ? "#ffb648" : "#2ed3a7", { rx: 4 });
-    var wifi = '<g transform="translate(0 30)"><path d="M-84 -52A118 118 0 0 1 84 -52" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/><path d="M-56 -26A78 78 0 0 1 56 -26" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/><path d="M-28 -2A40 40 0 0 1 28 -2" fill="none" stroke="#6ec3ff" stroke-width="7" stroke-linecap="round"/>' + circ(0, 16, 7, "#6ec3ff") + "</g>";
-    lay(5, { t: 8, top: "#1a2b35", edge: "#5b8ea8", sideR: "#0a161d", sideL: "#10212b", plane: ports + line(-220, 54, 220, 54, "rgba(159,180,194,.35)", 2) + '<g class="pkg">' + pk + "</g>" + txt(0, -118, "REST · GRAPHQL · SQS · SNS", 14, "#9fc3e6", { ls: 2 }), lifts: [[wifi.replace(/translate/g, "translate"), 40]] });
-
-    // 6 Battery and cooling
-    var cells = ""; for (var bi = 0; bi < 4; bi++) cells += rect(-206 + bi * 58, -88, 50, 176, bi === 3 ? "#12a07d" : "#2ed3a7", { rx: 6 });
-    var blades = ""; for (var bl = 0; bl < 7; bl++) blades += '<path d="M0 0C10 -20 26 -46 22 -70C4 -60 -6 -30 0 0Z" fill="#6ec3ff" fill-opacity=".85" stroke="#0e1a22" stroke-width="1" transform="rotate(' + bl * (360 / 7) + ')"/>';
-    lay(6, { t: 18, top: "#17242f", edge: "#5b7a8a", sideR: "#091219", sideL: "#0f1c26", plane: rect(-222, -104, 240, 208, "#23303b", { rx: 12, stroke: "#5b7a8a" }) + cells + txt(-100, 118, "+   ·   −", 16, "#9fb4c2", { ls: 6 }) + poly([[18, -40], [70, -40], [90, -70]], "#b8c4cc", 8), lifts: [['<g transform="translate(140 -6)">' + circ(0, 0, 88, "#0e1a22", { stroke: "#5b7a8a", sw: 2 }) + '<g class="spin fan"><circle r="80" fill="none" stroke="none"/>' + blades + "</g>" + circ(0, 0, 14, "#dfe6e2", { stroke: "#0e1a22" }) + "</g>", 38]] });
-
-    // 7 Case
-    var vents = ""; for (var vi = 0; vi < 9; vi++) vents += line(70 + vi * 16, -110, 70 + vi * 16, -40, "rgba(8,14,18,.55)", 5);
-    var screws = ""; [[-214, -128], [214, -128], [-214, 128], [214, 128]].forEach(function (s, si) { screws += circ(s[0], s[1], 10, "#8fa1ac", { stroke: "#0b1211" }) + line(s[0] - 6, s[1], s[0] + 6, s[1], "#0b1211", 2, ' transform="rotate(' + si * 41 + " " + s[0] + " " + s[1] + ')"'); });
-    var feet = rect(-170, -104, 62, 26, "#0c1218", { rx: 8 }) + rect(108, -104, 62, 26, "#0c1218", { rx: 8 }) + rect(-170, 78, 62, 26, "#0c1218", { rx: 8 }) + rect(108, 78, 62, 26, "#0c1218", { rx: 8 });
-    var shield = '<path d="M0 -70L62 -46V8C62 46 30 68 0 80C-30 68 -62 46 -62 8V-46Z" fill="rgba(46,211,167,.12)" stroke="#2ed3a7" stroke-width="4" stroke-linejoin="round"/><path d="M-26 6L-6 26L30 -18" fill="none" stroke="#2ed3a7" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>';
-    lay(7, { t: 14, top: "#2b3b47", edge: "#7d98aa", sideR: "#0f1a22", sideL: "#182833", plane: rect(-232, -142, 464, 284, "none", { rx: 8, stroke: "rgba(255,255,255,.14)", sw: 1.5 }) + screws + feet + vents + txt(-100, 118, "ASP", 40, "rgba(255,255,255,.22)", { cls: "disp", style: "italic" }) + txt(110, 116, "ZERO TRUST · SEALED", 11, "rgba(255,255,255,.4)", { ls: 3 }), lifts: [[shield.replace(/^/, '<g transform="translate(-100 -20)">') + "</g>", 34]] });
-
-    var axis = '<line class="axis" x1="450" x2="450" y1="' + f(MID - 3.5 * SPREAD - 120) + '" y2="' + f(MID + 3.5 * SPREAD + 130) + '" stroke="rgba(234,243,245,.5)" stroke-width="2" stroke-dasharray="4 9" opacity="0"/>';
-    $("#machine").innerHTML = '<ellipse class="shd" cx="450" cy="1168" rx="250" ry="22" fill="rgba(0,0,0,.45)"/>' + axis + layers.join("");
-    $("#legend").innerHTML = '<li class="intro mono" id="legend-intro">Scroll to take it apart.</li>' + ANAT.map(function (a, i) { return '<li data-i="' + i + '"><b>' + a[0] + "</b><span><em>" + a[1] + "</em>" + a[2] + "</span></li>"; }).join("");
-  })();
-
-  /* ---------- Small helpers ---------- */
-  function splitChars(el, keepAria) {
-    var t = el.textContent;
-    if (!keepAria) el.setAttribute("aria-label", t);
-    var chars = [];
-    var nodes = [].slice.call(el.childNodes);
-    el.textContent = "";
-    var walk = function (node, parent) {
-      if (node.nodeType === 3) {
-        node.textContent.split(/(\s+)/).forEach(function (part) {
-          if (!part) return;
-          if (/^\s+$/.test(part)) { parent.appendChild(document.createTextNode(" ")); return; }
-          var w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
-          [].slice.call(part).forEach(function (c) { var s = document.createElement("span"); s.className = "ch"; s.textContent = c; w.appendChild(s); chars.push(s); });
-          parent.appendChild(w);
-        });
-      } else if (node.nodeType === 1) {
-        var clone = node.cloneNode(false);
-        parent.appendChild(clone);
-        [].slice.call(node.childNodes).forEach(function (c) { walk(c, clone); });
-      }
-    };
-    nodes.forEach(function (n) { walk(n, el); });
-    return chars;
-  }
-  function splitWords(el) {
-    var words = [];
-    var walk = function (node, parent) {
-      if (node.nodeType === 3) {
-        node.textContent.split(/(\s+)/).forEach(function (part) {
-          if (!part) return;
-          if (/^\s+$/.test(part)) { parent.appendChild(document.createTextNode(" ")); return; }
-          var s = document.createElement("span"); s.className = "wd"; s.textContent = part; parent.appendChild(s); words.push(s);
-        });
-      } else if (node.nodeType === 1) {
-        var clone = node.cloneNode(false); parent.appendChild(clone);
-        [].slice.call(node.childNodes).forEach(function (c) { walk(c, clone); });
-      }
-    };
-    var kids = [].slice.call(el.childNodes); el.textContent = "";
-    kids.forEach(function (n) { walk(n, el); });
-    return words;
-  }
-
-  /* ---------- Copy email (works without motion) ---------- */
-  var copyBtn = $("#copy-email");
-  copyBtn.addEventListener("click", function () {
-    var done = function () { copyBtn.textContent = "Copied"; setTimeout(function () { copyBtn.textContent = "Copy"; }, 1500); };
-    var pick = function () { var r = document.createRange(); r.selectNodeContents($("#email")); var s = getSelection(); s.removeAllRanges(); s.addRange(r); };
-    if (navigator.clipboard) navigator.clipboard.writeText("abyrocksaji@gmail.com").then(done, pick); else pick();
-  });
-
-  /* ---------- Motion ---------- */
-  var root = document.documentElement;
-  if (!root.classList.contains("js") || !window.gsap || !window.ScrollTrigger) { root.classList.remove("js"); return; }
-  root.classList.add("motion");
-  var failsafe = setTimeout(function () { $("#pre").style.display = "none"; if (window.lenis) window.lenis.start(); }, 9000);
-
-  try {
-  gsap.registerPlugin(ScrollTrigger);
-  var lenis = new Lenis({ lerp: 0.09, smoothWheel: true });
-  window.lenis = lenis;
-  lenis.on("scroll", ScrollTrigger.update);
-  gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
-  gsap.ticker.lagSmoothing(0);
-  lenis.stop();
-  $$('a[href^="#"]').forEach(function (a) {
-    a.addEventListener("click", function (e) {
-      var id = a.getAttribute("href");
-      var t = id === "#top" ? 0 : $(id);
-      if (t === null) return;
-      e.preventDefault();
-      lenis.scrollTo(t, { duration: 1.6, easing: function (x) { return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; } });
-    });
-  });
-
-  var finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
-
-  // Letters and titles blow apart in random directions before they land.
-  function blastVars(spread) {
-    return { x: function () { return gsap.utils.random(-spread, spread); }, y: function () { return gsap.utils.random(-spread * 0.6, spread * 0.6); }, rotation: function () { return gsap.utils.random(-140, 140); }, scale: function () { return gsap.utils.random(0.2, 2.4); }, opacity: 0 };
-  }
-
-  /* Cursor */
-  if (finePointer) {
-    var cur = $("#cursor"), curT = $("#cursor-t");
-    var cx = gsap.quickTo(cur, "x", { duration: 0.35, ease: "power3" }), cy = gsap.quickTo(cur, "y", { duration: 0.35, ease: "power3" });
-    addEventListener("pointermove", function (e) { cx(e.clientX); cy(e.clientY); }, { passive: true });
-    document.addEventListener("pointerover", function (e) {
-      var t = e.target.closest("[data-cursor], a, button");
-      if (!t) return;
-      var label = t.getAttribute("data-cursor") || "";
-      curT.textContent = label;
-      gsap.to(cur, { width: label ? 84 : 44, height: label ? 84 : 44, marginLeft: label ? -42 : -22, marginTop: label ? -42 : -22, duration: 0.35, ease: "power3.out" });
-      gsap.to(curT, { opacity: label ? 1 : 0, duration: 0.2 });
-    });
-    document.addEventListener("pointerout", function (e) {
-      if (!e.target.closest("[data-cursor], a, button")) return;
-      gsap.to(cur, { width: 16, height: 16, marginLeft: -8, marginTop: -8, duration: 0.35, ease: "power3.out" });
-      gsap.to(curT, { opacity: 0, duration: 0.15 });
-    });
-  }
-
-  /* Progress rail and scene name, page rotation of the badge */
-  ScrollTrigger.create({ start: 0, end: "max", onUpdate: function (s) { $("#rail").style.transform = "scaleY(" + s.progress.toFixed(4) + ")"; } });
-  gsap.to(".c-badge svg", { rotation: 720, ease: "none", scrollTrigger: { trigger: document.body, start: 0, end: "max", scrub: true } });
-
-  var mm = gsap.matchMedia();
-
-  /* ===== Scene 1: hero, pinned ===== */
-  var nameChars = [];
-  $$("#hero-name .ln").forEach(function (ln) { nameChars = nameChars.concat(splitChars(ln, true)); });
-  var sayWords = splitWords($("#hero-say"));
-  gsap.set(nameChars, { yPercent: 130, rotation: 9, opacity: 0, fontWeight: 420 });
-  gsap.set(sayWords, { opacity: 0, yPercent: 50 });
-  gsap.set("#hero-sub", { opacity: 0, y: 20 });
-  gsap.set(".cut-in", { scale: 0, opacity: 0 });
-  gsap.set(".hero-top, .cue", { opacity: 0 });
-  gsap.set(".nav", { yPercent: -100 });
-
-  var heroTl;
-  mm.add("(min-width: 1px)", function () {
-    var tl = heroTl = gsap.timeline({ scrollTrigger: { trigger: ".hero", start: "top top", end: "+=190%", pin: true, scrub: 0.7, anticipatePin: 1 } });
-    // The name swells as you scroll, then tears apart in opposite directions.
-    tl.to(nameChars, { fontWeight: 900, duration: 0.8, ease: "none", stagger: { each: 0.03, from: "center" } }, 0)
-      .fromTo(".hero-top, .cue", { opacity: 1 }, { opacity: 0, duration: 0.2, immediateRender: false }, 0)
-      .to(".cut", { x: function (i, el) { return (parseFloat(el.dataset.dx) * innerWidth) / 100; }, y: function (i, el) { return (parseFloat(el.dataset.dy) * innerHeight) / 100; }, rotation: function (i, el) { return parseFloat(el.dataset.rot); }, duration: 1.6, ease: "none" }, 0)
-      .fromTo(nameChars, { yPercent: 0, rotation: 0, x: 0, opacity: 1 }, { yPercent: function () { return gsap.utils.random(-150, -60); }, rotation: function () { return gsap.utils.random(-40, 40); }, x: function () { return gsap.utils.random(-120, 120); }, opacity: 0, duration: 0.7, ease: "power2.in", immediateRender: false, stagger: { each: 0.02, from: "random" } }, 0.85)
-      .to(sayWords, { opacity: 1, yPercent: 0, duration: 0.4, ease: "power2.out", stagger: 0.08 }, 1.25)
-      .to("#hero-sub", { opacity: 1, y: 0, duration: 0.4 }, 1.9)
-      .fromTo(".cut-in", { opacity: 1 }, { opacity: 0, duration: 0.4, immediateRender: false }, 2.1)
-      .to({}, { duration: 0.4 });
-  });
-
-  /* ===== Scene 2: manifesto, word by word ===== */
-  $$("[data-scrub]").forEach(function (el) {
-    var w = splitWords(el);
-    gsap.fromTo(w, { opacity: 0.12 }, { opacity: 1, ease: "none", stagger: 0.1, scrollTrigger: { trigger: el, start: "top 80%", end: "bottom 50%", scrub: true } });
-  });
-  gsap.from("[data-fade]", { opacity: 0, y: 50, duration: 1, ease: "power3.out", scrollTrigger: { trigger: "[data-fade]", start: "top 88%", toggleActions: "play none none reverse" } });
-  // The five stats start as a heap in the middle and blow out into place while the page holds still.
-  var statsEl = $("#stats"), statCards = $$(".stat", statsEl), statNat = statCards.map(function (c) { return gsap.getProperty(c, "rotation"); });
-  var tlStats = gsap.timeline({ scrollTrigger: { trigger: statsEl, start: "center center", end: "+=130%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true } });
-  tlStats.fromTo(statCards,
-    { x: function (i, el) { return statsEl.clientWidth / 2 - (el.offsetLeft + el.offsetWidth / 2); }, y: function (i, el) { return statsEl.clientHeight / 2 - (el.offsetTop + el.offsetHeight / 2); }, scale: 0.2, rotation: function (i) { return statNat[i] + (i % 2 ? 1 : -1) * gsap.utils.random(120, 320); }, opacity: 0 },
-    { x: 0, y: 0, scale: 1, rotation: function (i) { return statNat[i]; }, opacity: 1, duration: 1, ease: "expo.out", stagger: { each: 0.16, from: "random" } }, 0);
-  statCards.forEach(function (el, i) {
-    var b = $("b", el), to = parseFloat(b.dataset.to), suffix = b.dataset.suffix || "", o = { v: 0 };
-    b.textContent = "0" + suffix;
-    tlStats.to(o, { v: to, duration: 0.9, ease: "power2.out", onUpdate: function () { b.textContent = Math.round(o.v) + suffix; } }, 0.1 + i * 0.13);
-  });
-  tlStats.to({}, { duration: 0.6 });
-
-
-  /* ===== The laptop: takes itself apart as you scroll, then puts itself back together ===== */
-  (function () {
-    var svg = $("#machine"), L = $$(".lyr", svg), lifts = $$(".lift", svg), legend = $$("#legend li[data-i]"), intro = $("#legend-intro"), axis = $(".axis", svg);
-    var SPREAD = 118, GAP = 22, MIDI = (L.length - 1) / 2, base = L.map(function (l) { return +l.dataset.base; });
-    var apart = function (i) { return base[i] + (i - MIDI) * (SPREAD - GAP); };
-    gsap.set(L, { y: function (i) { return base[i]; } });
-    gsap.set($$(".spin", svg), { transformOrigin: "50% 50%" });
-    var active = -2, HOLD0 = 2.3, HOLD1 = 6.1;
-    function setActive(t) {
-      var a = t < HOLD0 || t > HOLD1 ? -1 : Math.min(ANAT.length - 1, Math.floor((t - HOLD0) / ((HOLD1 - HOLD0) / ANAT.length)));
-      if (a === active) return;
-      active = a;
-      if (a < 0) svg.removeAttribute("data-a"); else svg.setAttribute("data-a", "1");
-      L.forEach(function (l, i) { l.classList.toggle("on", i === a); });
-      legend.forEach(function (li, i) { li.classList.toggle("on", i === a); });
-      intro.classList.toggle("on", a < 0);
-      intro.style.display = a < 0 ? "" : "none";
-      if (a < 0) intro.textContent = t > HOLD1 ? "And back together again." : "Scroll to take it apart.";
-    }
-    var tl = gsap.timeline({ scrollTrigger: { trigger: "#anatomy", start: "top top", end: "+=430%", pin: true, scrub: 0.7, anticipatePin: 1, onUpdate: function (st) { setActive(st.progress * 8); } } });
-    // Apart: the layers slide away from the middle, and the small parts lift off their boards
-    tl.fromTo(L, { y: function (i) { return base[i]; } }, { y: apart, duration: 1.6, ease: "power3.inOut", stagger: { each: 0.06, from: "center" } }, 0.6)
-      .fromTo(lifts, { y: 0 }, { y: function (i, el) { return -el.dataset.lift; }, duration: 1.3, ease: "power3.inOut", stagger: 0.05 }, 1.3)
-      .fromTo(axis, { opacity: 0 }, { opacity: 1, duration: 0.8 }, 1.7)
-      // Back together
-      .fromTo(axis, { opacity: 1 }, { opacity: 0, duration: 0.6, immediateRender: false }, 6.2)
-      .fromTo(lifts, { y: function (i, el) { return -el.dataset.lift; } }, { y: 0, duration: 1.2, ease: "power3.inOut", stagger: { each: 0.05, from: "end" }, immediateRender: false }, 6.3)
-      .fromTo(L, { y: apart }, { y: function (i) { return base[i]; }, duration: 1.5, ease: "power3.inOut", stagger: { each: 0.06, from: "edges" }, immediateRender: false }, 6.4);
-    // Everything that moves, moves with the scroll
-    tl.to($(".fan", svg), { rotation: "+=2160", duration: 8, ease: "none" }, 0)
-      .to($(".airing", svg), { rotation: "+=360", duration: 8, ease: "none" }, 0)
-      .to($(".pkg", svg), { x: 80, duration: 8, ease: "none" }, 0)
-      .to(".shd", { opacity: 0.35, scaleX: 1.25, transformOrigin: "50% 50%", duration: 1.6, ease: "power3.inOut" }, 0.6)
-      .to(".shd", { opacity: 1, scaleX: 1, duration: 1.4, ease: "power3.inOut" }, 6.4);
-    setActive(0);
-  })();
-
-  /* ===== Scene 3: horizontal filmstrip ===== */
-  mm.add("(min-width: 901px)", function () {
-    var track = $("#xp-track"), pin = $(".xp");
-    var dist = function () { return Math.max(0, track.scrollWidth - innerWidth); };
-    var move = gsap.to(track, { x: function () { return -dist(); }, ease: "none", scrollTrigger: { trigger: pin, start: "top top", end: function () { return "+=" + dist(); }, pin: true, scrub: 0.6, anticipatePin: 1, invalidateOnRefresh: true,
-      onUpdate: function (s) { pin.style.setProperty("--fx", (-dist() * s.progress).toFixed(1) + "px"); $("#xp-bar").style.transform = "scaleX(" + s.progress.toFixed(4) + ")"; } } });
-    $$(".panel").forEach(function (p) {
-      var yr = $(".yr", p), items = $$(".p-list li, .p-when, .p-org", p), role = $(".p-role", p);
-      if (role) {
-        var rch = splitChars(role);
-        gsap.fromTo(rch, blastVars(280), { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, ease: "power3.out", immediateRender: false, stagger: { each: 0.02, from: "random" }, scrollTrigger: { trigger: p, containerAnimation: move, start: "left 92%", end: "left 48%", scrub: true } });
-      }
-      if (yr) gsap.fromTo(yr, { xPercent: 30 }, { xPercent: -30, ease: "none", scrollTrigger: { trigger: p, containerAnimation: move, start: "left right", end: "right left", scrub: true } });
-      gsap.from(items, { opacity: 0, x: 60, duration: 0.7, ease: "power3.out", stagger: 0.06, scrollTrigger: { trigger: p, containerAnimation: move, start: "left 78%", toggleActions: "play none none reverse" } });
-    });
-    return function () { pin.style.removeProperty("--fx"); };
-  });
-  mm.add("(max-width: 900px)", function () {
-    $$(".panel").forEach(function (p) {
-      gsap.from($$(".p-body > *, .p-list li", p), { opacity: 0, y: 40, duration: 0.8, ease: "power3.out", stagger: 0.05, scrollTrigger: { trigger: p, start: "top 80%", toggleActions: "play none none reverse" } });
-    });
-  });
-
-  /* ===== Scene 4: stacking project cards ===== */
-  mm.add("(min-width: 901px)", function () {
-    var cards = $$(".pcard");
-    cards.forEach(function (c, i) {
-      var next = cards[i + 1];
-      if (next) {
-        gsap.to(c, { scale: 0.92, rotation: i % 2 ? 1.6 : -1.6, ease: "none", scrollTrigger: { trigger: next, start: "top 92%", end: "top 12%", scrub: true } });
-        gsap.to($(".shade", c), { opacity: 0.6, ease: "none", scrollTrigger: { trigger: next, start: "top 92%", end: "top 12%", scrub: true } });
-      }
-      gsap.fromTo($("img", $(".pframe", c)), { yPercent: -6 }, { yPercent: 6, ease: "none", scrollTrigger: { trigger: c, start: "top bottom", end: "bottom top", scrub: true } });
-    });
-  });
-  $$(".pcard").forEach(function (c) {
-    gsap.from($(".pframe", c), { clipPath: "inset(0 100% 0 0)", duration: 1.2, ease: "expo.out", scrollTrigger: { trigger: c, start: "top 78%", toggleActions: "play none none reverse" } });
-    var name = $(".pname", c), ch = splitChars(name);
-    name.classList.add("mask");
-    gsap.from(ch, { yPercent: 110, duration: 0.9, ease: "expo.out", stagger: 0.02, scrollTrigger: { trigger: c, start: "top 70%", toggleActions: "play none none reverse" } });
-    gsap.from($$(".pbody > :not(.pname)", c), { opacity: 0, y: 30, duration: 0.8, ease: "power3.out", stagger: 0.07, scrollTrigger: { trigger: c, start: "top 66%", toggleActions: "play none none reverse" } });
-  });
-  if (finePointer) {
-    var GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&*+";
-    $$(".row").forEach(function (r) {
-      var el = $(".nm", r);
-      r.addEventListener("pointerenter", function () {
-        var final = el._t || (el._t = el.textContent), f = 0;
-        if (el._sc) gsap.ticker.remove(el._sc);
-        el._sc = function () {
-          f++;
-          var out = "";
-          for (var i = 0; i < final.length; i++) out += final[i] === " " || f > i * 1.4 + 5 ? final[i] : GLYPHS[(Math.random() * GLYPHS.length) | 0];
-          el.textContent = out;
-          if (f > final.length * 1.4 + 7) { el.textContent = final; gsap.ticker.remove(el._sc); }
-        };
-        gsap.ticker.add(el._sc);
-      });
-    });
-  }
-  if (root.classList.contains("motion")) {
-    ScrollTrigger.batch(".scard", { start: "top 90%", once: true, onEnter: function (els) {
-      gsap.from(els, { opacity: 0, y: 70, rotation: function (i) { return (i % 2 ? 6 : -6); }, duration: 0.9, ease: "power3.out", stagger: 0.12, clearProps: "transform,opacity" });
-    } });
-  }
-  gsap.from(".row", { opacity: 0, y: 40, duration: 0.8, ease: "power3.out", stagger: 0.05, scrollTrigger: { trigger: "#idx", start: "top 85%", toggleActions: "play none none reverse" } });
-
-  /* Hover preview that follows the pointer */
-  if (finePointer) {
-    var peek = $("#peek"), pimg = $("img", peek);
-    var px = gsap.quickTo(peek, "x", { duration: 0.5, ease: "power3" }), py = gsap.quickTo(peek, "y", { duration: 0.5, ease: "power3" });
-    var prot = gsap.quickTo(peek, "rotation", { duration: 0.6, ease: "power3" });
-    var lastX = 0;
-    addEventListener("pointermove", function (e) { px(e.clientX + 28); py(e.clientY - 100); prot(gsap.utils.clamp(-8, 8, (e.clientX - lastX) * 0.4)); lastX = e.clientX; }, { passive: true });
-    $$(".row").forEach(function (r) {
-      r.addEventListener("pointerenter", function () {
-        var p = INDEX[+r.dataset.peek];
-        pimg.src = p.shots[0]; peek.classList.toggle("fit", !!p.fit);
-        gsap.to(peek, { opacity: 1, scale: 1, duration: 0.35, ease: "power3.out", overwrite: "auto" });
-      });
-      r.addEventListener("pointerleave", function () { gsap.to(peek, { opacity: 0, scale: 0.85, duration: 0.25, overwrite: "auto" }); });
-    });
-    gsap.set(peek, { scale: 0.85 });
-  }
-
-  /* ===== Scene 5: platform cards fly in from the sides, columns drift, cards tilt ===== */
-  $$(".card").forEach(function (c, i) {
-    var col = i % 3, nat = gsap.getProperty(c, "rotation");
-    gsap.set(c, { transformPerspective: 900 });
-    gsap.fromTo(c,
-      { x: function () { return col === 0 ? -innerWidth * 0.55 : col === 2 ? innerWidth * 0.55 : 0; }, y: col === 1 ? 260 : 120, rotation: nat + (col - 1) * 40 + gsap.utils.random(-25, 25), opacity: 0, scale: 0.6 },
-      { x: 0, y: 0, rotation: nat, opacity: 1, scale: 1, ease: "power3.out", scrollTrigger: { trigger: c, start: "top 105%", end: "top 58%", scrub: true, invalidateOnRefresh: true } });
-    gsap.fromTo(c, { yPercent: col === 1 ? 12 : col === 2 ? 6 : 0 }, { yPercent: col === 1 ? -12 : col === 2 ? -6 : 0, ease: "none", scrollTrigger: { trigger: "#cards", start: "top bottom", end: "bottom top", scrub: true } });
-    if (finePointer) {
-      var rx = gsap.quickTo(c, "rotationX", { duration: 0.5, ease: "power3" }), ry = gsap.quickTo(c, "rotationY", { duration: 0.5, ease: "power3" });
-      c.addEventListener("pointermove", function (e) {
-        var r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-        ry((px - 0.5) * 16); rx(-(py - 0.5) * 16);
-        c.style.setProperty("--gx", px * 100 + "%"); c.style.setProperty("--gy", py * 100 + "%");
-      });
-      c.addEventListener("pointerleave", function () { rx(0); ry(0); });
-    }
-  });
-
-  /* Big titles blow in from random directions, and blow apart again on the way back up */
-  $$("[data-split]").forEach(function (el) {
-    var ch = splitChars(el);
-    gsap.from(ch, Object.assign(blastVars(520), { duration: 1.5, ease: "expo.out", stagger: { each: 0.02, from: "random" },
-      scrollTrigger: { trigger: el, start: "top 85%", toggleActions: "play none none reverse" } }));
-  });
-
-  /* ===== Scene 6: skills ticker, driven by scroll speed ===== */
-  var rows = $$(".mq").map(function (row, i) {
-    var inner = $(".mq-in", row);
-    return { row: row, inner: inner, dir: i % 2 ? 1 : -1, pos: 0, half: 0, set: gsap.quickSetter(inner, "x", "px"), skew: gsap.quickSetter(row, "skewX", "deg") };
-  });
-  var measure = function () { rows.forEach(function (r) { r.half = r.inner.scrollWidth / 2; r.pos = r.dir > 0 ? -r.half : 0; }); };
-  var vel = 0, smooth = 0, bandSet = [];
-  ScrollTrigger.create({ onUpdate: function (s) { vel = s.getVelocity(); } });
-  gsap.ticker.add(function (time, dt) {
-    smooth += (vel - smooth) * 0.12; vel *= 0.9;
-    var sk = gsap.utils.clamp(-14, 14, -smooth / 260);
-    rows.forEach(function (r) {
-      if (!r.half) return;
-      var hover = r.row.matches(":hover") ? 0.15 : 1;
-      var speed = (46 + Math.min(Math.abs(smooth) * 0.12, 900)) * hover;
-      r.pos += r.dir * speed * (dt / 1000) * (smooth < 0 ? -1 : 1);
-      if (r.pos <= -r.half) r.pos += r.half;
-      if (r.pos > 0) r.pos -= r.half;
-      r.set(r.pos); r.skew(sk);
-    });
-    bandSet.forEach(function (f) { f(sk * 0.5); });
-  });
-  gsap.from(".mq-label", { opacity: 0, x: -40, rotation: -12, duration: 0.7, ease: "back.out(2)", stagger: 0.08, scrollTrigger: { trigger: "#mqs", start: "top 80%", toggleActions: "play none none reverse" } });
-  gsap.from(".mq", { yPercent: 80, opacity: 0, rotation: function (i) { return i % 2 ? 5 : -5; }, duration: 1, ease: "expo.out", stagger: 0.1, scrollTrigger: { trigger: "#mqs", start: "top 85%", toggleActions: "play none none reverse" } });
-
-  /* The whole toolkit as paper chips: a heap in the middle blows out across the screen, then dodges the cursor. */
-  var cloudEl = $("#cloud"), cloudBox = $("#cloud-chips"), chips = $$(".chip", cloudEl);
-  var tlCloud = gsap.timeline({ scrollTrigger: { trigger: cloudEl, start: "top top", end: "+=140%", pin: true, scrub: 0.7, anticipatePin: 1, invalidateOnRefresh: true } });
-  tlCloud.fromTo(".ring", { scale: 0, opacity: 0.9 }, { scale: 6, opacity: 0, duration: 1, ease: "power2.out", immediateRender: false }, 0)
-    .fromTo(chips,
-      { x: function (i, el) { return cloudBox.clientWidth / 2 - (el.offsetLeft + el.offsetWidth / 2); }, y: function (i, el) { return cloudBox.clientHeight / 2 - (el.offsetTop + el.offsetHeight / 2); }, scale: 0, rotation: function () { return gsap.utils.random(-360, 360); }, opacity: 0 },
-      { x: 0, y: 0, scale: 1, rotation: 0, opacity: 1, duration: 1.3, ease: "expo.out", stagger: { each: 0.03, from: "random" } }, 0)
-    .to({}, { duration: 0.7 });
-  if (finePointer) {
-    var cin = chips.map(function (c) { return $(".chip-i", c); });
-    var cqx = cin.map(function (e) { return gsap.quickTo(e, "x", { duration: 0.6, ease: "power3" }); }), cqy = cin.map(function (e) { return gsap.quickTo(e, "y", { duration: 0.6, ease: "power3" }); });
-    var cmx = 0, cmy = 0, cq = false;
-    var repel = function () {
-      cq = false;
-      chips.forEach(function (c, i) {
-        var r = c.getBoundingClientRect(), dx = r.left + r.width / 2 - cmx, dy = r.top + r.height / 2 - cmy, d = Math.hypot(dx, dy), R = 190;
-        if (d < R) { var f = ((1 - d / R) * 90) / (d || 1); cqx[i](dx * f); cqy[i](dy * f); } else { cqx[i](0); cqy[i](0); }
-      });
-    };
-    cloudEl.addEventListener("pointermove", function (e) { cmx = e.clientX; cmy = e.clientY; if (!cq) { cq = true; requestAnimationFrame(repel); } });
-    cloudEl.addEventListener("pointerleave", function () { chips.forEach(function (c, i) { cqx[i](0); cqy[i](0); }); });
-  }
-  /* ===== Scene 7: letters swell near the pointer ===== */
-  var pxChars = splitChars($("#px"));
-  gsap.from(pxChars, Object.assign(blastVars(700), { duration: 1.6, ease: "expo.out", stagger: { each: 0.025, from: "random" }, scrollTrigger: { trigger: "#px", start: "top 85%", toggleActions: "play none none reverse" } }));
-  if (finePointer) {
-    var pxSetters = pxChars.map(function (c) { return gsap.quickSetter(c, "fontWeight"); });
-    var mx = -999, my = -999, queued = false;
-    var paint = function () {
-      queued = false;
-      pxChars.forEach(function (c, i) {
-        var r = c.getBoundingClientRect(), d = Math.hypot(mx - (r.left + r.width / 2), my - (r.top + r.height / 2));
-        pxSetters[i](Math.round(500 + 400 * Math.max(0, 1 - d / 260)));
-      });
-    };
-    addEventListener("pointermove", function (e) { mx = e.clientX; my = e.clientY; if (!queued) { queued = true; requestAnimationFrame(paint); } }, { passive: true });
-    addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(paint); } }, { passive: true });
-    $$(".mag").forEach(function (b) {
-      var bx = gsap.quickTo(b, "x", { duration: 0.6, ease: "elastic.out(1, 0.5)" }), by = gsap.quickTo(b, "y", { duration: 0.6, ease: "elastic.out(1, 0.5)" });
-      b.addEventListener("pointermove", function (e) { var r = b.getBoundingClientRect(); bx((e.clientX - r.left - r.width / 2) * 0.4); by((e.clientY - r.top - r.height / 2) * 0.4); });
-      b.addEventListener("pointerleave", function () { bx(0); by(0); });
-    });
-  }
-  gsap.from(".lines > *", { opacity: 0, y: 30, duration: 0.8, ease: "power3.out", stagger: 0.08, scrollTrigger: { trigger: ".lines", start: "top 88%", toggleActions: "play none none reverse" } });
-
-  /* Angled text bands across the seams: they slide with the scroll and lean into fast scrolling. */
-  $$(".band").forEach(function (b, i) {
-    var dir = i % 2 ? 1 : -1, unit = "<span>" + BANDS[+b.dataset.i] + "</span>", run = new Array(8).join(unit);
-    b.innerHTML = '<div class="band-in">' + run + run + "</div>";
-    gsap.fromTo($(".band-in", b), { xPercent: dir < 0 ? 0 : -50 }, { xPercent: dir < 0 ? -50 : 0, ease: "none", scrollTrigger: { trigger: b, start: "top bottom", end: "bottom top", scrub: true } });
-    gsap.fromTo(b, { rotation: -4 * -dir }, { rotation: 1.5 * -dir, ease: "none", scrollTrigger: { trigger: b, start: "top bottom", end: "bottom top", scrub: true } });
-    bandSet.push(gsap.quickSetter(b, "skewX", "deg"));
-  });
-
-  /* The stage colours come last: the pins above have to exist first. */
-  /* Stage colours follow the scenes, both ways */
-  var scenes = $$(".scene[data-bg]");
-  var sceneName = $("#scene-name");
-  function stage(s) {
-    gsap.to(root, { "--bg": s.dataset.bg, "--fg": s.dataset.fg, "--acc": s.dataset.acc, duration: 0.8, ease: "power2.out", overwrite: "auto" });
-    gsap.to("html", { backgroundColor: s.dataset.bg, duration: 0.8, overwrite: "auto" });
-    if (sceneName.textContent !== s.dataset.label) {
-      gsap.timeline().to(sceneName, { yPercent: -120, opacity: 0, duration: 0.2 }).add(function () { sceneName.textContent = s.dataset.label; }).set(sceneName, { yPercent: 120 }).to(sceneName, { yPercent: 0, opacity: 1, duration: 0.3, ease: "power3.out" });
-    }
-  }
-  scenes.forEach(function (s, i) {
-    if (i === 0) return;
-    ScrollTrigger.create({ trigger: s, start: "top 55%", end: "bottom 55%", onEnter: function () { stage(s); }, onEnterBack: function () { stage(s); }, onLeaveBack: i === 1 ? function () { stage(scenes[0]); } : undefined });
-  });
-
-
-  /* ===== Opening sequence ===== */
-  var counter = { v: 0 }, pre = $("#pre"), preN = $("#pre-n"), preBar = $("#pre-bar");
-  var loaded = new Promise(function (res) { if (document.readyState === "complete") res(); else addEventListener("load", res, { once: true }); });
-  var ready = Promise.race([Promise.all([document.fonts ? document.fonts.ready : 0, loaded]), new Promise(function (r) { setTimeout(r, 4500); })]);
-  var fill = gsap.to(counter, { v: 92, duration: 1.7, ease: "power2.out", onUpdate: function () { preN.textContent = pad3(counter.v); preBar.style.transform = "scaleX(" + counter.v / 100 + ")"; } });
-  function pad3(v) { v = Math.round(v); return (v < 10 ? "00" : v < 100 ? "0" : "") + v; }
-  ready.then(function () {
-    fill.kill();
-    gsap.to(counter, { v: 100, duration: 0.5, ease: "power2.out", onUpdate: function () { preN.textContent = pad3(counter.v); preBar.style.transform = "scaleX(" + counter.v / 100 + ")"; }, onComplete: open });
-  });
-  function open() {
-    clearTimeout(failsafe);
-    // The hero's scroll timeline may have read its start values while the name was still hidden.
-    // Once the intro has landed, make it read them again so scrolling back to the top restores the visible state.
-    var t = gsap.timeline({ defaults: { ease: "expo.out" }, onComplete: function () { if (heroTl && heroTl.scrollTrigger && heroTl.scrollTrigger.progress < 0.001) heroTl.invalidate(); lenis.start(); } });
-    t.to(".pre-name, .pre-row .mono", { opacity: 0, y: -20, duration: 0.5 })
-     .to(".pre", { clipPath: "inset(0 0 100% 0)", duration: 1.1, ease: "expo.inOut" }, 0.35)
-     .to(nameChars, { yPercent: 0, rotation: 0, opacity: 1, duration: 1.3, stagger: { each: 0.045, from: "start" } }, 0.9)
-     .to(".hero-top, .cue", { opacity: 1, duration: 0.8 }, 1.5)
-     .to(".cut-in", { scale: 1, opacity: 1, duration: 0.9, ease: "back.out(1.8)", stagger: 0.12 }, 1.55)
-     .to(".nav", { yPercent: 0, duration: 0.9 }, 1.7)
-     .add(function () { $("#pre").style.display = "none"; ScrollTrigger.refresh(); }, 1.5);
-  }
-  loaded.then(function () { ScrollTrigger.refresh(); });
-  if (document.fonts) document.fonts.ready.then(function () { measure(); ScrollTrigger.refresh(); });
-  addEventListener("resize", function () { measure(); });
-  measure();
-
-  } catch (err) {
-    console.error(err);
-    clearTimeout(failsafe);
-    root.classList.remove("motion", "js");
-    $("#pre").style.display = "none";
-  }
-})();
-</script>
+<script type="module" src="abyss/journey-main.js"></script>
 </body>
 </html>

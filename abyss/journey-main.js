@@ -152,12 +152,16 @@ const ROUTE = [
   { s: 2,    p: [62, -32, -1],     yaw: 0.08,  pitch: -0.14 },
   { s: 2.5,  p: [65, -80, 1],      yaw: 0.22,  pitch: -0.08 },  // down through the jellyfish
   { s: 3,    p: [62, -125, 0],     yaw: 0.4,   pitch: -0.05 },
-  { s: 3.3,  p: [22, -139, -3],    yaw: 0.42,  pitch: 0.02 },   // left along the cables
-  { s: 3.58, p: [-22, -163, 2],    yaw: 0.3,   pitch: -0.04 },
+  { s: 3.25, p: [28, -141, -1],    yaw: 0.8,   pitch: -0.14 },   // left along the cables, the wreck comes into view
+  { s: 3.45, p: [2, -148, -1],     yaw: 0.1,   pitch: -0.32 },  // over her deck
+  { s: 3.62, p: [-24, -158, 1],    yaw: -0.8,  pitch: -0.1 },  // a last look back
   { s: 3.8,  p: [-55, -190, 0],    yaw: 0,     pitch: -0.16 },
-  { s: 4,    p: [-55, -262, 0],    yaw: -0.3,  pitch: -0.06 },  // down again
-  { s: 4.5,  p: [-27, -283, -1],   yaw: -0.55, pitch: -0.1 },   // right, through the network
-  { s: 5,    p: [0, -303, 0],      yaw: -0.1,  pitch: -0.2 },
+  { s: 4,    p: [-55, -262, 0],    yaw: 0.25,  pitch: -0.06 },  // down again
+  { s: 4.5,  p: [-74, -282, 0],    yaw: 0.1,   pitch: -0.1 },   // left, through the network
+  { s: 5,    p: [-60, -298, 2],    yaw: -1.35, pitch: -0.35 },  // turn into the cave mouth
+  { s: 5.3,  p: [-44, -311, 0.5],  yaw: -1.5,  pitch: -0.6 },   // forward and down the tunnel
+  { s: 5.6,  p: [-28, -333, 0.5],  yaw: -1.5,  pitch: -0.6 },
+  { s: 5.82, p: [-12, -348.5, 0],  yaw: -1.1,  pitch: -0.15 },  // out onto the plain
   { s: 6,    p: [0, -352.8, 0],    yaw: 0,     pitch: 0.015 },  // the floor
 ];
 // world height → metres shown on the gauge
@@ -189,7 +193,7 @@ function sample(sy) {
   const t = clamp((sy - breaks[i]) / Math.max(1, breaks[i + 1] - breaks[i]), 0, 1);
   let e = t;
   if (i === 0) e = t * t * (1.6 - 0.6 * t);                 // hold the horizon, then plunge
-  if (i === SECS.length - 1) e = 1 - Math.pow(1 - t, 1.7);  // settle onto the floor
+  if (i === SECS.length - 1) e = 1 - Math.pow(1 - t, 1.25); // settle onto the floor
   const r = routeAt(i + e);
   if (i === 0) r.pitch -= Math.sin(Math.PI * clamp((t - 0.12) / 0.88, 0, 1)) * 0.5;
   r.y = Math.max(r.y, -352.8);
