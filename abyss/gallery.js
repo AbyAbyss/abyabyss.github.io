@@ -4,7 +4,7 @@
 import * as THREE from "../vendor/three-kit.min.js";
 import { PROJECTS, FEATURED, WORK, SKILLS } from "./data.js";
 
-const { CSS3DRenderer, CSS3DObject, EffectComposer, RenderPass, UnrealBloomPass, ShaderPass, OutputPass } = THREE;
+const { CSS3DRenderer, CSS3DObject, EffectComposer, RenderPass, UnrealBloomPass, ShaderPass, OutputPass, Reflector, RoomEnvironment } = THREE;
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -164,7 +164,7 @@ function start() {
   const M = {
     wall: new THREE.MeshStandardMaterial({ color: 0x2a2d34, roughness: 0.92 }),
     ext: new THREE.MeshStandardMaterial({ color: 0x191b21, roughness: 0.8 }),
-    floor: new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.32, metalness: 0.35 }),
+    floor: new THREE.MeshStandardMaterial({ color: 0x14161a, roughness: 0.32, metalness: 0.35, envMapIntensity: 0.3 }),
     ceil: new THREE.MeshStandardMaterial({ color: 0x17191e, roughness: 1 }),
     strip: new THREE.MeshBasicMaterial({ color: new THREE.Color(2.4, 2.1, 1.7) }),
     accent: new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 0.95, 0.3) }),
@@ -274,7 +274,7 @@ function start() {
   }
 
   /* ---------- light ---------- */
-  scene.add(new THREE.HemisphereLight(0x9fb4d8, 0x0b0b0e, 0.75));
+  scene.add(new THREE.HemisphereLight(0x9fb4d8, 0x0b0b0e, 0.5));
   const moon = new THREE.DirectionalLight(0xbfd0ff, 0.5); moon.position.set(0.55, 0.5, 0.67); scene.add(moon);
   const lamp = new THREE.PointLight(0xffe6cc, 20, 30, 1.5); lamp.position.set(0, 0.6, 0.4); camera.add(lamp);
 
@@ -293,6 +293,118 @@ function start() {
     return { ...spec, el, obj, n: new THREE.Vector3(...NORMAL[spec.face]), c: new THREE.Vector3(...spec.at), stop: spec.stop !== false };
   });
   wireFrames();
+
+  /* =====================================================================
+     Dressing: everything that makes the rooms feel built rather than boxed
+     ===================================================================== */
+  const updaters = [];
+  { // soft studio reflections for every metal and polished surface
+    const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.2; pm.dispose();
+  }
+  const D = {
+    metal: new THREE.MeshStandardMaterial({ color: 0x15161a, roughness: 0.38, metalness: 0.9 }),
+    brass: new THREE.MeshStandardMaterial({ color: 0xd0a45a, roughness: 0.2, metalness: 1, envMapIntensity: 5 }),
+    chrome: new THREE.MeshStandardMaterial({ color: 0xe4eaf2, roughness: 0.07, metalness: 1, envMapIntensity: 5, flatShading: true }),
+    stone: new THREE.MeshStandardMaterial({ color: 0x3b3e45, roughness: 0.75 }),
+    leaf: new THREE.MeshStandardMaterial({ color: 0x1f4a35, roughness: 0.9, flatShading: true }),
+    bark: new THREE.MeshStandardMaterial({ color: 0x2a211c, roughness: 1 }),
+    bulb: new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 2.3, 1.3) }),
+    red: new THREE.MeshBasicMaterial({ color: new THREE.Color(3, 0.2, 0.15) }),
+  };
+  const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); scene.add(m); return m; };
+
+  // polished floors that mirror the light strips and the room
+  const mirrors = [];
+  if (!lite) {
+    const mk = (w, d, x, y, z, rooms) => {
+      const m = new Reflector(new THREE.PlaneGeometry(w, d), { color: 0x2c3037, textureWidth: Math.round(innerWidth * 0.6), textureHeight: Math.round(innerHeight * 0.6), clipBias: 0.003 });
+      m.rotation.x = -Math.PI / 2; m.position.set(x, y, z); scene.add(m); mirrors.push({ m, rooms });
+    };
+    mk(13.7, 45.7, 0, 0.006, -23, ["A1", "A2"]); mk(47.7, 13.7, 44, 0.006, -22, ["B"]); mk(27.7, 13.7, 34, C + 0.056, 17, ["C"]);
+  }
+
+  // pilasters between the pieces, beams across the ceiling, lighting rails along the walls
+  const pil = (x, z, base = 0, alongX = false) => box(alongX ? 0.5 : 0.26, 6, alongX ? 0.26 : 0.5, x, base + 3, z, M.ext);
+  [-2.7, -13.3, -18.4, -26.75, -35.25, -43.9].forEach((z) => pil(-6.74, z)); [-2.7, -13.3, -18.4, -28.4, -36.25, -43.9].forEach((z) => pil(6.74, z));
+  [-2.7, -13.3, -18.4, -27, -36, -43.9].forEach((z) => box(13.7, 0.34, 0.4, 0, 5.83, z, D.metal));
+  [32, 42, 52, 62].forEach((x) => { pil(x, -28.74, 0, true); pil(x, -15.26, 0, true); box(0.4, 0.34, 13.7, x, 5.83, -22, D.metal); });
+  [29.75, 36.05, 42.35].forEach((x) => pil(x, 23.74, C, true)); [40.7, 34.1, 27.45].forEach((x) => pil(x, 10.26, C, true));
+  [33, 39, 45].forEach((x) => box(0.4, 0.34, 13.7, x, C + 5.83, 17, D.metal));
+  box(0.07, 0.07, 45.4, -5.1, 5.9, -23, D.metal); box(0.07, 0.07, 45.4, 5.1, 5.9, -23, D.metal);
+  box(47.4, 0.07, 0.07, 44, 5.9, -27.1, D.metal); box(47.4, 0.07, 0.07, 44, 5.9, -16.9, D.metal);
+  box(27.4, 0.07, 0.07, 34, C + 5.9, 22.1, D.metal); box(27.4, 0.07, 0.07, 34, C + 5.9, 11.9, D.metal);
+
+  // a track spotlight, with a visible beam, aimed at every hung piece
+  {
+    const beamMat = new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false,
+      uniforms: { uC: { value: new THREE.Color(0xffe2bd) } },
+      vertexShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vV; void main(){ vUv = uv; vN = normalize(normalMatrix * normal); vec4 mv = modelViewMatrix * vec4(position, 1.); vV = normalize(-mv.xyz); gl_Position = projectionMatrix * mv; }`,
+      fragmentShader: `varying vec2 vUv; varying vec3 vN; varying vec3 vV; uniform vec3 uC;
+        void main(){ float edge = pow(abs(dot(normalize(vN), normalize(vV))), 1.6); float a = edge * pow(vUv.y, 1.4) * smoothstep(0., .12, vUv.y) * .05; gl_FragColor = vec4(uC * a, 1.); }`,
+    });
+    const cool = beamMat.clone(); cool.uniforms.uC = { value: new THREE.Color(0xbfe6ff) };
+    const canGeo = new THREE.CylinderGeometry(0.075, 0.1, 0.34, 12).translate(0, -0.1, 0), lensGeo = new THREE.CircleGeometry(0.07, 12);
+    const up = new THREE.Vector3(0, 1, 0), dir = new THREE.Vector3(), from = new THREE.Vector3(), to = new THREE.Vector3();
+    pieces.filter((p) => p.stop && p.room !== "out" && p.room !== "roof").forEach((pc) => {
+      const ceil = pc.room === "C" ? C + 6 : 6;
+      from.copy(pc.c).addScaledVector(pc.n, 1.72); from.y = ceil - 0.3; to.copy(pc.c); to.y += 0.3;
+      dir.subVectors(from, to); const len = dir.length(); dir.normalize();
+      const can = add(canGeo, D.metal, from.x, from.y, from.z); can.quaternion.setFromUnitVectors(up, dir);
+      box(0.03, 0.26, 0.03, from.x, ceil - 0.14, from.z, D.metal);
+      const lens = add(lensGeo, D.bulb, from.x - dir.x * 0.28, from.y - dir.y * 0.28, from.z - dir.z * 0.28); lens.lookAt(to);
+      const beam = add(new THREE.ConeGeometry(2.1, len, 28, 1, true), pc.room === "B" ? cool : beamMat, (from.x + to.x) / 2, (from.y + to.y) / 2, (from.z + to.z) / 2);
+      beam.quaternion.setFromUnitVectors(up, dir); beam.renderOrder = 2;
+    });
+  }
+
+  // sculptures on plinths
+  {
+    const plinth = (x, z, base = 0) => { box(0.95, 1.05, 0.95, x, base + 0.525, z, D.stone); box(1.02, 0.04, 1.02, x, base + 1.07, z, M.accent); const l = new THREE.PointLight(0xffe4c0, 9, 8, 1.7); l.position.set(x, base + 3.4, z); scene.add(l); return base + 1.09; };
+    const knot = (x, z) => { const y = plinth(x, z), m = add(new THREE.TorusKnotGeometry(0.4, 0.125, 180, 24, 2, 3), D.brass, x, y + 0.72, z); updaters.push((t) => { m.rotation.y = t * 0.35; m.rotation.x = Math.sin(t * 0.3) * 0.25; }); };
+    const stack = (x, z) => { const y = plinth(x, z), slabs = []; for (let i = 0; i < 7; i++) slabs.push(add(new THREE.BoxGeometry(0.72 - i * 0.03, 0.11, 0.72 - i * 0.03), i % 2 ? D.metal : D.chrome, x, y + 0.08 + i * 0.15, z)); updaters.push((t) => slabs.forEach((s2, i) => (s2.rotation.y = Math.sin(t * 0.55 + i * 0.35) * 0.9))); };
+    const gem = (x, z) => { const y = plinth(x, z), g = new THREE.Group(); g.position.set(x, y + 0.72, z); g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.42, 0), D.chrome));
+      g.add(new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(0.66, 1)), new THREE.LineBasicMaterial({ color: new THREE.Color(2.6, 0.95, 0.3) }))); scene.add(g);
+      updaters.push((t) => { g.rotation.y = t * 0.3; g.children[1].rotation.x = t * 0.2; g.children[0].rotation.z = -t * 0.25; }); };
+    const rack = (x, z) => { const y = plinth(x, z); box(0.56, 1.5, 0.56, x, y + 0.75, z, D.metal);
+      const led = new THREE.ShaderMaterial({ uniforms: { uTime: G.uTime }, vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.); }`,
+        fragmentShader: `varying vec2 vUv; uniform float uTime; float h(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+          void main(){ vec2 g = vUv * vec2(5., 22.); vec2 id = floor(g), f = fract(g); float on = step(.55, h(id + floor(uTime * (1. + h(id) * 5.)))) * step(.25, f.x) * step(f.x, .75) * step(.3, f.y) * step(f.y, .7);
+            vec3 c = mix(vec3(.3, 1.6, 2.2), vec3(2.6, .9, .3), step(.8, h(id * 3.))); gl_FragColor = vec4(vec3(.012) + c * on, 1.); }` });
+      for (let k = 0; k < 4; k++) { const pl = add(new THREE.PlaneGeometry(0.44, 1.36), led, x + Math.sin(k * Math.PI / 2) * 0.285, y + 0.75, z + Math.cos(k * Math.PI / 2) * 0.285); pl.rotation.y = k * Math.PI / 2; } };
+    const orb = (x, z) => { const y = plinth(x, z), g = new THREE.Group(), pts = []; g.position.set(x, y + 0.75, z);
+      for (let i = 0; i < 70; i++) pts.push(new THREE.Vector3().randomDirection().multiplyScalar(0.55));
+      const lp = []; pts.forEach((p, i) => pts.map((q, j) => [p.distanceTo(q), j]).sort((m, n) => m[0] - n[0]).slice(1, 4).forEach(([, j]) => lp.push(...p.toArray(), ...pts[j].toArray())));
+      g.add(new THREE.LineSegments(new THREE.BufferGeometry().setAttribute("position", new THREE.Float32BufferAttribute(lp, 3)), new THREE.LineBasicMaterial({ color: new THREE.Color(0.35, 1.2, 1.6), transparent: true, opacity: 0.7 })));
+      g.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(pts), new THREE.PointsMaterial({ color: new THREE.Color(1.6, 2.6, 3), size: 0.05 }))); g.add(new THREE.Mesh(new THREE.SphereGeometry(0.16, 20, 14), D.chrome)); scene.add(g);
+      updaters.push((t) => { g.rotation.y = t * 0.25; g.rotation.z = Math.sin(t * 0.2) * 0.3; }); };
+    knot(-5.3, -14.3); stack(5.3, -14.3); gem(-5.3, -44.4); rack(5.3, -44.4);
+    orb(66.4, -27.3); rack(66.4, -16.7); knot(21.6, -27.4); 
+  }
+
+  // outside: steps and a canopy at the door, trees, lamp posts, and the roof's furniture
+  {
+    for (let i = 0; i < 3; i++) box(7, 0.07, 0.8, 0, -0.175 + i * 0.07, 2.7 - i * 0.8, M.ext);
+    box(7, 0.21, 0.65, 0, -0.105, 0.48, M.ext);
+    box(5.4, 0.14, 2.6, 0, 3.78, 1.45, M.ext); box(4.8, 0.03, 0.07, 0, 3.7, 1.9, M.strip); box(0.12, 3.8, 0.12, -2.55, 1.9, 2.6, D.metal); box(0.12, 3.8, 0.12, 2.55, 1.9, 2.6, D.metal);
+    const trunk = new THREE.CylinderGeometry(0.07, 0.13, 1, 7), crown = new THREE.IcosahedronGeometry(1, 0);
+    const tree = (x, z, s2 = 1) => { add(trunk, D.bark, x, -0.2 + 0.9 * s2, z).scale.set(s2, 1.8 * s2, s2);
+      [[0, 2.5, 0, 1], [0.55, 2.05, 0.3, 0.72], [-0.5, 2.15, -0.25, 0.68], [0.1, 3.2, -0.1, 0.62]].forEach(([dx, dy, dz, r]) => { const c = add(crown, D.leaf, x + dx * s2, -0.2 + dy * s2, z + dz * s2); c.scale.setScalar(r * s2); c.rotation.set(dx * 3, dy, dz * 5); }); };
+    [[-4.9, 2.4, 1.1], [4.9, 2.4, 1.1], [-11, 7, 1.5], [11.5, 8, 1.3], [-13, -9, 1.6], [9.5, -19.2, 1], [16.5, -19.2, 1.15], [13, -25.9, 1.05], [15, -34, 1.5], [30, -34, 1.3], [46, -35, 1.6], [60, -34, 1.2],
+     [31, -8.5, 1.4], [41, -8, 1.2], [55, -8, 1.5], [73, -21, 1.4], [14, 13, 1.5], [52, 6, 1.3], [-10, -30, 1.4], [8, 18, 1.2]].forEach(([x, z, s2]) => tree(x, z, s2));
+    const lampGeo = new THREE.SphereGeometry(0.13, 14, 10), poleGeo = new THREE.CylinderGeometry(0.035, 0.05, 3, 8);
+    [[9.5, -20.4], [14, -20.4], [18.5, -20.4], [9.5, -24.6], [14, -24.6], [18.5, -24.6], [-3.4, 5.5], [3.4, 5.5], [-3.4, 10.5], [3.4, 10.5]].forEach(([x, z]) => { add(poleGeo, D.metal, x, 1.3, z); add(lampGeo, D.bulb, x, 2.9, z); });
+    // roof: service boxes, an antenna with a warning light, and strings of bulbs
+    box(1.7, 0.9, 1.1, 22.4, R + 0.45, 21.8, D.metal); box(1.2, 0.7, 1.2, 46.4, R + 0.35, 12.2, D.metal);
+    add(new THREE.CylinderGeometry(0.03, 0.06, 7, 6), D.metal, 46.6, R + 3.5, 22.8); const beacon = add(new THREE.SphereGeometry(0.12, 10, 8), D.red, 46.6, R + 7.05, 22.8);
+    updaters.push((t) => { beacon.visible = Math.sin(t * 2.4) > 0; });
+    [[20.6, 10.6], [20.6, 23.4]].forEach(([x, z]) => add(new THREE.CylinderGeometry(0.03, 0.04, 3.7, 6), D.metal, x, R + 1.85, z));
+    const spans = [[[20.6, R + 3.7, 10.6], [41, R + 4.85, 14]], [[20.6, R + 3.7, 23.4], [41, R + 4.85, 20]], [[20.6, R + 3.7, 10.6], [20.6, R + 3.7, 23.4]]];
+    const pos = []; spans.forEach(([p, q]) => { const A2 = new THREE.Vector3(...p), B2 = new THREE.Vector3(...q), n = Math.round(A2.distanceTo(B2) / 0.62);
+      for (let i = 0; i <= n; i++) { const t = i / n, v = A2.clone().lerp(B2, t); v.y -= Math.sin(t * Math.PI) * 0.75; pos.push(v); } });
+    const bulbs = new THREE.InstancedMesh(new THREE.SphereGeometry(0.045, 8, 6), D.bulb, pos.length), o = new THREE.Object3D();
+    pos.forEach((v, i) => { o.position.copy(v); o.updateMatrix(); bulbs.setMatrixAt(i, o.matrix); }); scene.add(bulbs);
+  }
 
   /* ---------- the route ---------- */
   const tmp = new THREE.Matrix4(), UP = new THREE.Vector3(0, 1, 0);
@@ -447,6 +559,8 @@ function start() {
       pc.el.classList.toggle("on", mine);
     }
     sky.position.copy(camera.position);
+    for (const f of updaters) f(G.uTime.value, dt);
+    for (const mr of mirrors) mr.m.visible = mr.rooms.some((r) => inRoom(r, camera.position, 3));
 
     if (near !== lastStop) {
       lastStop = near; const s = stops[near];
