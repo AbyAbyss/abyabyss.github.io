@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aby Saji Pappachan · The exhibition</title>
+<meta name="description" content="Aby Saji Pappachan's portfolio as a walk-through exhibition: scroll to walk the halls, with every project hung on the walls.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#070a12">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070a12'/%3E%3Crect x='8' y='7' width='16' height='18' fill='none' stroke='%23f4efe6' stroke-width='2'/%3E%3Crect x='12' y='11' width='8' height='10' fill='%23ff7a3c'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="abyss/gallery.css">
+<link rel="modulepreload" href="vendor/three-kit.min.js">
+</head>
+<body>
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="walls"></div>
+
+<div class="boot" id="boot" role="status"><p>Opening the doors</p><i></i></div>
+
+<header class="bar">
+  <a class="mark" href="index.html" aria-label="Back to the main portfolio"><i></i><span>Aby Saji Pappachan</span></a>
+  <nav id="nav" aria-label="Rooms"></nav>
+  <a class="pill" href="Aby_Saji_Pappachan_Technical_Lead.pdf" download>CV ↓</a>
+</header>
+
+<footer class="hud">
+  <div class="where"><p id="h-sec">Entrance</p><p id="h-title">The building</p></div>
+  <p class="hint" id="hint"><i></i>Scroll to walk in</p>
+  <div class="step"><button id="prev" type="button" aria-label="Previous piece">←</button><span id="h-n">01 / 30</span><button id="next" type="button" aria-label="Next piece">→</button></div>
+  <i class="prog"><b id="h-bar"></b></i>
+</footer>
+
+<noscript><p style="padding:40px;color:#fff">This exhibition needs JavaScript. <a href="index.html" style="color:#ff7a3c">Open the main portfolio instead.</a></p></noscript>
+<script src="vendor/lenis.min.js"></script>
+<script type="module" src="abyss/gallery.js"></script>
+</body>
+</html>
