@@ -1,5 +1,5 @@
 // Portfolio content. Edit here; the page renders from this file.
-export const FEATURED = ["AgentKit","Helpy","Yankit","wimys_crumb","term-rest-client","ANIMATRON","ReelForge","sandkit"];
+export const FEATURED = ["AgentKit","Helpy","Stratum","Yankit","term-rest-client","ANIMATRON","ReelForge","sandkit"];
 
 export const PROJECTS = [
   {
@@ -272,6 +272,31 @@ export const PROJECTS = [
       "shots/gracetrack/screen-reports.svg",
       "shots/gracetrack/screen-history.svg",
       "shots/gracetrack/privacy.svg"
+    ]
+  },
+  {
+    "name": "Stratum",
+    "meta": "File Manager & Storage Analyzer · Swift",
+    "repo": "https://github.com/AbyAbyss/stratum_file_manager",
+    "site": {
+      "href": "stratum",
+      "label": "Visit the site"
+    },
+    "desc": "A native macOS file manager and storage analyzer. One scan with getattrlistbulk goes into a local SQLite database, so a treemap of the whole disk, a file-type breakdown and a history of how storage grew all answer instantly. Groups finds every node_modules, DerivedData and .venv across the drive and cleans them up through the Trash with Undo. Around that sits a full browser with tabs, multiple windows, an inspector, a command palette and seventeen themes, and it updates itself through Sparkle.",
+    "tech": [
+      "Swift",
+      "SwiftUI",
+      "AppKit",
+      "GRDB",
+      "SQLite",
+      "Sparkle"
+    ],
+    "shots": [
+      "assets/stratum/storage.webp",
+      "assets/stratum/groups.webp",
+      "assets/stratum/browser.webp",
+      "assets/stratum/file-types.webp",
+      "assets/stratum/themes.webp"
     ]
   },
   {

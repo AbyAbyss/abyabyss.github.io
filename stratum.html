@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stratum, a file manager and storage analyzer for macOS</title>
+<meta name="description" content="Stratum is a free, open-source file manager and storage analyzer for macOS. Browse fast, see where the space went, and clean up build caches and duplicates with an undo." />
+<meta name="theme-color" content="#3b2fc9" />
+<meta property="og:title" content="Stratum: your Mac, in layers" />
+<meta property="og:description" content="A native Mac file manager and storage analyzer. See where the space went, then clean up with an undo." />
+<meta property="og:image" content="https://abyabyss.github.io/assets/stratum/og.jpg" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="assets/stratum/icon.webp" type="image/webp" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --paper:#f5f6fa; --lilac:#e9e7fb; --ink:#14122b; --cobalt:#2f3fe0; --hot:#e8502f; --pink:#c2409e;
+  --text:var(--ink); --body:#3f3c59; --muted:#6d6a88; --line:color-mix(in srgb,currentColor 14%,transparent);
+  --display:'Bricolage Grotesque','Avenir Next','Segoe UI',system-ui,sans-serif;
+  --sans:'Instrument Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+.dark{--text:#f6f5ff;--body:#d0cde6;--muted:#a4a0c2;color:var(--text)}
+body{background:var(--paper);color:var(--text);font-family:var(--sans);font-size:17px;line-height:1.6;overflow-x:clip;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:6px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+kbd{font-family:-apple-system,system-ui,sans-serif;font-size:.82em;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,currentColor 9%,transparent);border:1px solid var(--line);white-space:nowrap}
+code{font-family:var(--mono);font-size:.88em}
+
+/* nav */
+.nav{position:fixed;inset:0 0 auto 0;z-index:50;color:#fff;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+.nav.solid{color:var(--ink);background:rgba(245,246,250,.84);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-color:var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.01em}
+.brand img{width:30px;height:30px;border-radius:8px}
+.nav ul{display:flex;gap:28px;list-style:none;align-items:center}
+.nav ul a{font-size:15px;opacity:.82;text-decoration:none;padding:10px 0}
+.nav ul a:hover{opacity:1}
+.nav .get{opacity:1;color:var(--ink);background:#fff;padding:9px 16px;border-radius:999px;font-weight:600}
+.nav.solid .get{color:#fff;background:var(--ink)}
+@media(max-width:760px){.nav ul li:not(:last-child){display:none}}
+
+/* hero stage */
+.stage{position:relative;height:300vh}
+.pin{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:radial-gradient(80% 70% at 50% 45%,#fff 0%,var(--paper) 70%)}
+#sky{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
+.under{position:absolute;inset:0;display:grid;place-items:center;padding:88px 28px 40px}
+.win{width:min(1100px,100%,calc((100svh - 200px)*1.596));transform:scale(calc(.9 + .1*var(--b,0)));transform-origin:50% 55%}
+.win img{width:100%;height:auto;border-radius:14px;box-shadow:0 40px 90px -30px rgba(20,18,43,.55),0 0 0 1px rgba(20,18,43,.12)}
+.win figcaption{margin-top:18px;text-align:center;color:var(--muted);font-size:16px;opacity:calc((var(--b,0) - .85)*7)}
+.copy{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:64px 24px 6vh;pointer-events:none;color:#fff;--body:rgba(255,255,255,.94);--muted:rgba(255,255,255,.8);text-shadow:0 2px 30px rgba(20,18,43,.35);opacity:var(--o,1);transform:translateY(calc((1 - var(--o,1))*-40px))}
+.copy>*{pointer-events:auto}
+.copy.off>*{pointer-events:none}
+.stack{width:128px;height:118px;overflow:visible;margin-bottom:22px;filter:drop-shadow(0 10px 24px rgba(20,18,43,.35))}
+.stack g{transform-box:fill-box;transform-origin:center;animation:settle 1.4s cubic-bezier(.2,.9,.2,1) both,bob 6s ease-in-out 1.4s infinite}
+.stack .l1{--from:-70px;--amp:-5px}
+.stack .l2{--from:-36px;--amp:0px;animation-delay:.12s,1.52s}
+.stack .l3{--from:0px;--amp:5px;animation-delay:.24s,1.64s}
+@keyframes settle{from{opacity:0;transform:translateY(calc(var(--from) - 30px))}to{opacity:1;transform:none}}
+@keyframes bob{50%{transform:translateY(var(--amp))}}
+.wordmark{font-family:var(--display);font-weight:700;font-size:15px;letter-spacing:.42em;margin-right:-.42em;opacity:.9}
+h1{font-family:var(--display);font-weight:650;font-size:clamp(46px,9.2vw,124px);line-height:.94;letter-spacing:-.035em;margin:14px 0 22px;text-wrap:balance}
+h1 span{display:inline-block;animation:rise 1s cubic-bezier(.2,.9,.2,1) both}
+h1 span:nth-child(2){animation-delay:.1s}
+h1 span:nth-child(3){animation-delay:.2s}
+@keyframes rise{from{opacity:0;transform:translateY(.35em)}to{opacity:1;transform:none}}
+.lede{max-width:34em;font-size:clamp(17px,1.5vw,20px);color:var(--body);text-wrap:pretty}
+.cta{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:30px}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:50px;padding:0 24px;border-radius:999px;text-decoration:none;font-weight:600;font-size:16.5px;transition:transform .2s,background .2s,box-shadow .2s}
+.btn{text-shadow:none}
+.btn.pri{background:var(--ink);color:#fff;box-shadow:0 14px 34px -14px rgba(20,18,43,.7)}
+.btn.pri:hover{transform:translateY(-2px)}
+.dark .btn.pri,.copy .btn.pri{background:#fff;color:var(--ink)}
+.btn.sec{background:color-mix(in srgb,currentColor 14%,transparent);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.btn.sec:hover{background:color-mix(in srgb,currentColor 16%,transparent)}
+.fine{margin-top:16px;font-size:14.5px;color:var(--muted)}
+.hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);font-size:14.5px;color:#fff;text-shadow:0 1px 14px rgba(20,18,43,.5);padding:10px 16px;border-radius:999px;opacity:var(--o,1)}
+.hint::before{content:"";display:inline-block;width:8px;height:8px;margin-right:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 0 rgba(255,255,255,.7);animation:ping 2.2s ease-out infinite;vertical-align:1px}
+@keyframes ping{to{box-shadow:0 0 0 14px rgba(255,255,255,0)}}
+
+/* layers (sections) */
+.layer{position:relative;padding:120px 0 150px}
+.layer>.edge{position:absolute;left:0;right:0;bottom:calc(100% - 1px);width:100%;height:clamp(40px,7vw,110px);display:block}
+.l-map{background:var(--paper)} .l-groups{background:var(--lilac)} .l-browse{background:var(--ink)}
+.l-more{background:var(--paper)} .l-get{background:var(--cobalt)}
+h2{font-family:var(--display);font-weight:650;font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.03em;text-wrap:balance;max-width:14em}
+.intro{max-width:36em;margin-top:20px;color:var(--body);font-size:18px;text-wrap:pretty}
+.head{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:end;margin-bottom:54px}
+.head .intro{margin-top:0}
+@media(max-width:860px){.head{grid-template-columns:1fr;gap:18px}.layer{padding:84px 0 110px}}
+
+/* treemap demo */
+.demo{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:18px;background:var(--ink);box-shadow:0 40px 90px -40px rgba(20,18,43,.6);border:1px solid var(--line);border-radius:22px;padding:18px}
+.bar{grid-column:1/-1;display:flex;align-items:center;gap:12px;min-height:44px}
+.back{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;font-size:18px;transition:opacity .2s,background .2s}
+.back:hover{background:color-mix(in srgb,currentColor 10%,transparent)}
+.back[disabled]{opacity:.3;cursor:default}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;font-weight:600;font-size:16px}
+.crumbs button{color:var(--muted)} .crumbs button:hover{color:var(--text)}
+.crumbs span{color:var(--muted)}
+.total{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted);font-size:15px}
+.map{position:relative;aspect-ratio:16/10.4;border-radius:14px;overflow:hidden;background:#0b0a1c}
+.tile{position:absolute;padding:3px;transition:left .5s cubic-bezier(.3,.8,.2,1),top .5s cubic-bezier(.3,.8,.2,1),width .5s cubic-bezier(.3,.8,.2,1),height .5s cubic-bezier(.3,.8,.2,1),opacity .35s;container-type:size}
+.tile.instant{transition:none}
+.tile>button{width:100%;height:100%;border-radius:10px;text-align:left;padding:10px 12px;overflow:hidden;background:linear-gradient(160deg,var(--c1),var(--c2));color:#fff;display:block;transition:filter .2s,box-shadow .2s;cursor:default}
+.tile.open>button{cursor:zoom-in}
+.tile>button:hover,.tile.hot>button{filter:brightness(1.18);box-shadow:inset 0 0 0 2px rgba(255,255,255,.75)}
+.tile b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile i{display:block;font-style:normal;font-family:var(--display);font-weight:700;font-size:21px;line-height:1.15;font-variant-numeric:tabular-nums}
+.tile small{font-size:12.5px;opacity:.8}
+@container (max-width:92px){.tile i,.tile small{display:none}.tile b{font-size:12px}}
+@container (max-height:62px){.tile i,.tile small{display:none}}
+@container (max-width:46px){.tile b{display:none}}
+@container (max-height:30px){.tile b{display:none}}
+.rows{list-style:none;display:flex;flex-direction:column;gap:2px;align-self:start}
+.rows li{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:4px 12px;align-items:center;padding:9px 12px;border-radius:10px;font-size:15px;transition:background .15s}
+.rows li.hot{background:color-mix(in srgb,currentColor 8%,transparent)}
+.rows .dot{width:12px;height:12px;border-radius:4px;background:var(--c1)}
+.rows .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rows .sz{font-variant-numeric:tabular-nums;font-weight:600}
+.rows .track{grid-column:2/-1;height:4px;border-radius:4px;background:color-mix(in srgb,currentColor 8%,transparent);overflow:hidden}
+.rows .track u{display:block;height:100%;border-radius:4px;background:var(--c1);width:var(--w);transition:width .6s cubic-bezier(.3,.8,.2,1)}
+.tip{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+@media(max-width:860px){.demo{grid-template-columns:1fr}.map{aspect-ratio:1/1}}
+.pair{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center;margin-top:90px}
+.pair img{border-radius:12px;box-shadow:0 30px 70px -30px rgba(20,18,43,.6),0 0 0 1px var(--line)}
+.pair h3,.cols h3{font-family:var(--display);font-weight:650;font-size:24px;letter-spacing:-.015em;margin-bottom:8px}
+.pair p{color:var(--body);margin-bottom:26px}
+@media(max-width:860px){.pair{grid-template-columns:1fr;gap:28px;margin-top:60px}}
+
+/* groups demo */
+.gdemo{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px}
+.pond{position:relative;height:500px;border-radius:22px;border:1px solid var(--line);background:radial-gradient(70% 70% at 50% 45%,#2a2560,var(--ink) 78%);overflow:hidden;touch-action:pan-y}
+.bub{position:absolute;left:0;top:0;border-radius:50%;display:grid;place-content:center;text-align:center;color:#fff;background:radial-gradient(circle at 35% 28%,var(--c1),var(--c2));box-shadow:inset 0 0 0 1px rgba(255,255,255,.22),0 14px 40px -14px var(--c2);will-change:transform;transition:opacity .45s,scale .45s cubic-bezier(.5,-.4,.6,1),filter .2s}
+.bub:hover{filter:brightness(1.15)}
+.bub.gone{opacity:0;scale:.05;pointer-events:none}
+.bub b{font-family:var(--mono);font-size:13.5px;font-weight:600;display:block;padding:0 6px;overflow:hidden;text-overflow:ellipsis}
+.bub span{font-size:12.5px;opacity:.9;font-variant-numeric:tabular-nums}
+.bub.sm span{display:none}.bub.sm b{font-size:11px}
+.side{border-radius:22px;border:1px solid var(--line);background:#fff;padding:26px;display:flex;flex-direction:column;gap:22px}
+.side .lab{color:var(--muted);font-size:15px}
+.big{font-family:var(--display);font-weight:700;font-size:clamp(48px,6vw,76px);line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;color:var(--hot)}
+.meter{height:10px;border-radius:10px;background:color-mix(in srgb,currentColor 10%,transparent);overflow:hidden}
+.meter u{display:block;height:100%;width:var(--used,88%);background:linear-gradient(90deg,var(--cobalt),var(--pink));border-radius:10px;transition:width .7s cubic-bezier(.3,.8,.2,1)}
+.disk{display:flex;justify-content:space-between;font-size:14.5px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums}
+.toast{min-height:52px;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:14px;background:color-mix(in srgb,currentColor 7%,transparent);font-size:15px}
+.toast span{flex:1;min-width:0}
+.toast button{min-height:36px;padding:0 14px;border-radius:10px;background:color-mix(in srgb,currentColor 12%,transparent);font-weight:600;white-space:nowrap}
+.toast button:hover{background:color-mix(in srgb,currentColor 22%,transparent)}
+.toast button[hidden]{display:none}
+.side ul{list-style:none;display:grid;gap:12px;font-size:15.5px;color:var(--body);margin-top:auto}
+.side ul li{padding-left:22px;position:relative}
+.side ul li::before{content:"";position:absolute;left:0;top:.55em;width:10px;height:10px;transform:rotate(45deg) skew(12deg,12deg);background:var(--cobalt)}
+@media(max-width:860px){.gdemo{grid-template-columns:1fr}.pond{height:420px}}
+
+/* browser + themes */
+.shot{border-radius:14px;box-shadow:0 40px 110px -30px #000,0 0 0 1px var(--line),0 0 160px -40px rgba(47,63,224,.7)}
+.cols{display:grid;grid-template-columns:repeat(4,1fr);gap:34px;margin-top:44px}
+.cols h3{font-size:20px}
+.cols p{color:var(--body);font-size:15.5px}
+@media(max-width:860px){.cols{grid-template-columns:1fr 1fr;gap:26px}}
+.themes{margin-top:120px}
+
+/* more */
+.more{display:grid;grid-template-columns:1fr 1fr;gap:0 56px;margin-top:10px}
+.more div{padding:22px 0;border-top:1px solid var(--line)}
+.more dt{font-family:var(--display);font-weight:650;font-size:20px;letter-spacing:-.01em}
+.more dd{color:var(--body);font-size:16px;margin-top:4px;max-width:34em}
+@media(max-width:860px){.more{grid-template-columns:1fr}}
+.strata{margin-top:110px;display:grid;grid-template-columns:.8fr 1.2fr;gap:56px;align-items:center}
+.slabs{display:grid;gap:10px}
+.slab{padding:22px 26px;border-radius:16px}
+.slab:nth-child(1){background:var(--cobalt);color:#fff;--body:rgba(255,255,255,.9);margin-right:12%}
+.slab:nth-child(2){background:var(--pink);color:#fff;--body:rgba(255,255,255,.9);margin:0 6%}
+.slab:nth-child(3){background:var(--hot);color:#fff;--body:rgba(255,255,255,.92);margin-left:12%}
+.slab h3{font-family:var(--display);font-weight:650;font-size:19px}
+.slab p{color:var(--body);font-size:15.5px}
+@media(max-width:860px){.strata{grid-template-columns:1fr;gap:30px;margin-top:80px}.slab{margin:0!important}}
+.keys{margin-top:110px}
+.keys ul{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:0 40px;margin-top:34px}
+.keys li{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-top:1px solid var(--line);font-size:15.5px;color:var(--body)}
+.keys li span:last-child{display:flex;gap:4px;flex:none}
+
+/* get */
+.l-get{text-align:center;padding-bottom:90px}
+.l-get h2{margin:0 auto;font-size:clamp(40px,7vw,92px)}
+.l-get .intro{margin:22px auto 0}
+.l-get .cta{margin-top:34px}
+.notes{margin:70px auto 0;max-width:760px;text-align:left;display:grid;gap:10px}
+details{border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,currentColor 3%,transparent)}
+summary{padding:18px 22px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-family:var(--display);font-size:22px;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details>div{padding:0 22px 22px;color:var(--body);font-size:15.5px}
+details p+p{margin-top:12px}
+pre{position:relative;margin-top:14px;padding:16px 18px;border-radius:12px;background:var(--ink);overflow-x:auto;font-family:var(--mono);font-size:13.5px;line-height:1.7;color:#ecebff}
+.copybtn{position:sticky;float:right;right:0;top:0;margin:-6px -8px 0 12px;min-height:32px;padding:0 12px;border-radius:8px;background:color-mix(in srgb,currentColor 12%,transparent);font-family:var(--sans);font-size:13.5px;font-weight:600}
+.copybtn:hover{background:color-mix(in srgb,currentColor 24%,transparent)}
+footer{background:var(--ink);border-top:1px solid var(--line);padding:34px 0 46px;font-size:15px;color:var(--muted)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;justify-content:space-between}
+footer nav{display:flex;flex-wrap:wrap;gap:22px}
+footer a{text-decoration:none} footer a:hover{color:var(--text)}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .stack g,h1 span,.hint::before{animation:none}
+  .tile,.bub,.meter u,.rows .track u{transition:none}
+}
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="assets/stratum/icon.webp" alt="" width="30" height="30" />Stratum</a>
+    <nav aria-label="Primary">
+      <ul>
+        <li><a href="#map">Storage map</a></li>
+        <li><a href="#groups">Groups</a></li>
+        <li><a href="#browser">Browser</a></li>
+        <li><a href="https://github.com/AbyAbyss/stratum_file_manager">GitHub</a></li>
+        <li><a class="get" href="#download">Download</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="stage" id="top" aria-labelledby="h1">
+  <div class="pin" id="pin">
+    <div class="under" aria-hidden="true">
+      <figure class="win">
+        <img src="assets/stratum/storage.webp" alt="" width="1800" height="1128" />
+        <figcaption>One scan, and the whole disk is a map.</figcaption>
+      </figure>
+    </div>
+    <canvas id="sky" aria-hidden="true"></canvas>
+    <div class="copy" id="copy">
+      <svg class="stack" viewBox="0 0 128 118" aria-hidden="true">
+        <g class="l3"><path d="M64 62 118 88 64 114 10 88Z" fill="rgba(255,255,255,.28)" stroke="rgba(255,255,255,.5)" stroke-width="1.5" stroke-linejoin="round"/></g>
+        <g class="l2"><path d="M64 34 118 60 64 86 10 60Z" fill="rgba(255,255,255,.55)" stroke="rgba(255,255,255,.75)" stroke-width="1.5" stroke-linejoin="round"/></g>
+        <g class="l1"><path d="M64 6 118 32 64 58 10 32Z" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></g>
+      </svg>
+      <p class="wordmark">STRATUM</p>
+      <h1 id="h1"><span>Your&nbsp;</span><span>Mac,&nbsp;</span><span>in layers.</span></h1>
+      <p class="lede">A native file manager and storage analyzer. Browse fast, see where the space went, and clean up build caches and duplicates with an undo.</p>
+      <div class="cta">
+        <a class="btn pri" href="https://github.com/AbyAbyss/stratum_file_manager/releases/latest">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+          Download for macOS</a>
+        <a class="btn sec" href="https://github.com/AbyAbyss/stratum_file_manager">View the source</a>
+      </div>
+      <p class="fine">Free and open source. macOS 14 or later.</p>
+    </div>
+    <button class="hint" id="hint" type="button">Click the sky to break the surface</button>
+  </div>
+</section>
+
+<section class="layer l-map" id="map" aria-labelledby="h-map">
+  <svg class="edge" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path fill="#f5f6fa" d="M0 64c180-52 330-58 520-26s330 60 520 34 280-58 400-40v78H0Z"/></svg>
+  <div class="wrap">
+    <div class="head">
+      <h2 id="h-map">See where the space went.</h2>
+      <p class="intro">Stratum scans a folder, or your whole disk, once. After that it is a map: the bigger the block, the bigger the folder. This one is live, so click a block to open it.</p>
+    </div>
+    <div class="demo dark" id="demo">
+      <div class="bar">
+        <button class="back" id="tm-back" type="button" aria-label="Back to the enclosing folder" disabled>←</button>
+        <div class="crumbs" id="tm-crumbs" aria-live="polite"></div>
+        <div class="total" id="tm-total"></div>
+      </div>
+      <div class="map" id="tm-map"></div>
+      <ul class="rows" id="tm-rows"></ul>
+      <p class="tip">Click a folder to open it. <kbd>Esc</kbd> goes back. Sample data, not your disk.</p>
+    </div>
+
+    <div class="pair">
+      <img src="assets/stratum/file-types.webp" alt="The File Types view: category cards for video, photos, code and apps, with the largest files listed below" width="1800" height="1128" loading="lazy" />
+      <div>
+        <h3>The same disk, by type</h3>
+        <p>Switch to File Types to see video, photos, code, apps, documents, music and archives. Pick one to list its heaviest files and reveal any of them in Finder.</p>
+        <h3>Insights that only point</h3>
+        <p>A side panel shows what is worth a look: build and cache folders, your largest files, and large files nobody has touched in a year. It never deletes anything.</p>
+        <h3>History that stays small</h3>
+        <p>Each scan saves a few kilobytes of totals. The Storage History page charts how the disk grew and which folders and file types did the growing.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="layer l-groups" id="groups" aria-labelledby="h-groups">
+  <svg class="edge" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path fill="#e9e7fb" d="M0 40c160 30 300 62 480 50s300-74 500-70 320 54 460 30v60H0Z"/></svg>
+  <div class="wrap">
+    <div class="head">
+      <h2 id="h-groups">The same folder, everywhere.</h2>
+      <p class="intro"><code>node_modules</code>, <code>DerivedData</code>, <code>.venv</code>, <code>target</code>, <code>Pods</code>. They pile up under every project. Groups finds every folder that shares a name and totals them. Click a bubble to move that group to the Trash.</p>
+    </div>
+    <div class="gdemo">
+      <div class="pond dark" id="pond" aria-label="Folder groups. Each bubble is one folder name; activate it to move the group to the Trash."></div>
+      <div class="side">
+        <div>
+          <p class="lab">Space reclaimed</p>
+          <p class="big" id="g-total">0 GB</p>
+        </div>
+        <div>
+          <div class="meter" id="g-meter"><u></u></div>
+          <div class="disk"><span id="g-used"></span><span id="g-free"></span></div>
+        </div>
+        <div class="toast" role="status">
+          <span id="g-msg">Nothing in the Trash yet.</span>
+          <button id="g-undo" type="button" hidden>Undo</button>
+        </div>
+        <ul>
+          <li>Everything goes to the Trash first, so <kbd>⌘</kbd> <kbd>Z</kbd> brings it back.</li>
+          <li>Protect active projects skips folders changed in the last 14 days.</li>
+          <li>System paths are always protected, and large cleanups ask first.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="layer l-browse dark" id="browser" aria-labelledby="h-browser">
+  <svg class="edge" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path fill="#14122b" d="M0 70c220-60 420-50 640-20s360 40 540 10 180-40 260-30v80H0Z"/></svg>
+  <div class="wrap">
+    <div class="head">
+      <h2 id="h-browser">A file manager you can live in.</h2>
+      <p class="intro">The map is one screen. The rest is a full browser for everyday work, built on native lists so large folders stay smooth.</p>
+    </div>
+    <img class="shot" src="assets/stratum/browser.webp" alt="The Stratum browser in icon view with the inspector open on a folder" width="1800" height="1128" loading="lazy" />
+    <div class="cols">
+      <div><h3>Three views</h3><p>Icons, list and columns, with a size slider and grouping.</p></div>
+      <div><h3>Tabs and windows</h3><p>Pin the tabs you keep. Extra windows share one disk scan.</p></div>
+      <div><h3>Inspector</h3><p>Preview, metadata, Finder tags and quick actions for the selection.</p></div>
+      <div><h3>Command palette</h3><p><kbd>⌘</kbd> <kbd>K</kbd> finds files by name or content and runs any action.</p></div>
+    </div>
+
+    <div class="themes">
+      <div class="head">
+        <h2>Make it yours.</h2>
+        <p class="intro">Seventeen themes, twenty accent colours, or an accent picked from your wallpaper. Light, dark, or follow the system. Settings shows a live preview as you change things.</p>
+      </div>
+      <img class="shot" src="assets/stratum/themes.webp" alt="Settings, Appearance: a live preview above a gallery of themes such as Stratum Emerald Glass, Tokyo Night and Catppuccin Mocha" width="1800" height="1128" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<section class="layer l-more" id="more" aria-labelledby="h-more">
+  <svg class="edge" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path fill="#f5f6fa" d="M0 50c200 40 380 50 560 20s340-60 520-40 260 50 360 36v44H0Z"/></svg>
+  <div class="wrap">
+    <div class="head">
+      <h2 id="h-more">Also in the box.</h2>
+      <p class="intro">Smaller things that make the daily work quicker.</p>
+    </div>
+    <dl class="more">
+      <div><dt>Smart Organizer</dt><dd>Sort a messy folder into category folders and find exact duplicates, verified with SHA-256.</dd></div>
+      <div><dt>Shelf</dt><dd>Park files from several folders, then copy or move them all into one place.</dd></div>
+      <div><dt>Fast transfers</dt><dd>Copies use APFS cloning where possible. Pause or cancel from the toolbar.</dd></div>
+      <div><dt>Open from Finder</dt><dd>Turn on Open in Stratum and it appears under right-click, Quick Actions.</dd></div>
+      <div><dt>Private</dt><dd>Everything runs and stays on your Mac. No account, no analytics. The only network request is the update check.</dd></div>
+      <div><dt>Updates itself</dt><dd>New versions arrive through Sparkle, and every update is signature-verified.</dd></div>
+    </dl>
+
+    <div class="strata">
+      <div>
+        <h2>Under the layers.</h2>
+        <p class="intro">Three layers, top to bottom. One scan feeds every screen, so nothing is read from the disk twice.</p>
+      </div>
+      <div class="slabs">
+        <div class="slab"><h3>What you see</h3><p>SwiftUI around native AppKit collection and table views.</p></div>
+        <div class="slab"><h3>What it remembers</h3><p>One scan in a local SQLite database, so the map and groups answer instantly and survive a relaunch.</p></div>
+        <div class="slab"><h3>How it reads the disk</h3><p><code>getattrlistbulk</code> for the scan. FSEvents notices changes and refreshes in the background.</p></div>
+      </div>
+    </div>
+
+    <div class="keys">
+      <h2>Keys worth knowing.</h2>
+      <ul>
+        <li><span>Command palette</span><span><kbd>⌘</kbd><kbd>K</kbd></span></li>
+        <li><span>Icons, list, columns</span><span><kbd>⌘</kbd><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd></span></li>
+        <li><span>Switch screen</span><span><kbd>⌥</kbd><kbd>⌘</kbd><kbd>1–5</kbd></span></li>
+        <li><span>New tab</span><span><kbd>⌘</kbd><kbd>T</kbd></span></li>
+        <li><span>New window</span><span><kbd>⌘</kbd><kbd>N</kbd></span></li>
+        <li><span>Go to folder</span><span><kbd>⇧</kbd><kbd>⌘</kbd><kbd>G</kbd></span></li>
+        <li><span>Quick Look</span><span><kbd>⌘</kbd><kbd>Y</kbd></span></li>
+        <li><span>Move to Trash</span><span><kbd>⌘</kbd><kbd>⌫</kbd></span></li>
+        <li><span>Undo the last Trash</span><span><kbd>⌘</kbd><kbd>Z</kbd></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="layer l-get dark" id="download" aria-labelledby="h-get">
+  <svg class="edge" viewBox="0 0 1440 110" preserveAspectRatio="none" aria-hidden="true"><path fill="#2f3fe0" d="M0 60c240-50 460-40 700-10s420 30 740-20v80H0Z"/></svg>
+  <div class="wrap">
+    <h2 id="h-get">Get your disk back.</h2>
+    <p class="intro">Download the DMG, open it, and drag Stratum into Applications. Free, open source under the MIT licence, for macOS 14 or later.</p>
+    <div class="cta">
+      <a class="btn pri" href="https://github.com/AbyAbyss/stratum_file_manager/releases/latest">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+        Download for macOS</a>
+      <a class="btn sec" href="https://buymeacoffee.com/abyabyss">Buy me a coffee</a>
+    </div>
+    <div class="notes">
+      <details>
+        <summary>macOS says it can't verify Stratum</summary>
+        <div>
+          <p>The app is not notarized yet, so the first launch is blocked. Click Done, not Move to Bin. Then open System Settings, Privacy &amp; Security, scroll to the message about Stratum and click Open Anyway. Or run this once in Terminal:</p>
+          <pre><button class="copybtn" type="button">Copy</button><code>xattr -dr com.apple.quarantine /Applications/Stratum.app</code></pre>
+          <p>For the whole-disk map and Groups, give Stratum Full Disk Access. The welcome tour takes you to the right pane.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Build it from source</summary>
+        <div>
+          <p>You need a recent Xcode and XcodeGen.</p>
+          <pre><button class="copybtn" type="button">Copy</button><code>brew install xcodegen
+git clone https://github.com/AbyAbyss/stratum_file_manager.git
+cd stratum_file_manager
+xcodegen generate
+open Stratum.xcodeproj</code></pre>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="dark">
+  <div class="wrap">
+    <p>Stratum. MIT licence. Made by <a href="index.html">Aby Saji Pappachan</a>.</p>
+    <nav aria-label="Footer">
+      <a href="https://github.com/AbyAbyss/stratum_file_manager">GitHub</a>
+      <a href="https://github.com/AbyAbyss/stratum_file_manager/releases">Releases</a>
+      <a href="https://github.com/AbyAbyss/stratum_file_manager/issues">Report a bug</a>
+      <a href="index.html">More projects</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(() => {
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const $ = (id) => document.getElementById(id);
+
+/* ---------- sky: aurora, stars, dunes, and the surface that breaks ---------- */
+const stage = $('top'), pin = $('pin'), canvas = $('sky'), copy = $('copy'), hint = $('hint'), nav = $('nav');
+const gl = canvas.getContext('webgl', { premultipliedAlpha: true, alpha: true, antialias: false });
+const state = { b: 0, mx: .5, my: .6, cx: .5, cy: .45, visible: true };
+let draw = () => {};
+
+if (gl) {
+  const vs = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+  const fs = `precision highp float;
+uniform vec2 r;uniform float t;uniform vec2 m;uniform float b;uniform vec2 c;
+float h(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);
+  return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+float fbm(vec2 p){float a=.5,s=0.;for(int i=0;i<4;i++){s+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return s;}
+vec3 pal(float i){i=mod(i,6.);
+  if(i<1.)return vec3(.23,.18,.79);if(i<2.)return vec3(.9,.31,.18);if(i<3.)return vec3(.14,.34,.9);
+  if(i<4.)return vec3(.87,.55,.16);if(i<5.)return vec3(.05,.56,.53);return vec3(.72,.2,.56);}
+void main(){
+  vec2 uv=gl_FragCoord.xy/r;float asp=r.x/r.y;
+  vec2 p=vec2((uv.x-.5)*asp,uv.y-.5);
+  vec2 mp=vec2((m.x-.5)*asp,m.y-.5);
+  vec2 q=p+.14*(mp-p)*exp(-length(mp-p)*2.2);
+  float w1=fbm(q*vec2(1.,1.5)+vec2(t*.03,-t*.02));
+  float w2=fbm(q*2.2+vec2(-t*.04,t*.03)+w1*1.6);
+  float v=q.y*3.7+q.x*.5+(w1-.5)*2.6+(w2-.5)*1.+t*.035+40.;
+  float f=fract(v);
+  vec3 col=mix(pal(floor(v)),pal(floor(v)+1.),smoothstep(.93,1.,f));
+  col*=.86+.2*f;
+  col+=.16*smoothstep(.0,.05,f)*smoothstep(.12,.05,f);
+  vec2 g=p-vec2(0.,.02);col=mix(col,col*.5+vec3(.03,.02,.1),exp(-dot(g,g)*2.4)*.55);
+  col+=(h(gl_FragCoord.xy+t)-.5)*.035;
+  float a=1.;
+  if(b>.0005){
+    vec2 cc=vec2((c.x-.5)*asp,c.y-.5);vec2 dp=p-cc;float dist=length(dp);
+    float wob=(fbm(dp/max(dist,.001)*2.4+vec2(t*.22,-t*.18)+dist*1.5)-.5)*.2;
+    float mr=length(vec2(asp*.5+abs(cc.x),.5+abs(cc.y)))+.14;
+    float R=b*mr;float dn=dist+wob;
+    a=smoothstep(R-.003,R+.003,dn);
+    float o=max(dn-R,0.);
+    col+=vec3(1.)*exp(-o*34.)*.9;
+    col+=vec3(.5)*max(sin(o*52.-t*5.),0.)*exp(-o*6.)*b*(1.-b)*1.6;
+  }
+  gl_FragColor=vec4(col*a,a);
+}`;
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; };
+  const prog = gl.createProgram();
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  if (gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'a');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const u = Object.fromEntries(['r', 't', 'm', 'b', 'c'].map((k) => [k, gl.getUniformLocation(prog, k)]));
+    const size = () => {
+      const dpr = Math.min(devicePixelRatio || 1, 1.5);
+      const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
+    };
+    draw = (ms) => {
+      size();
+      gl.uniform2f(u.r, canvas.width, canvas.height);
+      gl.uniform1f(u.t, reduce ? 12 : ms / 1000);
+      gl.uniform2f(u.m, state.mx, state.my);
+      gl.uniform1f(u.b, state.b);
+      gl.uniform2f(u.c, state.cx, state.cy);
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+  } else { canvas.style.background = 'linear-gradient(172deg,#3b2fc9 0 22%,#2456e6 22% 40%,#0e8f86 40% 58%,#e3872a 58% 74%,#e6502e 74% 88%,#b8328f 88%)'; }
+} else { canvas.style.background = 'linear-gradient(172deg,#3b2fc9 0 22%,#2456e6 22% 40%,#0e8f86 40% 58%,#e3872a 58% 74%,#e6502e 74% 88%,#b8328f 88%)'; }
+
+const ease = (x) => x * x * (3 - 2 * x);
+function onScroll() {
+  const rect = stage.getBoundingClientRect();
+  const span = rect.height - innerHeight;
+  const p = clamp(-rect.top / span);
+  state.b = ease(clamp((p - .06) / .7));
+  const o = clamp(1 - p * 9);
+  copy.style.setProperty('--o', o); hint.style.setProperty('--o', o);
+  copy.classList.toggle('off', o < .3);
+  hint.style.pointerEvents = o < .3 ? 'none' : '';
+  pin.style.setProperty('--b', state.b.toFixed(4));
+  canvas.style.visibility = state.b >= 1 ? 'hidden' : '';
+  canvas.style.pointerEvents = state.b > .02 ? 'none' : '';
+  nav.classList.toggle('solid', p > .5);
+  if (p < .02) { state.cx = .5; state.cy = .45; }
+  if (reduce) requestAnimationFrame(draw);
+}
+addEventListener('scroll', onScroll, { passive: true });
+addEventListener('resize', onScroll);
+
+function breakSurface(e) {
+  if (e && e.clientX != null && e.currentTarget === canvas) {
+    state.cx = e.clientX / innerWidth; state.cy = 1 - e.clientY / innerHeight;
+  }
+  const end = stage.offsetTop + (stage.offsetHeight - innerHeight) * .8;
+  if (reduce) { scrollTo(0, end); return; }
+  const from = scrollY, t0 = performance.now(), dur = 1700;
+  document.documentElement.style.scrollBehavior = 'auto';
+  const step = (now) => {
+    const k = clamp((now - t0) / dur);
+    scrollTo(0, from + (end - from) * (1 - Math.pow(1 - k, 3)));
+    if (k < 1) requestAnimationFrame(step); else document.documentElement.style.scrollBehavior = '';
+  };
+  requestAnimationFrame(step);
+}
+canvas.addEventListener('click', breakSurface);
+hint.addEventListener('click', breakSurface);
+pin.addEventListener('pointermove', (e) => { state.mx = e.clientX / innerWidth; state.my = 1 - e.clientY / innerHeight; });
+
+new IntersectionObserver(([en]) => { state.visible = en.isIntersecting; }).observe(stage);
+const loop = (ms) => { if (state.visible && state.b < 1) draw(ms); requestAnimationFrame(loop); };
+onScroll();
+if (reduce) draw(0); else requestAnimationFrame(loop);
+
+/* ---------- treemap ---------- */
+const GB = (v) => (v >= 10 ? Math.round(v) : v.toFixed(1)) + ' GB';
+const T = (name, v, kids) => ({ name, v, kids });
+const tree = T('Home', 0, [
+  T('Library', 0, [
+    T('Developer', 0, [T('DerivedData', 38), T('CoreSimulator', 24), T('Toolchains', 4.2)]),
+    T('Caches', 0, [T('Homebrew', 14), T('com.apple.Safari', 9.5), T('pip', 7.2), T('Yarn', 6.1), T('Other', 4.4)]),
+    T('Application Support', 0, [T('Docker', 17), T('Code', 8.4), T('Slack', 5.6)]),
+    T('Containers', 14), T('Mail', 6.3)
+  ]),
+  T('Movies', 0, [T('Screen Recordings', 54), T('Final Cut', 0, [T('Launch film', 26), T('Tutorials', 12), T('Render cache', 4)]), T('Exports', 9)]),
+  T('Projects', 0, [
+    T('ml-notebooks', 0, [T('.venv', 11), T('datasets', 13), T('checkpoints', 3.4)]),
+    T('web-app', 0, [T('node_modules', 19), T('.next', 2.6), T('src', 1.3)]),
+    T('stratum', 0, [T('build', 9.2), T('Stratum', 1.6), T('docs', .4)]),
+    T('api', 0, [T('target', 7.1), T('src', 1.2)])
+  ]),
+  T('Photos', 0, [T('Library 2025', 30), T('Library 2024', 22), T('Exports', 5.5)]),
+  T('Downloads', 0, [T('Installers', 17), T('Archives', 11), T('Everything else', 3.8)]),
+  T('Documents', 11), T('Music', 6.4)
+]);
+const hues = [[248, 62, 58], [168, 48, 40], [214, 70, 54], [10, 62, 56], [312, 52, 52], [190, 55, 42], [38, 68, 48]];
+(function prep(n, parent, idx, depth) {
+  n.parent = parent;
+  if (depth === 1) n.hsl = hues[idx % hues.length];
+  else if (depth > 1) { const [h, s, l] = parent.hsl; n.hsl = [h + (idx % 2 ? 9 : -7) * Math.ceil(idx / 2), s, clamp(l + (idx % 3 - 1) * 6, 30, 66)]; }
+  if (n.kids) { n.kids.forEach((k, i) => prep(k, n, i, depth + 1)); n.kids.sort((a, b) => b.v - a.v); n.v = n.kids.reduce((s, k) => s + k.v, 0); }
+})(tree, null, 0, 0);
+tree.kids.sort((a, b) => b.v - a.v);
+
+function squarify(nodes, W, H) {
+  const total = nodes.reduce((s, n) => s + n.v, 0), out = [];
+  let x = 0, y = 0, w = W, h = H, rest = nodes.map((n) => ({ n, a: n.v / total * W * H }));
+  const worst = (row, sum, side) => {
+    let mx = 0, mn = Infinity; for (const r of row) { mx = Math.max(mx, r.a); mn = Math.min(mn, r.a); }
+    return Math.max(side * side * mx / (sum * sum), sum * sum / (side * side * mn));
+  };
+  while (rest.length) {
+    const side = Math.min(w, h); let row = [rest[0]], sum = rest[0].a, i = 1;
+    while (i < rest.length && worst([...row, rest[i]], sum + rest[i].a, side) <= worst(row, sum, side)) { sum += rest[i].a; row.push(rest[i]); i++; }
+    const thick = sum / side; let off = 0;
+    for (const r of row) {
+      const len = r.a / thick;
+      out.push(w >= h ? { n: r.n, x, y: y + off, w: thick, h: len } : { n: r.n, x: x + off, y, w: len, h: thick });
+      off += len;
+    }
+    if (w >= h) { x += thick; w -= thick; } else { y += thick; h -= thick; }
+    rest = rest.slice(i);
+  }
+  return out.map((r) => ({ n: r.n, x: r.x / W * 100, y: r.y / H * 100, w: r.w / W * 100, h: r.h / H * 100 }));
+}
+
+const mapEl = $('tm-map'), rowsEl = $('tm-rows'), crumbsEl = $('tm-crumbs'), backEl = $('tm-back'), totalEl = $('tm-total');
+let current = tree, busy = false;
+const place = (el, r) => { el.style.left = r.x + '%'; el.style.top = r.y + '%'; el.style.width = r.w + '%'; el.style.height = r.h + '%'; };
+const zoomed = (r, f) => ({ x: (r.x - f.x) / f.w * 100, y: (r.y - f.y) / f.h * 100, w: r.w / f.w * 100, h: r.h / f.h * 100 });
+const rectsFor = (node) => squarify(node.kids, mapEl.clientWidth || 800, mapEl.clientHeight || 520);
+const colors = (n) => { const [h, s, l] = n.hsl; return [`hsl(${h} ${s}% ${l}%)`, `hsl(${h + 8} ${s}% ${l - 12}%)`]; };
+const hot = (name, on) => document.querySelectorAll(`#demo [data-k="${CSS.escape(name)}"]`).forEach((e) => e.classList.toggle('hot', on));
+
+function tiles(node, rects, map) {
+  return rects.map((r) => {
+    const el = document.createElement('div'); el.className = 'tile' + (r.n.kids ? ' open' : ''); el.dataset.k = r.n.name;
+    const [c1, c2] = colors(r.n); el.style.setProperty('--c1', c1); el.style.setProperty('--c2', c2);
+    const pct = Math.round(r.n.v / node.v * 100);
+    el.innerHTML = `<button type="button" ${r.n.kids ? '' : 'tabindex="-1"'} aria-label="${r.n.name}, ${GB(r.n.v)}${r.n.kids ? ', open folder' : ''}"><b>${r.n.name}</b><i>${GB(r.n.v)}</i><small>${pct < 1 ? '<1' : pct}%</small></button>`;
+    place(el, map ? map(r) : r);
+    if (r.n.kids) el.firstChild.addEventListener('click', () => open(r.n, r));
+    el.addEventListener('pointerenter', () => hot(r.n.name, true));
+    el.addEventListener('pointerleave', () => hot(r.n.name, false));
+    return el;
+  });
+}
+function chrome(node) {
+  const path = []; for (let n = node; n; n = n.parent) path.unshift(n);
+  crumbsEl.replaceChildren(...path.flatMap((n, i) => {
+    const last = i === path.length - 1, el = document.createElement(last ? 'strong' : 'button');
+    el.textContent = n.name; if (!last) { el.type = 'button'; el.addEventListener('click', () => jump(n)); }
+    return last ? [el] : [el, Object.assign(document.createElement('span'), { textContent: '›' })];
+  }));
+  backEl.disabled = !node.parent; totalEl.textContent = GB(node.v);
+  const max = node.kids[0].v;
+  rowsEl.replaceChildren(...node.kids.slice(0, 7).map((k) => {
+    const li = document.createElement('li'); li.dataset.k = k.name; li.style.setProperty('--c1', colors(k)[0]);
+    li.innerHTML = `<span class="dot"></span><span class="nm">${k.name}</span><span class="sz">${GB(k.v)}</span><span class="track"><u style="--w:0%"></u></span>`;
+    li.addEventListener('pointerenter', () => hot(k.name, true)); li.addEventListener('pointerleave', () => hot(k.name, false));
+    requestAnimationFrame(() => requestAnimationFrame(() => li.querySelector('u').style.setProperty('--w', k.v / max * 100 + '%')));
+    return li;
+  }));
+}
+function show(node) { current = node; mapEl.replaceChildren(...tiles(node, rectsFor(node))); chrome(node); }
+function open(node, focus) {
+  if (busy) return; busy = true;
+  const old = [...mapEl.children], rects = rectsFor(current);
+  old.forEach((el, i) => { place(el, zoomed(rects[i], focus)); if (rects[i].n !== node) el.style.opacity = .25; });
+  setTimeout(() => {
+    current = node; const fresh = tiles(node, rectsFor(node));
+    fresh.forEach((el) => { el.style.opacity = 0; });
+    mapEl.replaceChildren(...fresh); chrome(node);
+    requestAnimationFrame(() => requestAnimationFrame(() => fresh.forEach((el) => { el.style.opacity = 1; })));
+    busy = false;
+  }, reduce ? 0 : 480);
+}
+function back() {
+  if (busy || !current.parent) return; busy = true;
+  const child = current, parent = current.parent, rects = rectsFor(parent), focus = rects.find((r) => r.n === child);
+  const fresh = tiles(parent, rects, (r) => zoomed(r, focus));
+  fresh.forEach((el) => el.classList.add('instant'));
+  mapEl.replaceChildren(...fresh); current = parent; chrome(parent);
+  mapEl.offsetWidth;
+  fresh.forEach((el, i) => { el.classList.remove('instant'); place(el, rects[i]); });
+  setTimeout(() => { busy = false; }, reduce ? 0 : 500);
+}
+function jump(node) { if (!busy) show(node); }
+backEl.addEventListener('click', back);
+addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape' || !current.parent) return;
+  const r = $('demo').getBoundingClientRect();
+  if (r.bottom > 0 && r.top < innerHeight) back();
+});
+show(tree);
+let rw; addEventListener('resize', () => { clearTimeout(rw); rw = setTimeout(() => show(current), 150); });
+
+/* ---------- groups ---------- */
+const groups = [
+  ['node_modules', 21.3, 23, [248, 62, 56]], ['DerivedData', 14.8, 1, [214, 66, 52]], ['Caches', 11.6, 12, [38, 66, 50]],
+  ['target', 9.1, 4, [140, 42, 44]], ['.venv', 6.2, 7, [270, 52, 58]], ['.gradle', 4.9, 2, [190, 55, 42]],
+  ['Pods', 3.4, 5, [350, 56, 54]], ['__pycache__', 1.1, 61, [22, 60, 52]]
+].map(([name, size, count, hsl]) => ({ name, size, count, hsl, x: 0, y: 0, vx: 0, vy: 0, r: 0, gone: false }));
+const pond = $('pond'), DISK = 995, USED0 = 876;
+const totalOut = $('g-total'), msg = $('g-msg'), undoBtn = $('g-undo'), meter = $('g-meter');
+const stackOps = []; let shown = 0, energy = 1, simOn = false, pondSeen = false;
+
+function measure() {
+  const w = pond.clientWidth, h = pond.clientHeight, area = w * h * .5, sum = groups.reduce((s, g) => s + g.size, 0);
+  groups.forEach((g, i) => {
+    g.r = Math.max(30, Math.sqrt(area * g.size / sum / Math.PI));
+    if (!g.el) {
+      const el = document.createElement('button'); el.type = 'button'; el.className = 'bub';
+      el.style.setProperty('--c1', `hsl(${g.hsl[0]} ${g.hsl[1]}% ${g.hsl[2] + 8}%)`);
+      el.style.setProperty('--c2', `hsl(${g.hsl[0] + 10} ${g.hsl[1]}% ${g.hsl[2] - 16}%)`);
+      el.innerHTML = `<b>${g.name}</b><span>${GB(g.size)}</span>`;
+      el.setAttribute('aria-label', `${g.name}, ${GB(g.size)} in ${g.count} ${g.count === 1 ? 'folder' : 'folders'}. Move to Trash`);
+      el.addEventListener('click', () => trash(g));
+      pond.appendChild(el); g.el = el;
+      const a = i * 2.4; g.x = w / 2 + Math.cos(a) * w * .3; g.y = h / 2 + Math.sin(a) * h * .3;
+    }
+    g.el.style.width = g.el.style.height = g.r * 2 + 'px';
+    g.el.classList.toggle('sm', g.r < 44);
+  });
+}
+function tick() {
+  const w = pond.clientWidth, h = pond.clientHeight, live = groups.filter((g) => !g.gone);
+  energy = 0;
+  for (const g of live) { g.vx += (w / 2 - g.x) * .0035; g.vy += (h / 2 - g.y) * .0045; }
+  for (let i = 0; i < live.length; i++) for (let j = i + 1; j < live.length; j++) {
+    const a = live[i], b = live[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || .01, min = a.r + b.r + 6;
+    if (d < min) { const push = (min - d) / d * .5, ma = b.r / (a.r + b.r), mb = 1 - ma;
+      a.x -= dx * push * ma; a.y -= dy * push * ma; b.x += dx * push * mb; b.y += dy * push * mb; }
+  }
+  for (const g of live) {
+    g.vx *= .82; g.vy *= .82; g.x += g.vx; g.y += g.vy;
+    g.x = clamp(g.x, g.r + 4, w - g.r - 4); g.y = clamp(g.y, g.r + 4, h - g.r - 4);
+    energy += Math.abs(g.vx) + Math.abs(g.vy);
+  }
+}
+const paint = () => groups.forEach((g) => { g.el.style.transform = `translate(${g.x - g.r}px,${g.y - g.r}px)`; });
+function run() {
+  if (reduce) { for (let i = 0; i < 400; i++) tick(); paint(); return; }
+  if (simOn) return; simOn = true; let frames = 0;
+  const f = () => { tick(); paint(); if (++frames < 60 || energy > .15) requestAnimationFrame(f); else simOn = false; };
+  requestAnimationFrame(f);
+}
+function count(to) {
+  if (reduce) { shown = to; totalOut.textContent = GB(to).replace(/^0\.0/, '0'); return; }
+  const from = shown, t0 = performance.now();
+  const f = (now) => { const k = clamp((now - t0) / 600); shown = from + (to - from) * (1 - Math.pow(1 - k, 3));
+    totalOut.textContent = shown < .05 ? '0 GB' : GB(shown); if (k < 1) requestAnimationFrame(f); };
+  requestAnimationFrame(f);
+}
+function refresh(text) {
+  const freed = groups.filter((g) => g.gone).reduce((s, g) => s + g.size, 0), used = USED0 - freed;
+  count(freed);
+  meter.style.setProperty('--used', used / DISK * 100 + '%');
+  $('g-used').textContent = `${Math.round(used)} GB used`;
+  $('g-free').textContent = `${Math.round(DISK - used)} GB free of ${DISK} GB`;
+  msg.textContent = text; undoBtn.hidden = !stackOps.length;
+  run();
+}
+function trash(g) {
+  if (g.gone) return; g.gone = true; g.el.classList.add('gone'); g.el.tabIndex = -1; stackOps.push(g);
+  refresh(`Moved ${g.count} ${g.name} ${g.count === 1 ? 'folder' : 'folders'} to the Trash.`);
+}
+undoBtn.addEventListener('click', () => {
+  const g = stackOps.pop(); if (!g) return;
+  g.gone = false; g.el.classList.remove('gone'); g.el.tabIndex = 0;
+  refresh(stackOps.length ? `Put ${g.name} back.` : `Put ${g.name} back. Nothing in the Trash.`);
+});
+measure(); refresh('Nothing in the Trash yet.');
+new IntersectionObserver(([en]) => { if (en.isIntersecting && !pondSeen) { pondSeen = true; run(); } }, { threshold: .2 }).observe(pond);
+addEventListener('resize', () => { measure(); run(); });
+
+/* ---------- copy buttons ---------- */
+document.querySelectorAll('.copybtn').forEach((btn) => btn.addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(btn.parentElement.querySelector('code').textContent); btn.textContent = 'Copied'; }
+  catch { btn.textContent = 'Select and copy'; }
+  setTimeout(() => { btn.textContent = 'Copy'; }, 1600);
+}));
+})();
+</script>
+</body>
+</html>
