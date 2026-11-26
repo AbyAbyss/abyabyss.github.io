@@ -60,6 +60,16 @@
   .refs { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
   .refs span { background: #f1ede6; border-radius: 6px; padding: 2px 8px; font-size: .88rem; text-decoration: underline; }
   .hidden { display: none; }
+  .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+          background: #f6e7c8; color: #7a5410; border-radius: 999px; padding: 2px 9px; margin-left: 6px; vertical-align: 2px; }
+  select { font: inherit; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; max-width: 100%; }
+  .field { display: grid; gap: 4px; }
+  .field small, .note small { color: var(--muted); }
+  .progress { height: 6px; background: #ece6dc; border-radius: 99px; overflow: hidden; margin-top: 12px; }
+  .progress div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+  .row-btns { display: flex; gap: 8px; margin-top: 10px; }
+  .note { background: #fbf4e4; border: 1px solid #ecd9ad; border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: .93rem; }
+  .note b { display: block; margin-bottom: 2px; }
   footer { color: var(--muted); font-size: .85rem; text-align: center; margin-top: 26px; }
   @media (max-width: 520px) { .row { flex-wrap: wrap; } .row button { margin-left: 46px; } }
 </style>
@@ -67,16 +77,37 @@
 <body>
 <div class="wrap">
   <h1>Sabbath School Lesson Splitter</h1>
-  <p class="sub">Upload the quarterly Word file. It gets split into one file per lesson, with every Bible reference underlined.</p>
+  <p class="sub">Upload the quarterly as a Word file (or a PDF). It gets split into one Word file per lesson, with every Bible reference underlined.</p>
 
   <div class="card">
     <div class="step">1 · Choose the file</div>
     <div class="drop" id="drop" tabindex="0">
-      <strong>Drop your .docx here, or tap to choose</strong>
-      <span>Word documents only (.docx)</span>
+      <strong>Drop your file here, or tap to choose</strong>
+      <span>Word (.docx) works best · PDF is experimental</span>
     </div>
-    <input type="file" id="picker" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
+    <input type="file" id="picker" accept=".docx,.pdf,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>
     <div class="file" id="fileName"></div>
+  </div>
+
+  <div class="card hidden" id="pdfCard">
+    <div class="step">PDF options <span class="pill">Experimental</span></div>
+    <div class="opts">
+      <div class="field"><label for="pdfMethod">How to read the PDF</label>
+        <select id="pdfMethod">
+          <option value="auto">Automatic (recommended)</option>
+          <option value="text">Use the text inside the PDF (best for legacy fonts like ML-TT)</option>
+          <option value="ocr">Read the page images with OCR (slower, for scans and broken text)</option>
+        </select>
+        <small>Automatic converts legacy Malayalam fonts directly, and switches to OCR when the PDF's own Malayalam text is damaged or missing.</small>
+      </div>
+      <div class="field"><label for="ocrLang">OCR language</label>
+        <select id="ocrLang"><option value="mal">Malayalam</option><option value="mal+eng">Malayalam + English (slower)</option><option value="eng">English</option></select>
+      </div>
+      <div class="field"><label for="wordFont">Font in the Word files</label>
+        <select id="wordFont"><option>Noto Sans Malayalam</option><option>Kartika</option><option>Nirmala UI</option><option>Manjari</option><option>Rachana</option><option>Malayalam Sangam MN</option></select>
+      </div>
+      <p class="note" style="margin:0"><small>PDF support needs an internet connection: it loads PDF.js and, for OCR, a reading model of a few MB the first time. Bold, sizes and layout are approximated, so proofread the result before printing.</small></p>
+    </div>
   </div>
 
   <div class="card">
@@ -107,7 +138,9 @@
   <div class="card">
     <div class="step">3 · Process</div>
     <button class="go" id="go" disabled>Split and underline</button>
+    <div class="progress hidden" id="prog"><div></div></div>
     <div class="status" id="status"></div>
+    <div class="row-btns"><button class="ghost hidden" id="cancel">Cancel</button></div>
   </div>
 
   <div class="card hidden" id="results">
@@ -118,6 +151,7 @@
         <button class="ghost" id="dlFull">Whole document, underlined</button>
       </div>
     </div>
+    <div class="note hidden" id="pdfNote"></div>
     <ul class="lessons" id="list"></ul>
   </div>
 
@@ -316,9 +350,13 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     var fullXml = serialize(env, doc);
     var els = kids(body);
     var kw = (opts.keyword || 'പാഠം').trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    var headRe = new RegExp('^\\s*' + kw + '\\s*\\d+', 'i');
-    var starts = [];
-    els.forEach(function (e, i) { if (isW(e, 'p') && headRe.test(text(e))) starts.push(i); });
+    var headRe = new RegExp('^\\s*' + kw + '\\s*(\\d+)', 'i');
+    var starts = [], lastNum = null;
+    // a heading only starts a new lesson when its number changes (PDF running headers repeat it on every page)
+    els.forEach(function (e, i) {
+      var m = isW(e, 'p') && headRe.exec(text(e));
+      if (m && m[1] !== lastNum) { starts.push(i); lastNum = m[1]; }
+    });
     var lessons = [];
     if (opts.split !== false && starts.length) {
       var heads = starts.map(function (i) { return text(els[i]).replace(/\s+/g, ' ').trim(); });
@@ -351,16 +389,1072 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
 </script>
 <script>
+/*!
+ * malayalam-legacy-converter.js
+ * Legacy (ASCII/8-bit font-encoded) Malayalam  ->  Unicode Malayalam
+ *
+ * Works in the browser (window.MalayalamLegacy) and in Node (module.exports).
+ *
+ * HOW IT WORKS
+ * ------------
+ * 1. Byte recovery.  A legacy Malayalam font puts Malayalam glyphs on ordinary
+ *    8-bit character codes (e.g. byte 0xAF is the glyph "ത്ത" in ML-TT fonts).
+ *    When a PDF reader extracts that text it guesses a Latin code page, so the
+ *    same byte can come out as different characters:
+ *        byte 0xAF  -> "¯"  (Windows-1252 / Latin-1 guess)
+ *        byte 0xAF  -> "Ø"  (Mac Roman guess, typical of macOS copy/paste)
+ *    So we first turn the extracted string back into the original byte codes,
+ *    using a "charset" (win | mac). Tables below are keyed by BYTE, which keeps
+ *    them independent of how the text was decoded.
+ *
+ * 2. Tokenising.  Greedy longest-match over the byte string, so multi-byte
+ *    sequences ("ss" = ൈ, "Cu" = ഈ, "sF" = ഐ ...) win over single bytes.
+ *    No chained String.replace() calls, so one rule can never corrupt the
+ *    output of another.
+ *
+ * 3. Reordering.  Legacy fonts store text in VISUAL order: the e/ee/ai vowel
+ *    signs (െ േ ൈ) and the ra-sign (്ര) are typed BEFORE the consonant they
+ *    belong to. Unicode stores them AFTER. The engine holds those "pre-base"
+ *    signs, waits for the consonant cluster (+ any ്യ / ്വ post-base signs) and
+ *    emits them in logical order.  e.g.  "s" "I" "m"  ->  ക + െ + ാ  ->  കൊ
+ *
+ * 4. Clean-up.  In-word discretionary hyphens are removed (optional), chillu
+ *    style is applied (atomic ൻ ർ ൽ ൾ ൺ, or old ZWJ sequences) and the result is
+ *    NFC-normalised (so െ+ാ becomes ൊ, െ+ൗ becomes ൌ, etc.).
+ *
+ * ADDING / FIXING A MAPPING
+ * -------------------------
+ * Tables are written in "Windows-1252 view": the key is the character you
+ * would see if the byte were shown as cp1252 (what Word/Notepad on Windows
+ * shows). They are compiled to byte keys at load time. To fix one glyph just
+ * edit its line, or call MalayalamLegacy.registerEncoding(id, {...}).
+ *
+ * Table sources: ML-TT byte layout cross-checked against the Payyans maps
+ * (Swathanthra Malayalam Computing, LGPL/GPL) for Karthika, Uma, Charaka,
+ * Revathi and Ambili. The "Ambili"/"Revathi" Payyans maps turned out to be the
+ * same ML-TT bytes seen through a Mac Roman decode, which is exactly the
+ * pattern in "ssZh-Øns‚" = ദൈവത്തിന്റെ.
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.MalayalamLegacy = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  /* ------------------------------------------------------------------ */
+  /* 1. Code pages                                                       */
+  /* ------------------------------------------------------------------ */
+
+  // Windows-1252 0x80..0x9F
+  const CP1252_HIGH = {
+    0x80: 0x20AC, 0x82: 0x201A, 0x83: 0x0192, 0x84: 0x201E, 0x85: 0x2026, 0x86: 0x2020,
+    0x87: 0x2021, 0x88: 0x02C6, 0x89: 0x2030, 0x8A: 0x0160, 0x8B: 0x2039, 0x8C: 0x0152,
+    0x8E: 0x017D, 0x91: 0x2018, 0x92: 0x2019, 0x93: 0x201C, 0x94: 0x201D, 0x95: 0x2022,
+    0x96: 0x2013, 0x97: 0x2014, 0x98: 0x02DC, 0x99: 0x2122, 0x9A: 0x0161, 0x9B: 0x203A,
+    0x9C: 0x0153, 0x9E: 0x017E, 0x9F: 0x0178
+  };
+  const WIN_REVERSE = new Map();
+  for (const [b, u] of Object.entries(CP1252_HIGH)) WIN_REVERSE.set(u, +b);
+
+  // Mac Roman 0x80..0xFF
+  const MAC_HIGH =
+    'ÄÅÇÉÑÖÜáàâäãåçéè' +
+    'êëíìîïñóòôöõúùûü' +
+    '†°¢£§•¶ß®©™´¨≠ÆØ' +
+    '∞±≤≥¥µ∂∑∏π∫ªºΩæø' +
+    '¿¡¬√ƒ≈∆«»… ÀÃÕŒœ' +
+    '–—“”‘’÷◊ÿŸ⁄€‹›ﬁﬂ' +
+    '‡·‚„‰ÂÊÁËÈÍÎÏÌÓÔ' +
+    'ÒÚÛÙıˆ˜¯˘˙˚¸˝˛ˇ';
+  const MAC_REVERSE = new Map();
+  for (let i = 0; i < 128; i++) MAC_REVERSE.set(MAC_HIGH.charCodeAt(i), 0x80 + i);
+  // Look-alikes that PDF glyph-name mapping sometimes produces instead
+  MAC_REVERSE.set(0x2126, 0xBD); // Ohm sign  -> Omega slot
+  MAC_REVERSE.set(0x03BC, 0xB5); // Greek mu  -> micro slot
+  MAC_REVERSE.set(0x0394, 0xC6); // Greek Delta -> increment slot
+  MAC_REVERSE.set(0x00A4, 0xDB); // old Mac Roman currency sign slot
+  MAC_REVERSE.set(0x2215, 0xDA); // division slash -> fraction slash slot
+
+  // Adobe StandardEncoding (what PDF readers assume for a simple font with no /Encoding).
+  // Only the codes that do NOT come out as their own Latin-1 value are listed.
+  const STD_REVERSE = new Map([
+    [0x2019, 0x27], [0x2018, 0x60], [0x2044, 0xA4], [0x0192, 0xA6], [0x00A4, 0xA8], [0x0027, 0xA9],
+    [0x201C, 0xAA], [0x2039, 0xAC], [0x203A, 0xAD], [0xFB01, 0xAE], [0xFB02, 0xAF], [0x2013, 0xB1],
+    [0x2020, 0xB2], [0x2021, 0xB3], [0x00B7, 0xB4], [0x2022, 0xB7], [0x201A, 0xB8], [0x201E, 0xB9],
+    [0x201D, 0xBA], [0x2026, 0xBC], [0x2030, 0xBD], [0x0060, 0xC1], [0x00B4, 0xC2], [0x02C6, 0xC3],
+    [0x02DC, 0xC4], [0x00AF, 0xC5], [0x02D8, 0xC6], [0x02D9, 0xC7], [0x00A8, 0xC8], [0x02DA, 0xCA],
+    [0x00B8, 0xCB], [0x02DD, 0xCD], [0x02DB, 0xCE], [0x02C7, 0xCF], [0x2014, 0xD0], [0x00C6, 0xE1],
+    [0x00AA, 0xE3], [0x0141, 0xE8], [0x00D8, 0xE9], [0x0152, 0xEA], [0x00BA, 0xEB], [0x00E6, 0xF1],
+    [0x0131, 0xF5], [0x0142, 0xF8], [0x00F8, 0xF9], [0x0153, 0xFA], [0x00DF, 0xFB]
+  ]);
+
+  const CHARSETS = ['win', 'mac', 'std'];
+  const CHARSET_LABELS = { win: 'Windows-1252', mac: 'Mac Roman', std: 'PDF StandardEncoding' };
+
+  /** character code -> original byte (0..255) under a charset, or -1 if unknown */
+  function charToByte(code, charset) {
+    if (charset === 'std') {
+      const s = STD_REVERSE.get(code);
+      if (s !== undefined) return s;
+    }
+    if (code < 0x80) return code;
+    if (code >= 0xF000 && code <= 0xF0FF) return code - 0xF000; // symbol-font PUA
+    if (charset === 'mac') {
+      const m = MAC_REVERSE.get(code);
+      if (m !== undefined) return m;
+    }
+    if (code <= 0xFF) return code;          // Latin-1 / raw char codes
+    const w = WIN_REVERSE.get(code);
+    if (w !== undefined) return w;
+    return -1;
+  }
+
+  /** decode one byte as Windows-1252 (used for bytes a table does not map) */
+  function byteToWinChar(b) {
+    return String.fromCharCode(CP1252_HIGH[b] || b);
+  }
+
+  /**
+   * Turn an extracted string into a "byte string": every recoverable char becomes
+   * String.fromCharCode(byte) (0..255); anything else (already-Unicode text,
+   * Malayalam, CJK...) is kept as-is and can never match a table key.
+   */
+  function toByteString(text, charset) {
+    let out = '';
+    for (const ch of text) {
+      const cp = ch.codePointAt(0);
+      const b = charToByte(cp, charset);
+      out += b >= 0 ? String.fromCharCode(b) : ch;
+    }
+    return out;
+  }
+
+  const WIN_ONLY = /[¦²³¹¼½¾Ð×ÝÞðýþŠšŽž]/g;
+  const MAC_ONLY = /[∂∑∏π∫ΩΩ√≈∆◊≤≥≠∞]/g;
+
+  /* ------------------------------------------------------------------ */
+  /* 2. Encoding tables  (Windows-1252 view; compiled to bytes)          */
+  /* ------------------------------------------------------------------ */
+
+  // Atomic chillus are used in the tables; the "zwj" option converts back.
+  const ML_TT = {
+    // independent vowels (multi-char forms first in meaning; engine does longest-match anyway)
+    'A': 'അ', 'B': 'ആ', 'C': 'ഇ', 'Cu': 'ഈ', 'D': 'ഉ', 'Du': 'ഊ', 'E': 'ഋ',
+    'F': 'എ', 'G': 'ഏ', 'sF': 'ഐ', 'H': 'ഒ', 'Hm': 'ഓ', 'Hu': 'ഔ',
+    // consonants
+    'I': 'ക', 'J': 'ഖ', 'K': 'ഗ', 'L': 'ഘ', 'M': 'ങ', 'N': 'ച', 'O': 'ഛ', 'P': 'ജ',
+    'Q': 'ഝ', 'R': 'ഞ', 'S': 'ട', 'T': 'ഠ', 'U': 'ഡ', 'V': 'ഢ', 'W': 'ണ', 'X': 'ത',
+    'Y': 'ഥ', 'Z': 'ദ', '[': 'ധ', '\\': 'ന', ']': 'പ', '^': 'ഫ', '_': 'ബ', '`': 'ഭ',
+    'a': 'മ', 'b': 'യ', 'c': 'ര', 'd': 'റ', 'e': 'ല', 'f': 'ള', 'g': 'ഴ', 'h': 'വ',
+    'i': 'ശ', 'j': 'ഷ', 'k': 'സ', 'l': 'ഹ',
+    // vowel signs and marks
+    'm': 'ാ', 'n': 'ി', 'o': 'ീ', 'p': 'ു', 'q': 'ൂ', 'r': 'ൃ',
+    's': 'െ', 't': 'േ', 'ss': 'ൈ', 'u': 'ൗ',
+    'v': '്', 'w': 'ം', 'x': 'ഃ',
+    'y': '്യ', 'z': '്വ', '{': '്ര',
+    // conjunct / ligature glyphs (0x80-0xFF)
+    '€': 'ഗ്ഗ', 'Š': 'ങ്ക', 'Œ': 'മ്പ', 'Ž': 'ന്ത', 'š': 'ച്ച', 'œ': 'മ്മ', 'ž': 'പ്പ', 'Ÿ': 'മ്ല',
+    '¡': 'ക്ക', '¢': 'ക്ല', '£': 'ക്ഷ', '¤': 'ഗ്ഗ', '¥': 'ഗ്ല', '¦': 'ങ്ക', '§': 'ങ്ങ', '¨': 'ച്ച',
+    '©': 'ഞ്ച', 'ª': 'ഞ്ഞ', '«': 'ട്ട', '¬': 'ൺ', '­': 'ണ്ട', '®': 'ണ്ണ', '¯': 'ത്ത',
+    '°': 'ത്ഥ', '±': 'ദ്ദ', '²': 'ദ്ധ', '³': 'ൻ', '´': 'ന്ത', 'µ': 'ന്ദ', '¶': 'ന്ന', '·': 'ന്മ',
+    '¸': 'പ്പ', '¹': 'പ്ല', 'º': 'ബ്ബ', '»': 'ബ്ല', '¼': 'മ്പ', '½': 'മ്മ', '¾': 'മ്ല', '¿': 'യ്യ',
+    'À': 'ർ', 'Á': 'റ്റ', 'Â': 'ൽ', 'Ã': 'ല്ല', 'Ä': 'ൾ', 'Å': 'ള്ള', 'Æ': 'വ്വ', 'Ç': 'ശ്ല',
+    'È': 'ശ്ശ', 'É': 'സ്ല', 'Ê': 'സ്സ', 'Ë': 'ഹ്ല', 'Ì': 'സ്റ്റ', 'Í': 'ഡ്ഡ', 'Î': 'ക്ട', 'Ï': 'ബ്ധ',
+    'Ð': 'ബ്ദ', 'Ñ': 'ച്ഛ', 'Ò': 'ഹ്മ', 'Ó': 'ഹ്ന', 'Ô': 'ന്ധ', 'Õ': 'ത്സ', 'Ö': 'ജ്ജ', '×': 'ണ്മ',
+    'Ø': 'സ്ഥ', 'Ù': 'ന്ഥ', 'Ú': 'ജ്ഞ', 'Û': 'ത്ഭ', 'Ü': 'ഗ്മ', 'Ý': 'ശ്ച', 'Þ': 'ണ്ഡ', 'ß': 'ത്മ',
+    'à': 'ക്ത', 'á': 'ഗ്ന', 'â': 'ന്റ', 'ã': 'ഷ്ട', 'ä': 'റ്റ', 'å': 'ന്',
+    'ï': 'ണ്ട', 'ð': 'ൽ', 'ñ': 'ല്ല', 'ò': 'ന്മ', 'ó': 'ന്ന', 'ô': 'ഞ്ച',
+    'þ': '-',
+    // quotes: ML-TT puts curly single quotes on the ASCII quote keys; doubles are typed as two of them
+    '"': '\u2018', "'": '\u2019', '""': '\u201C', "''": '\u201D'
+    // Unknown in ML-TT so far: 0xE6-0xEE, 0xF5-0xFD, 0xFF. They pass through
+    // unchanged and are flagged in the debugger - add them here once identified.
+  };
+
+  // MLB-TT / Indulekha-style layout (lower-case row shifted). EXPERIMENTAL:
+  // taken from the Payyans "indulekha" map with its broken vowel-sign combos fixed.
+  const MLB_TT = {
+    'A': 'അ', 'B': 'ആ', 'C': 'ഇ', 'D': 'ഉ', 'E': 'ഋ', 'F': 'എ', 'G': 'ഏ', 'H': 'ഒ', 'Hn': 'ഓ',
+    'tt': 'ൈ', 'tF': 'ഐ',
+    'I': 'ക', 'J': 'ഖ', 'K': 'ഗ', 'L': 'ഘ', 'M': 'ങ', 'N': 'ച', 'O': 'ഛ', 'P': 'ജ',
+    'Q': 'ഝ', 'R': 'ഞ', 'S': 'ട', 'T': 'ഠ', 'U': 'ഡ', 'V': 'ഢ', 'W': 'ണ', 'X': 'ത',
+    'Y': 'ഥ', 'Z': 'ദ', '[': 'ധ', '\\': 'ന', ']': 'പ', '^': 'ഫ', '_': 'ബ', '`': 'ഭ', 'õ': 'ഭ',
+    'a': 'മ', 'b': 'യ', 'c': 'ര', 'd': 'ല', 'e': 'വ', 'f': 'ശ', 'g': 'ഷ', 'h': 'സ',
+    'i': 'ഹ', 'j': 'ള', 'k': 'ഴ', 'l': 'റ',
+    'm': '്', 'n': 'ാ', 'o': 'ി', 'p': 'ീ', 'q': 'ു', 'r': 'ൂ', 's': 'ൃ', 't': 'െ', 'u': 'േ',
+    'v': 'ൗ', 'w': 'ം', 'x': 'ഃ', 'y': '്യ', 'z': '്വ', '{': '്ര', '|': '്വ', '}': '്ര',
+    '$': 'സ്റ്റ', '¤': 'ഈ', '¨': 'ഓ',
+    '€': 'ഗ്ഗ', 'Š': 'ങ്ക', 'Œ': 'മ്പ', 'Ž': 'ന്ത', 'š': 'ച്ച', 'œ': 'മ്മ', 'ž': 'പ്പ', 'Ÿ': 'മ്ല',
+    '¡': 'ക്ക', '¢': 'ക്ല', '£': 'ക്ഷ', '¥': 'ദ്ദ', '¦': 'ങ്ക', '§': 'ങ്ങ', '©': 'ഞ്ച', 'ª': 'ദ്ധ',
+    '«': 'ട്ട', '¬': 'ൺ', '­': 'ണ്ട', '®': 'ണ്ണ', '¯': 'ത്ത', '°': 'ൻ', '±': 'ർ', '²': 'ൽ',
+    '³': 'ൾ', '´': 'ന്ത', 'µ': 'ന്ദ', '¶': 'ന്ന', '·': 'ന്മ', '¸': 'ക്ഷ', '¹': 'ങ്ക', 'º': 'ങ്ങ',
+    '»': 'ച്ച', '¼': 'ഞ്ഞ', '½': 'ട്ട', '¾': 'ണ്ട', '¿': 'ത്ത', 'À': 'ന്ദ', 'Á': 'ന്ന', 'Â': 'ന്റ',
+    'Ã': 'പ്പ', 'Ä': 'മ്പ', 'Å': 'മ്മ', 'Æ': 'വ്വ', 'Ç': 'യ്യ', 'È': 'ല്ല', 'É': 'ള്ള', 'Ê': 'റ്റ',
+    'Ë': 'ഹ്ല', 'Ì': 'റ്റ', 'Í': 'ഡ്ഡ', 'Î': 'ക്ട', 'Ï': 'ബ്ധ', 'Ð': 'ന്ത', 'Ñ': 'ച്ഛ', 'Ò': 'ഹ്മ',
+    'Ó': 'ഹ്ന', 'Ô': 'ന്ധ', 'Õ': 'ഞ്ച', 'Ö': 'ജ്ജ', '×': 'ണ്മ', 'Ø': 'സ്ഥ', 'Ù': 'സ്ഥ', 'Ú': 'ജ്ഞ',
+    'Û': 'ത്ഭ', 'Ü': 'ഗ്മ', 'Ý': 'ശ്ച', 'Þ': 'ണ്ഡ', 'ß': 'ത്മ', 'à': 'ക്ത', 'á': 'ഗ്ന', 'â': 'ന്റ',
+    'ã': 'ഷ്ട', 'ä': 'റ്റ', 'å': 'ന്', 'î': 'ന്മ', 'ï': 'ണ്ട', 'ð': 'ൽ', 'ñ': 'ല്ല', 'ò': 'ന്മ',
+    'ó': 'ന്ന', 'ô': 'സ്സ', 'þ': '-'
+  };
+
+  // Manorama (newspaper) layout. EXPERIMENTAL: from the Payyans "manorama" map.
+  const MANORAMA = {
+    '@': 'ഥ', 'A': 'ക്ക', 'B': 'ങ്ങ', 'C': 'ങ്ക', 'E': 'ഞ്ഞ', 'F': 'ഞ്ച', 'G': 'ട്ട', 'H': 'ണ്ണ',
+    'I': 'ണ്ട', 'J': 'ത്ത', 'K': 'ന്ന', 'L': 'ന്ത', 'M': 'പ്പ', 'N': 'മ്മ', 'O': 'മ്പ', 'P': 'ഗ്ഗ',
+    'T': 'സ്സ', 'U': 'ള്ള', 'V': 'ർ', 'W': 'ൽ', 'X': 'ൻ', 'Y': 'ൺ', 'Z': 'ൾ', '`': 'ഋ',
+    'a': 'ന്റ', 'b': '്വ', 'c': '്യ', 'd': '്ര', 'f': 'ക്ഷ', 'g': 'ദ്ദ', 'i': 'ദ്ധ', 'j': 'ത്ഥ',
+    'm': 'ണ്ഡ', 'o': 'ഗ്ന', 'p': 'ണ്മ', 'q': 'ത്ഭ', 'r': 'ത്സ', 's': 'ന്ഥ', 't': 'ന്ധ', 'u': 'ഗ്മ',
+    'v': 'ത്മ', 'w': 'ന്ദ', 'x': 'റ്റ', 'y': 'ത്ന', 'z': 'ന്മ', '{': 'ള', '|': 'മ്ല', '~': 'ഖ',
+    '€': 'ശ്ശ', '‚': 'ച്ച', 'ˆ': 'ല്ല', 'Š': 'സ്ല', 'Œ': 'വ്വ',
+    '¡': '്', '¢': 'ം', '£': 'ഃ', '¥': 'അ', '¦': 'ആ', '§': 'ഇ', '§ì': 'ഈ', '©': 'ഉ', 'ª': 'ഊ',
+    '«': 'ഋ', '®': 'എ', '¯': 'ഏ', '°': 'ഐ', '±': 'ഗ്ല', '²': 'ഒ', '³': 'ഓ',
+    'µ': 'ക', '¶': 'ഖ', '·': 'ഗ', '¹': 'ങ', 'º': 'ച', '»': 'ഛ', '¼': 'ജ', '¾': 'ഞ', '¿': 'ട',
+    'À': 'ഠ', 'Á': 'ഡ', 'Â': 'ഢ', 'Ã': 'ണ', 'Ä': 'ത', 'Å': 'ഥ', 'Æ': 'ദ', 'Ç': 'ധ', 'È': 'ന',
+    'É': 'പ', 'Ë': 'ഫ', 'Ì': 'ബ', 'Í': 'ഭ', 'Î': 'മ', 'Ï': 'യ', 'Ð': 'ക്ല', 'Õ': 'വ', 'Ö': 'ശ',
+    '×': 'ഷ', 'Ø': 'സ', 'Ù': 'ഹ', 'Ú': 'റ്റ', 'Û': 'ശ്ശ', 'Ü': 'ല', 'Ý': 'ഴ',
+    'Þ': 'ാ', 'ß': 'ി', 'à': 'ീ', 'á': 'ു', 'â': 'ൂ', 'ã': 'ൃ', 'æ': 'െ', 'ææ': 'ൈ', 'ç': 'േ',
+    'è': 'ൈ', 'ì': 'ൗ', 'í': '്', 'ï': '്ല', 'ò': 'ി', 'ó': 'ു', 'ô': 'ൂ', 'ø': 'ര', 'ù': 'റ'
+  };
+
+  /* ------------------------------------------------------------------ */
+  /* 3. Encoding registry                                                */
+  /* ------------------------------------------------------------------ */
+
+  const ENCODINGS = {};
+
+  function compileTable(view) {
+    const map = new Map();
+    let maxLen = 1;
+    for (const [k, v] of Object.entries(view)) {
+      let bk = '';
+      for (const ch of k) {
+        const b = charToByte(ch.codePointAt(0), 'win');
+        if (b < 0) throw new Error('Table key not representable in cp1252: ' + k);
+        bk += String.fromCharCode(b);
+      }
+      map.set(bk, v);
+      if (bk.length > maxLen) maxLen = bk.length;
+    }
+    return { map, maxLen };
+  }
+
+  /**
+   * Register (or replace) a legacy encoding.
+   * @param {string} id
+   * @param {{label:string, table:Object, fontHint?:RegExp, experimental?:boolean, notes?:string}} def
+   */
+  function registerEncoding(id, def) {
+    const compiled = compileTable(def.table);
+    ENCODINGS[id] = Object.assign({ id, experimental: false, notes: '' }, def, compiled);
+    return ENCODINGS[id];
+  }
+
+  registerEncoding('mltt', {
+    label: 'ML-TT (Karthika, Revathi, Ambili, Uma, Charaka, FML-TT...)',
+    table: ML_TT,
+    fontHint: /(^|[+\s])ML-(?!B)|ML-?TT|MLW-?TT|FML|Karthika|Revathi|Ambili|Uma\b|Charaka|Nila|Panchami|Haritha|Gopika|Lalitha|Aparna|Keerthi|Kumudam|Meera-?TT/i,
+    notes: 'Most common DTP Malayalam encoding in Kerala (PageMaker / Word era).'
+  });
+  registerEncoding('mlbtt', {
+    label: 'MLB-TT / Indulekha (experimental)',
+    table: MLB_TT,
+    fontHint: /MLB-?TT/i,
+    experimental: true
+  });
+  registerEncoding('manorama', {
+    label: 'Manorama (experimental)',
+    table: MANORAMA,
+    fontHint: /Manorama/i,
+    experimental: true
+  });
+
+  const LATIN_FONT_HINT = /Times|Arial|Helvetica|Calibri|Cambria|Georgia|Verdana|Courier|Garamond|Palatino|Bookman|Century|Tahoma|Segoe|Liberation|DejaVu|Symbol|Wingding|Zapf|Minion|Myriad|Frutiger|Futura|Gill ?Sans|Trebuchet|Consolas|Lucida/i;
+  const UNICODE_ML_FONT_HINT = /Noto ?Sans ?Malayalam|Noto ?Serif ?Malayalam|Kartika\b|Rachana(?!.*ASCII)|Meera(?!-?TT)|Manjari|Gayathri|AnjaliOldLipi|Chilanka|Keraleeyam|Dyuthi|Suruma|Nirmala|Malayalam ?MN|Malayalam ?Sangam|Baloo ?Chettan/i;
+
+  /* ------------------------------------------------------------------ */
+  /* 4. Conversion engine                                                */
+  /* ------------------------------------------------------------------ */
+
+  const PREBASE = new Set(['െ', 'േ', 'ൈ', '്ര']);
+  const POSTBASE = new Set(['്യ', '്വ', '്ല']);
+
+  const isCons = (c) => c >= 0x0D15 && c <= 0x0D3A;
+  const isIndepVowel = (c) => (c >= 0x0D05 && c <= 0x0D14) || c === 0x0D60 || c === 0x0D61;
+  const isDepVowel = (c) => (c >= 0x0D3E && c <= 0x0D4C) || c === 0x0D57 || c === 0x0D62 || c === 0x0D63;
+  const isMl = (c) => c >= 0x0D00 && c <= 0x0D7F;
+  const isChillu = (c) => c >= 0x0D7A && c <= 0x0D7F;
+
+  function classify(out) {
+    if (PREBASE.has(out)) return 'PRE';
+    if (POSTBASE.has(out)) return 'POST';
+    const c = out.codePointAt(0);
+    if (isCons(c)) return 'CONS';
+    if (isIndepVowel(c)) return 'VOWEL';
+    if (isMl(c)) return isChillu(c) ? 'CHILLU' : 'SIGN';
+    return 'OTHER';
+  }
+
+  const DEFAULT_OPTS = {
+    charset: 'auto',           // 'win' | 'mac' | 'auto'
+    ordinal: 'independent',    // "32-ാം" -> 'independent' 32-ആം (no dotted circle) | 'sign' keep 32-ാം
+    hyphen: 'auto',            // in-word "-": 'auto' | 'remove' | 'nta' | 'keep' (see applyHyphenMode)
+    chillu: 'atomic',          // 'atomic' (ൻ, Unicode 5.1+) | 'zwj' (ന്‍, Unicode 5.0)
+    normalize: true            // NFC
+  };
+
+  const SIGN_TO_VOWEL = { 'ാ': 'ആ', 'ി': 'ഇ', 'ീ': 'ഈ', 'ു': 'ഉ', 'ൂ': 'ഊ', 'ൃ': 'ഋ', 'െ': 'എ', 'േ': 'ഏ', 'ൈ': 'ഐ', 'ൊ': 'ഒ', 'ോ': 'ഓ', 'ൌ': 'ഔ', 'ൗ': 'ഔ' };
+  const CHILLU_ZWJ = { 'ൺ': 'ണ്‍', 'ൻ': 'ന്‍', 'ർ': 'ര്‍', 'ൽ': 'ല്‍', 'ൾ': 'ള്‍', 'ൿ': 'ക്‍' };
+
+  /** split a byte string into table tokens (longest match first) */
+  function tokenize(bytes, enc) {
+    const tokens = [];
+    let i = 0;
+    while (i < bytes.length) {
+      let matched = false;
+      for (let len = Math.min(enc.maxLen, bytes.length - i); len >= 1; len--) {
+        const key = bytes.substr(i, len);
+        const out = enc.map.get(key);
+        if (out !== undefined) {
+          tokens.push({ src: key, out, kind: classify(out), mapped: true });
+          i += len;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        const ch = bytes[i];
+        const code = ch.charCodeAt(0);
+        const out = code <= 0xFF ? byteToWinChar(code) : ch;
+        // high bytes that are not in the table are suspicious (unknown glyphs)
+        tokens.push({ src: ch, out, kind: 'OTHER', mapped: false, unknownGlyph: code >= 0x80 && code <= 0xFF && code !== 0xA0 });
+        i += 1;
+      }
+    }
+    return tokens;
+  }
+
+  /** visual order -> logical (Unicode) order */
+  function reorder(tokens, carryIn, holdTrailing) {
+    let out = '';
+    let pre = carryIn ? carryIn.slice() : [];
+    const flushPre = () => { if (pre.length) { out += pre.join(''); pre = []; } };
+
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      if (t.kind === 'PRE') { pre.push(t.out); continue; }
+      if (t.kind === 'CONS') {
+        let posts = '';
+        while (i + 1 < tokens.length && tokens[i + 1].kind === 'POST') { posts += tokens[i + 1].out; i++; }
+        if (pre.length) {
+          const reph = pre.filter((p) => p === '്ര').join('');
+          const vowels = pre.filter((p) => p !== '്ര').join('');
+          out += t.out + reph + posts + vowels;
+          pre = [];
+        } else {
+          out += t.out + posts;
+        }
+        continue;
+      }
+      // anything else: a pending pre-base sign has no consonant -> keep it (visible in scoring)
+      if (holdTrailing && pre.length && tokens.slice(i).every((x) => /^[\s-]*$/.test(x.out))) break;
+      flushPre();
+      out += t.out;
+    }
+    if (holdTrailing && pre.length) {
+      // a line ending in e/ee/ai/ra signs: the consonant is on the next line
+      return { out, pending: pre, hyphen: tokens.some((x, k) => k > 0 && x.out === '-' && tokens.slice(k + 1).every((y) => /^\s*$/.test(y.out))) };
+    }
+    flushPre();
+    return { out, pending: [] };
+  }
+
+  const IN_WORD_HYPHEN = /([^\s\d\-])-(?=[^\s\d\-])/g;
+
+  /**
+   * In-word "-" handling.
+   *  remove : DTP discretionary/line-break hyphen ("ssZh-Øns‚" -> ദൈവത്തിന്റെ)
+   *  nta    : PDF readers decode WinAnsi byte 0xAD (the ML-TT glyph ണ്ട) as "-",
+   *           so under the Windows charset an in-word "-" is usually ണ്ട
+   *  keep   : leave it alone
+   *  auto   : 'nta' for the Windows charset when the table maps 0xAD, else 'remove'
+   */
+  function applyHyphenMode(bytes, enc, charset, mode) {
+    if (mode === 'auto') {
+      // DTP files often carry a discretionary hyphen at every syllable ("{]h-N-\-hcw");
+      // that density is far above how often the glyph ണ്ട occurs, so treat them as hyphens.
+      const hy = (bytes.match(IN_WORD_HYPHEN) || []).length;
+      const letters = (bytes.match(/[^\s\d\-]/g) || []).length || 1;
+      mode = (charset === 'win' && enc.map.has('\u00ad') && hy / letters < 0.06) ? 'nta' : 'remove';
+    }
+    if (mode === 'remove') return bytes.replace(IN_WORD_HYPHEN, '$1');
+    if (mode === 'nta') return bytes.replace(IN_WORD_HYPHEN, '$1\u00ad');
+    return bytes;
+  }
+
+  const DEP_AFTER = new Set(['SIGN', 'POST']);
+  /**
+   * PDF readers turn the Mac Roman no-break-space slot (0xCA, the ML-TT glyph സ്സ)
+   * into an ordinary space. A space right after a pre-base sign, or right before a
+   * vowel sign, cannot be a real space, so the glyph is restored there.
+   */
+  function restoreLostSpaceGlyph(tokens, enc, charset, carryIn) {
+    if (charset !== 'mac') return tokens;
+    const out = enc.map.get('\u00ca');
+    if (!out) return tokens;
+    for (let i = 0; i < tokens.length; i++) {
+      if (tokens[i].src !== ' ') continue;
+      const prev = tokens[i - 1], next = tokens[i + 1];
+      const afterPre = (prev && prev.kind === 'PRE') || (i === 0 && carryIn && carryIn.length);
+      if (afterPre || (next && DEP_AFTER.has(next.kind))) {
+        tokens[i] = { src: '\u00ca', out, kind: classify(out), mapped: true, restored: true };
+        // "a\- n" : a syllable hyphen right before the lost glyph is a discretionary hyphen too
+        if (prev && prev.out === '-' && tokens[i - 2] && tokens[i - 2].kind !== 'OTHER') prev.out = '';
+        if (next && next.out === '-' && tokens[i + 2] && tokens[i + 2].kind !== 'OTHER') next.out = '';
+      }
+    }
+    return tokens;
+  }
+
+  function convertWithCharset(text, enc, charset, o) {
+    let bytes = toByteString(text, charset);
+    bytes = applyHyphenMode(bytes, enc, charset, o.hyphen || 'auto');
+    const tokens = restoreLostSpaceGlyph(tokenize(bytes, enc), enc, charset, o.carryIn);
+    const ro = reorder(tokens, o.carryIn, o.holdTrailing);
+    let out = ro.out;
+    if (o.normalize) out = out.normalize('NFC');
+    if (o.chillu === 'zwj') out = out.replace(/[ൺൻർൽൾൿ]/g, (c) => CHILLU_ZWJ[c]);
+    // c) ordinals: printed as "32-" + ാം. A vowel SIGN after a hyphen/digit has no consonant to sit on,
+    //    so most renderers draw a dotted circle (32-◌ാം). 'independent' writes the vowel letter instead: 32-ആം
+    if (o.ordinal === 'independent') out = out.replace(/(\d[-\u2013]?)([\u0D3E-\u0D4C\u0D57])/g, (m, a, v) => a + (SIGN_TO_VOWEL[v] || v));
+    return { text: out, tokens, bytes, charset, pending: ro.pending, endsWithHyphen: !!ro.hyphen };
+  }
+
+  /**
+   * Convert legacy-encoded Malayalam into Unicode Malayalam.
+   * @param {string} text      extracted/copied text
+   * @param {string} encoding  'mltt' | 'mlbtt' | 'manorama' | any registered id
+   *                           (also accepts 'mltt/mac' shorthand)
+   * @param {object} [opts]    see DEFAULT_OPTS
+   * @returns {string}
+   */
+  function legacyMalayalamToUnicode(text, encoding, opts) {
+    return convertDetailed(text, encoding, opts).text;
+  }
+
+  /** Same as legacyMalayalamToUnicode but returns tokens/bytes/charset for debugging. */
+  function convertDetailed(text, encoding, opts) {
+    const o = Object.assign({}, DEFAULT_OPTS, opts || {});
+    let encId = encoding || 'mltt';
+    if (encId.includes('/')) { const p = encId.split('/'); encId = p[0]; o.charset = p[1]; }
+    if (encId === 'none' || encId === 'unicode') return { text, tokens: [], bytes: text, charset: null };
+    const enc = ENCODINGS[encId];
+    if (!enc) throw new Error('Unknown legacy encoding: ' + encId);
+    if (CHARSETS.includes(o.charset)) return convertWithCharset(text, enc, o.charset, o);
+    // auto: pick the charset that yields the most plausible Malayalam
+    const bias = charsetBias(text);
+    let best = null, bestScore = -1;
+    for (const cs of CHARSETS) {
+      const r = convertWithCharset(text, enc, cs, o);
+      const sc = scoreMalayalam(r.text).score + bias[cs];
+      if (sc > bestScore + 1e-9) { best = r; bestScore = sc; }
+    }
+    return best;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 5. Detection                                                        */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * How plausible is `s` as Malayalam? Counts orthographic errors that a wrong
+   * mapping produces: vowel signs with no consonant, stray viramas, Latin
+   * letters glued to Malayalam, unknown glyph bytes...
+   */
+  function scoreMalayalam(s) {
+    let ml = 0, latin = 0, errors = 0;
+    const cps = Array.from(s, (ch) => ch.codePointAt(0));
+    for (let i = 0; i < cps.length; i++) {
+      const c = cps[i], p = i > 0 ? cps[i - 1] : 0x20, n = i + 1 < cps.length ? cps[i + 1] : 0x20;
+      if (isMl(c)) {
+        ml++;
+        if (isDepVowel(c) && !isCons(p)) errors++;
+        else if (c === 0x0D4D && !(isCons(p) || p === 0x0D41)) errors++;
+        else if ((c === 0x0D02 || c === 0x0D03) && !(isCons(p) || isDepVowel(p) || isIndepVowel(p))) errors++;
+        else if (isDepVowel(c) && isDepVowel(n)) errors++;
+      } else if ((c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A) || (c >= 0xC0 && c <= 0x24F)) {
+        latin++;
+        if (isMl(p) || isMl(n)) errors += 2;
+      } else if ((c >= 0x80 && c <= 0xBF) || (c >= 0x2000 && c <= 0x2BFF && c !== 0x2013 && c !== 0x2014 && !(c >= 0x2018 && c <= 0x201F) && c !== 0x2026)) {
+        if (isMl(p) || isMl(n)) errors += 2; // symbol glued to Malayalam: likely an unmapped glyph
+      }
+    }
+    const letters = ml + latin;
+    if (!letters) return { score: 0, ml, latin, errors };
+    const validity = ml / (ml + 3 * errors);
+    const coverage = ml / letters;
+    return { score: Math.max(0, validity * coverage), ml, latin, errors };
+  }
+
+  function charsetBias(text) {
+    const w = (text.match(WIN_ONLY) || []).length;
+    const m = (text.match(MAC_ONLY) || []).length;
+    return { win: w > m ? 0.05 : 0, mac: m > w ? 0.05 : 0, std: 0 };
+  }
+
+  const EN_STOP = new Set('the and of to in is a for that with on as by this be are from it at or an was his he not which but have you we they their has had were will all'.split(' '));
+
+  function englishLikeness(text) {
+    const toks = text.split(/\s+/).filter(Boolean);
+    let words = 0, stop = 0, plain = 0;
+    for (const t of toks) {
+      const w = t.replace(/^[("'“‘]+|[)"'”’.,;:!?]+$/g, '');
+      if (!w) continue;
+      words++;
+      if (/^[A-Za-z][a-z]+$/.test(w) || /^[A-Z]+$/.test(w)) plain++;
+      if (EN_STOP.has(w.toLowerCase())) stop++;
+    }
+    if (words < 3) return 0;
+    return Math.min(1, (stop / words) * 3) * (plain / words);
+  }
+
+  /**
+   * Detect the legacy Malayalam encoding of `text`.
+   * @param {string} text
+   * @param {{fontName?:string}} [ctx]
+   * @returns {{encoding:string, charset:string|null, confidence:number, label:string, reason:string, candidates:Array}}
+   */
+  function detectMalayalamEncoding(text, ctx) {
+    const fontName = (ctx && ctx.fontName) || '';
+    const sample = text.length > 20000 ? text.slice(0, 20000) : text;
+    const nonSpace = sample.replace(/\s+/g, '');
+    const res = (encoding, charset, confidence, reason, candidates) => ({
+      encoding, charset, confidence: Math.round(confidence * 100) / 100, reason, candidates: candidates || [],
+      label: encoding === 'unicode' ? 'Unicode (no conversion needed)' : encoding === 'none' ? 'Not Malayalam / keep as-is'
+        : ENCODINGS[encoding].label + ' · ' + CHARSET_LABELS[charset]
+    });
+
+    if (!nonSpace.length) return res('none', null, 0, 'No text');
+    const mlCount = (sample.match(/[ഀ-ൿ]/g) || []).length;
+    if (mlCount / nonSpace.length > 0.3) return res('unicode', null, 0.99, 'Text already contains Unicode Malayalam');
+    if (UNICODE_ML_FONT_HINT.test(fontName) && !ENCODINGS.mltt.fontHint.test(fontName)) {
+      return res('none', null, 0.6, 'Font "' + fontName + '" is a Unicode Malayalam font, but its text did not extract as Malayalam (possible missing ToUnicode map; OCR may be needed)');
+    }
+
+    let hinted = null;
+    for (const e of Object.values(ENCODINGS)) if (e.fontHint && e.fontHint.test(fontName)) { hinted = e.id; break; }
+    if (!hinted && LATIN_FONT_HINT.test(fontName)) return res('none', null, 0.9, 'Latin font "' + fontName + '"');
+
+    const eng = englishLikeness(sample);
+    const bias = charsetBias(sample);
+    const candidates = [];
+    for (const e of Object.values(ENCODINGS)) {
+      for (const cs of CHARSETS) {
+        const conv = convertWithCharset(sample, e, cs, DEFAULT_OPTS);
+        const sc = scoreMalayalam(conv.text);
+        let score = sc.score + bias[cs] + (hinted === e.id ? 0.08 : 0) - (e.experimental ? 0.02 : 0);
+        candidates.push({ encoding: e.id, charset: cs, score: Math.round(score * 1000) / 1000, errors: sc.errors, preview: conv.text.slice(0, 60), _text: conv.text });
+      }
+    }
+    candidates.sort((a, b) => b.score - a.score);
+    const best = candidates[0];
+
+    if (eng > 0.35 && !hinted) return res('none', null, Math.min(0.95, eng), 'Looks like English text', candidates);
+    if (best.score < 0.45 && !hinted) return res('none', null, 1 - best.score, 'No legacy mapping produced plausible Malayalam (best ' + best.encoding + '/' + best.charset + ' = ' + best.score + ')', candidates);
+
+    // a candidate that yields the same output is not a competitor
+    const second = candidates.find((c) => c._text !== best._text);
+    for (const c of candidates) delete c._text;
+    const margin = second ? best.score - second.score : best.score;
+    const confidence = Math.max(0.05, Math.min(0.99, best.score * 0.7 + Math.min(margin, 0.3)));
+    let reason = 'Best scoring mapping';
+    if (hinted) reason += '; font name suggests ' + hinted;
+    if (bias.mac && best.charset === 'mac') reason += '; Mac-only symbols present (∂ ≤ ≥ Ω ...)';
+    if (bias.win && best.charset === 'win') reason += '; Windows-only symbols present (Š ž ³ ...)';
+    return res(best.encoding, best.charset, confidence, reason, candidates);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 6. Built-in test vectors                                            */
+  /* ------------------------------------------------------------------ */
+
+  const TEST_VECTORS = [
+    { legacy: 'ssZh-Øns‚', encoding: 'mltt/mac', expected: 'ദൈവത്തിന്റെ', note: 'Your sample (Mac Roman copy, in-word hyphen)' },
+    { legacy: 'ssZh¯nsâ', encoding: 'mltt/win', expected: 'ദൈവത്തിന്റെ', note: 'Same word, Windows-1252 view' },
+    { legacy: 'a\\pjy³', encoding: 'mltt/win', expected: 'മനുഷ്യൻ', note: 'Post-base ്യ + chillu' },
+    { legacy: 'tbip', encoding: 'mltt/win', expected: 'യേശു', note: 'Pre-base േ' },
+    { legacy: 'IÀ¯mhv', encoding: 'mltt/win', expected: 'കർത്താവ്', note: 'Chillu ർ, ligature, chandrakkala' },
+    { legacy: 'sIm¨n³', encoding: 'mltt/win', expected: 'കൊച്ചിൻ', note: 'Split vowel ൊ (െ … ാ)' },
+    { legacy: 't{]aw', encoding: 'mltt/win', expected: 'പ്രേമം', note: 'Pre-base േ + ്ര before consonant' },
+    { legacy: 'hnizmkw', encoding: 'mltt/win', expected: 'വിശ്വാസം', note: 'Post-base ്വ' },
+    { legacy: 'HmWw', encoding: 'mltt/win', expected: 'ഓണം', note: 'Multi-char vowel ഓ' },
+    { legacy: 'sFIyw', encoding: 'mltt/win', expected: 'ഐക്യം', note: 'Multi-char vowel ഐ' },
+    { legacy: 'ae-bmfw', encoding: 'mltt/mac', expected: 'മലയാളം', note: 'Discretionary hyphen removed' },
+    { legacy: 'h∂p', encoding: 'mltt/mac', expected: 'വന്നു', note: 'Mac-only symbol ∂ = byte 0xB6' },
+    { legacy: 'skuµcyw', encoding: 'mltt/win', expected: 'സൌന്ദര്യം', note: 'Split vowel ൌ + ligature + ്യ' },
+    { legacy: 'sIu', encoding: 'mltt/win', expected: 'കൌ', note: 'Split vowel ൌ (െ … ൗ)' },
+    { legacy: 'Cu Du', encoding: 'mltt/win', expected: 'ഈ ഊ', note: 'Long vowels built from two glyphs' },
+    { legacy: 'IÀ¯mhv', encoding: 'mltt/win', expected: 'കര്‍ത്താവ്', note: 'Old chillu style (option)', opts: { chillu: 'zwj' } },
+    { legacy: 'IÀﬂmhv', encoding: 'mltt/std', expected: 'കർത്താവ്', note: 'PDF StandardEncoding view (ﬂ = byte 0xAF)' },
+    { legacy: 'a\\pjy³ Hcp ]pXnb hnizmkw D-v', encoding: 'mltt/win', expected: 'മനുഷ്യൻ ഒരു പുതിയ വിശ്വാസം ഉണ്ട്', note: 'PDF.js shows WinAnsi 0xAD (ണ്ട) as "-"' },
+    { legacy: 'Bh¿Ø\\w 32˛mw', encoding: 'mltt/mac', expected: 'ആവർത്തനം 32-ആം', note: 'Ordinal: vowel letter instead of a floating sign' },
+    { legacy: '{]h-N-\\-hcw', encoding: 'mltt/win', expected: 'പ്രവചനവരം', note: 'Dense syllable hyphens removed even in Windows view' },
+    { legacy: 'a\\- n-em-°m\\pw', encoding: 'mltt/mac', expected: 'മനസ്സിലാക്കാനും', note: 'Lost സ്സ after a syllable hyphen' },
+    { legacy: '""]pkvXIw\'\' "`mcw\'', encoding: 'mltt/mac', expected: '“പുസ്തകം” ‘ഭാരം’', note: 'ML-TT quote keys' },
+    { legacy: 't mw', encoding: 'mltt/mac', expected: 'സ്സോം', note: 'Mac 0xCA (സ്സ) extracted as a space' }
+  ];
+
+  function runSelfTests() {
+    return TEST_VECTORS.map((t) => {
+      const got = legacyMalayalamToUnicode(t.legacy, t.encoding, t.opts);
+      return Object.assign({}, t, { got, pass: got === t.expected.normalize('NFC') });
+    });
+  }
+
+  return {
+    legacyMalayalamToUnicode,
+    convertDetailed,
+    detectMalayalamEncoding,
+    scoreMalayalam,
+    registerEncoding,
+    toByteString,
+    charToByte,
+    runSelfTests,
+    TEST_VECTORS,
+    get encodings() { return Object.values(ENCODINGS).map((e) => ({ id: e.id, label: e.label, experimental: e.experimental, notes: e.notes })); },
+    /** copy of an encoding's table in Windows-1252 view (edit it and pass back to registerEncoding) */
+    getTableView(id) { return Object.assign({}, ENCODINGS[id] && ENCODINGS[id].table); },
+    getEncoding(id) { return ENCODINGS[id]; },
+    byteToWinChar,
+    englishLikeness,
+    DEFAULT_OPTS,
+    CHARSETS,
+    CHARSET_LABELS
+  };
+});
+
+</script>
+<script>
+/* PDF -> paragraphs -> .docx, for the lesson splitter (experimental).
+   Text-layer path: adapted from Aby's malayalam_pdf_to_doc (extractPage / markParagraphs /
+   detectFonts / buildDocument) and uses malayalam-legacy-converter.js for ML-TT & co.
+   OCR path: Tesseract.js with the Malayalam model. Libraries load from CDNs only when a PDF is used. */
+(function (root) {
+  'use strict';
+  var CDN = {
+    pdfjs: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+    pdfjsWorker: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+    tesseract: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js',
+    tessWorker: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
+    tessCore: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1'
+  };
+  var loaded = {};
+  function loadScript(src) {
+    if (!loaded[src]) loaded[src] = new Promise(function (res, rej) {
+      var s = document.createElement('script'); s.src = src; s.onload = res;
+      s.onerror = function () { delete loaded[src]; rej(new Error('Could not load ' + src.split('/').slice(2, 3)[0] + '. PDF support needs an internet connection.')); };
+      document.head.appendChild(s);
+    });
+    return loaded[src];
+  }
+  function ML() { return root.MalayalamLegacy; }
+
+  /* ------------------------------------------------------------ extraction */
+  var BOLD_RE = /bold|black|heavy|semibold|demi|extrab|ultrab|[-,_ ]bd\b|\bbd$|-B$|,B$/i;
+  var ITALIC_RE = /italic|oblique|slant|kursiv|[-,_ ]it\b|-I$|,I$/i;
+
+  function fontObj(page, id) { try { if (page.commonObjs.has(id)) return page.commonObjs.get(id); } catch (_) {} return null; }
+
+  function extractPage(state, pnum, page, tc) {
+    var pageObj = { num: pnum, lines: [], height: page.view[3] - page.view[1] };
+    var line = null, prev = null;
+    function newLine(y) { line = { runs: [], y: y, xStart: null, xEnd: 0, height: 0 }; pageObj.lines.push(line); prev = null; }
+    tc.items.forEach(function (it) {
+      if (!('str' in it)) return;
+      var x = it.transform[4], y = it.transform[5];
+      var size = Math.hypot(it.transform[2], it.transform[3]) || it.height || 10;
+      if (!line || (prev && Math.abs(y - line.y) > size * 0.5)) newLine(y);
+      if (it.str.length) {
+        if (!state.fonts.has(it.fontName)) {
+          var fo = fontObj(page, it.fontName), st = tc.styles[it.fontName];
+          var name = (fo && fo.name) || (st && st.fontFamily ? it.fontName + ' (' + st.fontFamily + ')' : it.fontName);
+          state.fonts.set(it.fontName, { id: it.fontName, name: name, text: '', chars: 0,
+            bold: BOLD_RE.test(name) || !!(fo && (fo.bold || fo.black)), italic: ITALIC_RE.test(name) || !!(fo && fo.italic) });
+        }
+        var font = state.fonts.get(it.fontName);
+        var gap = prev ? x - prev.xEnd : 0;
+        var needSpace = prev && (gap > size * 0.2 || gap < -size) && !/\s$/.test(prev.run.raw) && !/^\s/.test(it.str);
+        var sz = Math.round(size * 2) / 2;
+        if (prev && prev.run.font === it.fontName && Math.abs(prev.run.size - sz) < 0.6) {
+          prev.run.raw += (needSpace ? ' ' : '') + it.str;
+        } else {
+          if (needSpace && prev) prev.run.raw += ' ';
+          var run = { font: it.fontName, raw: it.str, size: sz, chars: 0 };
+          state.runs.push(run); line.runs.push(run); prev = { run: run };
+        }
+        prev.xEnd = x + (it.width || 0);
+        var n = it.str.replace(/\s/g, '').length;
+        prev.run.chars += n; font.chars += n;
+        if (line.xStart === null) line.xStart = x;
+        line.xEnd = Math.max(line.xEnd, x + (it.width || 0));
+        line.height = Math.max(line.height, size);
+        if (font.text.length < 20000) font.text += it.str + ' ';
+      }
+      if (it.hasEOL) { line = null; prev = null; }
+    });
+    pageObj.lines = pageObj.lines.filter(function (l) { return l.runs.length; });
+    markParagraphs(pageObj);
+    state.pages.push(pageObj);
+  }
+
+  function markParagraphs(pg) {
+    var L = pg.lines, gaps = [];
+    for (var i = 1; i < L.length; i++) { var d0 = Math.abs(L[i - 1].y - L[i].y); if (d0 > 0) gaps.push(d0); }
+    gaps.sort(function (a, b) { return a - b; });
+    var median = gaps.length ? gaps[Math.floor(gaps.length / 2)] : 0;
+    var rights = L.map(function (l) { return l.xEnd; }).sort(function (a, b) { return a - b; });
+    var typicalRight = rights.length ? rights[Math.floor(rights.length * 0.8)] : 0;
+    L.forEach(function (l, i) {
+      if (i === 0) { l.paraBreak = true; return; }
+      var p = L[i - 1], d = Math.abs(p.y - l.y);
+      var prevShort = p.xEnd < typicalRight - Math.max(l.height * 2, (typicalRight - (p.xStart || 0)) * 0.08);
+      var indented = p.xStart !== null && l.xStart !== null && l.xStart - p.xStart > Math.max(4, l.height * 0.6);
+      var sizeJump = Math.abs(l.height - p.height) > Math.max(l.height, p.height) * 0.15;
+      l.paraBreak = Boolean((median && d > median * 1.45) || prevShort || indented || sizeJump);
+    });
+  }
+
+  function detectFonts(state) {
+    var M = ML();
+    state.fonts.forEach(function (f) {
+      f.det = M.detectMalayalamEncoding(f.text, { fontName: f.name });
+      f.enc = f.det.encoding === 'unicode' ? 'none' : f.det.encoding;
+      f.cs = f.det.charset || 'auto';
+    });
+    // ASCII-only fonts give no charset hint: borrow the document's dominant charset
+    var votes = {};
+    state.fonts.forEach(function (f) { if (f.enc !== 'none' && /[^\x00-\x7f]/.test(f.text)) votes[f.cs] = (votes[f.cs] || 0) + f.text.length; });
+    var dom = Object.keys(votes).sort(function (a, b) { return votes[b] - votes[a]; })[0];
+    if (dom) state.fonts.forEach(function (f) { if (f.enc !== 'none' && !/[^\x00-\x7f]/.test(f.text)) f.cs = dom; });
+  }
+
+  /* Decide whether the text layer can be trusted. */
+  function analyse(state) {
+    var total = 0, legacy = 0, uni = 0, uniText = '', legacyNames = [];
+    state.fonts.forEach(function (f) {
+      total += f.chars;
+      if (f.enc !== 'none') { legacy += f.chars; legacyNames.push(f.name.replace(/^[A-Z]{6}\+/, '') + ' → ' + f.det.label); }
+      else if (f.det.encoding === 'unicode') { uni += f.chars; if (uniText.length < 60000) uniText += f.text; }
+    });
+    if (total < Math.max(20, state.numPages * 15)) return { method: 'ocr', kind: 'scan', reason: 'This PDF has no usable text (it looks scanned), so the pages were read with OCR.' };
+    if (legacy >= uni && legacy > 0) return { method: 'text', kind: 'legacy', reason: 'Legacy Malayalam font found and converted to Unicode: ' + legacyNames.slice(0, 3).join('; ') + '.' };
+    if (uni > 0) {
+      var s = ML().scoreMalayalam(uniText), rate = s.ml ? s.errors / s.ml * 1000 : 0;
+      state.damage = rate;
+      if (rate > 10) return { method: 'ocr', kind: 'damaged', reason: 'The Malayalam text stored in this PDF is damaged (common with Unicode Malayalam PDFs), so the pages were read with OCR instead.' };
+      return { method: 'text', kind: 'unicode', reason: 'The PDF’s own Unicode text looks clean, so it was used directly.' };
+    }
+    return { method: 'text', kind: 'plain', reason: 'Using the text stored in the PDF.' };
+  }
+
+  async function open(file, onStatus) {
+    await loadScript(CDN.pdfjs);
+    root.pdfjsLib.GlobalWorkerOptions.workerSrc = CDN.pdfjsWorker;
+    var data = new Uint8Array(await file.arrayBuffer());
+    var pdf;
+    try { pdf = await root.pdfjsLib.getDocument({ data: data, isEvalSupported: false }).promise; }
+    catch (e) { throw new Error(e && e.name === 'PasswordException' ? 'This PDF is password protected.' : 'Could not open this PDF (' + (e && e.message) + ').'); }
+    var state = { numPages: pdf.numPages, pages: [], runs: [], fonts: new Map() };
+    for (var p = 1; p <= pdf.numPages; p++) {
+      onStatus && onStatus('Reading PDF page ' + p + ' of ' + pdf.numPages + '…', p / pdf.numPages);
+      var page = await pdf.getPage(p);
+      try { await page.getOperatorList(); } catch (_) {} // loads fonts so their real names are known
+      var tc = await page.getTextContent({ disableNormalization: true, includeMarkedContent: false });
+      extractPage(state, p, page, tc);
+      page.cleanup();
+    }
+    detectFonts(state);
+    return { pdf: pdf, state: state, analysis: analyse(state) };
+  }
+
+  /* ------------------------------------------------------------ text layer -> paragraphs */
+  function convertRun(state, run, extra) {
+    var f = state.fonts.get(run.font);
+    if (!f || f.enc === 'none') return { text: run.raw, pending: [] };
+    return ML().convertDetailed(run.raw, f.enc, Object.assign({}, ML().DEFAULT_OPTS, { charset: f.cs }, extra || {}));
+  }
+  function pushSeg(segs, seg) {
+    var last = segs[segs.length - 1];
+    if (last && last.bold === seg.bold && last.italic === seg.italic && last.size === seg.size) last.text += seg.text; else segs.push(seg);
+  }
+  function paraAlign(lines, left, right) {
+    var W = right - left; if (W <= 0 || !lines.length) return 'left';
+    var centered = 0, righted = 0;
+    lines.forEach(function (l) {
+      var lg = l.xStart - left, rg = right - l.xEnd;
+      if (lg > W * 0.06 && Math.abs(lg - rg) < W * 0.06) centered++; else if (rg < W * 0.03 && lg > W * 0.25) righted++;
+    });
+    if (centered === lines.length) return 'center';
+    if (righted === lines.length) return 'right';
+    if (lines.length >= 2 && lines.slice(0, -1).every(function (l) { return right - l.xEnd < W * 0.03; })) return 'justify';
+    return 'left';
+  }
+  function bodySize(state) {
+    var w = new Map(), best = 12, bw = -1;
+    state.runs.forEach(function (r) { w.set(r.size, (w.get(r.size) || 0) + (r.chars || r.raw.length)); });
+    w.forEach(function (v, k) { if (v > bw) { best = k; bw = v; } });
+    return best;
+  }
+
+  /* lines repeated at the top or bottom of many pages (running headers, page numbers) */
+  function edgeKey(t) { return t.replace(/\s+/g, ' ').trim().replace(/\d+/g, '#'); }
+  function dropRepeatedEdges(items, pageOf, textOf) {
+    var byPage = new Map();
+    items.forEach(function (it) { var p = pageOf(it); if (!byPage.has(p)) byPage.set(p, []); byPage.get(p).push(it); });
+    var count = new Map(), pages = byPage.size;
+    byPage.forEach(function (list) {
+      var seen = new Set();
+      [list.slice(0, 2), list.slice(-2)].forEach(function (edge) { edge.forEach(function (it) {
+        var k = edgeKey(textOf(it)); if (k && k.length <= 80 && !seen.has(k)) { seen.add(k); count.set(k, (count.get(k) || 0) + 1); } }); });
+    });
+    var min = Math.max(3, Math.ceil(pages * 0.3)), drop = new Set();
+    byPage.forEach(function (list) {
+      [list.slice(0, 2), list.slice(-2)].forEach(function (edge) { edge.forEach(function (it) {
+        if ((count.get(edgeKey(textOf(it))) || 0) >= min) drop.add(it); }); });
+    });
+    return drop;
+  }
+
+  function textParagraphs(ctx) {
+    var state = ctx.state, body = bodySize(state), out = [];
+    if (state.pages.length >= 3) {
+      var allLines = [];
+      state.pages.forEach(function (pg) { pg.lines.forEach(function (l) { l._page = pg.num; allLines.push(l); }); });
+      var drop = dropRepeatedEdges(allLines, function (l) { return l._page; }, function (l) { return l.runs.map(function (r) { return r.raw; }).join(''); });
+      state.pages.forEach(function (pg) {
+        var kept = pg.lines.filter(function (l) { return !drop.has(l); });
+        if (kept.length !== pg.lines.length) { pg.lines = kept; markParagraphs(pg); }
+      });
+    }
+    state.pages.forEach(function (pg) {
+      if (!pg.lines.length) return;
+      var left = Math.min.apply(null, pg.lines.map(function (l) { return l.xStart == null ? Infinity : l.xStart; }));
+      var right = Math.max.apply(null, pg.lines.map(function (l) { return l.xEnd; }));
+      var paras = [], cur = null, carry = null;
+      function flushCarry() {
+        if (!carry || !cur) return;
+        var lastSeg = cur.segs[cur.segs.length - 1], t = carry.pending.join('');
+        if (lastSeg) lastSeg.text += t; cur.text += t;
+      }
+      pg.lines.forEach(function (l) {
+        var runs = l.runs, carried = carry && runs.length && runs[0].font === carry.font;
+        if (carry && !carried) flushCarry();
+        var convs = runs.map(function (r, k) { return convertRun(state, r, { carryIn: k === 0 && carried ? carry.pending : undefined, holdTrailing: k === runs.length - 1 }); });
+        var lastConv = convs[convs.length - 1];
+        var nextCarry = lastConv && lastConv.pending && lastConv.pending.length ? { font: runs[runs.length - 1].font, pending: lastConv.pending } : null;
+        carry = null;
+        var segs = runs.map(function (r, k) { var f = state.fonts.get(r.font); return { text: convs[k].text, bold: !!f.bold, italic: !!f.italic, size: r.size }; });
+        if (segs.length) { segs[0].text = segs[0].text.replace(/^\s+/, ''); var z = segs[segs.length - 1]; z.text = z.text.replace(/\s+$/, ''); }
+        var text = segs.map(function (g) { return g.text; }).join('');
+        if (!cur || (l.paraBreak && !carried)) { cur = { text: '', segs: [], lines: [], chars: new Map() }; paras.push(cur); }
+        if (cur.lines.length) {
+          var lastSeg = cur.segs[cur.segs.length - 1];
+          if (carried) { /* word continues */ }
+          else if (lastSeg && /[ഀ-ൿ]-$/.test(cur.text)) { lastSeg.text = lastSeg.text.slice(0, -1); cur.text = cur.text.slice(0, -1); }
+          else { if (lastSeg) lastSeg.text += ' '; cur.text += ' '; }
+        }
+        cur.text += text;
+        segs.forEach(function (g) { if (g.text) pushSeg(cur.segs, Object.assign({}, g)); cur.chars.set(g.size, (cur.chars.get(g.size) || 0) + g.text.length); });
+        cur.lines.push(l);
+        carry = nextCarry;
+      });
+      flushCarry();
+      paras.forEach(function (p) {
+        var size = body, bw = -1;
+        p.chars.forEach(function (v, k) { if (v > bw) { size = k; bw = v; } });
+        var short = p.text.length <= 160;
+        var level = short && size >= body * 1.45 ? 1 : short && size >= body * 1.18 ? 2 : 0;
+        var align = paraAlign(p.lines, left, right);
+        var fi = (align === 'left' || align === 'justify') && p.lines[0].xStart - left > 3 && p.lines[0].xStart - left < (right - left) * 0.25 ? Math.round(p.lines[0].xStart - left) : 0;
+        out.push({ text: p.text, segs: p.segs, size: size, level: level, align: align, firstIndent: fi, page: pg.num });
+      });
+    });
+    return tidy(out, body);
+  }
+
+  /* drop bare page numbers; join a paragraph that was cut by a page break */
+  function tidy(paras, body) {
+    var out = [];
+    paras.forEach(function (p) {
+      if (!p.text.trim() || /^\s*[-–(]?\s*\d{1,4}\s*[-–)]?\s*$/.test(p.text)) return;
+      var prev = out[out.length - 1];
+      if (prev && prev.page !== p.page && !prev.level && !p.level && /^(left|justify)$/.test(prev.align) &&
+          /^(left|justify)$/.test(p.align) && !p.firstIndent && !/[.?!:;”"')\]]\s*$/.test(prev.text)) {
+        var sep = /[ഀ-ൿ]-$/.test(prev.text) ? '' : ' ';
+        if (!sep) { var ls = prev.segs[prev.segs.length - 1]; ls.text = ls.text.slice(0, -1); prev.text = prev.text.slice(0, -1); }
+        else { prev.segs[prev.segs.length - 1].text += ' '; prev.text += ' '; }
+        p.segs.forEach(function (g) { pushSeg(prev.segs, Object.assign({}, g)); });
+        prev.text += p.text; prev.page = p.page;
+        return;
+      }
+      out.push(p);
+    });
+    return { paras: out, body: body };
+  }
+
+  /* ------------------------------------------------------------ OCR */
+  var CHILLU = [['ണ്‍', 'ൺ'], ['ന്‍', 'ൻ'], ['ര്‍', 'ർ'], ['ല്‍', 'ൽ'], ['ള്‍', 'ൾ'], ['ക്‍', 'ൿ']];
+  function cleanOcr(s, keyword) {
+    CHILLU.forEach(function (c) { s = s.split(c[0]).join(c[1]); });
+    s = s.normalize('NFC').replace(/[ \t]+/g, ' ').trim();
+    if (keyword) { // "പാഠം ]" / "പാഠം l" -> "പാഠം 1"
+      var k = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      s = s.replace(new RegExp('^(\\s*' + k + '\\s*)[\\]|lI!](?=\\s|\\d|$)', 'i'), '$11');
+    }
+    return s;
+  }
+
+  function ocrParagraphsFromLines(lines, W, pnum, opts, out) {
+    if (!lines.length) return;
+    var hs = lines.map(function (l) { return l.h; }).sort(function (a, b) { return a - b; }), medH = hs[Math.floor(hs.length / 2)];
+    var gaps = [];
+    for (var i = 1; i < lines.length; i++) { var g = lines[i].y0 - lines[i - 1].y1; if (g > 0) gaps.push(g); }
+    gaps.sort(function (a, b) { return a - b; });
+    var medGap = gaps.length ? gaps[Math.floor(gaps.length / 2)] : medH * 0.4;
+    var lefts = lines.map(function (l) { return l.x0; }).sort(function (a, b) { return a - b; }), left = lefts[Math.floor(lefts.length * 0.1)];
+    var rights = lines.map(function (l) { return l.x1; }).sort(function (a, b) { return a - b; }), right = rights[Math.floor(rights.length * 0.9)];
+    var isCentered = function (l) { var lg = l.x0 - left, rg = right - l.x1; return lg > (right - left) * 0.08 && Math.abs(lg - rg) < (right - left) * 0.08; };
+    var cur = null;
+    lines.forEach(function (l, i) {
+      var prev = lines[i - 1], brk = !prev;
+      if (prev) {
+        var gap = l.y0 - prev.y1;
+        var prevShort = prev.x1 < right - Math.max(medH * 2, (right - left) * 0.08);
+        var indented = l.x0 - prev.x0 > Math.max(medH * 0.8, 6) && l.x0 - left > medH * 0.8;
+        var sizeJump = Math.abs(l.h - prev.h) > Math.max(l.h, prev.h) * 0.25;
+        brk = gap > medGap * 1.8 + medH * 0.25 || gap < -medH || prevShort || indented || sizeJump || isCentered(l) || isCentered(prev);
+      }
+      if (brk) { cur = { lines: [] }; out.push(cur); cur.page = pnum; }
+      cur.lines.push(l);
+    });
+    // finish the paragraphs created for this page
+    out.forEach(function (p) {
+      if (p.text !== undefined || p.page !== pnum) return;
+      var text = '';
+      p.lines.forEach(function (l, i) {
+        if (i && /[\u0D00-\u0D7F]-$/.test(text)) text = text.slice(0, -1) + l.text; else text += (i ? ' ' : '') + l.text;
+      });
+      p.text = cleanOcr(text, opts.keyword);
+      p.lh = p.lines.reduce(function (n, l) { return n + l.h; }, 0) / p.lines.length;
+      p.align = p.lines.every(isCentered) ? 'center' : 'justify';
+      delete p.lines;
+    });
+    for (var k = out.length - 1; k >= 0; k--) if (out[k].page === pnum && !out[k].text) out.splice(k, 1);
+  }
+
+  async function ocrParagraphs(ctx, opts, onStatus, isCancelled) {
+    await loadScript(CDN.tesseract);
+    var pdf = ctx.pdf, out = [];
+    onStatus && onStatus('Downloading the Malayalam reading model (first time only)…', 0);
+    var worker = await root.Tesseract.createWorker(opts.lang || 'mal', 1, {
+      workerPath: CDN.tessWorker, corePath: CDN.tessCore
+    });
+    try {
+      var heights = [];
+      for (var p = 1; p <= pdf.numPages; p++) {
+        if (isCancelled && isCancelled()) throw new Error('Cancelled.');
+        onStatus && onStatus('Reading page ' + p + ' of ' + pdf.numPages + ' with OCR…', (p - 1) / pdf.numPages);
+        var page = await pdf.getPage(p);
+        var vp0 = page.getViewport({ scale: 1 });
+        var scale = Math.min(2.8, 2400 / vp0.width);
+        var vp = page.getViewport({ scale: scale });
+        var canvas = document.createElement('canvas');
+        canvas.width = Math.round(vp.width); canvas.height = Math.round(vp.height);
+        var g = canvas.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, canvas.width, canvas.height);
+        await page.render({ canvasContext: g, viewport: vp }).promise;
+        page.cleanup();
+        var res = await worker.recognize(canvas, {}, { text: true, blocks: true, hocr: false, tsv: false });
+        canvas.width = canvas.height = 0;
+        var W = vp.width, blocks = (res.data && res.data.blocks) || [], lines = [];
+        blocks.forEach(function (bl) { (bl.paragraphs || []).forEach(function (para) { (para.lines || []).forEach(function (l) {
+          if (l.text && l.text.trim()) lines.push({ text: l.text.trim(), x0: l.bbox.x0, x1: l.bbox.x1, y0: l.bbox.y0, y1: l.bbox.y1, h: l.bbox.y1 - l.bbox.y0 });
+        }); }); });
+        ocrParagraphsFromLines(lines, W, p, opts, out);
+      }
+    } finally { await worker.terminate(); }
+    if (pdf.numPages >= 3) {
+      var dropO = dropRepeatedEdges(out, function (p) { return p.page; }, function (p) { return p.text; });
+      out = out.filter(function (p) { return !dropO.has(p); });
+    }
+    var hs = out.map(function (p) { return p.lh; }).sort(function (a, b) { return a - b; });
+    var med = hs.length ? hs[Math.floor(hs.length / 2)] : 1;
+    var paras = out.map(function (p) {
+      var level = p.text.length <= 160 && p.lh > med * 1.3 ? 1 : 0;
+      var size = level ? 14 : 12;
+      return { text: p.text, segs: [{ text: p.text, bold: !!level, italic: false, size: size }], size: size, level: level,
+        align: p.align === 'center' ? 'center' : 'justify', firstIndent: 0, page: p.page };
+    });
+    return tidy(paras, 12);
+  }
+
+  /* ------------------------------------------------------------ paragraphs -> .docx */
+  function esc(s) {
+    return s.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  var NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"';
+  function documentXml(doc) {
+    var body = doc.body || 12;
+    var ps = doc.paras.map(function (p) {
+      var ppr = '<w:spacing w:before="' + (p.level ? 160 : 0) + '" w:after="120"/>';
+      if (p.firstIndent) ppr += '<w:ind w:firstLine="' + Math.min(720, p.firstIndent * 20) + '"/>';
+      var jc = { center: 'center', right: 'right', justify: 'both' }[p.align];
+      if (p.level) ppr = '<w:keepNext/>' + ppr;
+      if (jc) ppr += '<w:jc w:val="' + jc + '"/>';
+      var runs = p.segs.map(function (g) {
+        if (!g.text) return '';
+        var rpr = '';
+        if (g.bold || p.level) rpr += '<w:b/><w:bCs/>';
+        if (g.italic) rpr += '<w:i/><w:iCs/>';
+        var hs = Math.round(Math.max(8, Math.min(40, g.size / body * 12)) * 2);
+        if (hs !== 24) rpr += '<w:sz w:val="' + hs + '"/><w:szCs w:val="' + hs + '"/>';
+        var t = esc(g.text.replace(/\t/g, ' '));
+        return '<w:r>' + (rpr ? '<w:rPr>' + rpr + '</w:rPr>' : '') + '<w:t xml:space="preserve">' + t + '</w:t></w:r>';
+      }).join('');
+      return '<w:p><w:pPr>' + ppr + '</w:pPr>' + runs + '</w:p>';
+    }).join('');
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<w:document ' + NS + '><w:body>' + ps +
+      '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
+  }
+  function makeDocx(doc, font) {
+    var f = esc(font || 'Noto Sans Malayalam');
+    var zip = new root.JSZip();
+    zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>');
+    zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    zip.file('word/_rels/document.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+    zip.file('word/styles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<w:styles ' + NS + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="' + f + '" w:hAnsi="' + f + '" w:eastAsia="' + f + '" w:cs="' + f + '"/><w:sz w:val="24"/><w:szCs w:val="24"/><w:lang w:val="en-GB" w:bidi="ml-IN"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="300" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style></w:styles>');
+    var xml = documentXml(doc);
+    zip.file('word/document.xml', xml);
+    return { zip: zip, xml: xml };
+  }
+
+  root.PdfSource = { open: open, textParagraphs: textParagraphs, ocrParagraphs: ocrParagraphs, makeDocx: makeDocx, cleanOcr: cleanOcr, CDN: CDN };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-  var file = null, zip = null, result = null, baseName = 'Lesson', queue = Promise.resolve();
+  var file = null, isPdf = false, cancelled = false, zip = null, result = null, baseName = 'Lesson', queue = Promise.resolve();
 
+  function setProg(f) { $('prog').classList.toggle('hidden', f == null); if (f != null) $('prog').firstChild.style.width = Math.round(f * 100) + '%'; }
+  $('cancel').onclick = function () { cancelled = true; setStatus('Cancelling after this page…'); };
   function setStatus(msg, err) { var s = $('status'); s.textContent = msg || ''; s.className = 'status' + (err ? ' err' : ''); }
   function pick(f) {
     if (!f) return;
-    if (!/\.docx$/i.test(f.name)) { setStatus('That is not a .docx file. If it is an old .doc file, open it in Word and use Save As → Word Document (.docx).', true); return; }
-    file = f; baseName = f.name.replace(/\.docx$/i, '').replace(/[^\wഀ-ൿ\- ]+/g, '_').trim() || 'Lesson';
+    isPdf = /\.pdf$/i.test(f.name);
+    if (!isPdf && !/\.docx$/i.test(f.name)) { setStatus('Please choose a .docx or .pdf file. If it is an old .doc file, open it in Word and use Save As → Word Document (.docx).', true); return; }
+    $('pdfCard').classList.toggle('hidden', !isPdf);
+    file = f; baseName = f.name.replace(/\.(docx|pdf)$/i, '').replace(/[^\wഀ-ൿ\- ]+/g, '_').trim() || 'Lesson';
     $('fileName').textContent = f.name; $('go').disabled = false; setStatus(''); $('results').classList.add('hidden');
   }
   $('drop').onclick = function () { $('picker').click(); };
@@ -392,19 +1486,42 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   $('go').onclick = function () {
     if (!file) return;
     var o = opts(); $('go').disabled = true; $('results').classList.add('hidden'); setStatus('Reading the document…');
-    file.arrayBuffer().then(function (buf) { return JSZip.loadAsync(buf); }).then(function (z) {
+    cancelled = false; pdfInfo = null;
+    (isPdf ? fromPdf(o) : file.arrayBuffer().then(function (buf) { return JSZip.loadAsync(buf); }).then(function (z) {
       zip = z; var f = z.file('word/document.xml');
       if (!f) throw new Error('This does not look like a Word document.');
       return f.async('string');
-    }).then(function (xml) {
+    })).then(function (xml) {
+      setProg(null); $('cancel').classList.add('hidden');
       setStatus('Finding lessons and Bible references… this can take a few seconds.');
       return new Promise(function (res) { setTimeout(function () {
         res(LessonTool.processDocumentXml({ DOMParser: DOMParser, XMLSerializer: XMLSerializer }, xml, o)); }, 30); });
     }).then(function (r) {
       result = r; render(o); setStatus('');
-    }).catch(function (e) { setStatus('Something went wrong: ' + e.message, true); })
+    }).catch(function (e) { setProg(null); $('cancel').classList.add('hidden'); setStatus(e.message === 'Cancelled.' ? 'Cancelled.' : 'Something went wrong: ' + e.message, true); })
       .then(function () { $('go').disabled = false; });
   };
+
+  var pdfInfo = null;
+  function fromPdf(o) {
+    var method = $('pdfMethod').value, ctx;
+    setProg(0);
+    return PdfSource.open(file, function (msg, f) { setStatus(msg); setProg(f * 0.15); }).then(function (c) {
+      ctx = c;
+      var a = c.analysis, use = method === 'auto' ? a.method : method;
+      pdfInfo = { method: use, reason: method === 'auto' ? a.reason : (use === 'ocr' ? 'OCR was chosen by hand.' : 'The PDF\u2019s own text was chosen by hand.') + ' (' + a.reason + ')', kind: a.kind };
+      if (use !== 'ocr') { setStatus('Converting the text…'); return PdfSource.textParagraphs(ctx); }
+      $('cancel').classList.remove('hidden');
+      return PdfSource.ocrParagraphs(ctx, { lang: $('ocrLang').value, keyword: o.keyword },
+        function (msg, f) { setStatus(msg); setProg(0.15 + f * 0.85); }, function () { return cancelled; });
+    }).then(function (doc) {
+      try { ctx.pdf.destroy(); } catch (_) {}
+      if (!doc.paras.length) throw new Error('No text could be read from this PDF.');
+      var made = PdfSource.makeDocx(doc, $('wordFont').value);
+      zip = made.zip; setProg(1);
+      return made.xml;
+    });
+  }
 
   function render(o) {
     var L = result.lessons, list = $('list'); list.innerHTML = '';
@@ -415,6 +1532,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       $('sumText').textContent = (o.split ? L.length + ' lessons · ' : '') + refsTxt;
     }
     $('dlAll').classList.toggle('hidden', !L.length);
+    var n = $('pdfNote');
+    if (pdfInfo) {
+      n.innerHTML = '<b>Made from a PDF' + (pdfInfo.method === 'ocr' ? ' with OCR' : '') + '. Please proofread before printing.</b><span></span>';
+      n.querySelector('span').textContent = pdfInfo.reason + (pdfInfo.method === 'ocr' ? ' OCR can misread a few letters per page, mostly vowel signs.' : '');
+      n.classList.remove('hidden');
+    } else n.classList.add('hidden');
     L.forEach(function (les, i) {
       var li = document.createElement('li');
       li.innerHTML = '<div class="row"><div class="num">' + (i + 1) + '</div><div class="title"><div></div>' +
